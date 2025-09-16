@@ -53,107 +53,97 @@ export const UploadZone = ({ onFileSelect }: UploadZoneProps) => {
   };
 
   return (
-    <div className={`transition-all duration-300 ${
-      isDragOver && isAuthenticated ? 'border-white bg-white/10' : ''
-    }`}>
-      <div className="p-6 sm:p-8 md:p-12">
-        {!isAuthenticated && !showLoginForm ? (
-          <div className="text-center space-y-4 sm:space-y-6">
-            <div className="flex flex-col items-center space-y-3 sm:space-y-4">
-              <div className="p-3 sm:p-4 bg-muted rounded-full">
-                <User className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-muted-foreground" />
-              </div>
-              <div className="space-y-2 px-4">
-                <h3 className="text-lg sm:text-xl font-semibold bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent">
-                  Login to Upload File
-                </h3>
-                <p className="text-sm sm:text-base text-white/90 max-w-md">
-                  Please login with your mobile number to upload your PDF report
+    <div className="text-center space-y-6 p-4">
+      {!isAuthenticated && !showLoginForm ? (
+        <div className="space-y-4">
+          <div className="flex flex-col items-center space-y-4">
+            <User className="w-12 h-12 text-white drop-shadow-lg" />
+            <div className="space-y-2">
+              <h3 className="text-xl font-semibold text-white drop-shadow-lg">
+                Login to Upload File
+              </h3>
+              <p className="text-white/90 drop-shadow-md max-w-md">
+                Please login with your mobile number to upload your PDF report
+              </p>
+            </div>
+          </div>
+          
+          <Button 
+            variant="default" 
+            size="lg" 
+            className="bg-white/20 hover:bg-white/30 backdrop-blur-sm border-white/30 text-white"
+            onClick={() => setShowLoginForm(true)}
+          >
+            Login
+          </Button>
+        </div>
+      ) : !isAuthenticated && showLoginForm ? (
+        <div className="space-y-4 bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+          <div className="text-center">
+            <h3 className="text-xl font-semibold text-white drop-shadow-lg mb-2">
+              Login with Mobile Number
+            </h3>
+          </div>
+          <PhoneAuth onAuthSuccess={handleAuthSuccess} />
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full bg-white/10 border-white/30 text-white hover:bg-white/20"
+            onClick={() => setShowLoginForm(false)}
+          >
+            Back
+          </Button>
+        </div>
+      ) : (
+        <div
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          className="space-y-6"
+        >
+          {selectedFile ? (
+            <div className="space-y-4">
+              <CheckCircle className="w-16 h-16 text-green-400 mx-auto drop-shadow-lg" />
+              <div>
+                <p className="text-lg font-medium text-white drop-shadow-lg break-all">{selectedFile.name}</p>
+                <p className="text-white/70 drop-shadow-md">
+                  {(selectedFile.size / 1024 / 1024).toFixed(1)} MB
                 </p>
               </div>
             </div>
-            
-            <Button 
-              variant="default" 
-              size="lg" 
-              className="w-full max-w-sm mx-auto"
-              onClick={() => setShowLoginForm(true)}
-            >
-              Login
-            </Button>
-          </div>
-        ) : !isAuthenticated && showLoginForm ? (
-          <div className="space-y-4">
-            <div className="text-center px-4">
-              <h3 className="text-lg sm:text-xl font-semibold bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent mb-2">
-                Login with Mobile Number
-              </h3>
-            </div>
-            <PhoneAuth onAuthSuccess={handleAuthSuccess} />
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="w-full"
-              onClick={() => setShowLoginForm(false)}
-            >
-              Back
-            </Button>
-          </div>
-        ) : (
-          <div
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            className="text-center space-y-6"
-          >
-            {selectedFile ? (
-              <div className="space-y-3 sm:space-y-4">
-                <CheckCircle className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 text-success mx-auto" />
-                <div className="px-4">
-                  <p className="text-base sm:text-lg font-medium bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent break-all">{selectedFile.name}</p>
-                  <p className="text-sm text-white/70">
-                    {(selectedFile.size / 1024 / 1024).toFixed(1)} MB
-                  </p>
-                </div>
+          ) : (
+            <div className="flex flex-col items-center space-y-4">
+              <Upload className="w-16 h-16 text-white drop-shadow-lg" />
+              <div className="space-y-2">
+                <h3 className="text-xl font-semibold text-white drop-shadow-lg">
+                  Upload Your Report
+                </h3>
+                <p className="text-white/90 drop-shadow-md max-w-md">
+                  Drop your PDF report here, or click to browse files
+                </p>
               </div>
-            ) : (
-              <>
-                <div className="flex flex-col items-center space-y-3 sm:space-y-4">
-                  <div className="p-3 sm:p-4 bg-primary rounded-full">
-                    <Upload className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-white" />
-                  </div>
-                  <div className="space-y-2 px-4">
-                    <h3 className="text-lg sm:text-xl font-semibold bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent">
-                      Upload Your Report
-                    </h3>
-                    <p className="text-sm sm:text-base text-white/90 max-w-md">
-                      Drop your PDF report here, or click to browse files
-                    </p>
-                  </div>
-                </div>
+            </div>
+          )}
 
-              </>
-            )}
-
-            <input
-              type="file"
-              accept=".pdf"
-              onChange={handleFileChange}
-              className="hidden"
-              id="file-upload"
-            />
-            
-            <Button 
-              variant="default" 
-              size="lg" 
-              className="w-full max-w-sm mx-auto"
-              onClick={() => document.getElementById('file-upload')?.click()}
-            >
-              {selectedFile ? 'Choose Different File' : 'Browse Files'}
-            </Button>
-          </div>
-        )}
-      </div>
+          <input
+            type="file"
+            accept=".pdf"
+            onChange={handleFileChange}
+            className="hidden"
+            id="file-upload"
+          />
+          
+          <Button 
+            variant="default" 
+            size="lg" 
+            className="bg-white/20 hover:bg-white/30 backdrop-blur-sm border-white/30 text-white flex items-center gap-2"
+            onClick={() => document.getElementById('file-upload')?.click()}
+          >
+            <FileText className="w-5 h-5" />
+            {selectedFile ? 'Choose Different File' : 'Browse Files'}
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
