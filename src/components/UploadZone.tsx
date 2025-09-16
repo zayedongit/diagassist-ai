@@ -57,12 +57,12 @@ export const UploadZone = ({ onFileSelect }: UploadZoneProps) => {
       {!isAuthenticated && !showLoginForm ? (
         <div className="space-y-4">
           <div className="flex flex-col items-center space-y-4">
-            <User className="w-12 h-12 text-white drop-shadow-lg" />
-            <div className="space-y-2">
-              <h3 className="text-xl font-semibold text-white drop-shadow-lg">
+            <User className="w-12 h-12 drop-shadow-lg" style={{color: 'hsl(220, 74%, 42%)'}} />
+            <div className="space-y-2 text-center">
+              <h3 className="text-xl font-semibold drop-shadow-lg" style={{color: 'hsl(220, 74%, 42%)'}}>
                 Login to Upload File
               </h3>
-              <p className="text-white/90 drop-shadow-md max-w-md">
+              <p className="drop-shadow-md max-w-md mx-auto" style={{color: 'hsl(220, 74%, 42%, 0.9)'}}>
                 Please login with your mobile number to upload your PDF report
               </p>
             </div>
@@ -71,7 +71,8 @@ export const UploadZone = ({ onFileSelect }: UploadZoneProps) => {
           <Button 
             variant="default" 
             size="lg" 
-            className="bg-white/20 hover:bg-white/30 backdrop-blur-sm border-white/30 text-white"
+            className="bg-white/20 hover:bg-white/30 backdrop-blur-sm border-white/30"
+            style={{color: 'hsl(220, 74%, 42%)'}}
             onClick={() => setShowLoginForm(true)}
           >
             Login
@@ -80,7 +81,7 @@ export const UploadZone = ({ onFileSelect }: UploadZoneProps) => {
       ) : !isAuthenticated && showLoginForm ? (
         <div className="space-y-4 bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
           <div className="text-center">
-            <h3 className="text-xl font-semibold text-white drop-shadow-lg mb-2">
+            <h3 className="text-xl font-semibold drop-shadow-lg mb-2" style={{color: 'hsl(220, 74%, 42%)'}}>
               Login with Mobile Number
             </h3>
           </div>
@@ -88,7 +89,8 @@ export const UploadZone = ({ onFileSelect }: UploadZoneProps) => {
           <Button 
             variant="outline" 
             size="sm" 
-            className="w-full bg-white/10 border-white/30 text-white hover:bg-white/20"
+            className="w-full bg-white/10 border-white/30 hover:bg-white/20"
+            style={{color: 'hsl(220, 74%, 42%)'}}
             onClick={() => setShowLoginForm(false)}
           >
             Back
@@ -102,46 +104,49 @@ export const UploadZone = ({ onFileSelect }: UploadZoneProps) => {
           className="space-y-6"
         >
           {selectedFile ? (
-            <div className="space-y-4">
+            <div className="space-y-4 text-center">
               <CheckCircle className="w-16 h-16 text-green-400 mx-auto drop-shadow-lg" />
-              <div>
-                <p className="text-lg font-medium text-white drop-shadow-lg break-all">{selectedFile.name}</p>
-                <p className="text-white/70 drop-shadow-md">
+              <div className="text-center">
+                <p className="text-lg font-medium drop-shadow-lg break-all" style={{color: 'hsl(220, 74%, 42%)'}}>{selectedFile.name}</p>
+                <p className="drop-shadow-md" style={{color: 'hsl(220, 74%, 42%, 0.7)'}}>
                   {(selectedFile.size / 1024 / 1024).toFixed(1)} MB
                 </p>
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center space-y-4">
-              <Upload className="w-16 h-16 text-white drop-shadow-lg" />
-              <div className="space-y-2">
-                <h3 className="text-xl font-semibold text-white drop-shadow-lg">
+            <div className="flex flex-col items-center space-y-4 text-center">
+              <Upload className="w-16 h-16 drop-shadow-lg" style={{color: 'hsl(220, 74%, 42%)'}} />
+              <div className="space-y-2 text-center">
+                <h3 className="text-xl font-semibold drop-shadow-lg" style={{color: 'hsl(220, 74%, 42%)'}}>
                   Upload Your Report
                 </h3>
-                <p className="text-white/90 drop-shadow-md max-w-md">
+                <p className="drop-shadow-md max-w-md mx-auto" style={{color: 'hsl(220, 74%, 42%, 0.9)'}}>
                   Drop your PDF report here, or click to browse files
                 </p>
               </div>
             </div>
           )}
 
-          <input
-            type="file"
-            accept=".pdf"
-            onChange={handleFileChange}
-            className="hidden"
-            id="file-upload"
-          />
-          
-          <Button 
-            variant="default" 
-            size="lg" 
-            className="bg-white/20 hover:bg-white/30 backdrop-blur-sm border-white/30 text-white flex items-center gap-2"
-            onClick={() => document.getElementById('file-upload')?.click()}
-          >
-            <FileText className="w-5 h-5" />
-            {selectedFile ? 'Choose Different File' : 'Browse Files'}
-          </Button>
+          <div className="flex justify-center">
+            <input
+              type="file"
+              accept=".pdf"
+              onChange={handleFileChange}
+              className="hidden"
+              id="file-upload"
+            />
+            
+            <Button 
+              variant="default" 
+              size="lg" 
+              className="bg-white/20 hover:bg-white/30 backdrop-blur-sm border-white/30 flex items-center gap-2"
+              style={{color: 'hsl(220, 74%, 42%)'}}
+              onClick={() => document.getElementById('file-upload')?.click()}
+            >
+              <FileText className="w-5 h-5" />
+              {selectedFile ? 'Choose Different File' : 'Browse Files'}
+            </Button>
+          </div>
         </div>
       )}
     </div>
