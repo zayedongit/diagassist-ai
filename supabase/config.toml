@@ -1,0 +1,43 @@
+project_id = "opvssqukuyemcxgoflzz"
+
+[functions.analyze-medical-report]
+verify_jwt = false
+
+[functions.process-pdf-report]
+verify_jwt = true
+
+[functions.process-single-report]
+verify_jwt = true
+
+[functions.admin-create-doctor]
+verify_jwt = true
+
+[functions.admin-delete-users]
+verify_jwt = true
+
+[functions.check-user-by-phone]
+verify_jwt = false
+
+[functions.send-otp]
+verify_jwt = false
+
+[functions.verify-otp]
+verify_jwt = false
+
+[functions.get-consultation-data]
+verify_jwt = true
+
+[functions.get-analysis-result]
+verify_jwt = true
+
+[functions.send-sms-notification]
+verify_jwt = true
+
+[functions.create-daily-room]
+verify_jwt = true
+
+[functions.voiceflow-chat]
+verify_jwt = true
+
+[functions.google-drive-ingest]
+verify_jwt = false
