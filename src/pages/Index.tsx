@@ -875,7 +875,7 @@ RAW DATA: ${baseContext}`;
             <div className="relative min-h-screen bg-fixed bg-cover bg-center bg-no-repeat" style={{backgroundImage: `url(${heroBackground})`}}>
             </div>
 
-            {/* Features Section - Overlayed on hero */}
+            {/* Features Section - Overlayed on hero with transparent background */}
             <div className="relative -mt-32 pb-32 z-20">
               <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12">
@@ -1105,10 +1105,10 @@ RAW DATA: ${baseContext}`;
         )}
       </main>
 
-        {/* Disclaimer */}
+        {/* Disclaimer - Transparent background */}
         <div className="mt-8 sm:mt-12">
-          <div className="p-4 sm:p-6 bg-gradient-to-r from-orange-400 to-purple-600">
-            <div className="p-3 sm:p-4">
+          <div className="p-4 sm:p-6">
+            <div className="p-3 sm:p-4 bg-gradient-to-r from-orange-400 to-purple-600 rounded-lg">
               <h4 className="font-medium mb-2 text-white text-sm sm:text-base">Important Disclaimer</h4>
               <p className="text-xs sm:text-sm text-white/90 leading-relaxed">
                 This report is generated using AI analysis and is intended for informational purposes only. It should not replace professional medical advice, diagnosis, or treatment. Always consult with qualified healthcare professionals for medical concerns. The AI analysis is based on available data and may not account for all individual factors. In case of medical emergencies, seek immediate professional medical attention.
@@ -1117,9 +1117,9 @@ RAW DATA: ${baseContext}`;
           </div>
         </div>
 
-        {/* Footer */}
-        <footer className="mt-12 sm:mt-20 bg-gradient-to-r from-orange-400 to-purple-600">
-          <div className="px-4 py-4 sm:py-6">
+        {/* Footer - Transparent background */}
+        <footer className="mt-12 sm:mt-20">
+          <div className="px-4 py-4 sm:py-6 bg-gradient-to-r from-orange-400 to-purple-600 rounded-lg mx-4">
             <div className="text-center text-xs sm:text-sm space-y-1 sm:space-y-2">
               <p className="font-medium text-white drop-shadow-lg">Shëndet Medical Analytics - Advanced report analysis for better understanding</p>
               <p className="flex items-center justify-center space-x-1 text-xs text-white/70 drop-shadow-md">
