@@ -898,54 +898,54 @@ RAW DATA: ${baseContext}`;
             {/* Features Section - Overlayed on hero */}
             <div className="relative -mt-32 pb-32 z-20">
               <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                  <Card className="shadow-card border-0 bg-white/80 backdrop-blur-sm">
-                    <CardContent className="p-4 sm:p-6 text-center space-y-3 sm:space-y-4">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                        <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12">
+                  <div className="text-center space-y-3 sm:space-y-4 animate-fade-in">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-orange-400 to-purple-600 rounded-full flex items-center justify-center">
+                        <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                       </div>
-                      <h3 className="text-sm sm:text-base font-semibold text-foreground">Data Analysis</h3>
-                      <p className="text-xs sm:text-sm text-muted-foreground">
-                        Advanced analysis of your document parameters
-                      </p>
-                    </CardContent>
-                  </Card>
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">Data Analysis</h3>
+                    <p className="text-white/90 text-sm sm:text-base drop-shadow-md">
+                      Advanced analysis of your document parameters
+                    </p>
+                  </div>
 
-                  <Card className="shadow-card border-0 bg-white/80 backdrop-blur-sm">
-                    <CardContent className="p-4 sm:p-6 text-center space-y-3 sm:space-y-4">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-success/10 rounded-full flex items-center justify-center mx-auto">
-                        <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-success" />
+                  <div className="text-center space-y-3 sm:space-y-4 animate-fade-in">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-orange-400 to-purple-600 rounded-full flex items-center justify-center">
+                        <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                       </div>
-                      <h3 className="text-sm sm:text-base font-semibold text-foreground">Simple Language</h3>
-                      <p className="text-xs sm:text-sm text-muted-foreground">
-                        Complex terms explained in easy words
-                      </p>
-                    </CardContent>
-                  </Card>
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">Simple Language</h3>
+                    <p className="text-white/90 text-sm sm:text-base drop-shadow-md">
+                      Complex terms explained in easy words
+                    </p>
+                  </div>
 
-                  <Card className="shadow-card border-0 bg-white/80 backdrop-blur-sm">
-                    <CardContent className="p-4 sm:p-6 text-center space-y-3 sm:space-y-4">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-warning/10 rounded-full flex items-center justify-center mx-auto">
-                        <Stethoscope className="w-5 h-5 sm:w-6 sm:h-6 text-warning" />
+                  <div className="text-center space-y-3 sm:space-y-4 animate-fade-in">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-orange-400 to-purple-600 rounded-full flex items-center justify-center">
+                        <Stethoscope className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                       </div>
-                      <h3 className="text-sm sm:text-base font-semibold text-foreground">Clinical Assessment</h3>
-                      <p className="text-xs sm:text-sm text-muted-foreground">
-                        Clinical assessment after your medical data analysis gives a more holistic report
-                      </p>
-                    </CardContent>
-                  </Card>
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">Clinical Assessment</h3>
+                    <p className="text-white/90 text-sm sm:text-base drop-shadow-md">
+                      Clinical assessment after your medical data analysis gives a more holistic report
+                    </p>
+                  </div>
 
-                  <Card className="shadow-card border-0 bg-white/80 backdrop-blur-sm">
-                    <CardContent className="p-4 sm:p-6 text-center space-y-3 sm:space-y-4">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-app-blue/10 rounded-full flex items-center justify-center mx-auto">
-                        <Lock className="w-5 h-5 sm:w-6 sm:h-6 text-app-blue" />
+                  <div className="text-center space-y-3 sm:space-y-4 animate-fade-in">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-orange-400 to-purple-600 rounded-full flex items-center justify-center">
+                        <Lock className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                       </div>
-                      <h3 className="text-sm sm:text-base font-semibold text-foreground">Private & Secure</h3>
-                      <p className="text-xs sm:text-sm text-muted-foreground">
-                        Your data is processed securely and privately
-                      </p>
-                    </CardContent>
-                  </Card>
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">Private & Secure</h3>
+                    <p className="text-white/90 text-sm sm:text-base drop-shadow-md">
+                      Your data is processed securely and privately
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -964,8 +964,26 @@ RAW DATA: ${baseContext}`;
                     Upload your medical report now and discover insights that could change your health journey.
                   </p>
                 </div>
-                <div className="backdrop-blur-sm bg-white/10 rounded-2xl p-6 border border-white/20">
-                  <UploadZone onFileSelect={handleFileSelect} />
+                <div className="backdrop-blur-sm rounded-2xl p-6">
+                  <div className="text-center space-y-4">
+                    <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center">
+                      <div className="w-12 h-12 bg-gradient-to-r from-orange-400 to-purple-600 rounded-full flex items-center justify-center">
+                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                      </div>
+                    </div>
+                    <h3 className="text-2xl font-bold bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">
+                      Upload Your Report
+                    </h3>
+                    <p className="text-white/90 drop-shadow-md">
+                      Drop your PDF report here, or click to browse files
+                    </p>
+                    <p className="text-sm text-white/70 drop-shadow-md">
+                      📄 PDF files only • Max 10MB
+                    </p>
+                    <UploadZone onFileSelect={handleFileSelect} />
+                  </div>
                 </div>
               </div>
             </div>
