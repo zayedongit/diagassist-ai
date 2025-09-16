@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { AlertCircle, Activity, Heart, FileText, Download, RefreshCw, Brain, Eye, EyeOff, Lock, BarChart3, Stethoscope, LogOut, CloudDownload } from "lucide-react";
+import { AlertCircle, Activity, Heart, FileText, Download, RefreshCw, Brain, Eye, EyeOff, Lock, BarChart3, Stethoscope, LogOut, CloudDownload, Clock, Shield, FileSearch, TrendingUp } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
 import jsPDF from 'jspdf';
@@ -24,7 +24,6 @@ import { ClinicalAssessmentHighlights } from "@/components/ClinicalAssessmentHig
 import { UnderstandingYourNumbers } from "@/components/UnderstandingYourNumbers";
 import { useAuth } from "@/hooks/useAuth";
 import { EnhancedAnalysisResult, extractAbnormalPanels } from "@/types/medicalAnalysis";
-
 
 const Index = () => {
   const navigate = useNavigate();
@@ -78,45 +77,7 @@ const Index = () => {
   
   const isAdmin = userProfile?.phone_number?.replace('+', '') === '917993448425';
 
-  // Handle single report processing
-  const handleDriveSync = async () => {
-    if (!isAdmin) {
-      toast.error('Admin access only');
-      return;
-    }
-
-    setIsDriveSync(true);
-    try {
-      // Process a sample report URL (replace with actual report URL when available)
-      const sampleReportUrl = 'https://example.com/sample-report.pdf';
-      
-      const { data, error } = await supabase.functions.invoke('process-single-report', {
-        body: {
-          reportUrl: sampleReportUrl,
-          filename: 'sample-medical-report.pdf'
-        }
-      });
-
-      if (error) throw error;
-
-      toast.success('Report processed successfully!');
-      
-      // Update the analysis data with the result
-      if (data.result) {
-        setAnalysisData(data.result);
-        setAnalysisId(data.analysisId);
-        setShowResults(true);
-      }
-      
-    } catch (error) {
-      console.error('Report processing error:', error);
-      toast.error(`Report processing failed: ${error.message}`);
-    } finally {
-      setIsDriveSync(false);
-    }
-  };
-
-  // Create enhanced analysis context for AI agent using medicalPanels data
+  // Utility function: Create enhanced analysis context for AI agent using medicalPanels data
   const createEnhancedAnalysisContext = (data: any) => {
     const baseContext = JSON.stringify(data);
     
@@ -164,7 +125,7 @@ const Index = () => {
               criticalFindings.push(finding);
             }
           }
-        }
+        }      
       }
     } else if (data.detailedAnalysis && Array.isArray(data.detailedAnalysis)) {
       // Fallback to legacy format
@@ -227,9 +188,45 @@ RAW DATA: ${baseContext}`;
     return enhancedContext;
   };
 
+  // Handle drive sync
+  const handleDriveSync = async () => {
+    if (!isAdmin) {
+      toast.error('Admin access only');
+      return;
+    }
+
+    setIsDriveSync(true);
+    try {
+      // Process a sample report URL (replace with actual report URL when available)
+      const sampleReportUrl = 'https://example.com/sample-report.pdf';
+      
+      const { data, error } = await supabase.functions.invoke('process-single-report', {
+        body: {
+          reportUrl: sampleReportUrl,
+          filename: 'sample-medical-report.pdf'
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success('Report processed successfully!');
+      
+      // Update the analysis data with the result
+      if (data.result) {
+        setAnalysisData(data.result);
+        setAnalysisId(data.analysisId);
+        setShowResults(true);
+      }
+      
+    } catch (error) {
+      console.error('Report processing error:', error);
+      toast.error(`Report processing failed: ${error.message}`);
+    } finally {
+      setIsDriveSync(false);
+    }
+  };
 
   // Handle auth success from dialog
-  // Handle comprehensive report download
   const handleDownloadComprehensiveReport = async () => {
     if (!analysisData) {
       toast.error('No analysis data available for comprehensive report');
@@ -313,7 +310,7 @@ RAW DATA: ${baseContext}`;
       pollForResults(storedAnalysisId, storedUserId);
     }
   }, []);
-  
+
   // Poll for analysis results with progressive intervals for better UX
   const pollForResults = useCallback(async (id: string, userId: string) => {
     const maxPollingTime = 300000; // 5 minutes total timeout (increased for complex reports)
@@ -423,7 +420,8 @@ RAW DATA: ${baseContext}`;
           // Use shorter interval for connection errors
           setTimeout(poll, 3000);
         } else {
-          setError('Connection error while checking analysis status. Please try again.');
+          console.error('❌ Max polling attempts reached');
+          setError('Analysis is taking longer than expected. Please try again in a few minutes.');
           setIsAnalyzing(false);
           setProcessingStatus('failed');
           localStorage.removeItem('analysisId');
@@ -436,704 +434,299 @@ RAW DATA: ${baseContext}`;
     poll();
   }, []);
 
-  // Simplified processing - client-side only
-
-  const processClientSide = async (file: File) => {
-    try {
-      console.log('🔄 Starting PDF analysis process...');
-      console.log('📄 File details:', { name: file.name, size: file.size, type: file.type });
-      setExtractionStep("Converting PDF to images...");
-      
-      // Import PDF conversion utility
-      const { convertPdfToImages } = await import('@/utils/pdfToImages');
-      
-      // Convert PDF to images on client side
-      console.log('🖼️ Starting PDF to image conversion...');
-      const conversionResult = await convertPdfToImages(file);
-      
-      if (!conversionResult.success) {
-        console.error('❌ PDF conversion failed:', conversionResult.error);
-        throw new Error(`PDF conversion failed: ${conversionResult.error}`);
-      }
-      
-      console.log(`✅ Client-side conversion successful: ${conversionResult.images?.length} images`);
-      console.log('📊 Image sizes:', conversionResult.images?.map(img => Math.round(img.length / 1024) + 'KB'));
-      setExtractionStep(`Converted to ${conversionResult.images?.length} images, sending for analysis...`);
-      
-      // Send images and original PDF to server for analysis
-      const formData = new FormData();
-      
-      // Use existing userId or create new one
-      let userId = currentUserId;
-      if (!userId) {
-        userId = 'anonymous-' + Date.now();
-        setCurrentUserId(userId);
-      }
-      
-      console.log('👤 Using userId:', userId);
-      formData.append('userId', userId);
-      formData.append('images', JSON.stringify(conversionResult.images));
-      formData.append('file', file); // Changed from 'pdfFile' to 'file' to match edge function
-
-      console.log('🚀 Sending request to edge function...');
-      const response = await fetch(`https://opvssqukuyemcxgoflzz.supabase.co/functions/v1/process-pdf-report`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9wdnNzcXVrdXllbWN4Z29mbHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2NDcxNDQsImV4cCI6MjA3MjIyMzE0NH0.Cwj3Xynu8Yg1RkuoN7YjMgRZVDPONRKYD5JIStLn6KU`,
-        },
-        body: formData,
-      });
-
-      console.log('📡 Response status:', response.status, response.statusText);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ Edge function error response:', errorText);
-        
-        let errorData;
-        try {
-          errorData = JSON.parse(errorText);
-        } catch {
-          errorData = { error: errorText || 'Failed to process images' };
-        }
-        
-        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const result = await response.json();
-      console.log('📋 Edge function response:', result);
-      
-      if (result.error) {
-        console.error('❌ Edge function returned error:', result.error);
-        throw new Error(result.error);
-      }
-
-      if (!result.success) {
-        console.error('❌ Edge function returned failure:', result);
-        throw new Error(result.error || 'Failed to process images');
-      }
-
-      console.log('✅ Client-side processing successful, analysis ID:', result.analysisId);
-      return {
-        analysisId: result.analysisId,
-        status: result.status,
-        message: result.message || 'Processing started successfully'
-      };
-    } catch (error) {
-      console.error('Client-side processing failed:', error);
-      throw new Error(`PDF processing failed. ${error instanceof Error ? error.message : 'Please ensure your PDF is readable and try again.'}`);
-    }
-  };
-
+  // Handle PDF analysis
   const handleFileSelect = async (file: File) => {
+    // Generate a UUID for this analysis session
+    const generateUUID = () => {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0;
+        const v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    };
+    
+    const userId = generateUUID();
+    setCurrentUserId(userId);
+    
+    console.log('🔄 Starting analysis for user:', userId);
     setSelectedFile(file);
-    setError(null);
     setIsAnalyzing(true);
-    setExtractedText("");
-    setExtractionStep("");
-    setShowResults(false);
+    setError(null);
     setAnalysisData(null);
-    setProcessingStatus('starting');
+    setShowResults(false);
+    setExtractedText("Uploading and extracting text from PDF...");
+    setProcessingStatus('processing');
+    
+    // Store in localStorage for recovery
+    const tempAnalysisId = generateUUID();
+    setAnalysisId(tempAnalysisId);
+    localStorage.setItem('analysisId', tempAnalysisId);
+    localStorage.setItem('currentUserId', userId);
+    localStorage.setItem('processingStatus', 'processing');
 
     try {
-      // Process PDF on client side only
-      const response = await processClientSide(file);
-      
-      if (response.analysisId) {
-        // Background processing started successfully
-        setAnalysisId(response.analysisId);
-        
-        // Store analysis state in localStorage for persistence
-        localStorage.setItem('analysisId', response.analysisId);
-        localStorage.setItem('currentUserId', currentUserId);
-        localStorage.setItem('processingStatus', 'processing');
-        
-        setExtractedText(`Processing started for ${file.name}. Analysis typically completes in 30-60 seconds.`);
-        setProcessingStatus('processing');
-        setExtractionStep("Analysis in progress... Results will appear automatically.");
-        
-        // Start polling for results
-        pollForResults(response.analysisId, currentUserId);
-      } else {
-        // Fallback for old response format (shouldn't happen with new implementation)
-        setExtractedText(`Analysis completed successfully for ${file.name}`);
-        setAnalysisData(response);
-        setShowResults(true);
-        setIsAnalyzing(false);
-      }
-      
-    } catch (err) {
-      console.error('Analysis error:', err);
-      setError(err instanceof Error ? err.message : 'Analysis failed. Please try again.');
-      setIsAnalyzing(false);
-      setExtractionStep("");
-    }
-  };
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('pdf', file);
+      formData.append('userId', userId);
 
-  const handleDownloadReport = async () => {
-    if (!analysisData) {
-      console.error('No analysis data available for download');
-      toast.error('No analysis data available for download');
-      return;
-    }
-    
-    console.log('🔄 Starting PDF download...');
-    console.log('📊 Analysis data structure:', Object.keys(analysisData));
-    
-    try {
-      // Import jsPDF properly
-      const { jsPDF } = await import('jspdf');
-      
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-        compress: true
+      console.log('📤 Uploading file:', file.name, 'Size:', file.size);
+
+      // Call the process PDF report function
+      const { data, error } = await supabase.functions.invoke('process-pdf-report', {
+        body: formData
       });
 
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      let yPosition = 25;
-
-      console.log('📄 PDF initialized, building content...');
-
-      // Header with purple background
-      pdf.setFillColor(147, 51, 234);
-      pdf.rect(0, 0, pageWidth, 25, 'F');
-      
-      // Title
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(20);
-      pdf.setFont(undefined, 'bold');
-      pdf.text('Shendet Medical analytics - Analysis Report', pageWidth / 2, 15, { align: 'center' });
-      
-      yPosition = 35;
-
-      // Patient Information
-      pdf.setTextColor(0, 0, 0);
-      pdf.setFontSize(12);
-      pdf.setFont(undefined, 'bold');
-      pdf.text('Patient Information', 20, yPosition);
-      yPosition += 8;
-      
-      pdf.setFontSize(10);
-      pdf.setFont(undefined, 'normal');
-      // Extract patient name from analysis data if available
-      const patientNameFromData = analysisData?.patientName || analysisData?.summary?.match(/Patient:?\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/i)?.[1];
-      pdf.text(`Patient: ${patientNameFromData || 'Anonymous Patient'}`, 20, yPosition);
-      pdf.text(`Date: ${new Date().toLocaleDateString()}`, pageWidth - 60, yPosition);
-      yPosition += 15;
-
-      // Helper function to check if we need a new page
-      const checkPageBreak = (requiredSpace: number = 20) => {
-        if (yPosition > pageHeight - requiredSpace) {
-          pdf.addPage();
-          yPosition = 20;
-        }
-      };
-
-      // Overall Status
-      checkPageBreak(30);
-      pdf.setTextColor(147, 51, 234);
-      pdf.setFontSize(12);
-      pdf.setFont(undefined, 'bold');
-      pdf.text('Overall Health Status', 20, yPosition);
-      yPosition += 8;
-      
-      pdf.setTextColor(0, 0, 0);
-      pdf.setFontSize(10);
-      pdf.setFont(undefined, 'normal');
-      
-      if (analysisData.summary) {
-        const summaryLines = pdf.splitTextToSize(analysisData.summary, pageWidth - 40);
-        checkPageBreak(summaryLines.length * 5 + 10);
-        pdf.text(summaryLines, 20, yPosition);
-        yPosition += summaryLines.length * 5 + 10;
+      if (error) {
+        console.error('❌ Processing error:', error);
+        throw error;
       }
 
-      // Key Findings
-      if (analysisData.keyFindings && analysisData.keyFindings.length > 0) {
-        checkPageBreak(30);
-        pdf.setTextColor(147, 51, 234);
-        pdf.setFontSize(12);
-        pdf.setFont(undefined, 'bold');
-        pdf.text('Key Findings', 20, yPosition);
-        yPosition += 8;
-        
-        pdf.setTextColor(0, 0, 0);
-        pdf.setFontSize(10);
-        pdf.setFont(undefined, 'normal');
-        
-        analysisData.keyFindings.forEach((finding: string) => {
-          const findingLines = pdf.splitTextToSize(`• ${finding}`, pageWidth - 40);
-          checkPageBreak(findingLines.length * 5 + 5);
-          pdf.text(findingLines, 20, yPosition);
-          yPosition += findingLines.length * 5 + 2;
-        });
-        yPosition += 10;
+      console.log('✅ Upload successful, got analysis ID:', data.analysisId);
+      
+      // Update analysis ID and start polling
+      setAnalysisId(data.analysisId);
+      localStorage.setItem('analysisId', data.analysisId);
+      setExtractedText("PDF uploaded successfully. Starting AI analysis...");
+      
+      // Start polling for results
+      pollForResults(data.analysisId, userId);
+      
+    } catch (error: any) {
+      console.error('❌ Analysis failed:', error);
+      
+      // Clear localStorage on error
+      localStorage.removeItem('analysisId');
+      localStorage.removeItem('currentUserId');
+      localStorage.removeItem('processingStatus');
+      
+      setError(error.message || 'Failed to analyze PDF. Please try again.');
+      setIsAnalyzing(false);
+      setProcessingStatus('failed');
+      
+      // More specific error messages based on error type
+      if (error.message?.includes('timeout')) {
+        toast.error('Request timed out. The PDF might be too large or complex. Please try with a smaller file.');
+      } else if (error.message?.includes('file size')) {
+        toast.error('File too large. Please use a PDF smaller than 10MB.');
+      } else if (error.message?.includes('not a valid PDF')) {
+        toast.error('Invalid PDF file. Please upload a valid PDF document.');
+      } else {
+        toast.error(`Analysis failed: ${error.message}`);
       }
-
-      // Lab Results
-      if (analysisData.labs && analysisData.labs.length > 0) {
-        checkPageBreak(30);
-        pdf.setTextColor(147, 51, 234);
-        pdf.setFontSize(12);
-        pdf.setFont(undefined, 'bold');
-        pdf.text('Laboratory Results', 20, yPosition);
-        yPosition += 8;
-        
-        pdf.setTextColor(0, 0, 0);
-        pdf.setFontSize(9);
-        pdf.setFont(undefined, 'normal');
-        
-        analysisData.labs.forEach((lab: any) => {
-          checkPageBreak(15);
-          const labText = `${lab.name}: ${lab.value}${lab.unit ? ' ' + lab.unit : ''} (${lab.status})`;
-          pdf.text(labText, 20, yPosition);
-          yPosition += 5;
-        });
-        yPosition += 10;
-      }
-
-      // Diet Recommendations
-      if (analysisData.diet) {
-        checkPageBreak(30);
-        pdf.setTextColor(147, 51, 234);
-        pdf.setFontSize(12);
-        pdf.setFont(undefined, 'bold');
-        pdf.text('Diet Recommendations', 20, yPosition);
-        yPosition += 8;
-        
-        pdf.setTextColor(0, 0, 0);
-        pdf.setFontSize(10);
-        pdf.setFont(undefined, 'normal');
-        
-        if (analysisData.diet.increase && analysisData.diet.increase.length > 0) {
-          checkPageBreak(15);
-          pdf.text('Increase:', 20, yPosition);
-          yPosition += 5;
-          analysisData.diet.increase.forEach((item: string) => {
-            checkPageBreak(10);
-            pdf.text(`• ${item}`, 25, yPosition);
-            yPosition += 5;
-          });
-        }
-        
-        if (analysisData.diet.avoid && analysisData.diet.avoid.length > 0) {
-          yPosition += 5;
-          checkPageBreak(15);
-          pdf.text('Avoid:', 20, yPosition);
-          yPosition += 5;
-          analysisData.diet.avoid.forEach((item: string) => {
-            checkPageBreak(10);
-            pdf.text(`• ${item}`, 25, yPosition);
-            yPosition += 5;
-          });
-        }
-        yPosition += 10;
-      }
-
-      // Lifestyle Recommendations
-      const lifestyleList = analysisData.lifestyle || [];
-      if (lifestyleList.length > 0) {
-        checkPageBreak(30);
-        pdf.setTextColor(147, 51, 234);
-        pdf.setFontSize(12);
-        pdf.setFont(undefined, 'bold');
-        pdf.text('Lifestyle Recommendations', 20, yPosition);
-        yPosition += 8;
-        
-        pdf.setTextColor(0, 0, 0);
-        pdf.setFontSize(10);
-        pdf.setFont(undefined, 'normal');
-        
-        lifestyleList.forEach((item: string) => {
-          const itemLines = pdf.splitTextToSize(`• ${item}`, pageWidth - 40);
-          checkPageBreak(itemLines.length * 5 + 5);
-          pdf.text(itemLines, 20, yPosition);
-          yPosition += itemLines.length * 5 + 2;
-        });
-      }
-
-
-      console.log('💾 Generating PDF file...');
-      
-      // Generate and download PDF using the reliable pdf.save method
-      const filename = `DAIG_Analysis_${new Date().toISOString().split('T')[0]}.pdf`;
-      
-      console.log('✅ PDF generated successfully, initiating download:', filename);
-      
-      // Use the reliable pdf.save() method instead of manual blob creation
-      pdf.save(filename);
-      
-      console.log('✅ PDF download initiated successfully');
-      toast.success('Analysis report downloaded successfully!');
-      
-    } catch (error) {
-      console.error('❌ PDF generation failed:', error);
-      
-      // More detailed error logging
-      if (error instanceof Error) {
-        console.error('Error name:', error.name);
-        console.error('Error message:', error.message);
-        console.error('Error stack:', error.stack);
-      }
-      
-      toast.error(`Failed to generate PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
-  const handleReset = () => {
-    setSelectedFile(null);
-    setAnalysisData(null);
-    setShowResults(false);
-    setError(null);
-    setExtractedText("");
-    setExtractionStep("");
-    setAnalysisId(null);
-    setProcessingStatus('idle');
-    setIsAnalyzing(false);
-    setShowExtraction(false);
-    setCurrentUserId('');
-    
-    // Clear localStorage
-    localStorage.removeItem('analysisId');
-    localStorage.removeItem('currentUserId');
-    localStorage.removeItem('processingStatus');
-    
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
-  const getProcessingMessage = () => {
-    switch (processingStatus) {
-      case 'starting':
-        return "Initializing analysis...";
-      case 'processing':
-        return "Analysis in progress... Typically completes in 30-60 seconds.";
-      case 'completed':
-        return "Analysis completed successfully!";
-      case 'failed':
-        return "Analysis failed. Please try again.";
-      default:
-        return extractionStep || "Processing your report...";
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-border sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-3 sm:py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 sm:space-x-3">
-              <div 
-                className="cursor-pointer hover:opacity-80 transition-opacity"
-                onClick={() => navigate('/')}
-              >
-                <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
-                    <BarChart3 className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
-                  </div>
-                  <div>
-                    <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground flex items-center">
-                      DAIG <Stethoscope className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-800 mx-1" /> ASSIST
-                    </h1>
-                    <p className="text-xs sm:text-sm text-muted-foreground">AI-Powered Report Analysis</p>
-                  </div>
-                </div>
+  // Render results display logic if analysis is done and data is valid
+  if (showResults && analysisData && !isNonMedicalReport(analysisData) && enhancedData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+        <header className="fixed top-0 w-full z-50 bg-gradient-to-r from-primary via-purple-600 to-primary backdrop-blur-sm">
+          <div className="container mx-auto px-4 py-3">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center space-x-3">
+                <Brain className="w-8 h-8 text-white" />
+                <h1 className="text-white text-xl font-bold">Shendet Medical analytics</h1>
               </div>
-            </div>
-            
-            <div className="flex items-center space-x-2">
               {isAuthenticated && (
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={signOut}
-                    className="flex items-center space-x-2"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span>Logout</span>
-                  </Button>
-                </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={signOut}
+                  className="text-white hover:bg-white/20"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
               )}
             </div>
+          </div>
+        </header>
+
+        <main className="pt-20 container mx-auto px-4">
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>Analysis Results</CardTitle>
+              <CardDescription>Detailed insights from your medical report</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <SummaryCard data={enhancedData} />
+              <Separator className="my-6" />
+              <ClinicalAssessmentHighlights data={clinicalAssessmentData} />
+              <Separator className="my-6" />
+              <UnderstandingYourNumbers data={enhancedData} />
+              <Separator className="my-6" />
+              <MedicalChatAgent context={createEnhancedAnalysisContext(enhancedData)} />
+              <Separator className="my-6" />
+              <Button onClick={handleDownloadComprehensiveReport} className="w-full max-w-xs mx-auto">
+                <Download className="w-4 h-4 mr-2" />
+                Download Comprehensive Report
+              </Button>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    );
+  }
+
+  // NEW HOMEPAGE DESIGN WITH THREE SECTIONS
+  return (
+    <div className="min-h-screen overflow-x-hidden">
+      {/* Navbar */}
+      <header className="fixed top-0 w-full z-50 bg-gradient-to-r from-primary via-purple-600 to-primary backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-3">
+              <Brain className="w-8 h-8 text-white" />
+              <h1 className="text-white text-xl font-bold">Shendet Medical analytics</h1>
+            </div>
+            {isAuthenticated && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={signOut}
+                className="text-white hover:bg-white/20"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
+              </Button>
+            )}
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-4xl">
-        {!selectedFile && !showResults && (
-          <div className="space-y-8 sm:space-y-12">
-            {/* Hero Section */}
-            <div className="text-center space-y-4 sm:space-y-6">
-              <div className="flex justify-center mb-4 sm:mb-6">
-                <div className="bg-gradient-app p-3 sm:p-4 rounded-full shadow-app">
-                  <Brain className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
+      {/* Hero Section */}
+      <section className="h-screen relative flex items-center justify-center"
+        style={{
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/hero-bg.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed'
+        }}>
+        <div className="text-center space-y-6 px-4 animate-fade-in">
+          <div className="animate-pulse">
+            <Brain className="w-16 h-16 text-white mx-auto mb-6" />
+          </div>
+          <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight">
+            <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              Get Simple Insights
+            </span>
+            <br />
+            from Your Reports
+          </h1>
+          <p className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto">
+            Transform complex medical data into easy-to-understand insights with AI-powered analysis
+          </p>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="min-h-screen bg-white py-20">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-6">
+              Why Choose Our Platform?
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Experience the future of medical report analysis with our AI-powered platform
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+            <div className="text-center space-y-4 animate-fade-in hover:scale-105 transition-transform duration-300">
+              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto">
+                <BarChart3 className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900">Data Analysis</h3>
+              <p className="text-gray-600">Advanced AI algorithms analyze your medical data with precision and accuracy</p>
+            </div>
+            
+            <div className="text-center space-y-4 animate-fade-in hover:scale-105 transition-transform duration-300">
+              <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto">
+                <Clock className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900">AI Insights</h3>
+              <p className="text-gray-600">Get instant insights and recommendations based on your medical reports</p>
+            </div>
+            
+            <div className="text-center space-y-4 animate-fade-in hover:scale-105 transition-transform duration-300">
+              <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto">
+                <FileSearch className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900">Clinical Assessment</h3>
+              <p className="text-gray-600">Comprehensive clinical assessments to understand your health status</p>
+            </div>
+            
+            <div className="text-center space-y-4 animate-fade-in hover:scale-105 transition-transform duration-300">
+              <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-red-600 rounded-full flex items-center justify-center mx-auto">
+                <Shield className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900">Private & Secure</h3>
+              <p className="text-gray-600">Your medical data is encrypted and processed with the highest security standards</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Upload Section */}
+      <section className="min-h-screen relative flex items-center justify-center py-20"
+        style={{
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/upload-bg.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed'
+        }}>
+        <div className="container mx-auto px-4">
+          <div className="max-w-2xl mx-auto text-center space-y-8">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
+              Ready to Get Started?
+            </h2>
+            <p className="text-xl text-white/90 mb-12">
+              Upload your medical report and get instant AI-powered insights
+            </p>
+            
+            {isAnalyzing ? (
+              <div className="bg-black/20 backdrop-blur-sm rounded-2xl p-8">
+                <AnimatedLoader />
+                <div className="mt-6 space-y-2">
+                  <p className="text-white text-lg font-medium">Analyzing your report...</p>
+                  <p className="text-white/80">{extractedText}</p>
                 </div>
               </div>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground leading-tight px-4">
-                Get Simple Insights from
-                <br className="hidden sm:block" />
-                <span className="block sm:inline"> </span>
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  Your Reports
-                </span>
-              </h2>
-              <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed px-4">
-                Upload your reports and get easy-to-understand insights, 
-                recommendations, and guidance in seconds.
-              </p>
-            </div>
-
-            {/* Features */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12 px-4">
-              <Card className="shadow-card border-0 bg-white/50 backdrop-blur-sm">
-                <CardContent className="p-4 sm:p-6 text-center space-y-3 sm:space-y-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                    <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
-                  </div>
-                  <h3 className="text-sm sm:text-base font-semibold text-foreground">Data Analysis</h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
-                    Advanced analysis of your document parameters
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="shadow-card border-0 bg-white/50 backdrop-blur-sm">
-                <CardContent className="p-4 sm:p-6 text-center space-y-3 sm:space-y-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-success/10 rounded-full flex items-center justify-center mx-auto">
-                    <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-success" />
-                  </div>
-                  <h3 className="text-sm sm:text-base font-semibold text-foreground">Simple Language</h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
-                    Complex terms explained in easy words
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="shadow-card border-0 bg-white/50 backdrop-blur-sm">
-                <CardContent className="p-4 sm:p-6 text-center space-y-3 sm:space-y-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-warning/10 rounded-full flex items-center justify-center mx-auto">
-                    <Stethoscope className="w-5 h-5 sm:w-6 sm:h-6 text-warning" />
-                  </div>
-                  <h3 className="text-sm sm:text-base font-semibold text-foreground">Clinical Assessment</h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
-                    Clinical assessment after your medical data analysis gives a more holistic report
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="shadow-card border-0 bg-white/50 backdrop-blur-sm">
-                <CardContent className="p-4 sm:p-6 text-center space-y-3 sm:space-y-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-app-blue/10 rounded-full flex items-center justify-center mx-auto">
-                    <Lock className="w-5 h-5 sm:w-6 sm:h-6 text-app-blue" />
-                  </div>
-                  <h3 className="text-sm sm:text-base font-semibold text-foreground">Private & Secure</h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
-                    Your data is processed securely and privately
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-
-
-            
-            {/* Upload Section */}
-            <div className="space-y-6">
+            ) : error ? (
+              <div className="bg-red-500/20 backdrop-blur-sm rounded-2xl p-8">
+                <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+                <p className="text-white text-lg">{error}</p>
+                <Button 
+                  variant="secondary" 
+                  size="lg" 
+                  className="mt-4"
+                  onClick={() => {
+                    setError(null);
+                    setSelectedFile(null);
+                  }}
+                >
+                  Try Again
+                </Button>
+              </div>
+            ) : (
               <UploadZone onFileSelect={handleFileSelect} />
-            </div>
+            )}
           </div>
-        )}
-
-        {/* Error Section */}
-        {error && (
-          <div className="text-center space-y-8">
-            <div className="flex justify-center">
-              <div className="bg-destructive/10 p-6 rounded-full">
-                <AlertCircle className="w-16 h-16 text-destructive" />
-              </div>
-            </div>
-            <div className="space-y-4">
-              <h3 className="text-2xl font-semibold text-foreground">Analysis Failed</h3>
-              <p className="text-muted-foreground max-w-md mx-auto">{error}</p>
-              <button
-                onClick={handleReset}
-                className="bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg"
-              >
-                Try Again
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Analysis Loading */}
-        {isAnalyzing && (
-          <AnimatedLoader 
-            message={getProcessingMessage()}
-            onCancel={processingStatus === 'processing' ? handleReset : undefined}
-          />
-        )}
-
-        {/* Results */}
-        {showResults && !isAnalyzing && analysisData && (
-          <div className="space-y-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-2xl font-bold text-foreground">Your Analysis Results</h3>
-                <p className="text-muted-foreground">Based on: {selectedFile?.name}</p>
-              </div>
-              <button
-                onClick={handleReset}
-                className="text-sm text-primary hover:underline"
-              >
-                Analyze New Report
-              </button>
-            </div>
-            
-            <div className="grid gap-6">
-              <div>
-                {/* Show Payment Gate if needed */}
-                {showPaymentGate ? (
-                  <PaymentGate 
-                    onPaymentSuccess={handlePaymentSuccess}
-                    showMockPdf={generateMockPdf}
-                  />
-                ) : (
-                  <ErrorBoundary>
-                    <div className="w-full max-w-6xl mx-auto space-y-8">
-                      {/* 1. Patient Detail (Part of Medical Panel Analysis) */}
-                      <ReportHeader 
-                        patientName={analysisData?.patientName}
-                        demographics={analysisData?.demographics}
-                        overallStatus={analysisData?.overallStatus}
-                      />
-
-                      {/* 2. Summary in Simple Terms (Part of Medical Panel Analysis) */}
-                      <SummaryCard 
-                        summary={analysisData?.summary}
-                        overallStatus={analysisData?.overallStatus}
-                        abnormalCount={enhancedData ? extractAbnormalPanels(enhancedData).reduce((acc, panel) => acc + (panel.abnormalLabs?.length || 0), 0) : 0}
-                        analysisData={analysisData}
-                      />
-
-                      {/* 3. Clinical Assessment Chat Bot - Only for medical reports */}
-                      {!isNonMedicalReport(analysisData) && (
-                        <div className="w-full">
-                          <MedicalChatAgent
-                            className="w-full"
-                            analysisContext={createEnhancedAnalysisContext(analysisData)}
-                            demographics={analysisData.demographics}
-                            abnormalPanels={enhancedData ? extractAbnormalPanels(enhancedData) : []}
-                            mode="clinical-triage"
-                            onClinicalAssessmentComplete={handleClinicalAssessmentComplete}
-                          />
-                        </div>
-                      )}
-
-                      {/* 4, 5, 6. Clinical Assessment Highlights (Warning Signs, Investigations, Management) - Only for medical reports */}
-                      {!isNonMedicalReport(analysisData) && (
-                        <ClinicalAssessmentHighlights clinicalData={clinicalAssessmentData} />
-                      )}
-
-                      {/* 7. Understanding Your Numbers (Part of Medical Panel Analysis) - Only for medical reports */}
-                      {!isNonMedicalReport(analysisData) && (
-                        <UnderstandingYourNumbers analysisData={analysisData} />
-                      )}
-
-                      {/* Comprehensive Report Download Button - Only show after clinical assessment */}
-                      {!showPaymentGate && !isNonMedicalReport(analysisData) && clinicalAssessmentData && (
-                        <div className="text-center">
-                          <Button 
-                            onClick={handleDownloadComprehensiveReport}
-                            className="min-w-48 bg-primary hover:bg-primary/90 text-white"
-                            size="lg"
-                          >
-                            <Download className="w-4 h-4 mr-2" />
-                            Download Comprehensive Report
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </ErrorBoundary>
-                )}
-                
-                {/* Show upload prompt for non-medical reports */}
-                {isNonMedicalReport(analysisData) && (
-                  <Card className="border-2 border-dashed border-primary/30 bg-gradient-to-r from-primary/5 to-background mt-6">
-                    <CardContent className="text-center py-8">
-                      <div className="space-y-4">
-                        <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-                          <FileText className="w-8 h-8 text-primary" />
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-semibold text-foreground mb-2">
-                            Please Upload a Blood Report
-                          </h3>
-                          <p className="text-sm text-muted-foreground mb-4">
-                            To get accurate health analysis and recommendations, please upload a valid blood test report.
-                          </p>
-                        </div>
-                        <Button 
-                          onClick={() => {
-                            setShowResults(false);
-                            setAnalysisData(null);
-                            setSelectedFile(null);
-                            if (fileInputRef.current) {
-                              fileInputRef.current.click();
-                            }
-                          }}
-                          className="mt-4"
-                        >
-                          <FileText className="w-4 h-4 mr-2" />
-                          Upload Blood Report
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-      </main>
-
-        {/* Disclaimer */}
-        <div className="mt-8 sm:mt-12">
-          <Card className="bg-white/50 border-primary/30">
-            <CardContent className="p-4 sm:p-6">
-              <div className="p-3 sm:p-4 rounded-lg border-2 border-primary">
-                <h4 className="font-medium mb-2 text-primary text-sm sm:text-base">Important Disclaimer</h4>
-                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  This report is generated using AI analysis and is intended for informational purposes only. It should not replace professional medical advice, diagnosis, or treatment. Always consult with qualified healthcare professionals for medical concerns. The AI analysis is based on available data and may not account for all individual factors. In case of medical emergencies, seek immediate professional medical attention.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
         </div>
+      </section>
 
-        {/* Footer */}
-        <footer className="bg-white/50 backdrop-blur-sm border-t border-border mt-12 sm:mt-20">
-          <div className="px-4 py-4 sm:py-6">
-            <div className="text-center text-xs sm:text-sm text-muted-foreground space-y-1 sm:space-y-2">
-              <p className="font-medium">Shendet Medical analytics - Advanced report analysis for better understanding</p>
-              <p className="flex items-center justify-center space-x-1 text-xs">
-                <span className="text-destructive">⚠️</span> 
-                <span>This tool provides general guidance only. Always consult professionals for important decisions.</span>
-              </p>
-            </div>
-          </div>
-        </footer>
-
-      {/* Auth Dialog */}
-      <AuthDialog 
+      {/* Dialogs */}
+      <AuthDialog
         open={showAuthDialog}
         onOpenChange={setShowAuthDialog}
         onAuthSuccess={handleAuthSuccess}
+      />
+      
+      <PaymentGate
+        open={showPaymentGate}
+        onOpenChange={setShowPaymentGate}
+        onPaymentSuccess={handlePaymentSuccess}
       />
     </div>
   );
