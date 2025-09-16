@@ -71,7 +71,7 @@ Deno.serve(async (req) => {
     const body = new URLSearchParams({
       To: phone_number,
       From: TWILIO_PHONE_NUMBER,
-      Body: `Your DAIG ASSIST verification code is: ${otp}. Valid for 10 minutes.`
+      Body: `Your Shendet Medical analytics verification code is: ${otp}. Valid for 10 minutes.`
     });
 
     const twilioResponse = await fetch(twilioUrl, {

@@ -605,7 +605,7 @@ RAW DATA: ${baseContext}`;
       pdf.setTextColor(255, 255, 255);
       pdf.setFontSize(20);
       pdf.setFont(undefined, 'bold');
-      pdf.text('DAIG ASSIST - Analysis Report', pageWidth / 2, 15, { align: 'center' });
+      pdf.text('Shendet Medical analytics - Analysis Report', pageWidth / 2, 15, { align: 'center' });
       
       yPosition = 35;
 
@@ -1120,7 +1120,7 @@ RAW DATA: ${baseContext}`;
         <footer className="bg-white/50 backdrop-blur-sm border-t border-border mt-12 sm:mt-20">
           <div className="px-4 py-4 sm:py-6">
             <div className="text-center text-xs sm:text-sm text-muted-foreground space-y-1 sm:space-y-2">
-              <p className="font-medium">DAIG ASSIST - Advanced report analysis for better understanding</p>
+              <p className="font-medium">Shendet Medical analytics - Advanced report analysis for better understanding</p>
               <p className="flex items-center justify-center space-x-1 text-xs">
                 <span className="text-destructive">⚠️</span> 
                 <span>This tool provides general guidance only. Always consult professionals for important decisions.</span>
