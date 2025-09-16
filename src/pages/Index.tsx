@@ -578,13 +578,7 @@ RAW DATA: ${baseContext}`;
       </header>
 
       {/* Hero Section */}
-      <section className="h-screen relative flex items-center justify-center"
-        style={{
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/hero-bg.png')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundAttachment: 'fixed'
-        }}>
+      <section className="h-screen relative flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
         <div className="text-center space-y-6 px-4 animate-fade-in">
           <div className="animate-pulse">
             <Brain className="w-16 h-16 text-white mx-auto mb-6" />
@@ -651,13 +645,7 @@ RAW DATA: ${baseContext}`;
       </section>
 
       {/* Upload Section */}
-      <section className="min-h-screen relative flex items-center justify-center py-20"
-        style={{
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/upload-bg.png')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundAttachment: 'fixed'
-        }}>
+      <section className="min-h-screen relative flex items-center justify-center py-20 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto text-center space-y-8">
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
