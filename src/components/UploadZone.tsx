@@ -132,10 +132,6 @@ export const UploadZone = ({ onFileSelect }: UploadZoneProps) => {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-center space-x-2 text-xs sm:text-sm text-white/70 px-4">
-                  <FileText className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span>PDF files only • Max 10MB</span>
-                </div>
               </>
             )}
 

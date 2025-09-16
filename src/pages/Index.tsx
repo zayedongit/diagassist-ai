@@ -873,7 +873,6 @@ RAW DATA: ${baseContext}`;
           <div className="w-full">
             {/* Hero Section */}
             <div className="relative min-h-screen bg-fixed bg-cover bg-center bg-no-repeat" style={{backgroundImage: `url(${heroBackground})`}}>
-              <div className="absolute inset-0 bg-black/40"></div>
             </div>
 
             {/* Features Section - Overlayed on hero */}
@@ -933,7 +932,6 @@ RAW DATA: ${baseContext}`;
 
             {/* Upload Section - Ready to Get Started */}
             <div className="relative min-h-screen bg-fixed bg-cover bg-center bg-no-repeat flex items-center justify-center" style={{backgroundImage: `url(${readyBackground})`}}>
-              <div className="absolute inset-0 bg-black/50"></div>
               <div className="relative z-10 space-y-6 px-4 w-full max-w-4xl animate-fade-in">
                 <div className="text-center mb-8">
                   <h3 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 animate-fade-in">
@@ -945,24 +943,8 @@ RAW DATA: ${baseContext}`;
                     Upload your medical report now and discover insights that could change your health journey.
                   </p>
                 </div>
-                <div className="backdrop-blur-sm rounded-2xl p-6">
-                  <div className="text-center space-y-4">
-                    <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center">
-                      <div className="w-12 h-12 bg-gradient-to-r from-orange-400 to-purple-600 rounded-full flex items-center justify-center">
-                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                        </svg>
-                      </div>
-                    </div>
-                    <h3 className="text-2xl font-bold bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">
-                      Upload Your Report
-                    </h3>
-                    <p className="text-white/90 drop-shadow-md">
-                      Drop your PDF report here, or click to browse files
-                    </p>
-                    <p className="text-sm text-white/70 drop-shadow-md">
-                      📄 PDF files only • Max 10MB
-                    </p>
+                <div className="p-6">
+                  <div className="text-center">
                     <UploadZone onFileSelect={handleFileSelect} />
                   </div>
                 </div>
