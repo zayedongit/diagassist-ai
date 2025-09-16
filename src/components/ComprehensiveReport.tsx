@@ -376,10 +376,10 @@ export const ComprehensiveReport = ({
                 <StatusIcon className={`h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 ${statusInfo.color}`} />
               </div>
               <div className="min-w-0 flex-1">
-                <CardTitle className="text-lg sm:text-xl md:text-2xl font-bold" style={{color: 'hsl(220, 74%, 42%)'}}>
+                <CardTitle className="text-lg sm:text-xl md:text-2xl font-bold text-persian-blue">
                   {profileName}
                 </CardTitle>
-                <p className="text-xs sm:text-sm" style={{color: 'hsl(220, 74%, 42%)'}}>{statusInfo.description}</p>
+                <p className="text-xs sm:text-sm text-persian-blue">{statusInfo.description}</p>
               </div>
             </div>
             {showDownloadButton && (
@@ -426,7 +426,7 @@ export const ComprehensiveReport = ({
       {medicalPanels && medicalPanels.length > 0 && (
         <Card className="border-report-border">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2" style={{color: 'hsl(220, 74%, 42%)'}}>
+            <CardTitle className="flex items-center gap-2 text-persian-blue">
               <Stethoscope className="h-5 w-5" />
               Medical Panel Analysis
             </CardTitle>

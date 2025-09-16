@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, FileText, Stethoscope, Users, Download, AlertCircle } from "lucide-react";
+import { User, FileText, Stethoscope, Users, Download, AlertCircle } from "lucide-react";
 import { ComprehensiveReport } from "@/components/ComprehensiveReport";
 
 interface ClinicalReportData {
@@ -75,7 +75,7 @@ export const ClinicalReport = ({ reportData, onDownload, analysisData, patientNa
         <Card className="border-destructive/50 bg-destructive/5">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-destructive">
-              <AlertTriangle className="h-5 w-5" />
+              <User className="h-5 w-5" />
               Warning Signs to Watch For
             </CardTitle>
           </CardHeader>
@@ -95,7 +95,7 @@ export const ClinicalReport = ({ reportData, onDownload, analysisData, patientNa
       {/* Possible Conditions */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-persian-blue">
             <Stethoscope className="h-5 w-5 text-primary" />
             Possible Conditions
           </CardTitle>

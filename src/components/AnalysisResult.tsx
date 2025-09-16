@@ -150,10 +150,10 @@ export const AnalysisResult = ({
               <StatusIcon className={`w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 ${statusInfo.color}`} />
             </div>
             <div className="min-w-0 flex-1">
-              <CardTitle className="text-base sm:text-lg md:text-xl" style={{color: 'hsl(220, 74%, 42%)'}}>{statusInfo.text}</CardTitle>
+              <CardTitle className="text-base sm:text-lg md:text-xl text-persian-blue">{statusInfo.text}</CardTitle>
               {/* Patient Greeting directly under status */}
               {patientName && (
-                <h3 className="text-sm sm:text-base md:text-lg font-medium mt-1" style={{color: 'hsl(220, 74%, 42%)'}}>
+                <h3 className="text-sm sm:text-base md:text-lg font-medium mt-1 text-persian-blue">
                   Hi {patientName}
                 </h3>
               )}
@@ -194,11 +194,11 @@ export const AnalysisResult = ({
                       </div>
                     </div>
                     <div className="flex-1 min-w-0 w-full">
-                      <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 flex items-center text-center sm:text-left" style={{color: 'hsl(220, 74%, 42%)'}}>
+                      <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 flex items-center text-center sm:text-left text-persian-blue">
                         📋 Summary in Simple Terms
                       </h3>
                       <div className="bg-background/60 backdrop-blur-sm rounded-xl p-3 sm:p-4 md:p-5 border border-warning/20">
-                        <p className="text-sm sm:text-base leading-relaxed font-medium" style={{color: 'hsl(220, 74%, 42%)'}}>
+                        <p className="text-sm sm:text-base leading-relaxed font-medium text-persian-blue">
                           {normalizedData.summary}
                         </p>
                       </div>
@@ -231,7 +231,7 @@ export const AnalysisResult = ({
               ).length > 0
             ) && (
               <div>
-                <h4 className="text-lg font-semibold mb-3 flex items-center space-x-2" style={{color: 'hsl(220, 74%, 42%)'}}>
+                <h4 className="text-lg font-semibold mb-3 flex items-center space-x-2 text-persian-blue">
                   <Stethoscope className="w-5 h-5 text-primary" />
                   <span>Medical Panel Analysis</span>
                 </h4>
@@ -311,11 +311,11 @@ export const AnalysisResult = ({
 
                       return (
                         <div key={index} className="bg-muted/20 rounded-xl p-4 border border-border/30">
-                          <h5 className="font-semibold mb-2 flex items-center space-x-2" style={{color: 'hsl(220, 74%, 42%)'}}>
+                          <h5 className="font-semibold mb-2 flex items-center space-x-2 text-persian-blue">
                             <FileText className="w-4 h-4 text-primary" />
                             <span>{panel.name}</span>
                           </h5>
-                          <p className="text-sm mb-3" style={{color: 'hsl(220, 74%, 42%)'}}>{panel.description}</p>
+                          <p className="text-sm mb-3 text-persian-blue">{panel.description}</p>
                           
                            {/* Enhanced Color-Coded Bars with Human Icons */}
                            <div className="mb-6">

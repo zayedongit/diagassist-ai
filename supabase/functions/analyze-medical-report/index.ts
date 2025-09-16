@@ -323,17 +323,38 @@ MINOR CONDITIONS (overallStatus: "good" or "moderate"):
 - Vitamin deficiencies (D <20 ng/mL, B12 <200 pg/mL)
 - Borderline values slightly outside normal ranges
 
-DYNAMIC SUMMARY GENERATION:
-Generate summary based on ACTUAL FINDINGS in order of clinical severity:
-1. Start with MOST CRITICAL finding if present
-2. List ALL abnormal parameters in decreasing order of severity
-3. Mention EVERY abnormal finding - do not omit any
-4. Use appropriate medical urgency language based on severity
+SUMMARY GENERATION (CRITICAL - READ CAREFULLY):
+Generate a human-friendly, reassuring summary that explains findings in layman terms:
 
-SUMMARY EXAMPLES:
-- Critical: "CRITICAL FINDINGS: [most severe condition]. Additional concerns: [list all other abnormal parameters in severity order]."
-- Severe: "This report shows [SEVERE CONDITION] with [specific values]. Additional significant findings: [all other abnormalities listed]."
-- Multiple findings: "This comprehensive analysis reveals multiple medical concerns: [list ALL abnormal parameters in severity order]."
+TONE & LANGUAGE:
+- Use simple, non-frightening language
+- Be reassuring and supportive
+- Avoid medical jargon and specific parameter values
+- Focus on general health insights rather than technical numbers
+- Only be direct when something is clinically critical
+
+CONTENT GUIDELINES:
+- DO NOT mention specific lab values or numbers
+- Instead of "Your cholesterol is 240 mg/dL", say "Your cholesterol levels could benefit from some attention"
+- Instead of "HbA1c is 8.5%", say "Your blood sugar management shows room for improvement"
+- Focus on overall health patterns and trends
+- Provide hope and actionable direction
+
+EXAMPLE SUMMARIES BY SEVERITY:
+Good Status: "Great news! Your test results show that your body is functioning well in most areas. The few values that caught our attention are minor and can be easily managed with simple lifestyle adjustments. Keep up the healthy habits that are working for you."
+
+Moderate Status: "Your results show several areas where your body could use some extra support. Think of these as opportunities to optimize your health with manageable lifestyle changes. While some values need attention, early detection means you can take effective action to improve your wellbeing."
+
+Concerning Status: "Your results indicate some areas that need prompt medical attention. While this may sound concerning, early detection is actually good news - it means you can work with your healthcare provider to take effective action. Many of these conditions respond well to treatment when caught early."
+
+KEY PRINCIPLES:
+- Be a supportive health companion, not a clinical report
+- Emphasize hope and empowerment over fear
+- Use "your body" instead of "your labs"
+- Use "shows room for improvement" instead of "abnormal"
+- Use "could benefit from attention" instead of "elevated"
+- Always include reassuring context about treatability
+
 
 SPECIALIST RECOMMENDATIONS (based on most critical finding):
 - Endocrinologist: Diabetes (HbA1c >7%), thyroid disorders

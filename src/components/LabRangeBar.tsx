@@ -98,7 +98,7 @@ export const LabRangeBar = ({ labName, value, unit, referenceRange, status }: La
             <Activity className="w-4 h-4 text-primary" />
           </div>
           <div>
-            <span className="font-semibold text-foreground text-base">{labName}</span>
+            <span className="font-semibold text-persian-blue text-base">{labName}</span>
             <div className="flex items-center space-x-2 mt-1">
               <Badge variant="outline" className={`${statusColorClass} font-medium px-2 py-1 text-xs border-2`}>
                 {status.toUpperCase()}
@@ -108,7 +108,7 @@ export const LabRangeBar = ({ labName, value, unit, referenceRange, status }: La
           </div>
         </div>
         <div className="text-right">
-          <span className="font-bold text-foreground text-lg">
+          <span className="font-bold text-persian-blue text-lg">
             {value}
           </span>
           {unit && <span className="text-muted-foreground text-sm ml-1">{unit}</span>}
