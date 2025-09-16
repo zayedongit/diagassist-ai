@@ -956,17 +956,19 @@ RAW DATA: ${baseContext}`;
                       Upload your medical report now and discover insights that could change your health journey.
                     </p>
                   </div>
-                  <div className="p-6">
-                    <div className="text-center">
-                      <UploadZone onFileSelect={handleFileSelect} />
-                    </div>
-                    <div className="mt-8 text-center">
-                      <h4 className="text-white font-semibold text-sm drop-shadow-lg">Important Disclaimer</h4>
-                      <p className="text-white/90 text-xs leading-relaxed max-w-4xl mx-auto drop-shadow-md">
-                        This report is generated using AI analysis and is intended for informational purposes only. It should not replace professional medical advice, diagnosis, or treatment. Always consult with qualified healthcare professionals for medical concerns. In case of medical emergencies, seek immediate professional medical attention.
-                      </p>
-                    </div>
+                  <div className="flex justify-center items-center">
+                    <UploadZone onFileSelect={handleFileSelect} />
                   </div>
+                </div>
+              </div>
+              
+              {/* Fixed disclaimer at bottom */}
+              <div className="fixed bottom-0 left-0 right-0 z-30 bg-black/50 backdrop-blur-sm">
+                <div className="text-center py-4 px-6">
+                  <h4 className="text-white font-semibold text-sm drop-shadow-lg mb-2">Important Disclaimer</h4>
+                  <p className="text-white/90 text-xs leading-relaxed max-w-4xl mx-auto drop-shadow-md">
+                    This report is generated using AI analysis and is intended for informational purposes only. It should not replace professional medical advice, diagnosis, or treatment. Always consult with qualified healthcare professionals for medical concerns. In case of medical emergencies, seek immediate professional medical attention.
+                  </p>
                 </div>
               </div>
             </div>
