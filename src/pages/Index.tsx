@@ -24,6 +24,8 @@ import { ClinicalAssessmentHighlights } from "@/components/ClinicalAssessmentHig
 import { UnderstandingYourNumbers } from "@/components/UnderstandingYourNumbers";
 import { useAuth } from "@/hooks/useAuth";
 import { EnhancedAnalysisResult, extractAbnormalPanels } from "@/types/medicalAnalysis";
+import heroBackground from "@/assets/hero-background.jpg";
+import readyBackground from "@/assets/ready-background.jpg";
 
 
 const Index = () => {
@@ -838,7 +840,7 @@ RAW DATA: ${baseContext}`;
                   </div>
                   <div>
                     <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground flex items-center">
-                      DAIG <Stethoscope className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-800 mx-1" /> ASSIST
+                      Shëndet <Stethoscope className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-800 mx-1" /> Medical Analytics
                     </h1>
                     <p className="text-xs sm:text-sm text-muted-foreground">AI-Powered Report Analysis</p>
                   </div>
@@ -870,24 +872,27 @@ RAW DATA: ${baseContext}`;
         {!selectedFile && !showResults && (
           <div className="space-y-8 sm:space-y-12">
             {/* Hero Section */}
-            <div className="text-center space-y-4 sm:space-y-6">
-              <div className="flex justify-center mb-4 sm:mb-6">
-                <div className="bg-gradient-app p-3 sm:p-4 rounded-full shadow-app">
-                  <Brain className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
+            <div className="relative min-h-screen bg-fixed bg-cover bg-center bg-no-repeat flex items-center justify-center" style={{backgroundImage: `url(${heroBackground})`}}>
+              <div className="absolute inset-0 bg-black/40"></div>
+              <div className="relative z-10 text-center space-y-4 sm:space-y-6 px-4 animate-fade-in">
+                <div className="flex justify-center mb-4 sm:mb-6 animate-scale-in">
+                  <div className="bg-gradient-app p-3 sm:p-4 rounded-full shadow-app backdrop-blur-sm">
+                    <Brain className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
+                  </div>
                 </div>
+                <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-white leading-tight px-4 drop-shadow-lg animate-fade-in">
+                  Get Simple Insights from
+                  <br className="hidden sm:block" />
+                  <span className="block sm:inline"> </span>
+                  <span className="bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent drop-shadow-none">
+                    Your Reports
+                  </span>
+                </h2>
+                <p className="text-base sm:text-lg lg:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed px-4 drop-shadow-md animate-fade-in">
+                  Upload your reports and get easy-to-understand insights, 
+                  recommendations, and guidance in seconds.
+                </p>
               </div>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground leading-tight px-4">
-                Get Simple Insights from
-                <br className="hidden sm:block" />
-                <span className="block sm:inline"> </span>
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  Your Reports
-                </span>
-              </h2>
-              <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed px-4">
-                Upload your reports and get easy-to-understand insights, 
-                recommendations, and guidance in seconds.
-              </p>
             </div>
 
             {/* Features */}
@@ -943,9 +948,24 @@ RAW DATA: ${baseContext}`;
 
 
             
-            {/* Upload Section */}
-            <div className="space-y-6">
-              <UploadZone onFileSelect={handleFileSelect} />
+            {/* Upload Section - Ready to Get Started */}
+            <div className="relative min-h-screen bg-fixed bg-cover bg-center bg-no-repeat flex items-center justify-center" style={{backgroundImage: `url(${readyBackground})`}}>
+              <div className="absolute inset-0 bg-black/50"></div>
+              <div className="relative z-10 space-y-6 px-4 w-full max-w-4xl animate-fade-in">
+                <div className="text-center mb-8">
+                  <h3 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 animate-fade-in">
+                    <span className="bg-gradient-to-r from-orange-400 via-red-500 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">
+                      Ready to Get Started?
+                    </span>
+                  </h3>
+                  <p className="text-lg sm:text-xl text-white/90 drop-shadow-md animate-fade-in">
+                    Upload your medical report now and discover insights that could change your health journey.
+                  </p>
+                </div>
+                <div className="backdrop-blur-sm bg-white/10 rounded-2xl p-6 border border-white/20">
+                  <UploadZone onFileSelect={handleFileSelect} />
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -1120,7 +1140,7 @@ RAW DATA: ${baseContext}`;
         <footer className="bg-white/50 backdrop-blur-sm border-t border-border mt-12 sm:mt-20">
           <div className="px-4 py-4 sm:py-6">
             <div className="text-center text-xs sm:text-sm text-muted-foreground space-y-1 sm:space-y-2">
-              <p className="font-medium">Shendet Medical analytics - Advanced report analysis for better understanding</p>
+              <p className="font-medium">Shëndet Medical Analytics - Advanced report analysis for better understanding</p>
               <p className="flex items-center justify-center space-x-1 text-xs">
                 <span className="text-destructive">⚠️</span> 
                 <span>This tool provides general guidance only. Always consult professionals for important decisions.</span>
