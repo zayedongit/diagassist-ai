@@ -876,7 +876,7 @@ RAW DATA: ${baseContext}`;
             </div>
 
             {/* Features Section - Overlayed on hero */}
-            <div className="relative -mt-32 pb-32 z-20">
+            <div className="relative -mt-32 pb-32 z-20" style={{background: 'var(--gradient-orange-purple)'}}>
               <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12">
                   <div className="text-center space-y-3 sm:space-y-4 animate-fade-in">
