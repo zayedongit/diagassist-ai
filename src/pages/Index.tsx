@@ -867,12 +867,12 @@ RAW DATA: ${baseContext}`;
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="w-full">
+      {/* Main Content with hero background covering entire page */}
+      <main className="w-full min-h-screen bg-fixed bg-cover bg-center bg-no-repeat" style={{backgroundImage: `url(${heroBackground})`}}>
         {!selectedFile && !showResults && (
           <div className="w-full">
-            {/* Hero Section */}
-            <div className="relative min-h-screen bg-fixed bg-cover bg-center bg-no-repeat" style={{backgroundImage: `url(${heroBackground})`}}>
+            {/* Hero Section - transparent to show main background */}
+            <div className="relative min-h-screen">
             </div>
 
             {/* Features Section - Overlayed on hero with transparent background */}
@@ -930,8 +930,13 @@ RAW DATA: ${baseContext}`;
               </div>
             </div>
 
-            {/* Upload Section - Ready to Get Started */}
-            <div className="relative min-h-screen bg-fixed bg-cover bg-center bg-no-repeat flex items-center justify-center" style={{backgroundImage: `url(${readyBackground})`}}>
+            {/* Upload Section - using ready background as overlay */}
+            <div className="relative min-h-screen flex items-center justify-center">
+              <div 
+                className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-60" 
+                style={{backgroundImage: `url(${readyBackground})`}}
+              ></div>
+              <div className="absolute inset-0 bg-black/20"></div>
               <div className="relative z-10 space-y-6 px-4 w-full max-w-4xl animate-fade-in">
                 <div className="text-center mb-8">
                   <h3 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 animate-fade-in">
