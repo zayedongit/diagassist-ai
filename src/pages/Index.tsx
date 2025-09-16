@@ -1144,25 +1144,23 @@ RAW DATA: ${baseContext}`;
 
         {/* Disclaimer */}
         <div className="mt-8 sm:mt-12">
-          <Card className="bg-white/50 border-primary/30">
-            <CardContent className="p-4 sm:p-6">
-              <div className="p-3 sm:p-4 rounded-lg border-2 border-primary">
-                <h4 className="font-medium mb-2 text-primary text-sm sm:text-base">Important Disclaimer</h4>
-                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  This report is generated using AI analysis and is intended for informational purposes only. It should not replace professional medical advice, diagnosis, or treatment. Always consult with qualified healthcare professionals for medical concerns. The AI analysis is based on available data and may not account for all individual factors. In case of medical emergencies, seek immediate professional medical attention.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="backdrop-blur-sm rounded-2xl p-4 sm:p-6">
+            <div className="p-3 sm:p-4 rounded-lg border-2 border-white/20">
+              <h4 className="font-medium mb-2 bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent text-sm sm:text-base">Important Disclaimer</h4>
+              <p className="text-xs sm:text-sm text-white/90 leading-relaxed drop-shadow-md">
+                This report is generated using AI analysis and is intended for informational purposes only. It should not replace professional medical advice, diagnosis, or treatment. Always consult with qualified healthcare professionals for medical concerns. The AI analysis is based on available data and may not account for all individual factors. In case of medical emergencies, seek immediate professional medical attention.
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Footer */}
-        <footer className="bg-white/50 backdrop-blur-sm border-t border-border mt-12 sm:mt-20">
+        <footer className="backdrop-blur-sm mt-12 sm:mt-20">
           <div className="px-4 py-4 sm:py-6">
-            <div className="text-center text-xs sm:text-sm text-muted-foreground space-y-1 sm:space-y-2">
-              <p className="font-medium">Shëndet Medical Analytics - Advanced report analysis for better understanding</p>
-              <p className="flex items-center justify-center space-x-1 text-xs">
-                <span className="text-destructive">⚠️</span> 
+            <div className="text-center text-xs sm:text-sm space-y-1 sm:space-y-2">
+              <p className="font-medium bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">Shëndet Medical Analytics - Advanced report analysis for better understanding</p>
+              <p className="flex items-center justify-center space-x-1 text-xs text-white/70 drop-shadow-md">
+                <span className="text-red-400">⚠️</span> 
                 <span>This tool provides general guidance only. Always consult professionals for important decisions.</span>
               </p>
             </div>
