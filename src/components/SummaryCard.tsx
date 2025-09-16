@@ -31,15 +31,15 @@ const getStatusMessage = (status: string, abnormalCount: number = 0) => {
   switch (status?.toLowerCase()) {
     case 'good':
     case 'normal':
-      return 'Your test results look good overall. Continue maintaining your healthy lifestyle.';
+      return 'Great news! Your test results show that your body is functioning well. Keep up the healthy habits that are working for you.';
     case 'moderate':
     case 'attention':
-      return `Some of your test results need attention (${abnormalCount} abnormal values). Follow the recommendations below.`;
+      return `Your results show ${abnormalCount} areas that could benefit from some attention. Think of these as opportunities to optimize your health with simple lifestyle adjustments.`;
     case 'concerning':
     case 'critical':
-      return `Several test results require immediate attention (${abnormalCount} abnormal values). Please consult your doctor promptly.`;
+      return `Your results indicate ${abnormalCount} areas that need prompt medical attention. While this may sound concerning, early detection means you can take effective action with your doctor's guidance.`;
     default:
-      return 'Your test results have been analyzed. Please review the detailed findings below.';
+      return 'Your test results have been carefully analyzed to give you insights into your health. The information below will help you understand what these numbers mean for your wellbeing.';
   }
 };
 

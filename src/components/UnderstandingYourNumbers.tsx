@@ -144,7 +144,7 @@ export const UnderstandingYourNumbers = ({ analysisData }: UnderstandingYourNumb
   return (
     <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-blue-50">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-primary">
+        <CardTitle className="flex items-center gap-2 text-persian-blue">
           <BarChart3 className="w-5 h-5" />
           Understanding Your Numbers
         </CardTitle>
@@ -164,8 +164,8 @@ export const UnderstandingYourNumbers = ({ analysisData }: UnderstandingYourNumb
                   <div className="flex items-center gap-3">
                     {statusIcon}
                     <div className="text-left">
-                      <h4 className="font-medium text-foreground">{lab.name}</h4>
-                      <p className="text-sm text-muted-foreground">
+                      <h4 className="font-medium text-persian-blue">{lab.name}</h4>
+                      <p className="text-sm text-persian-blue">
                         {lab.value} {lab.unit} (Ref: {lab.referenceRange || 'N/A'})
                       </p>
                     </div>

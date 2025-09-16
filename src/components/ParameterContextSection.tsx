@@ -1,4 +1,4 @@
-import { Info, HelpCircle, AlertTriangle } from "lucide-react";
+import { Info, HelpCircle, User } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -129,7 +129,7 @@ export const ParameterContextSection = ({ abnormalLabs }: ParameterContextSectio
                   <Button variant="ghost" className="w-full justify-between p-0 h-auto">
                     <div className="flex items-center space-x-2 text-left">
                       <HelpCircle className="w-4 h-4 text-primary flex-shrink-0" />
-                      <span className="font-medium">{lab.name}</span>
+                      <span className="font-medium text-persian-blue">{lab.name}</span>
                       <Badge variant={lab.status === 'critical' ? 'destructive' : 'secondary'}>
                         {lab.status}
                       </Badge>
@@ -178,7 +178,7 @@ export const ParameterContextSection = ({ abnormalLabs }: ParameterContextSectio
                     {/* Possible Causes */}
                     <div className="bg-warning/5 rounded-lg p-3 border border-warning/20">
                       <h5 className="font-semibold text-foreground mb-2 flex items-center space-x-1">
-                        <AlertTriangle className="w-4 h-4 text-warning" />
+                        <User className="w-4 h-4 text-warning" />
                         <span>Possible Contributing Factors</span>
                       </h5>
                       <ul className="text-sm text-foreground space-y-1">

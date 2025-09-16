@@ -71,6 +71,7 @@ export default {
 					text: 'hsl(var(--report-text))',
 					danger: 'hsl(var(--report-danger))'
 				},
+				'persian-blue': 'hsl(var(--persian-blue))',
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
