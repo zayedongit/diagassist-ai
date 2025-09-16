@@ -957,31 +957,12 @@ RAW DATA: ${baseContext}`;
                   </div>
                   <div className="p-6">
                     <div className="text-center">
+                      <UploadZone onFileSelect={handleFileSelect} />
                     </div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Disclaimer and Footer positioned at bottom over ready background */}
-              <div className="absolute bottom-0 left-0 right-0 z-20 space-y-4 pb-8">
-                {/* Disclaimer */}
-                <div className="px-4 sm:px-6">
-                  <div className="p-3 sm:p-4 bg-gradient-to-r from-orange-400 to-purple-600 rounded-lg mx-4">
-                    <h4 className="font-medium mb-2 text-white text-sm sm:text-base">Important Disclaimer</h4>
-                    <p className="text-xs sm:text-sm text-white/90 leading-relaxed">
-                      This report is generated using AI analysis and is intended for informational purposes only. It should not replace professional medical advice, diagnosis, or treatment. Always consult with qualified healthcare professionals for medical concerns. The AI analysis is based on available data and may not account for all individual factors. In case of medical emergencies, seek immediate professional medical attention.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Footer */}
-                <div className="px-4">
-                  <div className="py-4 sm:py-6 bg-gradient-to-r from-orange-400 to-purple-600 rounded-lg mx-4">
-                    <div className="text-center text-xs sm:text-sm space-y-1 sm:space-y-2">
-                      <p className="font-medium text-white drop-shadow-lg">Shëndet Medical Analytics - Advanced report analysis for better understanding</p>
-                      <p className="flex items-center justify-center space-x-1 text-xs text-white/70 drop-shadow-md">
-                        <span className="text-red-200">⚠️</span> 
-                        <span>This tool provides general guidance only. Always consult professionals for important decisions.</span>
+                    <div className="mt-8 text-center">
+                      <h4 className="text-white font-semibold text-lg drop-shadow-lg">Important Disclaimer</h4>
+                      <p className="text-white/90 text-sm leading-relaxed max-w-4xl mx-auto drop-shadow-md">
+                        This report is generated using AI analysis and is intended for informational purposes only. It should not replace professional medical advice, diagnosis, or treatment. Always consult with qualified healthcare professionals for medical concerns. In case of medical emergencies, seek immediate professional medical attention.
                       </p>
                     </div>
                   </div>
