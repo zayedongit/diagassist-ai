@@ -11,9 +11,7 @@ import { toast } from "sonner";
 import jsPDF from 'jspdf';
 import { UploadZone } from "@/components/UploadZone";
 import { AnimatedLoader } from "@/components/AnimatedLoader";
-import { AuthDialog } from "@/components/AuthDialog";
 import { MedicalChatAgent } from "@/components/MedicalChatAgent";
-import { PaymentGate } from "@/components/PaymentGate";
 import { generateMockPdf } from "@/components/MockPdfGenerator";
 import { generateComprehensiveReportPdf } from "@/utils/generateComprehensiveReportPdf";
 import { ComprehensiveReport } from "@/components/ComprehensiveReport";
@@ -41,9 +39,6 @@ const Index = () => {
   const [processingStatus, setProcessingStatus] = useState<string>('idle');
   const [showExtraction, setShowExtraction] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string>('');
-  const [showAuthDialog, setShowAuthDialog] = useState(false);
-  const [hasPaidPremium, setHasPaidPremium] = useState(false);
-  const [showPaymentGate, setShowPaymentGate] = useState(false);
   const [clinicalAssessmentData, setClinicalAssessmentData] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDriveSync, setIsDriveSync] = useState(false);
@@ -244,33 +239,12 @@ RAW DATA: ${baseContext}`;
     }
   };
 
-  const handleAuthSuccess = (user: any, session: any) => {
-    toast.success('Welcome! You now have access to premium features.');
-  };
-
-  // Handle payment success
-  const handlePaymentSuccess = () => {
-    setHasPaidPremium(true);
-    setShowPaymentGate(false);
-    toast.success('Premium features unlocked! You can now access all recommendations and downloads.');
-  };
-
-  // Handle premium feature access
-  const handlePremiumAccess = () => {
-    if (!isAuthenticated) {
-      setShowAuthDialog(true);
-    } else if (!hasPaidPremium) {
-      setShowPaymentGate(true);
-    }
-  };
 
   // Handle clinical assessment completion
   const handleClinicalAssessmentComplete = (reportData: any) => {
     setClinicalAssessmentData(reportData);
   };
 
-  // Check if user has premium access
-  const hasFullAccess = isAuthenticated && hasPaidPremium;
 
   // Helper function to detect non-medical reports
   const isNonMedicalReport = (data: any) => {
@@ -550,13 +524,21 @@ RAW DATA: ${baseContext}`;
               <CardDescription>Detailed insights from your medical report</CardDescription>
             </CardHeader>
             <CardContent>
-              <SummaryCard data={enhancedData} />
+              <SummaryCard 
+                summary={enhancedData?.summary}
+                overallStatus={enhancedData?.overallStatus}
+                analysisData={enhancedData}
+              />
               <Separator className="my-6" />
-              <ClinicalAssessmentHighlights data={clinicalAssessmentData} />
+              <ClinicalAssessmentHighlights clinicalData={clinicalAssessmentData} />
               <Separator className="my-6" />
-              <UnderstandingYourNumbers data={enhancedData} />
+              <UnderstandingYourNumbers analysisData={enhancedData} />
               <Separator className="my-6" />
-              <MedicalChatAgent context={createEnhancedAnalysisContext(enhancedData)} />
+              <MedicalChatAgent 
+                analysisContext={createEnhancedAnalysisContext(enhancedData)}
+                demographics={enhancedData?.demographics}
+                abnormalPanels={enhancedData?.medicalPanels}
+              />
               <Separator className="my-6" />
               <Button onClick={handleDownloadComprehensiveReport} className="w-full max-w-xs mx-auto">
                 <Download className="w-4 h-4 mr-2" />
@@ -717,17 +699,6 @@ RAW DATA: ${baseContext}`;
       </section>
 
       {/* Dialogs */}
-      <AuthDialog
-        open={showAuthDialog}
-        onOpenChange={setShowAuthDialog}
-        onAuthSuccess={handleAuthSuccess}
-      />
-      
-      <PaymentGate
-        open={showPaymentGate}
-        onOpenChange={setShowPaymentGate}
-        onPaymentSuccess={handlePaymentSuccess}
-      />
     </div>
   );
 };
