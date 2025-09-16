@@ -824,7 +824,7 @@ RAW DATA: ${baseContext}`;
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm border-b border-border sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 sm:py-4">
@@ -868,9 +868,9 @@ RAW DATA: ${baseContext}`;
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-4xl">
+      <main className="w-full">
         {!selectedFile && !showResults && (
-          <div className="space-y-8 sm:space-y-12">
+          <div className="w-full">
             {/* Hero Section */}
             <div className="relative min-h-screen bg-fixed bg-cover bg-center bg-no-repeat flex items-center justify-center" style={{backgroundImage: `url(${heroBackground})`}}>
               <div className="absolute inset-0 bg-black/40"></div>
@@ -895,59 +895,61 @@ RAW DATA: ${baseContext}`;
               </div>
             </div>
 
-            {/* Features */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12 px-4">
-              <Card className="shadow-card border-0 bg-white/50 backdrop-blur-sm">
-                <CardContent className="p-4 sm:p-6 text-center space-y-3 sm:space-y-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                    <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
-                  </div>
-                  <h3 className="text-sm sm:text-base font-semibold text-foreground">Data Analysis</h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
-                    Advanced analysis of your document parameters
-                  </p>
-                </CardContent>
-              </Card>
+            {/* Features Section - Overlayed on hero */}
+            <div className="relative -mt-32 pb-32 z-20">
+              <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                  <Card className="shadow-card border-0 bg-white/80 backdrop-blur-sm">
+                    <CardContent className="p-4 sm:p-6 text-center space-y-3 sm:space-y-4">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                        <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                      </div>
+                      <h3 className="text-sm sm:text-base font-semibold text-foreground">Data Analysis</h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground">
+                        Advanced analysis of your document parameters
+                      </p>
+                    </CardContent>
+                  </Card>
 
-              <Card className="shadow-card border-0 bg-white/50 backdrop-blur-sm">
-                <CardContent className="p-4 sm:p-6 text-center space-y-3 sm:space-y-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-success/10 rounded-full flex items-center justify-center mx-auto">
-                    <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-success" />
-                  </div>
-                  <h3 className="text-sm sm:text-base font-semibold text-foreground">Simple Language</h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
-                    Complex terms explained in easy words
-                  </p>
-                </CardContent>
-              </Card>
+                  <Card className="shadow-card border-0 bg-white/80 backdrop-blur-sm">
+                    <CardContent className="p-4 sm:p-6 text-center space-y-3 sm:space-y-4">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-success/10 rounded-full flex items-center justify-center mx-auto">
+                        <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-success" />
+                      </div>
+                      <h3 className="text-sm sm:text-base font-semibold text-foreground">Simple Language</h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground">
+                        Complex terms explained in easy words
+                      </p>
+                    </CardContent>
+                  </Card>
 
-              <Card className="shadow-card border-0 bg-white/50 backdrop-blur-sm">
-                <CardContent className="p-4 sm:p-6 text-center space-y-3 sm:space-y-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-warning/10 rounded-full flex items-center justify-center mx-auto">
-                    <Stethoscope className="w-5 h-5 sm:w-6 sm:h-6 text-warning" />
-                  </div>
-                  <h3 className="text-sm sm:text-base font-semibold text-foreground">Clinical Assessment</h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
-                    Clinical assessment after your medical data analysis gives a more holistic report
-                  </p>
-                </CardContent>
-              </Card>
+                  <Card className="shadow-card border-0 bg-white/80 backdrop-blur-sm">
+                    <CardContent className="p-4 sm:p-6 text-center space-y-3 sm:space-y-4">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-warning/10 rounded-full flex items-center justify-center mx-auto">
+                        <Stethoscope className="w-5 h-5 sm:w-6 sm:h-6 text-warning" />
+                      </div>
+                      <h3 className="text-sm sm:text-base font-semibold text-foreground">Clinical Assessment</h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground">
+                        Clinical assessment after your medical data analysis gives a more holistic report
+                      </p>
+                    </CardContent>
+                  </Card>
 
-              <Card className="shadow-card border-0 bg-white/50 backdrop-blur-sm">
-                <CardContent className="p-4 sm:p-6 text-center space-y-3 sm:space-y-4">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-app-blue/10 rounded-full flex items-center justify-center mx-auto">
-                    <Lock className="w-5 h-5 sm:w-6 sm:h-6 text-app-blue" />
-                  </div>
-                  <h3 className="text-sm sm:text-base font-semibold text-foreground">Private & Secure</h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
-                    Your data is processed securely and privately
-                  </p>
-                </CardContent>
-              </Card>
+                  <Card className="shadow-card border-0 bg-white/80 backdrop-blur-sm">
+                    <CardContent className="p-4 sm:p-6 text-center space-y-3 sm:space-y-4">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-app-blue/10 rounded-full flex items-center justify-center mx-auto">
+                        <Lock className="w-5 h-5 sm:w-6 sm:h-6 text-app-blue" />
+                      </div>
+                      <h3 className="text-sm sm:text-base font-semibold text-foreground">Private & Secure</h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground">
+                        Your data is processed securely and privately
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
             </div>
 
-
-            
             {/* Upload Section - Ready to Get Started */}
             <div className="relative min-h-screen bg-fixed bg-cover bg-center bg-no-repeat flex items-center justify-center" style={{backgroundImage: `url(${readyBackground})`}}>
               <div className="absolute inset-0 bg-black/50"></div>
