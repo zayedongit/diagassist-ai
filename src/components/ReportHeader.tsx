@@ -55,8 +55,8 @@ export const ReportHeader = ({ patientName, demographics, testDate, overallStatu
           <div className="flex items-center gap-2">
             <User className="w-4 h-4 text-primary" />
             <div>
-              <p className="text-xs text-muted-foreground">Patient Name</p>
-              <p className="text-sm font-medium text-foreground">
+              <p className="text-xs text-persian-blue">Patient Name</p>
+              <p className="text-sm font-medium text-persian-blue">
                 {patientName || 'Anonymous Patient'}
               </p>
             </div>
@@ -66,8 +66,8 @@ export const ReportHeader = ({ patientName, demographics, testDate, overallStatu
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-primary" />
               <div>
-                <p className="text-xs text-muted-foreground">Age</p>
-                <p className="text-sm font-medium text-foreground">
+                <p className="text-xs text-persian-blue">Age</p>
+                <p className="text-sm font-medium text-persian-blue">
                   {demographics.age} years
                 </p>
               </div>
@@ -78,8 +78,8 @@ export const ReportHeader = ({ patientName, demographics, testDate, overallStatu
             <div className="flex items-center gap-2">
               <User className="w-4 h-4 text-primary" />
               <div>
-                <p className="text-xs text-muted-foreground">Gender</p>
-                <p className="text-sm font-medium text-foreground capitalize">
+                <p className="text-xs text-persian-blue">Gender</p>
+                <p className="text-sm font-medium text-persian-blue capitalize">
                   {demographics.gender}
                 </p>
               </div>

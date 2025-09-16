@@ -157,9 +157,9 @@ export const AnalysisResult = ({
                   Hi {patientName}
                 </h3>
               )}
-              <p className="text-xs sm:text-sm text-muted-foreground">{statusInfo.description}</p>
+              <p className="text-xs sm:text-sm text-persian-blue">{statusInfo.description}</p>
                 {patientName && (
-                  <p className="text-xs sm:text-sm text-muted-foreground">Here are your report results</p>
+                  <p className="text-xs sm:text-sm text-persian-blue">Here are your report results</p>
                 )}
             </div>
           </div>
@@ -169,7 +169,7 @@ export const AnalysisResult = ({
             {/* Patient Demographics */}
             {enhancedData?.demographics && (
               <div className="bg-muted/10 rounded-lg p-3 border border-border/20">
-                <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-4 text-xs sm:text-sm text-muted-foreground">
+                <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-4 text-xs sm:text-sm text-persian-blue">
                   {enhancedData.demographics.age && (
                     <span>Age: {enhancedData.demographics.age} years</span>
                   )}
