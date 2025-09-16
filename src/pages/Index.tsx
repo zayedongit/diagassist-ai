@@ -872,27 +872,8 @@ RAW DATA: ${baseContext}`;
         {!selectedFile && !showResults && (
           <div className="w-full">
             {/* Hero Section */}
-            <div className="relative min-h-screen bg-fixed bg-cover bg-center bg-no-repeat flex items-center justify-center" style={{backgroundImage: `url(${heroBackground})`}}>
+            <div className="relative min-h-screen bg-fixed bg-cover bg-center bg-no-repeat" style={{backgroundImage: `url(${heroBackground})`}}>
               <div className="absolute inset-0 bg-black/40"></div>
-              <div className="relative z-10 text-center space-y-4 sm:space-y-6 px-4 animate-fade-in">
-                <div className="flex justify-center mb-4 sm:mb-6 animate-scale-in">
-                  <div className="bg-gradient-app p-3 sm:p-4 rounded-full shadow-app backdrop-blur-sm">
-                    <Brain className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
-                  </div>
-                </div>
-                <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-white leading-tight px-4 drop-shadow-lg animate-fade-in">
-                  Get Simple Insights from
-                  <br className="hidden sm:block" />
-                  <span className="block sm:inline"> </span>
-                  <span className="bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent drop-shadow-none">
-                    Your Reports
-                  </span>
-                </h2>
-                <p className="text-base sm:text-lg lg:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed px-4 drop-shadow-md animate-fade-in">
-                  Upload your reports and get easy-to-understand insights, 
-                  recommendations, and guidance in seconds.
-                </p>
-              </div>
             </div>
 
             {/* Features Section - Overlayed on hero */}
@@ -1144,10 +1125,10 @@ RAW DATA: ${baseContext}`;
 
         {/* Disclaimer */}
         <div className="mt-8 sm:mt-12">
-          <div className="backdrop-blur-sm rounded-2xl p-4 sm:p-6">
+          <div className="backdrop-blur-sm rounded-2xl p-4 sm:p-6 bg-gradient-to-r from-orange-400 to-purple-600">
             <div className="p-3 sm:p-4 rounded-lg border-2 border-white/20">
-              <h4 className="font-medium mb-2 bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent text-sm sm:text-base">Important Disclaimer</h4>
-              <p className="text-xs sm:text-sm text-white/90 leading-relaxed drop-shadow-md">
+              <h4 className="font-medium mb-2 text-white text-sm sm:text-base">Important Disclaimer</h4>
+              <p className="text-xs sm:text-sm text-white/90 leading-relaxed">
                 This report is generated using AI analysis and is intended for informational purposes only. It should not replace professional medical advice, diagnosis, or treatment. Always consult with qualified healthcare professionals for medical concerns. The AI analysis is based on available data and may not account for all individual factors. In case of medical emergencies, seek immediate professional medical attention.
               </p>
             </div>
@@ -1155,12 +1136,12 @@ RAW DATA: ${baseContext}`;
         </div>
 
         {/* Footer */}
-        <footer className="backdrop-blur-sm mt-12 sm:mt-20">
+        <footer className="backdrop-blur-sm mt-12 sm:mt-20 bg-gradient-to-r from-orange-400 to-purple-600">
           <div className="px-4 py-4 sm:py-6">
             <div className="text-center text-xs sm:text-sm space-y-1 sm:space-y-2">
-              <p className="font-medium bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">Shëndet Medical Analytics - Advanced report analysis for better understanding</p>
+              <p className="font-medium text-white drop-shadow-lg">Shëndet Medical Analytics - Advanced report analysis for better understanding</p>
               <p className="flex items-center justify-center space-x-1 text-xs text-white/70 drop-shadow-md">
-                <span className="text-red-400">⚠️</span> 
+                <span className="text-red-200">⚠️</span> 
                 <span>This tool provides general guidance only. Always consult professionals for important decisions.</span>
               </p>
             </div>

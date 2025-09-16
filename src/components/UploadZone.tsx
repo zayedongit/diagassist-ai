@@ -53,8 +53,8 @@ export const UploadZone = ({ onFileSelect }: UploadZoneProps) => {
   };
 
   return (
-    <div className={`transition-all duration-300 border-2 rounded-lg ${
-      isDragOver && isAuthenticated ? 'border-white bg-white/10' : 'border-dashed border-white/30 hover:border-white/50'
+    <div className={`transition-all duration-300 ${
+      isDragOver && isAuthenticated ? 'border-white bg-white/10' : ''
     }`}>
       <div className="p-6 sm:p-8 md:p-12">
         {!isAuthenticated && !showLoginForm ? (
