@@ -885,8 +885,8 @@ RAW DATA: ${baseContext}`;
                         <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                       </div>
                     </div>
-                    <h3 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">Data Analysis</h3>
-                    <p className="text-white drop-shadow-md text-sm sm:text-base">
+                    <h3 className="text-sm sm:text-base font-bold bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">Data Analysis</h3>
+                    <p className="text-white drop-shadow-md text-xs sm:text-sm">
                       Advanced analysis of your document parameters
                     </p>
                   </div>
@@ -897,8 +897,8 @@ RAW DATA: ${baseContext}`;
                         <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                       </div>
                     </div>
-                    <h3 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">Simple Language</h3>
-                    <p className="text-white drop-shadow-md text-sm sm:text-base">
+                    <h3 className="text-sm sm:text-base font-bold bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">Simple Language</h3>
+                    <p className="text-white drop-shadow-md text-xs sm:text-sm">
                       Complex terms explained in easy words
                     </p>
                   </div>
@@ -909,8 +909,8 @@ RAW DATA: ${baseContext}`;
                         <Stethoscope className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                       </div>
                     </div>
-                    <h3 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">Clinical Assessment</h3>
-                    <p className="text-white drop-shadow-md text-sm sm:text-base">
+                    <h3 className="text-sm sm:text-base font-bold bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">Clinical Assessment</h3>
+                    <p className="text-white drop-shadow-md text-xs sm:text-sm">
                       Clinical assessment after your medical data analysis gives a more holistic report
                     </p>
                   </div>
@@ -921,8 +921,8 @@ RAW DATA: ${baseContext}`;
                         <Lock className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                       </div>
                     </div>
-                    <h3 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">Private & Secure</h3>
-                    <p className="text-white drop-shadow-md text-sm sm:text-base">
+                    <h3 className="text-sm sm:text-base font-bold bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">Private & Secure</h3>
+                    <p className="text-white drop-shadow-md text-xs sm:text-sm">
                       Your data is processed securely and privately
                     </p>
                   </div>
@@ -934,24 +934,25 @@ RAW DATA: ${baseContext}`;
             <div className="relative min-h-screen">
               {/* Ready background overlay covering rest of page */}
               <div 
-                className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-60" 
+                className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-80 scale-110" 
                 style={{
                   backgroundImage: `url(${readyBackground})`,
-                  height: '100vh'
+                  height: '120vh',
+                  transform: 'scale(1.2)'
                 }}
               ></div>
-              <div className="absolute inset-0 bg-black/20" style={{height: '100vh'}}></div>
+              <div className="absolute inset-0 bg-black/15" style={{height: '120vh'}}></div>
               
               {/* Upload content */}
               <div className="relative z-10 flex items-center justify-center min-h-screen">
                 <div className="space-y-6 px-4 w-full max-w-4xl animate-fade-in">
                   <div className="text-center mb-8">
-                    <h3 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 animate-fade-in">
+                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-4 animate-fade-in">
                       <span className="bg-gradient-to-r from-orange-400 via-red-500 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">
                         Ready to Get Started?
                       </span>
                     </h3>
-                    <p className="text-lg sm:text-xl text-white/90 drop-shadow-md animate-fade-in">
+                    <p className="text-sm sm:text-base text-white/90 drop-shadow-md animate-fade-in">
                       Upload your medical report now and discover insights that could change your health journey.
                     </p>
                   </div>
@@ -960,8 +961,8 @@ RAW DATA: ${baseContext}`;
                       <UploadZone onFileSelect={handleFileSelect} />
                     </div>
                     <div className="mt-8 text-center">
-                      <h4 className="text-white font-semibold text-lg drop-shadow-lg">Important Disclaimer</h4>
-                      <p className="text-white/90 text-sm leading-relaxed max-w-4xl mx-auto drop-shadow-md">
+                      <h4 className="text-white font-semibold text-sm drop-shadow-lg">Important Disclaimer</h4>
+                      <p className="text-white/90 text-xs leading-relaxed max-w-4xl mx-auto drop-shadow-md">
                         This report is generated using AI analysis and is intended for informational purposes only. It should not replace professional medical advice, diagnosis, or treatment. Always consult with qualified healthcare professionals for medical concerns. In case of medical emergencies, seek immediate professional medical attention.
                       </p>
                     </div>
