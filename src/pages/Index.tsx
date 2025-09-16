@@ -930,27 +930,60 @@ RAW DATA: ${baseContext}`;
               </div>
             </div>
 
-            {/* Upload Section - using ready background as overlay */}
-            <div className="relative min-h-screen flex items-center justify-center">
+            {/* Upload Section with ready background extending to bottom */}
+            <div className="relative min-h-screen">
+              {/* Ready background overlay covering rest of page */}
               <div 
                 className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-60" 
-                style={{backgroundImage: `url(${readyBackground})`}}
+                style={{
+                  backgroundImage: `url(${readyBackground})`,
+                  height: '100vh'
+                }}
               ></div>
-              <div className="absolute inset-0 bg-black/20"></div>
-              <div className="relative z-10 space-y-6 px-4 w-full max-w-4xl animate-fade-in">
-                <div className="text-center mb-8">
-                  <h3 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 animate-fade-in">
-                    <span className="bg-gradient-to-r from-orange-400 via-red-500 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">
-                      Ready to Get Started?
-                    </span>
-                  </h3>
-                  <p className="text-lg sm:text-xl text-white/90 drop-shadow-md animate-fade-in">
-                    Upload your medical report now and discover insights that could change your health journey.
-                  </p>
+              <div className="absolute inset-0 bg-black/20" style={{height: '100vh'}}></div>
+              
+              {/* Upload content */}
+              <div className="relative z-10 flex items-center justify-center min-h-screen">
+                <div className="space-y-6 px-4 w-full max-w-4xl animate-fade-in">
+                  <div className="text-center mb-8">
+                    <h3 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 animate-fade-in">
+                      <span className="bg-gradient-to-r from-orange-400 via-red-500 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">
+                        Ready to Get Started?
+                      </span>
+                    </h3>
+                    <p className="text-lg sm:text-xl text-white/90 drop-shadow-md animate-fade-in">
+                      Upload your medical report now and discover insights that could change your health journey.
+                    </p>
+                  </div>
+                  <div className="p-6">
+                    <div className="text-center">
+                    </div>
+                  </div>
                 </div>
-                <div className="p-6">
-                  <div className="text-center">
-                    <UploadZone onFileSelect={handleFileSelect} />
+              </div>
+              
+              {/* Disclaimer and Footer positioned at bottom over ready background */}
+              <div className="absolute bottom-0 left-0 right-0 z-20 space-y-4 pb-8">
+                {/* Disclaimer */}
+                <div className="px-4 sm:px-6">
+                  <div className="p-3 sm:p-4 bg-gradient-to-r from-orange-400 to-purple-600 rounded-lg mx-4">
+                    <h4 className="font-medium mb-2 text-white text-sm sm:text-base">Important Disclaimer</h4>
+                    <p className="text-xs sm:text-sm text-white/90 leading-relaxed">
+                      This report is generated using AI analysis and is intended for informational purposes only. It should not replace professional medical advice, diagnosis, or treatment. Always consult with qualified healthcare professionals for medical concerns. The AI analysis is based on available data and may not account for all individual factors. In case of medical emergencies, seek immediate professional medical attention.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="px-4">
+                  <div className="py-4 sm:py-6 bg-gradient-to-r from-orange-400 to-purple-600 rounded-lg mx-4">
+                    <div className="text-center text-xs sm:text-sm space-y-1 sm:space-y-2">
+                      <p className="font-medium text-white drop-shadow-lg">Shëndet Medical Analytics - Advanced report analysis for better understanding</p>
+                      <p className="flex items-center justify-center space-x-1 text-xs text-white/70 drop-shadow-md">
+                        <span className="text-red-200">⚠️</span> 
+                        <span>This tool provides general guidance only. Always consult professionals for important decisions.</span>
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1109,31 +1142,6 @@ RAW DATA: ${baseContext}`;
           </div>
         )}
       </main>
-
-        {/* Disclaimer - Transparent background */}
-        <div className="mt-8 sm:mt-12">
-          <div className="p-4 sm:p-6">
-            <div className="p-3 sm:p-4 bg-gradient-to-r from-orange-400 to-purple-600 rounded-lg">
-              <h4 className="font-medium mb-2 text-white text-sm sm:text-base">Important Disclaimer</h4>
-              <p className="text-xs sm:text-sm text-white/90 leading-relaxed">
-                This report is generated using AI analysis and is intended for informational purposes only. It should not replace professional medical advice, diagnosis, or treatment. Always consult with qualified healthcare professionals for medical concerns. The AI analysis is based on available data and may not account for all individual factors. In case of medical emergencies, seek immediate professional medical attention.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer - Transparent background */}
-        <footer className="mt-12 sm:mt-20">
-          <div className="px-4 py-4 sm:py-6 bg-gradient-to-r from-orange-400 to-purple-600 rounded-lg mx-4">
-            <div className="text-center text-xs sm:text-sm space-y-1 sm:space-y-2">
-              <p className="font-medium text-white drop-shadow-lg">Shëndet Medical Analytics - Advanced report analysis for better understanding</p>
-              <p className="flex items-center justify-center space-x-1 text-xs text-white/70 drop-shadow-md">
-                <span className="text-red-200">⚠️</span> 
-                <span>This tool provides general guidance only. Always consult professionals for important decisions.</span>
-              </p>
-            </div>
-          </div>
-        </footer>
 
       {/* Auth Dialog */}
       <AuthDialog 
