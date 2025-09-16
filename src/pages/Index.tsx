@@ -887,7 +887,7 @@ RAW DATA: ${baseContext}`;
                       </div>
                     </div>
                     <h3 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">Data Analysis</h3>
-                    <p className="text-white/90 text-sm sm:text-base drop-shadow-md">
+                    <p className="text-white drop-shadow-md text-sm sm:text-base">
                       Advanced analysis of your document parameters
                     </p>
                   </div>
@@ -899,7 +899,7 @@ RAW DATA: ${baseContext}`;
                       </div>
                     </div>
                     <h3 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">Simple Language</h3>
-                    <p className="text-white/90 text-sm sm:text-base drop-shadow-md">
+                    <p className="text-white drop-shadow-md text-sm sm:text-base">
                       Complex terms explained in easy words
                     </p>
                   </div>
@@ -911,7 +911,7 @@ RAW DATA: ${baseContext}`;
                       </div>
                     </div>
                     <h3 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">Clinical Assessment</h3>
-                    <p className="text-white/90 text-sm sm:text-base drop-shadow-md">
+                    <p className="text-white drop-shadow-md text-sm sm:text-base">
                       Clinical assessment after your medical data analysis gives a more holistic report
                     </p>
                   </div>
@@ -923,7 +923,7 @@ RAW DATA: ${baseContext}`;
                       </div>
                     </div>
                     <h3 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">Private & Secure</h3>
-                    <p className="text-white/90 text-sm sm:text-base drop-shadow-md">
+                    <p className="text-white drop-shadow-md text-sm sm:text-base">
                       Your data is processed securely and privately
                     </p>
                   </div>
@@ -1125,8 +1125,8 @@ RAW DATA: ${baseContext}`;
 
         {/* Disclaimer */}
         <div className="mt-8 sm:mt-12">
-          <div className="backdrop-blur-sm rounded-2xl p-4 sm:p-6 bg-gradient-to-r from-orange-400 to-purple-600">
-            <div className="p-3 sm:p-4 rounded-lg border-2 border-white/20">
+          <div className="p-4 sm:p-6 bg-gradient-to-r from-orange-400 to-purple-600">
+            <div className="p-3 sm:p-4">
               <h4 className="font-medium mb-2 text-white text-sm sm:text-base">Important Disclaimer</h4>
               <p className="text-xs sm:text-sm text-white/90 leading-relaxed">
                 This report is generated using AI analysis and is intended for informational purposes only. It should not replace professional medical advice, diagnosis, or treatment. Always consult with qualified healthcare professionals for medical concerns. The AI analysis is based on available data and may not account for all individual factors. In case of medical emergencies, seek immediate professional medical attention.
@@ -1136,7 +1136,7 @@ RAW DATA: ${baseContext}`;
         </div>
 
         {/* Footer */}
-        <footer className="backdrop-blur-sm mt-12 sm:mt-20 bg-gradient-to-r from-orange-400 to-purple-600">
+        <footer className="mt-12 sm:mt-20 bg-gradient-to-r from-orange-400 to-purple-600">
           <div className="px-4 py-4 sm:py-6">
             <div className="text-center text-xs sm:text-sm space-y-1 sm:space-y-2">
               <p className="font-medium text-white drop-shadow-lg">Shëndet Medical Analytics - Advanced report analysis for better understanding</p>
