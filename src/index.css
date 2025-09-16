@@ -55,12 +55,11 @@ All colors MUST be HSL.
     --report-text: 0 0% 98%;    /* Light text for readability */
     --report-danger: 0 84% 60%; /* Red for warnings/flags */
     
-    /* Gradients */
+    /* Solid Colors - No Gradients */
     --gradient-primary: hsl(225, 100%, 56%);
     --gradient-app: hsl(225, 100%, 56%);
     --gradient-subtle: hsl(270, 30%, 20%);
     --gradient-golden: linear-gradient(135deg, hsl(225, 100%, 96%) 0%, hsl(225, 100%, 92%) 100%);
-    --gradient-orange-purple: linear-gradient(135deg, hsl(25, 100%, 60%) 0%, hsl(270, 100%, 60%) 100%);
     
     /* Shadows */
     --shadow-soft: 0 4px 20px -2px hsl(225 100% 56% / 0.1);
