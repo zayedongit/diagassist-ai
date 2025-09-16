@@ -53,38 +53,31 @@ export const SummaryCard = ({ summary, overallStatus, abnormalCount = 0, normalC
         <CardTitle className="flex items-center gap-3">
           {statusIcon}
           <div>
-            <h2 className="text-lg font-semibold text-foreground">Summary in Simple Terms</h2>
-            <p className="text-sm text-muted-foreground font-normal">Easy-to-understand overview of your results</p>
+            <h2 className="text-lg font-semibold" style={{color: 'hsl(220, 74%, 42%)'}}>Summary in Simple Terms</h2>
+            <p className="text-sm font-normal" style={{color: 'hsl(220, 74%, 42%)'}}>Easy-to-understand overview of your results</p>
           </div>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Quick Stats */}
-        {(abnormalCount > 0 || normalCount > 0) && (
+        {/* Quick Stats - Hide normal values, only show abnormal */}
+        {abnormalCount > 0 && (
           <div className="flex flex-wrap gap-3 justify-center">
-            {normalCount > 0 && (
-              <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200">
-                {normalCount} Normal Values
-              </Badge>
-            )}
-            {abnormalCount > 0 && (
-              <Badge variant="destructive" className="bg-red-100 text-red-800 border-red-200">
-                {abnormalCount} Values Need Attention
-              </Badge>
-            )}
+            <Badge variant="destructive" className="bg-red-100 text-red-800 border-red-200">
+              {abnormalCount} Values Need Attention
+            </Badge>
           </div>
         )}
         
         {/* Summary Text */}
         <div className="bg-white/60 rounded-lg p-4 border border-yellow-200">
-          <p className="text-sm text-foreground leading-relaxed">
+          <p className="text-sm leading-relaxed" style={{color: 'hsl(220, 74%, 42%)'}}>
             {summary || statusMessage}
           </p>
         </div>
         
         {/* Key Message */}
         <div className="bg-primary/5 rounded-lg p-3 border border-primary/20">
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs" style={{color: 'hsl(220, 74%, 42%)'}}>
             <strong>Remember:</strong> This summary provides a general overview. 
             Always discuss your results with your healthcare provider for personalized medical advice.
           </p>

@@ -150,10 +150,10 @@ export const AnalysisResult = ({
               <StatusIcon className={`w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 ${statusInfo.color}`} />
             </div>
             <div className="min-w-0 flex-1">
-              <CardTitle className="text-base sm:text-lg md:text-xl">{statusInfo.text}</CardTitle>
+              <CardTitle className="text-base sm:text-lg md:text-xl" style={{color: 'hsl(220, 74%, 42%)'}}>{statusInfo.text}</CardTitle>
               {/* Patient Greeting directly under status */}
               {patientName && (
-                <h3 className="text-sm sm:text-base md:text-lg font-medium text-foreground mt-1">
+                <h3 className="text-sm sm:text-base md:text-lg font-medium mt-1" style={{color: 'hsl(220, 74%, 42%)'}}>
                   Hi {patientName}
                 </h3>
               )}
@@ -194,11 +194,11 @@ export const AnalysisResult = ({
                       </div>
                     </div>
                     <div className="flex-1 min-w-0 w-full">
-                      <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mb-3 sm:mb-4 flex items-center text-center sm:text-left">
+                      <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 flex items-center text-center sm:text-left" style={{color: 'hsl(220, 74%, 42%)'}}>
                         📋 Summary in Simple Terms
                       </h3>
                       <div className="bg-background/60 backdrop-blur-sm rounded-xl p-3 sm:p-4 md:p-5 border border-warning/20">
-                        <p className="text-sm sm:text-base text-foreground leading-relaxed font-medium">
+                        <p className="text-sm sm:text-base leading-relaxed font-medium" style={{color: 'hsl(220, 74%, 42%)'}}>
                           {normalizedData.summary}
                         </p>
                       </div>
@@ -231,7 +231,7 @@ export const AnalysisResult = ({
               ).length > 0
             ) && (
               <div>
-                <h4 className="text-lg font-semibold text-foreground mb-3 flex items-center space-x-2">
+                <h4 className="text-lg font-semibold mb-3 flex items-center space-x-2" style={{color: 'hsl(220, 74%, 42%)'}}>
                   <Stethoscope className="w-5 h-5 text-primary" />
                   <span>Medical Panel Analysis</span>
                 </h4>
@@ -311,11 +311,11 @@ export const AnalysisResult = ({
 
                       return (
                         <div key={index} className="bg-muted/20 rounded-xl p-4 border border-border/30">
-                          <h5 className="font-semibold text-foreground mb-2 flex items-center space-x-2">
+                          <h5 className="font-semibold mb-2 flex items-center space-x-2" style={{color: 'hsl(220, 74%, 42%)'}}>
                             <FileText className="w-4 h-4 text-primary" />
                             <span>{panel.name}</span>
                           </h5>
-                          <p className="text-sm text-muted-foreground mb-3">{panel.description}</p>
+                          <p className="text-sm mb-3" style={{color: 'hsl(220, 74%, 42%)'}}>{panel.description}</p>
                           
                            {/* Enhanced Color-Coded Bars with Human Icons */}
                            <div className="mb-6">
@@ -583,46 +583,8 @@ export const AnalysisResult = ({
             {/* Predictive Insights Section */}
             <PredictiveInsightsSection analysisData={analysisData} />
 
-            {/* Normal Parameters with Values Card - Hidden for single abnormal parameter */}
-            {(() => {
-              const allNormalParams: string[] = [];
-              let totalAbnormal = 0;
-              
-              if (enhancedData?.medicalPanels) {
-                enhancedData.medicalPanels.forEach(panel => {
-                  if (panel.normalParameters && panel.normalParameters.length > 0) {
-                    allNormalParams.push(...panel.normalParameters);
-                  }
-                  if (panel.abnormalLabs && panel.abnormalLabs.length > 0) {
-                    totalAbnormal += panel.abnormalLabs.length;
-                  }
-                });
-              }
-              
-              // Only show if there are multiple abnormal parameters
-              return allNormalParams.length > 0 && totalAbnormal > 1 ? (
-                <div>
-                  <h4 className="text-lg font-semibold text-foreground mb-3 flex items-center space-x-2">
-                    <CheckCircle className="w-5 h-5 text-success" />
-                    <span>Normal Parameters (with values)</span>
-                  </h4>
-                  <Card className="border-border/50">
-                    <CardContent className="p-4">
-                      <div className="bg-success/5 rounded-lg p-4 border border-success/20">
-                        <div className="grid gap-2 sm:grid-cols-1 lg:grid-cols-2">
-                          {allNormalParams.map((param, index) => (
-                            <div key={index} className="flex items-center space-x-2">
-                              <CheckCircle className="w-3 h-3 text-success flex-shrink-0" />
-                              <span className="text-sm text-foreground">{param}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              ) : null;
-            })()}
+            {/* Normal Parameters with Values Card - HIDDEN as per user request */}
+            {/* User requested to hide normal values completely */}
 
             {/* Parameter Context Section - Visual aids and explanations */}
             {(() => {

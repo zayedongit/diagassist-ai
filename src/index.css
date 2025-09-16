@@ -12,10 +12,10 @@ All colors MUST be HSL.
     --foreground: 0 0% 98%;  /* Light text for readability */
 
     --card: 0 0% 100%;
-    --card-foreground: 225 100% 56%;
+    --card-foreground: 220 74% 42%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 225 100% 56%;
+    --popover-foreground: 220 74% 42%;
 
     --primary: 225 100% 56%;
     --primary-foreground: 0 0% 100%;
@@ -49,10 +49,11 @@ All colors MUST be HSL.
     --app-blue: 225 100% 56%;
     --app-light: 0 0% 98%;
     --app-accent: 270 60% 70%;
+    --persian-blue: 220 74% 42%;
     
     /* Report-specific colors */
     --report-bg: 0 0% 3%;       /* Dark background to show background images */
-    --report-text: 0 0% 98%;    /* Light text for readability */
+    --report-text: 220 74% 42%; /* Persian Blue for analysis text */
     --report-danger: 0 84% 60%; /* Red for warnings/flags */
     
     /* Solid Colors - No Gradients */

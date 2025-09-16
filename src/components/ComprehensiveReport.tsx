@@ -376,10 +376,10 @@ export const ComprehensiveReport = ({
                 <StatusIcon className={`h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 ${statusInfo.color}`} />
               </div>
               <div className="min-w-0 flex-1">
-                <CardTitle className="text-lg sm:text-xl md:text-2xl font-bold text-report-text">
+                <CardTitle className="text-lg sm:text-xl md:text-2xl font-bold" style={{color: 'hsl(220, 74%, 42%)'}}>
                   {profileName}
                 </CardTitle>
-                <p className="text-xs sm:text-sm text-report-text/70">{statusInfo.description}</p>
+                <p className="text-xs sm:text-sm" style={{color: 'hsl(220, 74%, 42%)'}}>{statusInfo.description}</p>
               </div>
             </div>
             {showDownloadButton && (
@@ -426,7 +426,7 @@ export const ComprehensiveReport = ({
       {medicalPanels && medicalPanels.length > 0 && (
         <Card className="border-report-border">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-report-text">
+            <CardTitle className="flex items-center gap-2" style={{color: 'hsl(220, 74%, 42%)'}}>
               <Stethoscope className="h-5 w-5" />
               Medical Panel Analysis
             </CardTitle>
@@ -445,7 +445,7 @@ export const ComprehensiveReport = ({
               return filteredAbnormalLabs.length > 0 && (
                 <div key={index} className="border border-report-border/50 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold text-lg text-report-text">{panel.name}</h3>
+                    <h3 className="font-semibold text-lg" style={{color: 'hsl(220, 74%, 42%)'}}>{panel.name}</h3>
                     {panel.name === 'Additional Findings' && (
                       <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-300 text-xs">
                         Auto-detected — please verify
@@ -581,7 +581,7 @@ export const ComprehensiveReport = ({
       {nextSteps && nextSteps.length > 0 && (
         <Card className="border-report-border">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-report-text">
+            <CardTitle className="flex items-center gap-2" style={{color: 'hsl(220, 74%, 42%)'}}>
               <Brain className="h-5 w-5" />
               Next Steps & Recommendations
             </CardTitle>
@@ -624,7 +624,7 @@ export const ComprehensiveReport = ({
         {/* Dietary Recommendations */}
         <Card className="border-report-border">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-report-text">
+            <CardTitle className="flex items-center gap-2" style={{color: 'hsl(220, 74%, 42%)'}}>
               <Heart className="h-5 w-5" />
               Dietary Recommendations
             </CardTitle>
@@ -668,7 +668,7 @@ export const ComprehensiveReport = ({
         {/* Lifestyle Recommendations */}
         <Card className="border-report-border">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-report-text">
+            <CardTitle className="flex items-center gap-2" style={{color: 'hsl(220, 74%, 42%)'}}>
               <Activity className="h-5 w-5" />
               Lifestyle Modifications
             </CardTitle>
@@ -702,13 +702,13 @@ export const ComprehensiveReport = ({
       {/* 4. Patient-Friendly Summary */}
       <Card className="border-report-border bg-blue-50">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-report-text">
+          <CardTitle className="flex items-center gap-2" style={{color: 'hsl(220, 74%, 42%)'}}>
             <FileText className="h-5 w-5" />
             Summary in Simple Terms
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-report-text leading-relaxed">{patientFriendlySummary}</p>
+          <p className="leading-relaxed" style={{color: 'hsl(220, 74%, 42%)'}}>{patientFriendlySummary}</p>
         </CardContent>
       </Card>
 
