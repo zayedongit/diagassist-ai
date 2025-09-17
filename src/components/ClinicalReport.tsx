@@ -110,7 +110,7 @@ export const ClinicalReport = ({ reportData, onDownload, analysisData, patientNa
                     {condition.probability} Probability
                   </Badge>
                 </div>
-                <p className="text-sm text-muted-foreground">{condition.rationale}</p>
+                <p className="text-sm text-persian-blue">{condition.rationale}</p>
               </div>
             ))}
           </div>
@@ -132,7 +132,7 @@ export const ClinicalReport = ({ reportData, onDownload, analysisData, patientNa
                 <div key={index} className="flex items-start justify-between border rounded-lg p-3">
                   <div className="flex-1">
                     <h4 className="font-medium text-foreground">{investigation.test}</h4>
-                    <p className="text-sm text-muted-foreground mt-1">{investigation.reason}</p>
+                    <p className="text-sm text-persian-blue mt-1">{investigation.reason}</p>
                   </div>
                   <Badge variant={getUrgencyBadgeVariant(investigation.urgency)} className="ml-3">
                     {investigation.urgency}
@@ -156,12 +156,12 @@ export const ClinicalReport = ({ reportData, onDownload, analysisData, patientNa
           {/* Diet */}
           {reportData.management.diet && reportData.management.diet.length > 0 && (
             <div>
-              <h4 className="font-semibold text-foreground mb-3">Dietary Recommendations</h4>
+              <h4 className="font-semibold text-persian-blue mb-3">Dietary Recommendations</h4>
               <ul className="space-y-2">
                 {reportData.management.diet.map((item, index) => (
                   <li key={index} className="flex items-start gap-2">
                     <div className="h-2 w-2 rounded-full bg-primary mt-2 flex-shrink-0"></div>
-                    <span className="text-sm text-foreground">{item}</span>
+                    <span className="text-sm text-persian-blue">{item}</span>
                   </li>
                 ))}
               </ul>
@@ -171,12 +171,12 @@ export const ClinicalReport = ({ reportData, onDownload, analysisData, patientNa
           {/* Lifestyle */}
           {reportData.management.lifestyle && reportData.management.lifestyle.length > 0 && (
             <div>
-              <h4 className="font-semibold text-foreground mb-3">Lifestyle Modifications</h4>
+              <h4 className="font-semibold text-persian-blue mb-3">Lifestyle Modifications</h4>
               <ul className="space-y-2">
                 {reportData.management.lifestyle.map((item, index) => (
                   <li key={index} className="flex items-start gap-2">
                     <div className="h-2 w-2 rounded-full bg-primary mt-2 flex-shrink-0"></div>
-                    <span className="text-sm text-foreground">{item}</span>
+                    <span className="text-sm text-persian-blue">{item}</span>
                   </li>
                 ))}
               </ul>
@@ -186,12 +186,12 @@ export const ClinicalReport = ({ reportData, onDownload, analysisData, patientNa
           {/* General Management */}
           {reportData.management.generalRx && reportData.management.generalRx.length > 0 && (
             <div>
-              <h4 className="font-semibold text-foreground mb-3">General Management</h4>
+              <h4 className="font-semibold text-persian-blue mb-3">General Management</h4>
               <ul className="space-y-2">
                 {reportData.management.generalRx.map((item, index) => (
                   <li key={index} className="flex items-start gap-2">
                     <div className="h-2 w-2 rounded-full bg-primary mt-2 flex-shrink-0"></div>
-                    <span className="text-sm text-foreground">{item}</span>
+                    <span className="text-sm text-persian-blue">{item}</span>
                   </li>
                 ))}
               </ul>
@@ -215,7 +215,7 @@ export const ClinicalReport = ({ reportData, onDownload, analysisData, patientNa
                 <div key={index} className="flex items-start justify-between border rounded-lg p-3">
                   <div className="flex-1">
                     <h4 className="font-medium text-foreground">{referral.specialty}</h4>
-                    <p className="text-sm text-muted-foreground mt-1">{referral.reason}</p>
+                    <p className="text-sm text-persian-blue mt-1">{referral.reason}</p>
                   </div>
                   <Badge variant={getTimeframeBadgeVariant(referral.timeframe)} className="ml-3">
                     {referral.timeframe}
@@ -230,7 +230,7 @@ export const ClinicalReport = ({ reportData, onDownload, analysisData, patientNa
       {/* Disclaimer */}
       <Card className="bg-muted/30 border-muted">
         <CardContent className="pt-6">
-          <p className="text-sm text-muted-foreground text-center">
+          <p className="text-sm text-persian-blue text-center">
             <strong>Medical Disclaimer:</strong> {reportData.disclaimer}
           </p>
         </CardContent>

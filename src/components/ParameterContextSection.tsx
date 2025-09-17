@@ -134,7 +134,7 @@ export const ParameterContextSection = ({ abnormalLabs }: ParameterContextSectio
                         {lab.status}
                       </Badge>
                     </div>
-                    <span className="text-sm text-muted-foreground">Click to learn more</span>
+                    <span className="text-sm text-persian-blue">Click to learn more</span>
                   </Button>
                 </CollapsibleTrigger>
                 <CollapsibleContent className="mt-4">
@@ -153,7 +153,7 @@ export const ParameterContextSection = ({ abnormalLabs }: ParameterContextSectio
                     {/* Show message for AUTO-DETECTED values */}
                     {(lab.value === 'AUTO-DETECTED' || lab.value === 'See Report') && (
                       <div className="bg-muted/10 rounded-lg p-3 border border-border/20">
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-persian-blue">
                           <strong>Note:</strong> This parameter was detected in your report but requires manual review 
                           to determine the exact value and its clinical significance. Please consult your healthcare provider.
                         </p>
@@ -193,7 +193,7 @@ export const ParameterContextSection = ({ abnormalLabs }: ParameterContextSectio
                     
                     {/* Disclaimer */}
                     <div className="bg-muted/10 rounded-lg p-3 border border-border/20">
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-persian-blue">
                         <strong>Note:</strong> These are possible contributing factors, not definitive causes. 
                         Your healthcare provider can help determine the specific reasons for your results and 
                         appropriate next steps.

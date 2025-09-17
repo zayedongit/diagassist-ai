@@ -129,7 +129,7 @@ export const AnalysisResult = ({
       default:
         return {
           icon: AlertTriangle,
-          color: 'text-muted-foreground',
+          color: 'text-persian-blue',
           bgColor: 'bg-muted/10',
           text: 'Analysis Complete',
           description: 'Review your results'
@@ -328,7 +328,7 @@ export const AnalysisResult = ({
                                  <div className="bg-primary/20 p-2 rounded-full">
                                    <User className="w-4 h-4 text-primary" />
                                  </div>
-                                 <p className="text-sm text-muted-foreground font-medium">
+                                 <p className="text-sm text-persian-blue font-medium">
                                    The enhanced bars below show exactly where your values stand compared to the general population. 
                                    Your position is marked with a human icon (👤) showing your percentile ranking.
                                  </p>
@@ -386,7 +386,7 @@ export const AnalysisResult = ({
                                                <Info className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
                                                <div>
                                                  <p className="text-xs font-semibold text-primary mb-1">Clinical Significance:</p>
-                                                 <p className="text-xs text-muted-foreground leading-relaxed">{lab.significance}</p>
+                                                 <p className="text-xs text-persian-blue leading-relaxed">{lab.significance}</p>
                                                </div>
                                              </div>
                                            </div>
@@ -395,7 +395,7 @@ export const AnalysisResult = ({
                                        
                                        {/* Position Interpretation */}
                                        <div className="mt-2 px-2">
-                                         <p className="text-center text-xs text-muted-foreground italic">
+                                         <p className="text-center text-xs text-persian-blue italic">
                                            {markerResult.position <= 15 && "Your value is significantly lower than most people"}
                                            {markerResult.position > 15 && markerResult.position <= 30 && "Your value is below average range"}
                                            {markerResult.position > 30 && markerResult.position <= 70 && "Your value is within typical population range"}
@@ -414,7 +414,7 @@ export const AnalysisResult = ({
                                    <TrendingUp className="w-4 h-4 text-primary mt-0.5" />
                                    <div>
                                      <p className="text-xs font-semibold text-primary mb-1">Understanding Your Results:</p>
-                                     <p className="text-xs text-muted-foreground leading-relaxed">
+                                     <p className="text-xs text-persian-blue leading-relaxed">
                                        These visual ranges help you understand where your lab values stand compared to the general population. 
                                        Remember that "abnormal" doesn't always mean dangerous - many values can be improved with lifestyle changes or medical guidance.
                                      </p>
@@ -442,7 +442,7 @@ export const AnalysisResult = ({
                                     </div>
                                   ))}
                                 </div>
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-xs text-persian-blue">
                                   These parameters were within normal ranges
                                 </p>
                               </div>
@@ -543,15 +543,15 @@ export const AnalysisResult = ({
                      <div className="flex items-center justify-between mb-4">
                        <div className="text-center">
                          <div className="text-2xl font-bold text-success">{totalAnalyzed}</div>
-                         <div className="text-sm text-muted-foreground">Total Parameters</div>
+                         <div className="text-sm text-persian-blue">Total Parameters</div>
                        </div>
                        <div className="text-center">
                          <div className="text-2xl font-bold text-success">{allNormalParameters.length}</div>
-                         <div className="text-sm text-muted-foreground">Normal ✓</div>
+                         <div className="text-sm text-persian-blue">Normal ✓</div>
                        </div>
                        <div className="text-center">
                          <div className="text-2xl font-bold text-warning">{totalAbnormal}</div>
-                         <div className="text-sm text-muted-foreground">Needs Attention</div>
+                         <div className="text-sm text-persian-blue">Needs Attention</div>
                        </div>
                      </div>
                    </div>
@@ -569,7 +569,7 @@ export const AnalysisResult = ({
                          </div>
                        ))}
                      </div>
-                     <p className="text-xs text-muted-foreground mt-3 text-center opacity-75">
+                     <p className="text-xs text-persian-blue mt-3 text-center opacity-75">
                        ✓ All {allNormalParameters.length} parameters above are within healthy reference ranges
                      </p>
                    </div>
@@ -690,7 +690,7 @@ export const AnalysisResult = ({
                         {lab.value} {lab.unit}
                       </span>
                       {lab.referenceRange && (
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-xs text-persian-blue">
                           Normal: {lab.referenceRange}
                         </div>
                       )}
@@ -728,7 +728,7 @@ export const AnalysisResult = ({
                   ))}
                 </div>
                 <div className="mt-3 pt-2 border-t border-success/20">
-                  <p className="text-xs text-center text-muted-foreground">
+                  <p className="text-xs text-center text-persian-blue">
                     These parameters were within normal ranges
                   </p>
                 </div>
@@ -781,7 +781,7 @@ export const AnalysisResult = ({
                       )}
                       
                       <div className="pt-2 border-t">
-                        <h5 className="text-xs font-medium text-muted-foreground mb-2">Helpful Resources:</h5>
+                         <h5 className="text-xs font-medium text-persian-blue mb-2">Helpful Resources:</h5>
                         <div className="space-y-1">
                           <a 
                             href="https://www.healthline.com/nutrition/50-super-healthy-foods" 
@@ -944,7 +944,7 @@ export const AnalysisResult = ({
                       </div>
                       
                       <div className="pt-4 mt-4 border-t">
-                        <h5 className="text-xs font-medium text-muted-foreground mb-2">Helpful Resources:</h5>
+                        <h5 className="text-xs font-medium text-persian-blue mb-2">Helpful Resources:</h5>
                         <div className="space-y-1">
                           <a 
                             href="https://www.mayoclinic.org/healthy-lifestyle/fitness/basics/fitness-basics/hlv-20049447" 
@@ -1200,7 +1200,7 @@ export const AnalysisResult = ({
                       <Download className="w-5 h-5" />
                       <span className="font-semibold">Premium Feature</span>
                     </div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-persian-blue">
                       Unlock detailed recommendations and download reports for just ₹150
                     </p>
                     <Button 

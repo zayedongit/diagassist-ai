@@ -23,7 +23,7 @@ export const LabRangeBar = ({ labName, value, unit, referenceRange, status }: La
       case 'critical':
         return 'border-destructive text-destructive bg-destructive/10';
       default:
-        return 'border-muted-foreground text-muted-foreground bg-muted/10';
+        return 'border-persian-blue text-persian-blue bg-muted/10';
     }
   };
 
@@ -103,7 +103,7 @@ export const LabRangeBar = ({ labName, value, unit, referenceRange, status }: La
               <Badge variant="outline" className={`${statusColorClass} font-medium px-2 py-1 text-xs border-2`}>
                 {status.toUpperCase()}
               </Badge>
-              <span className="text-xs text-muted-foreground italic">{getStatusDescription()}</span>
+              <span className="text-xs text-persian-blue italic">{getStatusDescription()}</span>
             </div>
           </div>
         </div>
@@ -111,7 +111,7 @@ export const LabRangeBar = ({ labName, value, unit, referenceRange, status }: La
           <span className="font-bold text-persian-blue text-lg">
             {value}
           </span>
-          {unit && <span className="text-muted-foreground text-sm ml-1">{unit}</span>}
+          {unit && <span className="text-persian-blue text-sm ml-1">{unit}</span>}
         </div>
       </div>
 
@@ -120,8 +120,8 @@ export const LabRangeBar = ({ labName, value, unit, referenceRange, status }: La
         <div className="bg-muted/20 rounded-lg p-3 border border-border/30">
           <div className="flex items-center space-x-2">
             <div className="w-2 h-2 bg-success rounded-full"></div>
-            <span className="text-sm font-medium text-muted-foreground">
-              Normal Range: <span className="font-semibold text-foreground">{referenceRange}</span>
+            <span className="text-sm font-medium text-persian-blue">
+              Normal Range: <span className="font-semibold text-persian-blue">{referenceRange}</span>
             </span>
           </div>
         </div>
@@ -159,7 +159,7 @@ export const LabRangeBar = ({ labName, value, unit, referenceRange, status }: La
           </div>
           
           {/* Enhanced Zone Labels */}
-          <div className="flex justify-between text-xs font-medium text-muted-foreground mt-3">
+          <div className="flex justify-between text-xs font-medium text-persian-blue mt-3">
             <span className="text-destructive">Risk Zone</span>
             <span className="text-success font-bold">Optimal Range</span>
             <span className="text-destructive">Risk Zone</span>
@@ -168,7 +168,7 @@ export const LabRangeBar = ({ labName, value, unit, referenceRange, status }: La
           {/* Reference Range Display */}
           {referenceRange && (
             <div className="mt-2 text-center">
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-persian-blue">
                 Normal Range: <span className="font-semibold text-success">{referenceRange}</span>
               </span>
             </div>
