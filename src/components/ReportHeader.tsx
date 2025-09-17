@@ -41,7 +41,7 @@ export const ReportHeader = ({ patientName, demographics, testDate, overallStatu
             </div>
             <div>
               <h1 className="text-xl font-semibold text-foreground">Medical Panel Analysis</h1>
-              <p className="text-sm text-muted-foreground">Comprehensive Blood Report Review</p>
+              <p className="text-sm text-persian-blue">Comprehensive Blood Report Review</p>
             </div>
           </div>
           <Badge className={`${statusInfo.bg} ${statusInfo.color} ${statusInfo.border} border`}>
