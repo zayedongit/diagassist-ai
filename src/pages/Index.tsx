@@ -1010,7 +1010,7 @@ RAW DATA: ${baseContext}`;
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-2xl font-bold text-foreground">Your Analysis Results</h3>
-                <p className="text-muted-foreground">Based on: {selectedFile?.name}</p>
+                <p className="text-persian-blue">Based on: {selectedFile?.name}</p>
               </div>
               <button
                 onClick={handleReset}
