@@ -934,14 +934,13 @@ RAW DATA: ${baseContext}`;
             <div className="relative min-h-screen">
               {/* Ready background overlay covering rest of page */}
               <div 
-                className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-80 scale-110" 
+                className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-70 scale-110" 
                 style={{
                   backgroundImage: `url(${readyBackground})`,
                   height: '120vh',
                   transform: 'scale(1.2)'
                 }}
               ></div>
-              <div className="absolute inset-0 bg-black/15" style={{height: '120vh'}}></div>
               
               {/* Upload content */}
               <div className="relative z-10 flex items-center justify-center min-h-screen">
