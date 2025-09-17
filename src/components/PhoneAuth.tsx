@@ -201,6 +201,7 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   disabled={isLoading}
+                  className="bg-transparent border-none border-b-2 border-white/30 rounded-none focus:border-white/60 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-0 text-white placeholder:text-white/60"
                 />
               </div>
 
@@ -213,14 +214,15 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   disabled={isLoading}
+                  className="bg-transparent border-none border-b-2 border-white/30 rounded-none focus:border-white/60 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-0 text-white placeholder:text-white/60"
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="phone">Mobile Number</Label>
                 <div className="flex">
-                  <div className="flex items-center px-2 sm:px-3 border border-r-0 border-input rounded-l-md bg-muted">
-                    <span className="text-xs sm:text-sm text-foreground">+91</span>
+                  <div className="flex items-center px-2 sm:px-3 bg-transparent border-b-2 border-white/30 border-r-0">
+                    <span className="text-xs sm:text-sm text-white">+91</span>
                   </div>
                   <Input
                     id="phone"
@@ -229,7 +231,7 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
                     value={phoneNumber}
                     onChange={handlePhoneChange}
                     disabled={isLoading}
-                    className="rounded-l-none text-sm sm:text-base"
+                    className="bg-transparent border-none border-b-2 border-white/30 rounded-none focus:border-white/60 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-0 text-white placeholder:text-white/60 text-sm sm:text-base"
                     maxLength={10}
                   />
                 </div>
