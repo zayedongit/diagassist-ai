@@ -148,7 +148,7 @@ export const LabRangeBar = ({ labName, value, unit, referenceRange, status }: La
                 </div>
               </div>
               {/* Position Label */}
-              <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xs font-semibold text-foreground bg-card px-2 py-1 rounded border shadow-sm whitespace-nowrap">
+              <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xs font-semibold text-persian-blue bg-card px-2 py-1 rounded border shadow-sm whitespace-nowrap">
                 You are here
               </div>
             </div>
@@ -159,10 +159,10 @@ export const LabRangeBar = ({ labName, value, unit, referenceRange, status }: La
           </div>
           
           {/* Enhanced Zone Labels */}
-          <div className="flex justify-between text-xs font-medium text-persian-blue mt-3">
-            <span className="text-destructive">Risk Zone</span>
-            <span className="text-success font-bold">Optimal Range</span>
-            <span className="text-destructive">Risk Zone</span>
+          <div className="flex justify-between text-xs font-medium mt-3">
+            <span className="text-persian-blue">Risk Zone</span>
+            <span className="text-persian-blue font-bold">Optimal Range</span>
+            <span className="text-persian-blue">Risk Zone</span>
           </div>
           
           {/* Reference Range Display */}
