@@ -839,10 +839,10 @@ RAW DATA: ${baseContext}`;
                     <BarChart3 className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
                   </div>
                   <div>
-                    <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground flex items-center">
+                    <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-persian-blue flex items-center">
                       Shëndet <Stethoscope className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-800 mx-1" /> Medical Analytics
                     </h1>
-                    <p className="text-xs sm:text-sm text-muted-foreground">AI-Powered Report Analysis</p>
+                    <p className="text-xs sm:text-sm text-persian-blue">AI-Powered Report Analysis</p>
                   </div>
                 </div>
               </div>
