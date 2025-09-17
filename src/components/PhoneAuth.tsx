@@ -201,7 +201,7 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   disabled={isLoading}
-                  className="bg-transparent border-none border-b-2 border-white/30 rounded-none focus:border-white/60 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-0 text-white placeholder:text-white/60"
+                  className="!bg-transparent !border-none !border-b-2 !border-white/30 !rounded-none focus:!border-white/60 focus:!ring-0 focus-visible:!ring-0 focus-visible:!ring-offset-0 !px-0 !text-white placeholder:!text-white/60 !shadow-none"
                 />
               </div>
 
@@ -214,7 +214,7 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   disabled={isLoading}
-                  className="bg-transparent border-none border-b-2 border-white/30 rounded-none focus:border-white/60 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-0 text-white placeholder:text-white/60"
+                  className="!bg-transparent !border-none !border-b-2 !border-white/30 !rounded-none focus:!border-white/60 focus:!ring-0 focus-visible:!ring-0 focus-visible:!ring-offset-0 !px-0 !text-white placeholder:!text-white/60 !shadow-none"
                 />
               </div>
 
@@ -231,7 +231,7 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
                     value={phoneNumber}
                     onChange={handlePhoneChange}
                     disabled={isLoading}
-                    className="bg-transparent border-none border-b-2 border-white/30 rounded-none focus:border-white/60 focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 px-0 text-white placeholder:text-white/60 text-sm sm:text-base"
+                    className="!bg-transparent !border-none !border-b-2 !border-white/30 !rounded-none focus:!border-white/60 focus:!ring-0 focus-visible:!ring-0 focus-visible:!ring-offset-0 !px-0 !text-white placeholder:!text-white/60 text-sm sm:text-base !shadow-none"
                     maxLength={10}
                   />
                 </div>
