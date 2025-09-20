@@ -116,30 +116,37 @@ function safeParseJSON(content: string): any {
   }
 }
 
-// Retry mechanism with exponential backoff
+// Retry mechanism with exponential backoff and rate limit awareness
 async function retryWithBackoff<T>(
   operation: () => Promise<T>,
-  maxRetries: number = 3,
-  baseDelay: number = 1000,
+  maxRetries: number = 4,
+  baseDelay: number = 2000,
   context: string = 'operation'
 ): Promise<T> {
-  let lastError: Error;
+  let lastError: Error | undefined;
   
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       console.log(`${context} - Attempt ${attempt}/${maxRetries}`);
       return await operation();
-    } catch (error) {
-      lastError = error as Error;
-      console.warn(`${context} - Attempt ${attempt} failed:`, lastError.message);
+    } catch (err) {
+      const error = err as Error;
+      lastError = error;
+      const message = (error?.message || '').toLowerCase();
+      const isRateLimit = message.includes('429') || message.includes('rate limit') || message.includes('too many requests');
+      console.warn(`${context} - Attempt ${attempt} failed: ${error.message}`);
       
       if (attempt === maxRetries) {
         console.error(`${context} - All ${maxRetries} attempts failed`);
-        throw lastError;
+        if (isRateLimit) {
+          throw new Error('OpenAI API is currently experiencing high traffic. Please try again in a few moments.');
+        }
+        throw error;
       }
       
-      // Exponential backoff with jitter
-      const delay = baseDelay * Math.pow(2, attempt - 1) + Math.random() * 1000;
+      // For rate limiting, back off more aggressively
+      const multiplier = isRateLimit ? 3 : 2;
+      const delay = baseDelay * Math.pow(multiplier, attempt - 1) + Math.random() * 1000;
       console.log(`${context} - Retrying in ${Math.round(delay)}ms...`);
       await new Promise(resolve => setTimeout(resolve, delay));
     }
@@ -235,7 +242,7 @@ async function analyzeWithVision(images: string[], apiKey: string): Promise<Anal
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4.1-2025-04-14', // Using GPT-4.1 for reliable function calling
+          model: 'gpt-4o-mini', // Using cost-efficient vision model to reduce rate limiting
           messages: [
             {
               role: "system",
@@ -561,7 +568,7 @@ Analyze these medical images with complete thoroughness. Extract and prioritize 
       console.log('🔍 PASS 2: Processing remaining ' + (imageChunks.length - 1) + ' chunks in parallel...');
       
       const remainingChunks = imageChunks.slice(1);
-      const concurrencyPool = new ConcurrencyPool(2); // Limit to 2 concurrent API calls
+      const concurrencyPool = new ConcurrencyPool(1); // Limit to 1 concurrent API call to avoid rate limits
       
       const pass2Promises = remainingChunks.map((chunk, chunkIndex) => 
         concurrencyPool.execute(async () => {
@@ -583,7 +590,7 @@ Analyze these medical images with complete thoroughness. Extract and prioritize 
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({
-                model: 'gpt-4.1-2025-04-14', // Using GPT-4.1 for reliable function calling
+                model: 'gpt-4o-mini', // Using cost-efficient vision model to reduce rate limiting
                 messages: [
                   {
                     role: "system",
@@ -1069,11 +1076,16 @@ async function processInBackground(analysisId: string, images: string[], openAIA
     console.error('Background processing failed:', error);
     
     // Update database with error
+    const rawMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    const isRateLimit = typeof rawMessage === 'string' && (rawMessage.includes('429') || rawMessage.toLowerCase().includes('rate limit') || rawMessage.toLowerCase().includes('too many requests'));
+    const friendlyMessage = isRateLimit
+      ? 'OpenAI API is currently experiencing high traffic. Please try again in a few moments.'
+      : rawMessage;
     await supabase
       .from('pdf_analyses')
       .update({
         status: 'failed',
-        error_message: error instanceof Error ? error.message : 'Unknown error occurred',
+        error_message: friendlyMessage,
         updated_at: new Date().toISOString()
       })
       .eq('id', analysisId);
