@@ -235,6 +235,52 @@ function validateClinicalData(analysisResult: any): any {
   return analysisResult;
 }
 
+// Retry mechanism with exponential backoff for rate limiting
+async function retryWithBackoff<T>(
+  operation: () => Promise<T>,
+  maxRetries: number = 4,
+  baseDelay: number = 2000,
+  context: string = 'operation'
+): Promise<T> {
+  let lastError: Error;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`${context} - Attempt ${attempt}/${maxRetries}`);
+      return await operation();
+    } catch (error) {
+      lastError = error as Error;
+      const errorMessage = lastError.message.toLowerCase();
+      
+      // Check if it's a rate limit error (429)
+      const isRateLimit = errorMessage.includes('429') || 
+                         errorMessage.includes('rate limit') || 
+                         errorMessage.includes('too many requests');
+      
+      console.warn(`${context} - Attempt ${attempt} failed:`, lastError.message);
+      
+      if (attempt === maxRetries) {
+        console.error(`${context} - All ${maxRetries} attempts failed`);
+        
+        // Provide user-friendly error message for rate limiting
+        if (isRateLimit) {
+          throw new Error('OpenAI API is currently experiencing high traffic. Please try again in a few moments.');
+        }
+        throw lastError;
+      }
+      
+      // For rate limiting, use longer delays
+      const multiplier = isRateLimit ? 3 : 2;
+      const delay = baseDelay * Math.pow(multiplier, attempt - 1) + Math.random() * 1000;
+      
+      console.log(`${context} - Retrying in ${Math.round(delay)}ms...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  
+  throw lastError!;
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -268,7 +314,7 @@ serve(async (req) => {
 
     console.log('🏥 Starting two-pass text-based analysis...');
 
-    // PASS 1: Structured Analysis
+    // PASS 1: Structured Analysis with retry logic
     console.log('📋 PASS 1: Comprehensive medical analysis...');
     const pass1Prompt = `You are an expert clinical pathologist analyzing a comprehensive laboratory report. Perform COMPLETE analysis extracting EVERY parameter found in the text.
 
@@ -382,33 +428,37 @@ SUCCESS CRITERIA:
 
 Respond with JSON only - no markdown formatting:`;
 
-    const pass1Response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4.1-2025-04-14', // Using GPT-4.1 for reliable analysis
-        messages: [
-          {
-            role: 'system',
-            content: 'You are an expert medical AI that analyzes laboratory reports with precision. Always reference specific findings from the provided report text.'
-          },
-          {
-            role: 'user',
-            content: pass1Prompt
-          }
-        ],
-        max_completion_tokens: 3000,
-      }),
-    });
+    const pass1Response = await retryWithBackoff(async () => {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini', // Using more cost-efficient model to reduce rate limiting
+          messages: [
+            {
+              role: 'system',
+              content: 'You are an expert medical AI that analyzes laboratory reports with precision. Always reference specific findings from the provided report text.'
+            },
+            {
+              role: 'user',
+              content: pass1Prompt
+            }
+          ],
+          max_completion_tokens: 3000,
+        }),
+      });
 
-    if (!pass1Response.ok) {
-      const errorData = await pass1Response.text();
-      console.error('Pass 1 OpenAI API error:', errorData);
-      throw new Error(`Pass 1 OpenAI API error: ${pass1Response.status}`);
-    }
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error('OpenAI API error:', response.status, errorData);
+        throw new Error(`OpenAI API call failed: ${response.status}`);
+      }
+
+      return response;
+    }, 4, 2000, 'Pass 1 Analysis');
 
     const pass1Data = await pass1Response.json();
     const pass1Text = pass1Data.choices[0].message.content.trim();
