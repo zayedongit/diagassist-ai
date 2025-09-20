@@ -102,6 +102,9 @@ All colors MUST be HSL.
     --accent: 225 100% 56%;
     --accent-foreground: 0 0% 100%;
 
+    --warning: 38 92% 60%;
+    --warning-foreground: 0 0% 100%;
+
     --destructive: 0 62.8% 50%;
     --destructive-foreground: 221 100% 56%;
 
