@@ -1037,7 +1037,7 @@ async function ensureCompletenessVerification(analysisResult: AnalysisResult, or
 }
 
 // Background processing function
-async function processInBackground(analysisId: string, images: string[], openAIApiKey: string, supabase: any) {
+async function processInBackground(analysisId: string, images: string[], openAIApiKey: string, supabase: any, pdfPath?: string) {
   try {
     console.log('Starting background processing with ' + images.length + ' images...');
     
@@ -1053,7 +1053,7 @@ async function processInBackground(analysisId: string, images: string[], openAIA
     console.log('AI analysis completed successfully, updating database...');
     const analysisResult = await analyzeWithVision(images, openAIApiKey);
     
-    console.log('Analysis result:', JSON.stringify(analysisResult, null, 2));
+    console.log('Analysis completed - result contains', Object.keys(analysisResult).length, 'fields');
 
     // Update database with results
     const { error: updateError } = await supabase
@@ -1071,6 +1071,39 @@ async function processInBackground(analysisId: string, images: string[], openAIA
     }
 
     console.log('Background processing completed successfully for analysis ' + analysisId);
+
+    // CRITICAL: Delete PDF from storage immediately after processing
+    if (pdfPath) {
+      try {
+        console.log('🗑️ Deleting PDF from storage:', pdfPath);
+        const { error: deleteError } = await supabase
+          .storage
+          .from('medical-reports')
+          .remove([pdfPath]);
+        
+        if (deleteError) {
+          console.error('Failed to delete PDF:', deleteError);
+        } else {
+          console.log('✅ PDF successfully deleted from storage');
+        }
+      } catch (deleteErr) {
+        console.error('Error during PDF deletion:', deleteErr);
+      }
+    }
+
+    // Schedule automatic cleanup of analysis record after 1 hour
+    setTimeout(async () => {
+      try {
+        console.log('🗑️ Auto-cleanup: Deleting analysis record:', analysisId);
+        await supabase
+          .from('pdf_analyses')
+          .delete()
+          .eq('id', analysisId);
+        console.log('✅ Analysis record auto-deleted');
+      } catch (cleanupErr) {
+        console.error('Auto-cleanup failed:', cleanupErr);
+      }
+    }, 60 * 60 * 1000); // 1 hour
 
   } catch (error) {
     console.error('Background processing failed:', error);
@@ -1190,11 +1223,14 @@ serve(async (req) => {
     }
 
     // Upload original PDF to storage if provided (only for form data requests)
+    // NOTE: PDF will be automatically deleted after processing completes
+    let pdfStoragePath: string | undefined;
     if (pdfFile && !isJsonInput) {
       const fileName = pdfFile.name;
-      const filePath = `medical-reports/${userId}/${new Date().toISOString().replace(/:/g, '-')}_${fileName}`;
+      const filePath = `${userId}/${new Date().toISOString().replace(/:/g, '-')}_${fileName}`;
+      pdfStoragePath = filePath;
       
-      console.log('Uploading original PDF:', fileName, '(' + pdfFile.size + ' bytes)');
+      console.log('Temporarily uploading PDF:', fileName, '(' + pdfFile.size + ' bytes)');
       
       try {
         const { error: uploadError } = await supabase
@@ -1208,7 +1244,7 @@ serve(async (req) => {
         if (uploadError) {
           console.error('PDF upload error:', uploadError);
         } else {
-          console.log('PDF stored successfully at:', filePath);
+          console.log('PDF stored temporarily at:', filePath);
         }
       } catch (uploadError) {
         console.error('PDF upload failed:', uploadError);
@@ -1216,6 +1252,7 @@ serve(async (req) => {
     }
 
     // Create analysis record (only for form data requests)
+    // NOTE: Record will be auto-deleted 1 hour after processing
     let analysisId = crypto.randomUUID();
     if (!isJsonInput && userId) {
       const { error: insertError } = await supabase
@@ -1224,7 +1261,8 @@ serve(async (req) => {
           id: analysisId,
           user_id: userId,
           filename: pdfFileName,
-          status: 'processing'
+          status: 'processing',
+          pdf_path: pdfStoragePath
         });
 
       if (insertError) {
@@ -1255,7 +1293,7 @@ serve(async (req) => {
       });
     } else {
       // For form data input, start background processing
-      processInBackground(analysisId, images, openAIApiKey, supabase);
+      processInBackground(analysisId, images, openAIApiKey, supabase, pdfStoragePath);
 
       // Return immediate response
       const response = {

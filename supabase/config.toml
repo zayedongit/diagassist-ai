@@ -41,3 +41,6 @@ verify_jwt = true
 
 [functions.google-drive-ingest]
 verify_jwt = false
+
+[functions.cleanup-old-analyses]
+verify_jwt = false

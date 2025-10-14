@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { AlertCircle, Activity, Heart, FileText, Download, RefreshCw, Brain, Eye, EyeOff, Lock, BarChart3, Stethoscope, LogOut, CloudDownload } from "lucide-react";
+import { AlertCircle, Activity, Heart, FileText, Download, RefreshCw, Brain, Eye, EyeOff, Lock, BarChart3, Stethoscope, LogOut, CloudDownload, Shield } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
 import jsPDF from 'jspdf';
@@ -365,6 +365,24 @@ RAW DATA: ${baseContext}`;
         localStorage.setItem('processingStatus', analysis.status);
         
         if (analysis.status === 'completed' && analysis.result) {
+          // CRITICAL: Delete analysis record from database after retrieval
+          try {
+            console.log('🗑️ Deleting analysis record from database...');
+            const { error: deleteError } = await supabase
+              .from('pdf_analyses')
+              .delete()
+              .eq('id', id)
+              .eq('user_id', userId);
+            
+            if (deleteError) {
+              console.error('Failed to delete analysis record:', deleteError);
+            } else {
+              console.log('✅ Analysis record deleted from database');
+            }
+          } catch (deleteErr) {
+            console.error('Error deleting analysis record:', deleteErr);
+          }
+          
           // Normalize the analysis data structure
           const rawData = analysis.result;
           
@@ -864,6 +882,16 @@ RAW DATA: ${baseContext}`;
                   </Button>
                 </div>
               )}
+            </div>
+          </div>
+          
+          {/* Privacy Notice Banner */}
+          <div className="mt-2 pt-2 border-t border-primary/10">
+            <div className="flex items-start gap-2 px-1">
+              <Shield className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                <span className="font-semibold text-foreground">Privacy Protected:</span> Your medical data is encrypted and automatically deleted after analysis. We never store your reports or personal health information permanently.
+              </p>
             </div>
           </div>
         </div>
