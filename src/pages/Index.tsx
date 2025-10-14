@@ -535,6 +535,7 @@ RAW DATA: ${baseContext}`;
     setExtractionStep("");
     setShowResults(false);
     setAnalysisData(null);
+    setClinicalAssessmentData(null);
     setProcessingStatus('starting');
 
     try {
@@ -788,6 +789,7 @@ RAW DATA: ${baseContext}`;
   const handleReset = () => {
     setSelectedFile(null);
     setAnalysisData(null);
+    setClinicalAssessmentData(null);
     setShowResults(false);
     setError(null);
     setExtractedText("");
