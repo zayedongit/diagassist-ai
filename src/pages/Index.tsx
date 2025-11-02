@@ -956,47 +956,86 @@ RAW DATA: ${baseContext}`;
               </div>
             </section>
 
-            {/* Features Grid */}
+            {/* Process Flow Section */}
             <section className="py-24 bg-white relative z-10">
               <div className="container mx-auto px-4 sm:px-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
-                  <div className="text-center space-y-4 animate-fade-up hover-lift p-6 rounded-2xl transition-all">
+                <div className="text-center mb-16">
+                  <h2 className="text-3xl sm:text-4xl font-poppins font-semibold text-navy mb-4">
+                    How It Works
+                  </h2>
+                  <p className="text-slate text-lg">
+                    Simple, secure, and comprehensive medical report analysis in 5 easy steps
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 max-w-6xl mx-auto">
+                  {/* Step 1: Login */}
+                  <div className="text-center space-y-4 animate-fade-up hover-lift p-6 rounded-2xl transition-all relative">
+                    <div className="w-16 h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
+                      <LogOut className="w-8 h-8 text-white transform rotate-180" />
+                    </div>
+                    <div className="absolute -top-3 -right-3 w-8 h-8 bg-accentCyan rounded-full flex items-center justify-center text-white font-poppins font-bold">
+                      1
+                    </div>
+                    <h3 className="text-lg font-poppins font-semibold text-navy">Login</h3>
+                    <p className="text-slate text-sm">
+                      Secure authentication to protect your data
+                    </p>
+                  </div>
+
+                  {/* Step 2: Upload */}
+                  <div className="text-center space-y-4 animate-fade-up hover-lift p-6 rounded-2xl transition-all relative" style={{ animationDelay: '0.1s' }}>
+                    <div className="w-16 h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
+                      <CloudDownload className="w-8 h-8 text-white" />
+                    </div>
+                    <div className="absolute -top-3 -right-3 w-8 h-8 bg-accentCyan rounded-full flex items-center justify-center text-white font-poppins font-bold">
+                      2
+                    </div>
+                    <h3 className="text-lg font-poppins font-semibold text-navy">Upload</h3>
+                    <p className="text-slate text-sm">
+                      Upload your medical report (PDF/JPG/PNG)
+                    </p>
+                  </div>
+
+                  {/* Step 3: Analysis */}
+                  <div className="text-center space-y-4 animate-fade-up hover-lift p-6 rounded-2xl transition-all relative" style={{ animationDelay: '0.2s' }}>
                     <div className="w-16 h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
                       <BarChart3 className="w-8 h-8 text-white" />
                     </div>
-                    <h3 className="text-lg font-poppins font-semibold text-navy">Data Analysis</h3>
+                    <div className="absolute -top-3 -right-3 w-8 h-8 bg-accentCyan rounded-full flex items-center justify-center text-white font-poppins font-bold">
+                      3
+                    </div>
+                    <h3 className="text-lg font-poppins font-semibold text-navy">Analysis</h3>
                     <p className="text-slate text-sm">
-                      Advanced analysis of your document parameters
+                      AI analyzes your report parameters
                     </p>
                   </div>
 
-                  <div className="text-center space-y-4 animate-fade-up hover-lift p-6 rounded-2xl transition-all" style={{ animationDelay: '0.1s' }}>
+                  {/* Step 4: Interpretation */}
+                  <div className="text-center space-y-4 animate-fade-up hover-lift p-6 rounded-2xl transition-all relative" style={{ animationDelay: '0.3s' }}>
+                    <div className="w-16 h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
+                      <FileText className="w-8 h-8 text-white" />
+                    </div>
+                    <div className="absolute -top-3 -right-3 w-8 h-8 bg-accentCyan rounded-full flex items-center justify-center text-white font-poppins font-bold">
+                      4
+                    </div>
+                    <h3 className="text-lg font-poppins font-semibold text-navy">Interpretation</h3>
+                    <p className="text-slate text-sm">
+                      Get comprehensive clinical interpretation
+                    </p>
+                  </div>
+
+                  {/* Step 5: Chat for FAQ */}
+                  <div className="text-center space-y-4 animate-fade-up hover-lift p-6 rounded-2xl transition-all relative" style={{ animationDelay: '0.4s' }}>
                     <div className="w-16 h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
                       <Brain className="w-8 h-8 text-white" />
                     </div>
-                    <h3 className="text-lg font-poppins font-semibold text-navy">Simple Language</h3>
-                    <p className="text-slate text-sm">
-                      Complex terms explained in easy words
-                    </p>
-                  </div>
-
-                  <div className="text-center space-y-4 animate-fade-up hover-lift p-6 rounded-2xl transition-all" style={{ animationDelay: '0.2s' }}>
-                    <div className="w-16 h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
-                      <Stethoscope className="w-8 h-8 text-white" />
+                    <div className="absolute -top-3 -right-3 w-8 h-8 bg-accentCyan rounded-full flex items-center justify-center text-white font-poppins font-bold">
+                      5
                     </div>
-                    <h3 className="text-lg font-poppins font-semibold text-navy">Clinical Assessment</h3>
+                    <h3 className="text-lg font-poppins font-semibold text-navy">Chat for FAQ</h3>
                     <p className="text-slate text-sm">
-                      Holistic report with clinical assessment after analysis
-                    </p>
-                  </div>
-
-                  <div className="text-center space-y-4 animate-fade-up hover-lift p-6 rounded-2xl transition-all" style={{ animationDelay: '0.3s' }}>
-                    <div className="w-16 h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
-                      <Lock className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-lg font-poppins font-semibold text-navy">Private & Secure</h3>
-                    <p className="text-slate text-sm">
-                      Your data is processed securely and privately
+                      Ask questions about your results
                     </p>
                   </div>
                 </div>
