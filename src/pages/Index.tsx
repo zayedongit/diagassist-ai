@@ -1069,13 +1069,13 @@ RAW DATA: ${baseContext}`;
                 
                 {/* Status Chips */}
                 <div className="flex flex-wrap items-center justify-center gap-4">
-                  <div className={`px-6 py-3 rounded-xl border-2 ${selectedFile ? 'bg-green-50 border-green-500 text-green-700' : 'bg-slate/10 border-slate/30 text-slate'}`}>
+                  <div className={`px-6 py-3 rounded-xl border-2 ${selectedFile ? 'bg-green-50 border-green-500 text-green-800' : 'bg-slate/10 border-slate/30 text-slate'}`}>
                     <span className="font-inter font-medium">File received</span>
                   </div>
-                  <div className={`px-6 py-3 rounded-xl border-2 ${processingStatus === 'processing' ? 'bg-yellow-50 border-yellow-500 text-yellow-700 animate-pulse' : processingStatus === 'completed' ? 'bg-green-50 border-green-500 text-green-700' : 'bg-slate/10 border-slate/30 text-slate'}`}>
+                  <div className={`px-6 py-3 rounded-xl border-2 ${processingStatus === 'processing' ? 'bg-yellow-50 border-yellow-500 text-yellow-900 animate-pulse' : processingStatus === 'completed' ? 'bg-green-50 border-green-500 text-green-800' : 'bg-slate/10 border-slate/30 text-slate'}`}>
                     <span className="font-inter font-medium">Parsing & extraction</span>
                   </div>
-                  <div className={`px-6 py-3 rounded-xl border-2 ${processingStatus === 'completed' ? 'bg-green-50 border-green-500 text-green-700' : 'bg-slate/10 border-slate/30 text-slate'}`}>
+                  <div className={`px-6 py-3 rounded-xl border-2 ${processingStatus === 'completed' ? 'bg-green-50 border-green-500 text-green-800' : 'bg-slate/10 border-slate/30 text-slate'}`}>
                     <span className="font-inter font-medium">Insights generation</span>
                   </div>
                 </div>
