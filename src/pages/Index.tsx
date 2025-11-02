@@ -626,7 +626,7 @@ RAW DATA: ${baseContext}`;
       pdf.setTextColor(255, 255, 255);
       pdf.setFontSize(20);
       pdf.setFont(undefined, 'bold');
-      pdf.text('Shendet Medical analytics - Analysis Report', pageWidth / 2, 15, { align: 'center' });
+      pdf.text('PREDLABS Medical Analytics - Analysis Report', pageWidth / 2, 15, { align: 'center' });
       
       yPosition = 35;
 

@@ -419,7 +419,7 @@ export const generateMockPdf = async () => {
     // Important Disclaimer Section
     createSectionBox('IMPORTANT DISCLAIMER', colors.lightBlue, colors.mediumBlue, colors.darkBlue, 25);
     
-    const disclaimerText = "This is a comprehensive sample report demonstrating Shendet Medical analytics's advanced AI analysis capabilities using anonymized patient data. This report is generated using artificial intelligence and is intended for informational and demonstration purposes only. It should not replace professional medical advice, diagnosis, or treatment. Always consult with qualified healthcare professionals for medical concerns. Patient identity has been masked for privacy protection. This sample showcases the depth and quality of analysis provided by our AI system.";
+    const disclaimerText = "This is a comprehensive sample report demonstrating PREDLABS Medical Analytics's advanced AI analysis capabilities using anonymized patient data. This report is generated using artificial intelligence and is intended for informational and demonstration purposes only. It should not replace professional medical advice, diagnosis, or treatment. Always consult with qualified healthcare professionals for medical concerns. Patient identity has been masked for privacy protection. This sample showcases the depth and quality of analysis provided by our AI system.";
     
     pdf.setTextColor(...colors.textMedium);
     pdf.setFontSize(9);
