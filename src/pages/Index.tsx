@@ -865,15 +865,6 @@ RAW DATA: ${baseContext}`;
               </div>
             </div>
             
-            {/* Nav Links (hidden on mobile) */}
-            <nav className="hidden md:flex items-center space-x-6">
-              <a href="#upload-section" className="text-coolGray hover:text-accentCyan transition-colors text-sm font-inter">Upload</a>
-              <a href="#analysis-section" className="text-coolGray hover:text-accentCyan transition-colors text-sm font-inter">Analysis</a>
-              <a href="#chat-section" className="text-coolGray hover:text-accentCyan transition-colors text-sm font-inter">Chat</a>
-              <a href="#interpretation-section" className="text-coolGray hover:text-accentCyan transition-colors text-sm font-inter">Interpretation</a>
-              <a href="#faq-section" className="text-coolGray hover:text-accentCyan transition-colors text-sm font-inter">FAQ</a>
-            </nav>
-            
             {/* Auth Button */}
             <div className="flex items-center space-x-2">
               {isAuthenticated ? (
