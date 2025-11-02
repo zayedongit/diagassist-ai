@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { AlertCircle, Activity, Heart, FileText, Download, RefreshCw, Brain, Eye, EyeOff, Lock, BarChart3, Stethoscope, LogOut, CloudDownload, Shield } from "lucide-react";
+import { AlertCircle, Activity, Heart, FileText, Download, RefreshCw, Brain, Eye, EyeOff, Lock, BarChart3, Stethoscope, LogOut, CloudDownload, Shield, ArrowRight } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
 import jsPDF from 'jspdf';
@@ -982,7 +982,7 @@ RAW DATA: ${baseContext}`;
 
                   {/* Arrow 1 */}
                   <div className="hidden lg:block">
-                    <Activity className="w-8 h-8 text-accentCyan rotate-90 lg:rotate-0" />
+                    <ArrowRight className="w-8 h-8 text-accentCyan" />
                   </div>
 
                   {/* Step 2: Upload */}
@@ -998,7 +998,7 @@ RAW DATA: ${baseContext}`;
 
                   {/* Arrow 2 */}
                   <div className="hidden lg:block">
-                    <Activity className="w-8 h-8 text-accentCyan rotate-90 lg:rotate-0" />
+                    <ArrowRight className="w-8 h-8 text-accentCyan" />
                   </div>
 
                   {/* Step 3: Analysis */}
@@ -1014,7 +1014,7 @@ RAW DATA: ${baseContext}`;
 
                   {/* Arrow 3 */}
                   <div className="hidden lg:block">
-                    <Activity className="w-8 h-8 text-accentCyan rotate-90 lg:rotate-0" />
+                    <ArrowRight className="w-8 h-8 text-accentCyan" />
                   </div>
 
                   {/* Step 4: Interpretation */}
@@ -1030,7 +1030,7 @@ RAW DATA: ${baseContext}`;
 
                   {/* Arrow 4 */}
                   <div className="hidden lg:block">
-                    <Activity className="w-8 h-8 text-accentCyan rotate-90 lg:rotate-0" />
+                    <ArrowRight className="w-8 h-8 text-accentCyan" />
                   </div>
 
                   {/* Step 5: Chat for Any further query */}
