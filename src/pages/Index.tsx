@@ -968,14 +968,11 @@ RAW DATA: ${baseContext}`;
                   </p>
                 </div>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 max-w-6xl mx-auto">
+                <div className="flex flex-col lg:flex-row items-center justify-center gap-4 max-w-6xl mx-auto">
                   {/* Step 1: Login */}
-                  <div className="text-center space-y-4 animate-fade-up hover-lift p-6 rounded-2xl transition-all relative">
+                  <div className="text-center space-y-4 animate-fade-up hover-lift p-6 rounded-2xl transition-all">
                     <div className="w-16 h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
                       <LogOut className="w-8 h-8 text-white transform rotate-180" />
-                    </div>
-                    <div className="absolute -top-3 -right-3 w-8 h-8 bg-accentCyan rounded-full flex items-center justify-center text-white font-poppins font-bold">
-                      1
                     </div>
                     <h3 className="text-lg font-poppins font-semibold text-navy">Login</h3>
                     <p className="text-slate text-sm">
@@ -983,13 +980,15 @@ RAW DATA: ${baseContext}`;
                     </p>
                   </div>
 
+                  {/* Arrow 1 */}
+                  <div className="hidden lg:block">
+                    <Activity className="w-8 h-8 text-accentCyan rotate-90 lg:rotate-0" />
+                  </div>
+
                   {/* Step 2: Upload */}
-                  <div className="text-center space-y-4 animate-fade-up hover-lift p-6 rounded-2xl transition-all relative" style={{ animationDelay: '0.1s' }}>
+                  <div className="text-center space-y-4 animate-fade-up hover-lift p-6 rounded-2xl transition-all" style={{ animationDelay: '0.1s' }}>
                     <div className="w-16 h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
                       <CloudDownload className="w-8 h-8 text-white" />
-                    </div>
-                    <div className="absolute -top-3 -right-3 w-8 h-8 bg-accentCyan rounded-full flex items-center justify-center text-white font-poppins font-bold">
-                      2
                     </div>
                     <h3 className="text-lg font-poppins font-semibold text-navy">Upload</h3>
                     <p className="text-slate text-sm">
@@ -997,13 +996,15 @@ RAW DATA: ${baseContext}`;
                     </p>
                   </div>
 
+                  {/* Arrow 2 */}
+                  <div className="hidden lg:block">
+                    <Activity className="w-8 h-8 text-accentCyan rotate-90 lg:rotate-0" />
+                  </div>
+
                   {/* Step 3: Analysis */}
-                  <div className="text-center space-y-4 animate-fade-up hover-lift p-6 rounded-2xl transition-all relative" style={{ animationDelay: '0.2s' }}>
+                  <div className="text-center space-y-4 animate-fade-up hover-lift p-6 rounded-2xl transition-all" style={{ animationDelay: '0.2s' }}>
                     <div className="w-16 h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
                       <BarChart3 className="w-8 h-8 text-white" />
-                    </div>
-                    <div className="absolute -top-3 -right-3 w-8 h-8 bg-accentCyan rounded-full flex items-center justify-center text-white font-poppins font-bold">
-                      3
                     </div>
                     <h3 className="text-lg font-poppins font-semibold text-navy">Analysis</h3>
                     <p className="text-slate text-sm">
@@ -1011,13 +1012,15 @@ RAW DATA: ${baseContext}`;
                     </p>
                   </div>
 
+                  {/* Arrow 3 */}
+                  <div className="hidden lg:block">
+                    <Activity className="w-8 h-8 text-accentCyan rotate-90 lg:rotate-0" />
+                  </div>
+
                   {/* Step 4: Interpretation */}
-                  <div className="text-center space-y-4 animate-fade-up hover-lift p-6 rounded-2xl transition-all relative" style={{ animationDelay: '0.3s' }}>
+                  <div className="text-center space-y-4 animate-fade-up hover-lift p-6 rounded-2xl transition-all" style={{ animationDelay: '0.3s' }}>
                     <div className="w-16 h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
                       <FileText className="w-8 h-8 text-white" />
-                    </div>
-                    <div className="absolute -top-3 -right-3 w-8 h-8 bg-accentCyan rounded-full flex items-center justify-center text-white font-poppins font-bold">
-                      4
                     </div>
                     <h3 className="text-lg font-poppins font-semibold text-navy">Interpretation</h3>
                     <p className="text-slate text-sm">
@@ -1025,15 +1028,17 @@ RAW DATA: ${baseContext}`;
                     </p>
                   </div>
 
-                  {/* Step 5: Chat for FAQ */}
-                  <div className="text-center space-y-4 animate-fade-up hover-lift p-6 rounded-2xl transition-all relative" style={{ animationDelay: '0.4s' }}>
+                  {/* Arrow 4 */}
+                  <div className="hidden lg:block">
+                    <Activity className="w-8 h-8 text-accentCyan rotate-90 lg:rotate-0" />
+                  </div>
+
+                  {/* Step 5: Chat for Any further query */}
+                  <div className="text-center space-y-4 animate-fade-up hover-lift p-6 rounded-2xl transition-all" style={{ animationDelay: '0.4s' }}>
                     <div className="w-16 h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
                       <Brain className="w-8 h-8 text-white" />
                     </div>
-                    <div className="absolute -top-3 -right-3 w-8 h-8 bg-accentCyan rounded-full flex items-center justify-center text-white font-poppins font-bold">
-                      5
-                    </div>
-                    <h3 className="text-lg font-poppins font-semibold text-navy">Chat for FAQ</h3>
+                    <h3 className="text-lg font-poppins font-semibold text-navy">Chat for Any further query</h3>
                     <p className="text-slate text-sm">
                       Ask questions about your results
                     </p>
