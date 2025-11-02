@@ -197,7 +197,7 @@ export const AnalysisResult = ({
                       <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 flex items-center text-center sm:text-left text-gray-900">
                         📋 Summary in Simple Terms
                       </h3>
-                      <div className="bg-white rounded-xl p-3 sm:p-4 md:p-5 border border-warning/20">
+                      <div className="bg-white rounded-xl p-3 sm:p-4 md:p-5 border border-gray-300">
                         <p className="text-sm sm:text-base leading-relaxed font-medium text-gray-900">
                           {normalizedData.summary}
                         </p>

@@ -60,10 +60,10 @@ export const AnimatedLoader = ({ message, onCancel }: AnimatedLoaderProps) => {
       
       {/* Loading Message */}
       <div className="space-y-4">
-        <h3 className="text-2xl font-semibold text-foreground">
+        <h3 className="text-2xl font-semibold text-gray-900">
           Analyzing Your Report
         </h3>
-        <p className="text-muted-foreground max-w-lg mx-auto">
+        <p className="text-gray-700 max-w-lg mx-auto">
           {message || "Analysis in progress... Typically completes in 30-60 seconds."}
         </p>
         
@@ -96,7 +96,7 @@ export const AnimatedLoader = ({ message, onCancel }: AnimatedLoaderProps) => {
         {onCancel && (
           <button
             onClick={onCancel}
-            className="mt-4 px-4 py-2 border border-border rounded-lg text-sm text-foreground hover:bg-muted/50 transition-colors"
+            className="mt-4 px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 hover:bg-gray-50 transition-colors"
           >
             Cancel & Try Again
           </button>

@@ -496,7 +496,7 @@ RAW DATA: ${baseContext}`;
       formData.append('file', file); // Changed from 'pdfFile' to 'file' to match edge function
 
       console.log('🚀 Sending request to edge function...');
-      const response = await fetch(`https://opvssqukuyemcxgoflzz.supabase.co/functions/v1/process-pdf-report`, {
+      const response = await fetch(`https://opvssqukuyemcxgoflzz.supabase.co/functions/v1/analyze-medical-report`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9wdnNzcXVrdXllbWN4Z29mbHp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2NDcxNDQsImV4cCI6MjA3MjIyMzE0NH0.Cwj3Xynu8Yg1RkuoN7YjMgRZVDPONRKYD5JIStLn6KU`,

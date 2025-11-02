@@ -73,7 +73,7 @@ export default {
 				},
 				'persian-blue': 'hsl(var(--persian-blue))',
 				navy: '#0E1B2C',
-				coolGray: '#F5F7FB',
+				coolGray: '#FFFFFF',
 				slate: '#5B6B7A',
 				accentCyan: '#00C2FF',
 				sidebar: {

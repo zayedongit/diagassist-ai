@@ -8,24 +8,24 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 3%;  /* Dark background for better contrast */
-    --foreground: 0 0% 98%;  /* Light text for readability */
+    --background: 0 0% 100%;  /* Pure white background */
+    --foreground: 0 0% 9%;  /* Very dark text for maximum contrast */
 
     --card: 0 0% 100%;
-    --card-foreground: 220 74% 42%;
+    --card-foreground: 0 0% 9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 74% 42%;
+    --popover-foreground: 0 0% 9%;
 
     --primary: 225 100% 56%;
     --primary-foreground: 0 0% 100%;
     --primary-glow: 225 100% 56%;
 
-    --secondary: 270 30% 20%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 220 15% 96%;
+    --secondary-foreground: 0 0% 9%;
 
     --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
+    --muted-foreground: 0 0% 40%;
 
     --accent: 225 100% 56%;
     --accent-foreground: 0 0% 100%;
@@ -34,7 +34,7 @@ All colors MUST be HSL.
     --success-foreground: 0 0% 100%;
 
     --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 100%;
+    --warning-foreground: 0 0% 9%;
 
     --destructive: 0 85% 55%;
     --destructive-foreground: 0 0% 100%;
@@ -47,13 +47,13 @@ All colors MUST be HSL.
 
     /* App Specific - Medical Theme */
     --app-blue: 225 100% 56%;
-    --app-light: 0 0% 98%;
+    --app-light: 0 0% 100%;
     --app-accent: 270 60% 70%;
     --persian-blue: 220 74% 42%;
     
     /* Report-specific colors */
-    --report-bg: 0 0% 3%;       /* Dark background to show background images */
-    --report-text: 220 74% 42%; /* Persian Blue for analysis text */
+    --report-bg: 0 0% 100%;     /* White background */
+    --report-text: 0 0% 9%;     /* Dark text for maximum contrast */
     --report-danger: 0 84% 60%; /* Red for warnings/flags */
     
     /* Solid Colors - No Gradients */
