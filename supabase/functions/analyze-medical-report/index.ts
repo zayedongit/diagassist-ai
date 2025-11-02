@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -308,6 +309,7 @@ serve(async (req) => {
     // Parse request body - handle both JSON and FormData
     let text: string;
     let filename: string = 'Medical Report';
+    let requestUserId: string | undefined = undefined;
     
     const contentType = req.headers.get('content-type') || '';
     console.log('📥 Content-Type:', contentType);
@@ -317,6 +319,7 @@ serve(async (req) => {
       console.log('📄 Processing FormData with images...');
       const formData = await req.formData();
       const userId = formData.get('userId') as string;
+      requestUserId = userId;
       const imagesJson = formData.get('images') as string;
       
       console.log('👤 User ID:', userId);
@@ -561,14 +564,29 @@ Respond with JSON only - no markdown formatting:`;
     const pass1Text = pass1Data.choices[0].message.content.trim();
     console.log('✅ Pass 1 completed');
 
-    // Parse Pass 1 result
+    // Parse Pass 1 result with robust fallback
     let analysisResult: AnalysisResult;
     try {
       const cleanedText = pass1Text.replace(/```json\n?|\n?```/g, '').trim();
       analysisResult = JSON.parse(cleanedText);
     } catch (parseError) {
-      console.error('Pass 1 JSON parsing error:', parseError);
-      throw new Error('Invalid response format from Pass 1 analysis');
+      console.warn('Pass 1 JSON parsing failed, attempting fallback extraction...');
+      try {
+        let content = pass1Text.trim();
+        const start = content.indexOf('{');
+        const end = content.lastIndexOf('}');
+        if (start !== -1 && end !== -1 && end > start) {
+          content = content.substring(start, end + 1)
+            .replace(/,\s*}/g, '}')
+            .replace(/,\s*]/g, ']');
+          analysisResult = JSON.parse(content);
+        } else {
+          throw new Error('No JSON object found in response');
+        }
+      } catch (fallbackErr) {
+        console.error('Pass 1 JSON parsing error:', fallbackErr);
+        throw new Error('Invalid response format from Pass 1 analysis');
+      }
     }
 
     // Apply clinical validation to remove invalid data
@@ -607,11 +625,52 @@ Respond with JSON only - no markdown formatting:`;
       throw new Error('AI provided generic response - analysis must be based on actual report content');
     }
 
-    console.log('AI analysis completed successfully, updating database...');
+    // Store the analysis result in the database for retrieval
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     
-    // Apply clinical validation to ensure data reliability
-    analysisResult = validateClinicalData(analysisResult);
+    if (supabaseUrl && supabaseServiceKey) {
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+      
+      // Generate analysis ID
+      const analysisId = `analysis_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      try {
+        const { error: insertError } = await supabase
+          .from('pdf_analyses')
+          .insert({
+            id: analysisId,
+            user_id: requestUserId || 'anonymous',
+            status: 'completed',
+            result: analysisResult,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+          
+        if (insertError) {
+          console.error('Failed to store analysis result:', insertError);
+          // Continue without storing to database
+        } else {
+          console.log('✅ Analysis result stored in database with ID:', analysisId);
+        }
+        
+        // Return the expected format for background processing
+        return new Response(JSON.stringify({
+          success: true,
+          analysisId: analysisId,
+          status: 'completed',
+          message: 'Analysis completed successfully'
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+        
+      } catch (dbError) {
+        console.error('Database error:', dbError);
+        // Fallback: return direct analysis result
+      }
+    }
     
+    // Fallback: return analysis result directly (old format)
     return new Response(JSON.stringify(analysisResult), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -629,4 +688,3 @@ Respond with JSON only - no markdown formatting:`;
       }
     );
   }
-});
