@@ -930,31 +930,6 @@ RAW DATA: ${baseContext}`;
                     <span className="text-accentCyan">Clear, Actionable Insights</span>
                   </h1>
                   
-                  <p className="text-lg sm:text-xl text-coolGray max-w-3xl mx-auto">
-                    Login, upload your report (PDF/JPG/PNG), chat on your findings, and view your final interpretation.
-                  </p>
-                  
-                  {/* CTAs */}
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-                    {!isAuthenticated && (
-                      <Button
-                        onClick={() => setShowAuthDialog(true)}
-                        size="lg"
-                        className="bg-accentCyan text-navy hover:bg-accentCyan/90 font-poppins font-semibold px-8 py-6 rounded-xl text-lg hover-scale-102 shadow-premium"
-                      >
-                        Login to Start
-                      </Button>
-                    )}
-                    <Button
-                      onClick={() => document.getElementById('upload-section')?.scrollIntoView({ behavior: 'smooth' })}
-                      variant="outline"
-                      size="lg"
-                      className="border-2 border-accentCyan text-white hover:bg-white/10 font-poppins font-semibold px-8 py-6 rounded-xl text-lg hover-scale-102"
-                    >
-                      Go to Upload
-                    </Button>
-                  </div>
-                  
                   {/* Trust Strip */}
                   <div className="flex flex-wrap items-center justify-center gap-6 pt-8 text-sm text-coolGray">
                     <div className="flex items-center gap-2">
