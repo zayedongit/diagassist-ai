@@ -626,7 +626,7 @@ RAW DATA: ${baseContext}`;
       pdf.setTextColor(255, 255, 255);
       pdf.setFontSize(20);
       pdf.setFont(undefined, 'bold');
-      pdf.text('PREDLABS Medical Analytics - Analysis Report', pageWidth / 2, 15, { align: 'center' });
+      pdf.text('Medical Analytics - Analysis Report', pageWidth / 2, 15, { align: 'center' });
       
       yPosition = 35;
 
@@ -859,9 +859,9 @@ RAW DATA: ${baseContext}`;
               </div>
               <div>
                 <h1 className="text-xl font-poppins font-semibold text-white flex items-center">
-                  PREDLABS
+                  Medical Analytics
                 </h1>
-                <p className="text-xs text-coolGray">Medical Analytics</p>
+                <p className="text-xs text-coolGray">AI-Powered Lab Analysis</p>
               </div>
             </div>
           </div>
@@ -1410,7 +1410,7 @@ RAW DATA: ${baseContext}`;
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-coolGray text-sm font-inter">
-              © 2025 PREDLABS Medical Analytics. All rights reserved.
+              © 2025 Medical Analytics. All rights reserved.
             </p>
             
             <div className="flex items-center gap-6">
