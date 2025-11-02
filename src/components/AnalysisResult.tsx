@@ -190,14 +190,14 @@ export const AnalysisResult = ({
                   <div className="flex flex-col sm:flex-row items-start space-y-3 sm:space-y-0 sm:space-x-4">
                     <div className="flex-shrink-0 self-center sm:self-start">
                       <div className="p-2 sm:p-3 bg-warning/30 rounded-xl shadow-md">
-                        <FileText className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-warning-foreground" />
+                        <FileText className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-warning" />
                       </div>
                     </div>
                     <div className="flex-1 min-w-0 w-full">
                       <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 flex items-center text-center sm:text-left text-persian-blue">
                         📋 Summary in Simple Terms
                       </h3>
-                      <div className="bg-background/60 backdrop-blur-sm rounded-xl p-3 sm:p-4 md:p-5 border border-warning/20">
+                      <div className="bg-background/80 backdrop-blur-sm rounded-xl p-3 sm:p-4 md:p-5 border border-warning/20">
                         <p className="text-sm sm:text-base leading-relaxed font-medium text-persian-blue">
                           {normalizedData.summary}
                         </p>

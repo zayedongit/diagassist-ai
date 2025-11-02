@@ -76,26 +76,26 @@ export const ClinicalAssessmentHighlights = ({ clinicalData }: ClinicalAssessmen
     <div className="space-y-6">
       {/* Side by side cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Warning Signs & Possible Conditions */}
-        <Card className="border-yellow-200 bg-gradient-to-br from-yellow-50 to-amber-50">
+        {/* Warning Signs to Look For */}
+        <Card className="border-warning/30 bg-gradient-to-br from-warning/10 to-warning/5">
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-yellow-700">
+            <CardTitle className="flex items-center gap-2 text-warning">
               <AlertTriangle className="w-5 h-5" />
-              Warning Signs & Possible Conditions
+              Warning Signs to Look For
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Red Flags */}
             {clinicalData.redFlags && clinicalData.redFlags.length > 0 && (
-              <div className="bg-red-50 rounded-lg p-3 border border-red-200">
-                <h4 className="font-medium text-red-800 mb-2 flex items-center gap-1">
-                  <AlertTriangle className="w-4 h-4" />
+              <div className="bg-warning/15 rounded-lg p-3 border border-warning/40">
+                <h4 className="font-medium text-persian-blue mb-2 flex items-center gap-1">
+                  <AlertTriangle className="w-4 h-4 text-warning" />
                   Immediate Warning Signs
                 </h4>
                 <ul className="space-y-1">
                   {clinicalData.redFlags.slice(0, 3).map((flag: string, index: number) => (
-                    <li key={index} className="text-sm text-red-700 flex items-start gap-1">
-                      <span className="w-1 h-1 rounded-full bg-red-500 mt-2 flex-shrink-0"></span>
+                    <li key={index} className="text-sm text-persian-blue flex items-start gap-1">
+                      <span className="w-1 h-1 rounded-full bg-warning mt-2 flex-shrink-0"></span>
                       {flag}
                     </li>
                   ))}
@@ -105,7 +105,7 @@ export const ClinicalAssessmentHighlights = ({ clinicalData }: ClinicalAssessmen
 
             {/* Possible Conditions */}
             {clinicalData.possibleConditions && clinicalData.possibleConditions.length > 0 && (
-              <div className="bg-white/60 rounded-lg p-3 border border-yellow-200">
+              <div className="bg-background/80 backdrop-blur-sm rounded-lg p-3 border border-warning/30">
                 <h4 className="font-medium text-persian-blue mb-2 flex items-center gap-1">
                   <Stethoscope className="w-4 h-4 text-persian-blue" />
                   Possible Conditions

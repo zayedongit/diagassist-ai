@@ -180,10 +180,18 @@ function validateClinicalData(analysisResult: any): any {
           criticalConditions.push(`Kidney dysfunction (${lab.name}: ${lab.value}${lab.unit || ''})`);
         }
         
-        // Liver issues detection
-        if ((labName.includes('alt') || labName.includes('ast')) && value > 40) {
-          hasLiverIssues = true;
-          criticalConditions.push(`Liver dysfunction (${lab.name}: ${lab.value}${lab.unit || ''})`);
+        // Liver issues detection - use proper thresholds
+        if (labName.includes('alt') || labName.includes('ast')) {
+          if (value > 200) {
+            // Acute liver damage - truly critical
+            hasLiverIssues = true;
+            criticalConditions.push(`Acute liver damage (${lab.name}: ${lab.value}${lab.unit || ''})`);
+          } else if (value > 100) {
+            // Moderate elevation - concerning but not acute damage
+            hasLiverIssues = true;
+            criticalConditions.push(`Liver enzyme elevation (${lab.name}: ${lab.value}${lab.unit || ''})`);
+          }
+          // Values 40-100 are mild elevation, not critical - don't add to critical conditions
         }
       }
     }
@@ -264,7 +272,7 @@ async function retryWithBackoff<T>(
         
         // Provide user-friendly error message for rate limiting
         if (isRateLimit) {
-          throw new Error('OpenAI API is currently experiencing high traffic. Please try again in a few moments.');
+          throw new Error('AI API is currently experiencing high traffic. Please try again in a few moments.');
         }
         throw lastError;
       }
@@ -290,12 +298,12 @@ serve(async (req) => {
   try {
     console.log('🏥 Starting text-based medical analysis...');
     
-    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-    if (!OPENAI_API_KEY) {
-      console.error('Missing OpenAI API key');
-      throw new Error('OpenAI API key not configured');
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    if (!LOVABLE_API_KEY) {
+      console.error('Missing Lovable AI API key');
+      throw new Error('Lovable AI API key not configured');
     }
-    console.log('✅ OpenAI API key found');
+    console.log('✅ Lovable AI API key found');
 
     const requestBody = await req.json();
     const { text, filename, textLength } = requestBody;
@@ -372,34 +380,50 @@ MINOR CONDITIONS (overallStatus: "good" or "moderate"):
 SUMMARY GENERATION (CRITICAL - READ CAREFULLY):
 Generate a human-friendly, reassuring summary that explains findings in layman terms:
 
-TONE & LANGUAGE:
-- Use simple, non-frightening language
-- Be reassuring and supportive
-- Avoid medical jargon and specific parameter values
+TONE & LANGUAGE RULES (MUST FOLLOW):
+- Use simple, non-frightening language that a family member would use
+- Be reassuring, supportive, and hopeful
+- Avoid ALL medical jargon and specific parameter values
 - Focus on general health insights rather than technical numbers
-- Only be direct when something is clinically critical
+- NEVER use alarming words like "ACUTE", "SEVERE", "CRITICAL" unless truly life-threatening
+- Be a caring health companion, not a clinical diagnosis machine
 
 CONTENT GUIDELINES:
-- DO NOT mention specific lab values or numbers
-- Instead of "Your cholesterol is 240 mg/dL", say "Your cholesterol levels could benefit from some attention"
-- Instead of "HbA1c is 8.5%", say "Your blood sugar management shows room for improvement"
-- Focus on overall health patterns and trends
-- Provide hope and actionable direction
+- NEVER mention specific lab values, numbers, or percentages
+- For mildly elevated values (10-30% above normal): "shows room for improvement"
+- For moderately elevated values (30-50% above): "needs attention and lifestyle adjustments"
+- For significantly elevated values (>50% above): "requires medical consultation"
+- ALWAYS end with hope and actionable direction
+- Use "your body" not "your labs"
+- Focus on "what you can do" not "what's wrong"
+
+EXAMPLES OF GOOD VS BAD LANGUAGE:
+❌ BAD: "ACUTE LIVER DAMAGE with ALT 82 requiring immediate attention"
+✅ GOOD: "Your liver enzymes show mild elevation, which often improves with healthy lifestyle changes like reducing alcohol and eating a balanced diet"
+
+❌ BAD: "SEVERE DIABETES with HbA1c 10.6% indicating dangerously poor control"
+✅ GOOD: "Your blood sugar management needs attention. The good news is that with proper care, medication, and lifestyle changes, many people successfully bring these levels down to healthier ranges"
+
+❌ BAD: "Critical iron deficiency causing severe anemia"
+✅ GOOD: "Your iron levels are lower than ideal, which can make you feel tired. This is common and typically improves with iron-rich foods or supplements"
+
+❌ BAD: "Multiple abnormalities detected across panels"
+✅ GOOD: "Your results show a few areas where your body could use some extra support through simple lifestyle changes"
 
 EXAMPLE SUMMARIES BY SEVERITY:
-Good Status: "Great news! Your test results show that your body is functioning well in most areas. The few values that caught our attention are minor and can be easily managed with simple lifestyle adjustments. Keep up the healthy habits that are working for you."
+Good Status: "Great news! Your test results show that your body is functioning well. Any values that caught our attention are minor and easily managed. Keep up the healthy habits that are working for you."
 
-Moderate Status: "Your results show several areas where your body could use some extra support. Think of these as opportunities to optimize your health with manageable lifestyle changes. While some values need attention, early detection means you can take effective action to improve your wellbeing."
+Moderate Status: "Your results show a few areas where your body could use some support. These are opportunities to improve your health with manageable changes to diet and lifestyle. Early awareness means you can take positive action now."
 
-Concerning Status: "Your results indicate some areas that need prompt medical attention. While this may sound concerning, early detection is actually good news - it means you can work with your healthcare provider to take effective action. Many of these conditions respond well to treatment when caught early."
+Concerning Status: "Your results show some areas that would benefit from medical attention. Early detection is positive - it means you can work with your doctor to improve your health. Many of these conditions respond very well to treatment when caught early."
 
 KEY PRINCIPLES:
-- Be a supportive health companion, not a clinical report
+- Be a supportive friend, not a medical report
 - Emphasize hope and empowerment over fear
-- Use "your body" instead of "your labs"
-- Use "shows room for improvement" instead of "abnormal"
+- Use "shows room for improvement" instead of "abnormal"  
 - Use "could benefit from attention" instead of "elevated"
-- Always include reassuring context about treatability
+- Use "needs support" instead of "dysfunction"
+- Always include reassuring context about treatability and hope
 
 
 SPECIALIST RECOMMENDATIONS (based on most critical finding):
@@ -429,32 +453,28 @@ SUCCESS CRITERIA:
 Respond with JSON only - no markdown formatting:`;
 
     const pass1Response = await retryWithBackoff(async () => {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o-mini', // Using more cost-efficient model to reduce rate limiting
+          model: 'claude-sonnet-4-5',
           messages: [
-            {
-              role: 'system',
-              content: 'You are an expert medical AI that analyzes laboratory reports with precision. Always reference specific findings from the provided report text.'
-            },
             {
               role: 'user',
               content: pass1Prompt
             }
           ],
-          max_completion_tokens: 3000,
+          response_format: { type: "json_object" },
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.text();
-        console.error('OpenAI API error:', response.status, errorData);
-        throw new Error(`OpenAI API call failed: ${response.status}`);
+        console.error('Lovable AI API error:', response.status, errorData);
+        throw new Error(`AI API call failed: ${response.status}`);
       }
 
       return response;
