@@ -844,317 +844,596 @@ RAW DATA: ${baseContext}`;
   };
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-3 sm:py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 sm:space-x-3">
-              <div 
-                className="cursor-pointer hover:opacity-80 transition-opacity"
-                onClick={() => navigate('/')}
-              >
-                <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
-                    <BarChart3 className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
-                  </div>
-                  <div>
-                    <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-persian-blue flex items-center">
-                      PREDLABS <Stethoscope className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-800 mx-1" /> Medical Analytics
-                    </h1>
-                    <p className="text-xs sm:text-sm text-persian-blue">AI-Powered Report Analysis</p>
-                  </div>
-                </div>
+    <div className="min-h-screen bg-coolGray font-inter">
+      {/* 1. Sticky Top Navigation Bar */}
+      <header className="sticky top-0 z-50 bg-navy/90 backdrop-blur-lg border-b border-slate/20">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <div 
+              className="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => navigate('/')}
+            >
+              <div className="w-10 h-10 bg-gradient-to-br from-accentCyan to-primary rounded-lg flex items-center justify-center">
+                <BarChart3 className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-poppins font-semibold text-white flex items-center">
+                  PREDLABS
+                </h1>
+                <p className="text-xs text-coolGray">Medical Analytics</p>
               </div>
             </div>
             
+            {/* Nav Links (hidden on mobile) */}
+            <nav className="hidden md:flex items-center space-x-6">
+              <a href="#upload-section" className="text-coolGray hover:text-accentCyan transition-colors text-sm font-inter">Upload</a>
+              <a href="#analysis-section" className="text-coolGray hover:text-accentCyan transition-colors text-sm font-inter">Analysis</a>
+              <a href="#chat-section" className="text-coolGray hover:text-accentCyan transition-colors text-sm font-inter">Chat</a>
+              <a href="#interpretation-section" className="text-coolGray hover:text-accentCyan transition-colors text-sm font-inter">Interpretation</a>
+              <a href="#faq-section" className="text-coolGray hover:text-accentCyan transition-colors text-sm font-inter">FAQ</a>
+            </nav>
+            
+            {/* Auth Button */}
             <div className="flex items-center space-x-2">
-              {isAuthenticated && (
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={signOut}
-                    className="flex items-center space-x-2"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span>Logout</span>
-                  </Button>
-                </div>
+              {isAuthenticated ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={signOut}
+                  className="text-white hover:text-accentCyan hover:bg-white/10"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => setShowAuthDialog(true)}
+                  className="bg-accentCyan text-navy hover:bg-accentCyan/90 font-inter font-medium px-6"
+                >
+                  Login
+                </Button>
               )}
-            </div>
-          </div>
-          
-          {/* Privacy Notice Banner */}
-          <div className="mt-2 pt-2 border-t border-primary/10">
-            <div className="flex items-start gap-2 px-1">
-              <Shield className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                <span className="font-semibold text-foreground">Privacy Protected:</span> Your medical data is encrypted and automatically deleted after analysis. We never store your reports or personal health information permanently.
-              </p>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Main Content with hero background covering entire page */}
-      <main className="w-full min-h-screen bg-fixed bg-cover bg-center bg-no-repeat" style={{backgroundImage: `url(${heroBackground})`}}>
-        {!selectedFile && !showResults && (
-          <div className="w-full">
-            {/* Hero Section - transparent to show main background */}
-            <div className="relative min-h-screen">
-            </div>
-
-            {/* Features Section - Overlayed on hero with transparent background */}
-            <div className="relative -mt-32 pb-32 z-20">
-              <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12">
-                  <div className="text-center space-y-3 sm:space-y-4 animate-fade-in">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-orange-400 to-purple-600 rounded-full flex items-center justify-center">
-                        <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                      </div>
+      <main className="w-full">
+        {/* 2. HERO SECTION - Parallax + Video */}
+        {!selectedFile && !showResults && !error && (
+          <>
+            <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-navy">
+              {/* Video Background */}
+              <div className="absolute inset-0 z-0">
+                <img 
+                  src={heroBackground}
+                  alt="Medical Analysis Background"
+                  className="w-full h-full object-cover opacity-20"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-navy/80 via-navy/60 to-navy/80" />
+              </div>
+              
+              {/* Floating molecular shapes (mid layer) */}
+              <div className="absolute inset-0 z-10 opacity-10 pointer-events-none">
+                <div className="absolute top-1/4 left-1/4 w-32 h-32 border border-accentCyan rounded-full animate-float" />
+                <div className="absolute top-1/3 right-1/4 w-24 h-24 border border-accentCyan rounded-full animate-float" style={{ animationDelay: '1s' }} />
+                <div className="absolute bottom-1/4 left-1/3 w-20 h-20 border border-accentCyan rounded-full animate-float" style={{ animationDelay: '2s' }} />
+              </div>
+              
+              {/* Hero Content (foreground) */}
+              <div className="relative z-20 container mx-auto px-4 sm:px-6 text-center">
+                <div className="max-w-4xl mx-auto space-y-8 animate-fade-up">
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-poppins font-semibold text-white leading-tight">
+                    AI-Powered Medical Report Analysis
+                    <br />
+                    <span className="text-accentCyan">Clear, Actionable Insights</span>
+                  </h1>
+                  
+                  <p className="text-lg sm:text-xl text-coolGray max-w-3xl mx-auto">
+                    Login, upload your report (PDF/JPG/PNG), chat on your findings, and view your final interpretation.
+                  </p>
+                  
+                  {/* CTAs */}
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+                    {!isAuthenticated && (
+                      <Button
+                        onClick={() => setShowAuthDialog(true)}
+                        size="lg"
+                        className="bg-accentCyan text-navy hover:bg-accentCyan/90 font-poppins font-semibold px-8 py-6 rounded-xl text-lg hover-scale-102 shadow-premium"
+                      >
+                        Login to Start
+                      </Button>
+                    )}
+                    <Button
+                      onClick={() => document.getElementById('upload-section')?.scrollIntoView({ behavior: 'smooth' })}
+                      variant="outline"
+                      size="lg"
+                      className="border-2 border-accentCyan text-white hover:bg-white/10 font-poppins font-semibold px-8 py-6 rounded-xl text-lg hover-scale-102"
+                    >
+                      Go to Upload
+                    </Button>
+                  </div>
+                  
+                  {/* Trust Strip */}
+                  <div className="flex flex-wrap items-center justify-center gap-6 pt-8 text-sm text-coolGray">
+                    <div className="flex items-center gap-2">
+                      <Shield className="w-4 h-4 text-accentCyan" />
+                      <span>NABL Accredited</span>
                     </div>
-                    <h3 className="text-sm sm:text-base font-bold bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">Data Analysis</h3>
-                    <p className="text-white drop-shadow-md text-xs sm:text-sm">
+                    <div className="flex items-center gap-2">
+                      <Lock className="w-4 h-4 text-accentCyan" />
+                      <span>ISO-compliant workflow</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Shield className="w-4 h-4 text-accentCyan" />
+                      <span>Encrypted data</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Scroll indicator */}
+              <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 animate-bounce">
+                <div className="w-6 h-10 border-2 border-accentCyan rounded-full flex items-start justify-center p-2">
+                  <div className="w-1 h-2 bg-accentCyan rounded-full" />
+                </div>
+              </div>
+            </section>
+
+            {/* Features Grid */}
+            <section className="py-24 bg-white relative z-10">
+              <div className="container mx-auto px-4 sm:px-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+                  <div className="text-center space-y-4 animate-fade-up hover-lift p-6 rounded-2xl transition-all">
+                    <div className="w-16 h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
+                      <BarChart3 className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-lg font-poppins font-semibold text-navy">Data Analysis</h3>
+                    <p className="text-slate text-sm">
                       Advanced analysis of your document parameters
                     </p>
                   </div>
 
-                  <div className="text-center space-y-3 sm:space-y-4 animate-fade-in">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-orange-400 to-purple-600 rounded-full flex items-center justify-center">
-                        <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                      </div>
+                  <div className="text-center space-y-4 animate-fade-up hover-lift p-6 rounded-2xl transition-all" style={{ animationDelay: '0.1s' }}>
+                    <div className="w-16 h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
+                      <Brain className="w-8 h-8 text-white" />
                     </div>
-                    <h3 className="text-sm sm:text-base font-bold bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">Simple Language</h3>
-                    <p className="text-white drop-shadow-md text-xs sm:text-sm">
+                    <h3 className="text-lg font-poppins font-semibold text-navy">Simple Language</h3>
+                    <p className="text-slate text-sm">
                       Complex terms explained in easy words
                     </p>
                   </div>
 
-                  <div className="text-center space-y-3 sm:space-y-4 animate-fade-in">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-orange-400 to-purple-600 rounded-full flex items-center justify-center">
-                        <Stethoscope className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                      </div>
+                  <div className="text-center space-y-4 animate-fade-up hover-lift p-6 rounded-2xl transition-all" style={{ animationDelay: '0.2s' }}>
+                    <div className="w-16 h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
+                      <Stethoscope className="w-8 h-8 text-white" />
                     </div>
-                    <h3 className="text-sm sm:text-base font-bold bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">Clinical Assessment</h3>
-                    <p className="text-white drop-shadow-md text-xs sm:text-sm">
-                      Clinical assessment after your medical data analysis gives a more holistic report
+                    <h3 className="text-lg font-poppins font-semibold text-navy">Clinical Assessment</h3>
+                    <p className="text-slate text-sm">
+                      Holistic report with clinical assessment after analysis
                     </p>
                   </div>
 
-                  <div className="text-center space-y-3 sm:space-y-4 animate-fade-in">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-orange-400 to-purple-600 rounded-full flex items-center justify-center">
-                        <Lock className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                      </div>
+                  <div className="text-center space-y-4 animate-fade-up hover-lift p-6 rounded-2xl transition-all" style={{ animationDelay: '0.3s' }}>
+                    <div className="w-16 h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
+                      <Lock className="w-8 h-8 text-white" />
                     </div>
-                    <h3 className="text-sm sm:text-base font-bold bg-gradient-to-r from-orange-400 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">Private & Secure</h3>
-                    <p className="text-white drop-shadow-md text-xs sm:text-sm">
+                    <h3 className="text-lg font-poppins font-semibold text-navy">Private & Secure</h3>
+                    <p className="text-slate text-sm">
                       Your data is processed securely and privately
                     </p>
                   </div>
                 </div>
               </div>
-            </div>
+            </section>
 
-            {/* Upload Section with ready background extending to bottom */}
-            <div className="relative min-h-screen">
-              {/* Ready background overlay covering rest of page */}
-              <div 
-                className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-70 scale-110" 
-                style={{
-                  backgroundImage: `url(${readyBackground})`,
-                  height: '120vh',
-                  transform: 'scale(1.2)'
-                }}
-              ></div>
-              
-              {/* Upload content */}
-              <div className="relative z-10 flex items-center justify-center min-h-screen">
-                <div className="space-y-6 px-4 w-full max-w-4xl animate-fade-in">
-                  <div className="text-center mb-8">
-                    <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-4 animate-fade-in">
-                      <span className="bg-gradient-to-r from-orange-400 via-red-500 to-purple-600 bg-clip-text text-transparent drop-shadow-lg">
-                        Ready to Get Started?
-                      </span>
-                    </h3>
-                    <p className="text-sm sm:text-base text-white/90 drop-shadow-md animate-fade-in">
-                      Upload your medical report now and discover insights that could change your health journey.
+            {/* 3. UPLOAD SECTION */}
+            <section id="upload-section" className="py-24 bg-coolGray relative">
+              <div className="container mx-auto px-4 sm:px-6">
+                <div className="max-w-4xl mx-auto space-y-8">
+                  <div className="text-center space-y-4">
+                    <h2 className="text-3xl sm:text-4xl font-poppins font-semibold text-navy">
+                      Upload Your Test Report
+                    </h2>
+                    <p className="text-slate text-lg">
+                      Supported formats: PDF, JPG, PNG. Get instant AI-powered analysis.
                     </p>
                   </div>
-                  <div className="flex justify-center items-center">
+                  
+                  <div className="bg-white rounded-2xl shadow-premium p-8 sm:p-12">
                     <UploadZone onFileSelect={handleFileSelect} />
+                  </div>
+                  
+                  {/* Privacy Notice */}
+                  <div className="flex items-start gap-3 p-4 bg-white/50 rounded-xl border border-slate/20">
+                    <Shield className="h-5 w-5 text-accentCyan shrink-0 mt-0.5" />
+                    <p className="text-sm text-slate leading-relaxed">
+                      <span className="font-semibold text-navy">Privacy Protected:</span> Your medical data is encrypted and automatically deleted after analysis. We never store your reports or personal health information permanently.
+                    </p>
                   </div>
                 </div>
               </div>
               
-              {/* Fixed disclaimer at bottom */}
-              <div className="fixed bottom-0 left-0 right-0 z-30 bg-black/50 backdrop-blur-sm">
-                <div className="text-center py-4 px-6">
-                  <h4 className="text-white font-semibold text-sm drop-shadow-lg mb-2">Important Disclaimer</h4>
-                  <p className="text-white/90 text-xs leading-relaxed max-w-4xl mx-auto drop-shadow-md">
-                    This report is generated using AI analysis and is intended for informational purposes only. It should not replace professional medical advice, diagnosis, or treatment. Always consult with qualified healthcare professionals for medical concerns. In case of medical emergencies, seek immediate professional medical attention.
-                  </p>
+              {/* Disclaimer at bottom */}
+              <div className="mt-16 border-t border-slate/20 pt-8">
+                <div className="container mx-auto px-4 sm:px-6">
+                  <div className="max-w-4xl mx-auto text-center">
+                    <h4 className="text-navy font-poppins font-semibold text-sm mb-2">Important Disclaimer</h4>
+                    <p className="text-slate text-xs leading-relaxed">
+                      This report is generated using AI analysis and is intended for informational purposes only. It should not replace professional medical advice, diagnosis, or treatment. Always consult with qualified healthcare professionals for medical concerns.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </>
+        )}
+
+        {/* 4. AI ANALYSIS SECTION */}
+        {isAnalyzing && (
+          <section id="analysis-section" className="py-24 bg-white min-h-screen flex items-center justify-center">
+            <div className="container mx-auto px-4 sm:px-6">
+              <div className="max-w-4xl mx-auto text-center space-y-8">
+                <h2 className="text-3xl sm:text-4xl font-poppins font-semibold text-navy">
+                  AI Analysis in Progress
+                </h2>
+                
+                {/* Status Chips */}
+                <div className="flex flex-wrap items-center justify-center gap-4">
+                  <div className={`px-6 py-3 rounded-xl border-2 ${selectedFile ? 'bg-green-50 border-green-500 text-green-700' : 'bg-slate/10 border-slate/30 text-slate'}`}>
+                    <span className="font-inter font-medium">File received</span>
+                  </div>
+                  <div className={`px-6 py-3 rounded-xl border-2 ${processingStatus === 'processing' ? 'bg-yellow-50 border-yellow-500 text-yellow-700 animate-pulse' : processingStatus === 'completed' ? 'bg-green-50 border-green-500 text-green-700' : 'bg-slate/10 border-slate/30 text-slate'}`}>
+                    <span className="font-inter font-medium">Parsing & extraction</span>
+                  </div>
+                  <div className={`px-6 py-3 rounded-xl border-2 ${processingStatus === 'completed' ? 'bg-green-50 border-green-500 text-green-700' : 'bg-slate/10 border-slate/30 text-slate'}`}>
+                    <span className="font-inter font-medium">Insights generation</span>
+                  </div>
+                </div>
+                
+                {/* Animated Loader */}
+                <div className="bg-coolGray rounded-2xl shadow-card p-12">
+                  <AnimatedLoader 
+                    message={getProcessingMessage()}
+                    onCancel={processingStatus === 'processing' ? handleReset : undefined}
+                  />
                 </div>
               </div>
             </div>
-          </div>
+          </section>
         )}
 
         {/* Error Section */}
         {error && (
-          <div className="text-center space-y-8">
-            <div className="flex justify-center">
-              <div className="bg-destructive/10 p-6 rounded-full">
-                <AlertCircle className="w-16 h-16 text-destructive" />
+          <section className="py-24 bg-white min-h-screen flex items-center justify-center">
+            <div className="container mx-auto px-4 sm:px-6">
+              <div className="max-w-2xl mx-auto text-center space-y-8">
+                <div className="flex justify-center">
+                  <div className="bg-red-50 p-6 rounded-full">
+                    <AlertCircle className="w-16 h-16 text-red-500" />
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <h3 className="text-2xl font-poppins font-semibold text-navy">Analysis Failed</h3>
+                  <p className="text-slate max-w-md mx-auto">{error}</p>
+                  <Button
+                    onClick={handleReset}
+                    className="bg-accentCyan text-navy hover:bg-accentCyan/90 font-inter font-medium px-8 py-6 rounded-xl hover-scale-102"
+                  >
+                    Try Again
+                  </Button>
+                </div>
               </div>
             </div>
-            <div className="space-y-4">
-              <h3 className="text-2xl font-semibold text-foreground">Analysis Failed</h3>
-              <p className="text-muted-foreground max-w-md mx-auto">{error}</p>
-              <button
-                onClick={handleReset}
-                className="bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg"
-              >
-                Try Again
-              </button>
-            </div>
-          </div>
+          </section>
         )}
 
-        {/* Analysis Loading */}
-        {isAnalyzing && (
-          <AnimatedLoader 
-            message={getProcessingMessage()}
-            onCancel={processingStatus === 'processing' ? handleReset : undefined}
-          />
-        )}
-
-        {/* Results */}
+        {/* 5. CLINICAL CHAT SECTION + 6. INTERPRETATION SECTION */}
         {showResults && !isAnalyzing && analysisData && (
-          <div className="space-y-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-2xl font-bold text-foreground">Your Analysis Results</h3>
-                <p className="text-persian-blue">Based on: {selectedFile?.name}</p>
+          <>
+            <section className="py-16 bg-white">
+              <div className="container mx-auto px-4 sm:px-6">
+                <div className="flex items-center justify-between mb-8">
+                  <div>
+                    <h3 className="text-2xl font-poppins font-semibold text-navy">Your Analysis Results</h3>
+                    <p className="text-slate">Based on: {selectedFile?.name}</p>
+                  </div>
+                  <Button
+                    onClick={handleReset}
+                    variant="outline"
+                    className="text-accentCyan border-accentCyan hover:bg-accentCyan/10"
+                  >
+                    Analyze New Report
+                  </Button>
+                </div>
               </div>
-              <button
-                onClick={handleReset}
-                className="text-sm text-primary hover:underline"
-              >
-                Analyze New Report
-              </button>
-            </div>
-            
-            <div className="grid gap-6">
-              <div>
-                {/* Show Payment Gate if needed */}
-                {showPaymentGate ? (
+            </section>
+
+            {showPaymentGate ? (
+              <section className="py-16 bg-coolGray">
+                <div className="container mx-auto px-4 sm:px-6">
                   <PaymentGate 
                     onPaymentSuccess={handlePaymentSuccess}
                     showMockPdf={generateMockPdf}
                   />
-                ) : (
-                  <ErrorBoundary>
-                    <div className="w-full max-w-6xl mx-auto space-y-8">
-                      {/* 1. Patient Detail (Part of Medical Panel Analysis) */}
-                      <ReportHeader 
-                        patientName={analysisData?.patientName}
-                        demographics={analysisData?.demographics}
-                        overallStatus={analysisData?.overallStatus}
-                      />
+                </div>
+              </section>
+            ) : (
+              <ErrorBoundary>
+                <div className="w-full">
+                  {/* Patient Details & Summary */}
+                  <section className="py-8 bg-coolGray">
+                    <div className="container mx-auto px-4 sm:px-6">
+                      <div className="max-w-6xl mx-auto space-y-6">
+                        <ReportHeader 
+                          patientName={analysisData?.patientName}
+                          demographics={analysisData?.demographics}
+                          overallStatus={analysisData?.overallStatus}
+                        />
 
-                      {/* 2. Summary in Simple Terms (Part of Medical Panel Analysis) */}
-                      <SummaryCard 
-                        summary={analysisData?.summary}
-                        overallStatus={analysisData?.overallStatus}
-                        abnormalCount={enhancedData ? extractAbnormalPanels(enhancedData).reduce((acc, panel) => acc + (panel.abnormalLabs?.length || 0), 0) : 0}
-                        analysisData={analysisData}
-                      />
-
-                      {/* 3. Clinical Assessment Chat Bot - Only for medical reports */}
-                      {!isNonMedicalReport(analysisData) && (
-                        <div className="w-full">
-                          <MedicalChatAgent
-                            className="w-full"
-                            analysisContext={createEnhancedAnalysisContext(analysisData)}
-                            demographics={analysisData.demographics}
-                            abnormalPanels={enhancedData ? extractAbnormalPanels(enhancedData) : []}
-                            mode="clinical-triage"
-                            onClinicalAssessmentComplete={handleClinicalAssessmentComplete}
-                          />
-                        </div>
-                      )}
-
-                      {/* 4, 5, 6. Clinical Assessment Highlights (Warning Signs, Investigations, Management) - Only for medical reports */}
-                      {!isNonMedicalReport(analysisData) && (
-                        <ClinicalAssessmentHighlights clinicalData={clinicalAssessmentData} />
-                      )}
-
-                      {/* 7. Understanding Your Numbers (Part of Medical Panel Analysis) - Only for medical reports */}
-                      {!isNonMedicalReport(analysisData) && (
-                        <UnderstandingYourNumbers analysisData={analysisData} />
-                      )}
-
-                      {/* Comprehensive Report Download Button - Only show after clinical assessment */}
-                      {!showPaymentGate && !isNonMedicalReport(analysisData) && clinicalAssessmentData && (
-                        <div className="text-center">
-                          <Button 
-                            onClick={handleDownloadComprehensiveReport}
-                            className="min-w-48 bg-primary hover:bg-primary/90 text-white"
-                            size="lg"
-                          >
-                            <Download className="w-4 h-4 mr-2" />
-                            Download Comprehensive Report
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </ErrorBoundary>
-                )}
-                
-                {/* Show upload prompt for non-medical reports */}
-                {isNonMedicalReport(analysisData) && (
-                  <Card className="border-2 border-dashed border-primary/30 bg-gradient-to-r from-primary/5 to-background mt-6">
-                    <CardContent className="text-center py-8">
-                      <div className="space-y-4">
-                        <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-                          <FileText className="w-8 h-8 text-primary" />
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-semibold text-foreground mb-2">
-                            Please Upload a Blood Report
-                          </h3>
-                          <p className="text-sm text-muted-foreground mb-4">
-                            To get accurate health analysis and recommendations, please upload a valid blood test report.
-                          </p>
-                        </div>
-                        <Button 
-                          onClick={() => {
-                            setShowResults(false);
-                            setAnalysisData(null);
-                            setSelectedFile(null);
-                            if (fileInputRef.current) {
-                              fileInputRef.current.click();
-                            }
-                          }}
-                          className="mt-4"
-                        >
-                          <FileText className="w-4 h-4 mr-2" />
-                          Upload Blood Report
-                        </Button>
+                        <SummaryCard 
+                          summary={analysisData?.summary}
+                          overallStatus={analysisData?.overallStatus}
+                          abnormalCount={enhancedData ? extractAbnormalPanels(enhancedData).reduce((acc, panel) => acc + (panel.abnormalLabs?.length || 0), 0) : 0}
+                          analysisData={analysisData}
+                        />
                       </div>
-                    </CardContent>
-                  </Card>
-                )}
+                    </div>
+                  </section>
+
+                  {/* Clinical Chat */}
+                  {!isNonMedicalReport(analysisData) && (
+                    <section id="chat-section" className="py-16 bg-white">
+                      <div className="container mx-auto px-4 sm:px-6">
+                        <div className="max-w-4xl mx-auto space-y-6">
+                          <div className="text-center space-y-3">
+                            <h2 className="text-3xl font-poppins font-semibold text-navy">
+                              Clinical Chat on Your Report
+                            </h2>
+                            <p className="text-sm text-slate">
+                              This chat is strictly about your uploaded test report. It does not replace medical diagnosis.
+                            </p>
+                          </div>
+                          
+                          <div className="bg-coolGray rounded-2xl shadow-premium p-6">
+                            <MedicalChatAgent
+                              className="w-full"
+                              analysisContext={createEnhancedAnalysisContext(analysisData)}
+                              demographics={analysisData.demographics}
+                              abnormalPanels={enhancedData ? extractAbnormalPanels(enhancedData) : []}
+                              mode="clinical-triage"
+                              onClinicalAssessmentComplete={handleClinicalAssessmentComplete}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                  )}
+
+                  {/* Final Interpretation */}
+                  {!isNonMedicalReport(analysisData) && (
+                    <section id="interpretation-section" className="py-16 bg-coolGray">
+                      <div className="container mx-auto px-4 sm:px-6">
+                        <div className="max-w-6xl mx-auto space-y-8">
+                          <div className="text-center">
+                            <h2 className="text-3xl font-poppins font-semibold text-navy mb-3">
+                              Final Interpretation
+                            </h2>
+                          </div>
+
+                          <div className="grid lg:grid-cols-3 gap-6">
+                            {/* Left Column - Clinical Assessment */}
+                            <div className="lg:col-span-2 space-y-6">
+                              <ClinicalAssessmentHighlights clinicalData={clinicalAssessmentData} />
+                            </div>
+
+                            {/* Right Column - Charts */}
+                            <div className="space-y-6">
+                              <UnderstandingYourNumbers analysisData={analysisData} />
+                            </div>
+                          </div>
+
+                          {/* Download Button */}
+                          {clinicalAssessmentData && (
+                            <div className="text-center pt-8">
+                              <Button 
+                                onClick={handleDownloadComprehensiveReport}
+                                size="lg"
+                                className="bg-accentCyan text-navy hover:bg-accentCyan/90 font-poppins font-semibold px-8 py-6 rounded-xl hover-scale-102 shadow-premium"
+                              >
+                                <Download className="w-5 h-5 mr-2" />
+                                Download PDF
+                              </Button>
+                            </div>
+                          )}
+
+                          {/* Disclaimer */}
+                          <div className="mt-8 p-6 bg-yellow-50 border-2 border-yellow-200 rounded-xl">
+                            <p className="text-sm text-center text-slate leading-relaxed">
+                              <span className="font-semibold text-navy">Disclaimer:</span> This is informational support only — not a medical diagnosis.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                  )}
+
+                  {/* Non-medical report prompt */}
+                  {isNonMedicalReport(analysisData) && (
+                    <section className="py-16 bg-white">
+                      <div className="container mx-auto px-4 sm:px-6">
+                        <Card className="max-w-2xl mx-auto border-2 border-dashed border-accentCyan/30 bg-coolGray">
+                          <CardContent className="text-center py-12">
+                            <div className="space-y-6">
+                              <div className="w-20 h-20 mx-auto bg-accentCyan/10 rounded-full flex items-center justify-center">
+                                <FileText className="w-10 h-10 text-accentCyan" />
+                              </div>
+                              <div>
+                                <h3 className="text-xl font-poppins font-semibold text-navy mb-3">
+                                  Please Upload a Blood Report
+                                </h3>
+                                <p className="text-slate mb-6">
+                                  To get accurate health analysis and recommendations, please upload a valid blood test report.
+                                </p>
+                              </div>
+                              <Button 
+                                onClick={() => {
+                                  setShowResults(false);
+                                  setAnalysisData(null);
+                                  setSelectedFile(null);
+                                  if (fileInputRef.current) {
+                                    fileInputRef.current.click();
+                                  }
+                                }}
+                                className="bg-accentCyan text-navy hover:bg-accentCyan/90"
+                              >
+                                <FileText className="w-4 h-4 mr-2" />
+                                Upload Blood Report
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </section>
+                  )}
+                </div>
+              </ErrorBoundary>
+            )}
+          </>
+        )}
+
+        {/* 7. FAQ SECTION */}
+        <section id="faq-section" className="py-24 bg-white">
+          <div className="container mx-auto px-4 sm:px-6">
+            <div className="max-w-3xl mx-auto">
+              <h2 className="text-3xl sm:text-4xl font-poppins font-semibold text-navy text-center mb-12">
+                Frequently Asked Questions
+              </h2>
+              
+              <div className="bg-coolGray rounded-2xl shadow-card p-8 space-y-4">
+                <details className="group">
+                  <summary className="flex items-center justify-between cursor-pointer py-4 font-inter font-medium text-navy">
+                    What file formats are supported?
+                    <span className="transition group-open:rotate-180">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </span>
+                  </summary>
+                  <p className="pb-4 text-slate text-sm">
+                    We support PDF, JPG, and PNG file formats for your medical reports. Files are processed securely and deleted after analysis.
+                  </p>
+                </details>
+
+                <Separator />
+
+                <details className="group">
+                  <summary className="flex items-center justify-between cursor-pointer py-4 font-inter font-medium text-navy">
+                    How long does analysis take?
+                    <span className="transition group-open:rotate-180">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </span>
+                  </summary>
+                  <p className="pb-4 text-slate text-sm">
+                    Most analyses complete in 30-60 seconds. Complex reports may take slightly longer. You'll see real-time progress updates.
+                  </p>
+                </details>
+
+                <Separator />
+
+                <details className="group">
+                  <summary className="flex items-center justify-between cursor-pointer py-4 font-inter font-medium text-navy">
+                    Is my data secure?
+                    <span className="transition group-open:rotate-180">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </span>
+                  </summary>
+                  <p className="pb-4 text-slate text-sm">
+                    Yes. All data is encrypted during transmission and automatically deleted after your session. We comply with healthcare data protection standards.
+                  </p>
+                </details>
+
+                <Separator />
+
+                <details className="group">
+                  <summary className="flex items-center justify-between cursor-pointer py-4 font-inter font-medium text-navy">
+                    Can I save my results?
+                    <span className="transition group-open:rotate-180">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </span>
+                  </summary>
+                  <p className="pb-4 text-slate text-sm">
+                    Yes! After completing your clinical assessment, you can download a comprehensive PDF report with all findings and recommendations.
+                  </p>
+                </details>
+
+                <Separator />
+
+                <details className="group">
+                  <summary className="flex items-center justify-between cursor-pointer py-4 font-inter font-medium text-navy">
+                    What if I don't understand something?
+                    <span className="transition group-open:rotate-180">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </span>
+                  </summary>
+                  <p className="pb-4 text-slate text-sm">
+                    Use our Clinical Chat feature to ask questions about your specific results. The AI will explain complex medical terms in simple language.
+                  </p>
+                </details>
               </div>
             </div>
           </div>
-        )}
+        </section>
+
+        {/* 8. Privacy & Compliance */}
+        <section className="py-16 bg-coolGray">
+          <div className="container mx-auto px-4 sm:px-6">
+            <div className="max-w-4xl mx-auto text-center space-y-6">
+              <div className="flex items-center justify-center gap-8 flex-wrap">
+                <div className="flex items-center gap-2">
+                  <Shield className="w-6 h-6 text-accentCyan" />
+                  <span className="text-sm font-inter text-slate">NABL Accredited</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Lock className="w-6 h-6 text-accentCyan" />
+                  <span className="text-sm font-inter text-slate">ISO Compliant</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Shield className="w-6 h-6 text-accentCyan" />
+                  <span className="text-sm font-inter text-slate">End-to-End Encrypted</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
+
+      {/* 9. FOOTER */}
+      <footer className="bg-navy py-8 border-t border-slate/20">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-coolGray text-sm font-inter">
+              © 2025 PREDLABS Medical Analytics. All rights reserved.
+            </p>
+            
+            <div className="flex items-center gap-6">
+              <a href="#upload-section" className="text-coolGray hover:text-accentCyan text-sm transition-colors">Upload</a>
+              <a href="#analysis-section" className="text-coolGray hover:text-accentCyan text-sm transition-colors">Analysis</a>
+              <a href="#chat-section" className="text-coolGray hover:text-accentCyan text-sm transition-colors">Chat</a>
+              <a href="#faq-section" className="text-coolGray hover:text-accentCyan text-sm transition-colors">FAQ</a>
+            </div>
+          </div>
+        </div>
+      </footer>
 
       {/* Auth Dialog */}
       <AuthDialog 

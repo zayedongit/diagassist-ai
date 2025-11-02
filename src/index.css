@@ -131,3 +131,26 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .hover-scale-102 {
+    @apply hover:scale-[1.02] transition-transform duration-200;
+  }
+  
+  .hover-lift {
+    @apply hover:shadow-lift transition-shadow duration-200;
+  }
+  
+  .parallax-layer {
+    will-change: transform;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
