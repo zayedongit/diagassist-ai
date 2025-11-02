@@ -79,8 +79,8 @@ export const ClinicalAssessmentHighlights = ({ clinicalData }: ClinicalAssessmen
         {/* Warning Signs to Look For */}
         <Card className="border-warning/30 bg-gradient-to-br from-warning/10 to-warning/5">
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-warning">
-              <AlertTriangle className="w-5 h-5" />
+            <CardTitle className="flex items-center gap-2 text-gray-900">
+              <AlertTriangle className="w-5 h-5 text-warning-600" />
               Warning Signs to Look For
             </CardTitle>
           </CardHeader>
@@ -88,14 +88,14 @@ export const ClinicalAssessmentHighlights = ({ clinicalData }: ClinicalAssessmen
             {/* Red Flags */}
             {clinicalData.redFlags && clinicalData.redFlags.length > 0 && (
               <div className="bg-warning/15 rounded-lg p-3 border border-warning/40">
-                <h4 className="font-medium text-persian-blue mb-2 flex items-center gap-1">
-                  <AlertTriangle className="w-4 h-4 text-warning" />
+                <h4 className="font-medium text-gray-900 mb-2 flex items-center gap-1">
+                  <AlertTriangle className="w-4 h-4 text-warning-600" />
                   Immediate Warning Signs
                 </h4>
                 <ul className="space-y-1">
                   {clinicalData.redFlags.slice(0, 3).map((flag: string, index: number) => (
-                    <li key={index} className="text-sm text-persian-blue flex items-start gap-1">
-                      <span className="w-1 h-1 rounded-full bg-warning mt-2 flex-shrink-0"></span>
+                    <li key={index} className="text-sm text-gray-700 flex items-start gap-1">
+                      <span className="w-1 h-1 rounded-full bg-warning-600 mt-2 flex-shrink-0"></span>
                       {flag}
                     </li>
                   ))}
@@ -105,15 +105,15 @@ export const ClinicalAssessmentHighlights = ({ clinicalData }: ClinicalAssessmen
 
             {/* Possible Conditions */}
             {clinicalData.possibleConditions && clinicalData.possibleConditions.length > 0 && (
-              <div className="bg-background/80 backdrop-blur-sm rounded-lg p-3 border border-warning/30">
-                <h4 className="font-medium text-persian-blue mb-2 flex items-center gap-1">
-                  <Stethoscope className="w-4 h-4 text-persian-blue" />
+              <div className="bg-white rounded-lg p-3 border border-warning/30">
+                <h4 className="font-medium text-gray-900 mb-2 flex items-center gap-1">
+                  <Stethoscope className="w-4 h-4 text-primary" />
                   Possible Conditions
                 </h4>
                 <div className="space-y-2">
                   {clinicalData.possibleConditions.slice(0, 2).map((condition: any, index: number) => (
                     <div key={index} className="flex items-center justify-between">
-                      <span className="text-sm text-persian-blue font-medium">{condition.name}</span>
+                      <span className="text-sm text-gray-900 font-medium">{condition.name}</span>
                       <Badge variant={getProbabilityBadgeVariant(condition.probability)} className="text-xs">
                         {condition.probability}
                       </Badge>
@@ -128,23 +128,23 @@ export const ClinicalAssessmentHighlights = ({ clinicalData }: ClinicalAssessmen
         {/* Investigations & Specialist Referrals */}
         <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50">
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-blue-700">
-              <FileText className="w-5 h-5" />
+            <CardTitle className="flex items-center gap-2 text-gray-900">
+              <FileText className="w-5 h-5 text-primary" />
               Investigations & Specialist Referrals
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Investigations */}
             {clinicalData.investigations && clinicalData.investigations.length > 0 && (
-              <div className="bg-white/60 rounded-lg p-3 border border-blue-200">
-                <h4 className="font-medium text-persian-blue mb-2 flex items-center gap-1">
-                  <Activity className="w-4 h-4 text-persian-blue" />
+              <div className="bg-white rounded-lg p-3 border border-blue-200">
+                <h4 className="font-medium text-gray-900 mb-2 flex items-center gap-1">
+                  <Activity className="w-4 h-4 text-primary" />
                   Recommended Tests
                 </h4>
                 <div className="space-y-2">
                   {clinicalData.investigations.slice(0, 2).map((investigation: any, index: number) => (
                     <div key={index} className="flex items-center justify-between">
-                      <span className="text-sm text-persian-blue font-medium">{investigation.test}</span>
+                      <span className="text-sm text-gray-900 font-medium">{investigation.test}</span>
                       <Badge variant={getUrgencyBadgeVariant(investigation.urgency)} className="text-xs">
                         {investigation.urgency}
                       </Badge>
@@ -156,15 +156,15 @@ export const ClinicalAssessmentHighlights = ({ clinicalData }: ClinicalAssessmen
 
             {/* Specialist Referrals */}
             {clinicalData.referrals && clinicalData.referrals.length > 0 && (
-              <div className="bg-primary/5 rounded-lg p-3 border border-primary/20">
-                <h4 className="font-medium text-persian-blue mb-2 flex items-center gap-1">
-                  <Users className="w-4 h-4 text-persian-blue" />
+              <div className="bg-white rounded-lg p-3 border border-primary/20">
+                <h4 className="font-medium text-gray-900 mb-2 flex items-center gap-1">
+                  <Users className="w-4 h-4 text-primary" />
                   Specialist Referrals
                 </h4>
                 <div className="space-y-2">
                   {clinicalData.referrals.slice(0, 2).map((referral: any, index: number) => (
                     <div key={index} className="flex items-center justify-between">
-                      <span className="text-sm text-persian-blue font-medium">{referral.specialty}</span>
+                      <span className="text-sm text-gray-900 font-medium">{referral.specialty}</span>
                       <Badge variant="outline" className="text-xs">
                         {referral.timeframe}
                       </Badge>
@@ -181,8 +181,8 @@ export const ClinicalAssessmentHighlights = ({ clinicalData }: ClinicalAssessmen
       {clinicalData.management && (
         <Card className="border-green-200 bg-gradient-to-r from-green-50 to-emerald-50">
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-green-700">
-              <Heart className="w-5 h-5" />
+            <CardTitle className="flex items-center gap-2 text-gray-900">
+              <Heart className="w-5 h-5 text-green-600" />
               Management Recommendations
             </CardTitle>
           </CardHeader>
@@ -190,11 +190,11 @@ export const ClinicalAssessmentHighlights = ({ clinicalData }: ClinicalAssessmen
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Diet */}
               {clinicalData.management.diet && clinicalData.management.diet.length > 0 && (
-                <div className="bg-white/60 rounded-lg p-3 border border-green-200">
-                  <h5 className="font-medium text-persian-blue mb-2">Dietary</h5>
+                <div className="bg-white rounded-lg p-3 border border-green-200">
+                  <h5 className="font-medium text-gray-900 mb-2">Dietary</h5>
                   <ul className="space-y-1">
                     {clinicalData.management.diet.slice(0, 3).map((item: string, index: number) => (
-                      <li key={index} className="text-sm text-persian-blue flex items-start gap-1">
+                      <li key={index} className="text-sm text-gray-700 flex items-start gap-1">
                         <span className="w-1 h-1 rounded-full bg-green-500 mt-2 flex-shrink-0"></span>
                         {item}
                       </li>
@@ -205,11 +205,11 @@ export const ClinicalAssessmentHighlights = ({ clinicalData }: ClinicalAssessmen
 
               {/* Lifestyle */}
               {clinicalData.management.lifestyle && clinicalData.management.lifestyle.length > 0 && (
-                <div className="bg-white/60 rounded-lg p-3 border border-green-200">
-                  <h5 className="font-medium text-persian-blue mb-2">Lifestyle</h5>
+                <div className="bg-white rounded-lg p-3 border border-green-200">
+                  <h5 className="font-medium text-gray-900 mb-2">Lifestyle</h5>
                   <ul className="space-y-1">
                     {clinicalData.management.lifestyle.slice(0, 3).map((item: string, index: number) => (
-                      <li key={index} className="text-sm text-persian-blue flex items-start gap-1">
+                      <li key={index} className="text-sm text-gray-700 flex items-start gap-1">
                         <span className="w-1 h-1 rounded-full bg-green-500 mt-2 flex-shrink-0"></span>
                         {item}
                       </li>
@@ -220,11 +220,11 @@ export const ClinicalAssessmentHighlights = ({ clinicalData }: ClinicalAssessmen
 
               {/* General Management */}
               {clinicalData.management.generalRx && clinicalData.management.generalRx.length > 0 && (
-                <div className="bg-white/60 rounded-lg p-3 border border-green-200">
-                  <h5 className="font-medium text-persian-blue mb-2">General</h5>
+                <div className="bg-white rounded-lg p-3 border border-green-200">
+                  <h5 className="font-medium text-gray-900 mb-2">General</h5>
                   <ul className="space-y-1">
                     {clinicalData.management.generalRx.slice(0, 3).map((item: string, index: number) => (
-                      <li key={index} className="text-sm text-persian-blue flex items-start gap-1">
+                      <li key={index} className="text-sm text-gray-700 flex items-start gap-1">
                         <span className="w-1 h-1 rounded-full bg-green-500 mt-2 flex-shrink-0"></span>
                         {item}
                       </li>

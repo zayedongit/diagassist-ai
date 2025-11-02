@@ -804,7 +804,10 @@ RAW DATA: ${baseContext}`;
     }
   };
 
-  const handleReset = () => {
+  const handleReset = async () => {
+    console.log('🧹 Starting comprehensive cleanup...');
+    
+    // Clear all state
     setSelectedFile(null);
     setAnalysisData(null);
     setClinicalAssessmentData(null);
@@ -818,14 +821,62 @@ RAW DATA: ${baseContext}`;
     setShowExtraction(false);
     setCurrentUserId('');
     
-    // Clear localStorage
-    localStorage.removeItem('analysisId');
-    localStorage.removeItem('currentUserId');
-    localStorage.removeItem('processingStatus');
+    // Clear ALL localStorage keys
+    localStorage.clear();
+    console.log('✅ LocalStorage cleared');
     
+    // Clear session storage as well
+    sessionStorage.clear();
+    console.log('✅ SessionStorage cleared');
+    
+    // Reset file input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+    
+    // If user is logged in, try to delete their old analyses from database
+    if (user) {
+      try {
+        console.log('🗑️ Attempting to delete old analyses from database...');
+        const { error: deleteError } = await supabase
+          .from('pdf_analyses')
+          .delete()
+          .eq('user_id', user.id);
+        
+        if (deleteError) {
+          console.error('Failed to delete old analyses:', deleteError);
+        } else {
+          console.log('✅ Old analyses deleted from database');
+        }
+      } catch (err) {
+        console.error('Error deleting old analyses:', err);
+      }
+    }
+    
+    toast.success('Ready for fresh analysis with latest AI');
+  };
+
+  // Handle refresh analysis - force re-analyze the same report
+  const handleRefreshAnalysis = async () => {
+    if (!selectedFile) {
+      toast.error('No report selected to refresh');
+      return;
+    }
+    
+    console.log('🔄 Refreshing analysis with latest AI...');
+    toast.info('Re-analyzing your report with improved AI...');
+    
+    // Clear old analysis data but keep the file
+    setAnalysisData(null);
+    setShowResults(false);
+    setClinicalAssessmentData(null);
+    
+    // Clear localStorage
+    localStorage.clear();
+    sessionStorage.clear();
+    
+    // Trigger new analysis with the same file
+    await handleFileSelect(selectedFile);
   };
 
   const getProcessingMessage = () => {
@@ -1127,13 +1178,23 @@ RAW DATA: ${baseContext}`;
                     <h3 className="text-2xl font-poppins font-semibold text-navy">Your Analysis Results</h3>
                     <p className="text-slate">Based on: {selectedFile?.name}</p>
                   </div>
-                  <Button
-                    onClick={handleReset}
-                    variant="outline"
-                    className="text-accentCyan border-accentCyan hover:bg-accentCyan/10"
-                  >
-                    Analyze New Report
-                  </Button>
+                  <div className="flex gap-3">
+                    <Button
+                      onClick={handleRefreshAnalysis}
+                      variant="default"
+                      className="bg-primary hover:bg-primary/90"
+                    >
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Refresh Analysis
+                    </Button>
+                    <Button
+                      onClick={handleReset}
+                      variant="outline"
+                      className="text-accentCyan border-accentCyan hover:bg-accentCyan/10"
+                    >
+                      Analyze New Report
+                    </Button>
+                  </div>
                 </div>
               </div>
             </section>
