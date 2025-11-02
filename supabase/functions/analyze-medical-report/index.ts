@@ -296,7 +296,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log('🏥 Starting text-based medical analysis...');
+    console.log('🏥 Starting medical analysis...');
     
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
@@ -305,20 +305,97 @@ serve(async (req) => {
     }
     console.log('✅ Lovable AI API key found');
 
-    const requestBody = await req.json();
-    const { text, filename, textLength } = requestBody;
+    // Parse request body - handle both JSON and FormData
+    let text: string;
+    let filename: string = 'Medical Report';
     
-    if (!text) {
-      throw new Error('No extracted text provided');
-    }
+    const contentType = req.headers.get('content-type') || '';
+    console.log('📥 Content-Type:', contentType);
+    
+    if (contentType.includes('multipart/form-data')) {
+      // Handle FormData with images
+      console.log('📄 Processing FormData with images...');
+      const formData = await req.formData();
+      const userId = formData.get('userId') as string;
+      const imagesJson = formData.get('images') as string;
+      
+      console.log('👤 User ID:', userId);
+      
+      if (!imagesJson) {
+        throw new Error('No images provided in FormData');
+      }
+      
+      const images = JSON.parse(imagesJson);
+      console.log(`📸 Received ${images.length} images`);
+      
+      // Use Lovable AI vision to extract text from images
+      console.log('🔍 Extracting text from images using AI vision...');
+      const visionPrompt = `Extract ALL text from these medical report images. Include:
+- Patient information (name, age, gender, date)
+- ALL test parameters with their values, units, and reference ranges
+- Section headers and panel names
+- Any notes or interpretations
+- Maintain the structure and organization of the report
 
+Return the extracted text in a clean, organized format.`;
+      
+      const visionResponse = await retryWithBackoff(async () => {
+        const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'google/gemini-2.5-flash',
+            messages: [
+              {
+                role: 'user',
+                content: [
+                  { type: 'text', text: visionPrompt },
+                  ...images.slice(0, 10).map((img: string) => ({
+                    type: 'image_url',
+                    image_url: { url: img }
+                  }))
+                ]
+              }
+            ],
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.text();
+          console.error('Vision API error:', response.status, errorData);
+          throw new Error(`Vision API call failed: ${response.status}`);
+        }
+
+        return response;
+      }, 4, 2000, 'Vision Text Extraction');
+      
+      const visionData = await visionResponse.json();
+      text = visionData.choices[0].message.content.trim();
+      console.log('✅ Text extracted from images');
+      console.log('📝 Extracted text length:', text.length);
+      console.log('📝 Text preview:', text.substring(0, 300));
+      
+    } else {
+      // Handle JSON with pre-extracted text
+      console.log('📄 Processing JSON with extracted text...');
+      const requestBody = await req.json();
+      text = requestBody.text;
+      filename = requestBody.filename || filename;
+      
+      if (!text) {
+        throw new Error('No extracted text provided');
+      }
+    }
+    
     if (text.length < 50) {
       throw new Error('Extracted text is too short. Please ensure the PDF contains readable medical data.');
     }
 
     console.log(`Processing report: ${filename}`);
-    console.log(`Text length: ${textLength} characters`);
-    console.log('Text preview:', text.substring(0, 300));
+    console.log(`Text length: ${text.length} characters`);
 
     console.log('🏥 Starting two-pass text-based analysis...');
 
