@@ -864,28 +864,6 @@ RAW DATA: ${baseContext}`;
                 <p className="text-xs text-coolGray">Medical Analytics</p>
               </div>
             </div>
-            
-            {/* Auth Button */}
-            <div className="flex items-center space-x-2">
-              {isAuthenticated ? (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={signOut}
-                  className="text-white hover:text-accentCyan hover:bg-white/10"
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Logout
-                </Button>
-              ) : (
-                <Button
-                  onClick={() => setShowAuthDialog(true)}
-                  className="bg-accentCyan text-navy hover:bg-accentCyan/90 font-inter font-medium px-6"
-                >
-                  Login
-                </Button>
-              )}
-            </div>
           </div>
         </div>
       </header>
