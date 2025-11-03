@@ -899,20 +899,20 @@ RAW DATA: ${baseContext}`;
       {/* 1. Sticky Top Navigation Bar */}
       <header className="sticky top-0 z-50 bg-navy/90 backdrop-blur-lg border-b border-slate/20">
         <div className="container mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-14 sm:h-16">
             {/* Logo */}
             <div 
-              className="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity"
+              className="flex items-center space-x-2 sm:space-x-3 cursor-pointer hover:opacity-80 transition-opacity"
               onClick={() => navigate('/')}
             >
-              <div className="w-10 h-10 bg-gradient-to-br from-accentCyan to-primary rounded-lg flex items-center justify-center">
-                <BarChart3 className="w-6 h-6 text-white" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-accentCyan to-primary rounded-lg flex items-center justify-center">
+                <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-poppins font-semibold text-white flex items-center">
+                <h1 className="text-base sm:text-xl font-poppins font-semibold text-white">
                   Medical Analytics
                 </h1>
-                <p className="text-xs text-coolGray">AI-Powered Lab Analysis</p>
+                <p className="text-[10px] sm:text-xs text-coolGray">AI-Powered Lab Analysis</p>
               </div>
             </div>
           </div>
@@ -943,25 +943,25 @@ RAW DATA: ${baseContext}`;
               
               {/* Hero Content (foreground) */}
               <div className="relative z-20 container mx-auto px-4 sm:px-6 text-center">
-                <div className="max-w-4xl mx-auto space-y-8 animate-fade-up">
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-poppins font-semibold text-white leading-tight">
+                <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 animate-fade-up">
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-poppins font-semibold text-white leading-tight px-4">
                     AI-Powered Medical Report Analysis
-                    <br />
-                    <span className="text-accentCyan">Clear, Actionable Insights</span>
+                    <br className="hidden sm:block" />
+                    <span className="block sm:inline text-accentCyan"> Clear, Actionable Insights</span>
                   </h1>
                   
                   {/* Trust Strip */}
-                  <div className="flex flex-wrap items-center justify-center gap-6 pt-8 text-sm text-coolGray">
-                    <div className="flex items-center gap-2">
-                      <Shield className="w-4 h-4 text-accentCyan" />
+                  <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 pt-4 sm:pt-8 text-xs sm:text-sm text-coolGray">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <Shield className="w-3 h-3 sm:w-4 sm:h-4 text-accentCyan" />
                       <span>NABL Accredited</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Lock className="w-4 h-4 text-accentCyan" />
-                      <span>ISO-compliant workflow</span>
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <Lock className="w-3 h-3 sm:w-4 sm:h-4 text-accentCyan" />
+                      <span>ISO-compliant</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Shield className="w-4 h-4 text-accentCyan" />
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <Shield className="w-3 h-3 sm:w-4 sm:h-4 text-accentCyan" />
                       <span>Encrypted data</span>
                     </div>
                   </div>
@@ -977,89 +977,89 @@ RAW DATA: ${baseContext}`;
             </section>
 
             {/* Process Flow Section */}
-            <section className="py-24 bg-white relative z-10">
+            <section className="py-12 sm:py-16 md:py-24 bg-white relative z-10">
               <div className="container mx-auto px-4 sm:px-6">
-                <div className="text-center mb-16">
-                  <h2 className="text-3xl sm:text-4xl font-poppins font-semibold text-navy mb-4">
+                <div className="text-center mb-8 sm:mb-12 md:mb-16">
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-semibold text-navy mb-3 sm:mb-4">
                     How It Works
                   </h2>
-                  <p className="text-slate text-lg">
+                  <p className="text-slate text-sm sm:text-base md:text-lg px-4">
                     Simple, secure, and comprehensive medical report analysis in 5 easy steps
                   </p>
                 </div>
                 
-                <div className="flex flex-col lg:flex-row items-center justify-center gap-4 max-w-6xl mx-auto">
+                <div className="flex flex-col lg:flex-row items-center justify-center gap-3 sm:gap-4 max-w-6xl mx-auto">
                   {/* Step 1: Login */}
-                  <div className="text-center space-y-4 animate-fade-up hover-lift p-6 rounded-2xl transition-all">
-                    <div className="w-16 h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
-                      <LogOut className="w-8 h-8 text-white transform rotate-180" />
+                  <div className="text-center space-y-2 sm:space-y-4 animate-fade-up hover-lift p-4 sm:p-6 rounded-xl sm:rounded-2xl transition-all w-full lg:w-auto">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
+                      <LogOut className="w-6 h-6 sm:w-8 sm:h-8 text-white transform rotate-180" />
                     </div>
-                    <h3 className="text-lg font-poppins font-semibold text-navy">Login</h3>
-                    <p className="text-slate text-sm">
+                    <h3 className="text-base sm:text-lg font-poppins font-semibold text-navy">Login</h3>
+                    <p className="text-slate text-xs sm:text-sm">
                       Secure authentication to protect your data
                     </p>
                   </div>
 
                   {/* Arrow 1 */}
                   <div className="hidden lg:block">
-                    <ArrowRight className="w-8 h-8 text-accentCyan" />
+                    <ArrowRight className="w-6 h-6 sm:w-8 sm:h-8 text-accentCyan" />
                   </div>
 
                   {/* Step 2: Upload */}
-                  <div className="text-center space-y-4 animate-fade-up hover-lift p-6 rounded-2xl transition-all" style={{ animationDelay: '0.1s' }}>
-                    <div className="w-16 h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
-                      <CloudDownload className="w-8 h-8 text-white" />
+                  <div className="text-center space-y-2 sm:space-y-4 animate-fade-up hover-lift p-4 sm:p-6 rounded-xl sm:rounded-2xl transition-all w-full lg:w-auto" style={{ animationDelay: '0.1s' }}>
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
+                      <CloudDownload className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                     </div>
-                    <h3 className="text-lg font-poppins font-semibold text-navy">Upload</h3>
-                    <p className="text-slate text-sm">
+                    <h3 className="text-base sm:text-lg font-poppins font-semibold text-navy">Upload</h3>
+                    <p className="text-slate text-xs sm:text-sm">
                       Upload your medical report (PDF/JPG/PNG)
                     </p>
                   </div>
 
                   {/* Arrow 2 */}
                   <div className="hidden lg:block">
-                    <ArrowRight className="w-8 h-8 text-accentCyan" />
+                    <ArrowRight className="w-6 h-6 sm:w-8 sm:h-8 text-accentCyan" />
                   </div>
 
                   {/* Step 3: Analysis */}
-                  <div className="text-center space-y-4 animate-fade-up hover-lift p-6 rounded-2xl transition-all" style={{ animationDelay: '0.2s' }}>
-                    <div className="w-16 h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
-                      <BarChart3 className="w-8 h-8 text-white" />
+                  <div className="text-center space-y-2 sm:space-y-4 animate-fade-up hover-lift p-4 sm:p-6 rounded-xl sm:rounded-2xl transition-all w-full lg:w-auto" style={{ animationDelay: '0.2s' }}>
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
+                      <BarChart3 className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                     </div>
-                    <h3 className="text-lg font-poppins font-semibold text-navy">Analysis</h3>
-                    <p className="text-slate text-sm">
+                    <h3 className="text-base sm:text-lg font-poppins font-semibold text-navy">Analysis</h3>
+                    <p className="text-slate text-xs sm:text-sm">
                       AI analyzes your report parameters
                     </p>
                   </div>
 
                   {/* Arrow 3 */}
                   <div className="hidden lg:block">
-                    <ArrowRight className="w-8 h-8 text-accentCyan" />
+                    <ArrowRight className="w-6 h-6 sm:w-8 sm:h-8 text-accentCyan" />
                   </div>
 
                   {/* Step 4: Interpretation */}
-                  <div className="text-center space-y-4 animate-fade-up hover-lift p-6 rounded-2xl transition-all" style={{ animationDelay: '0.3s' }}>
-                    <div className="w-16 h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
-                      <FileText className="w-8 h-8 text-white" />
+                  <div className="text-center space-y-2 sm:space-y-4 animate-fade-up hover-lift p-4 sm:p-6 rounded-xl sm:rounded-2xl transition-all w-full lg:w-auto" style={{ animationDelay: '0.3s' }}>
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
+                      <FileText className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                     </div>
-                    <h3 className="text-lg font-poppins font-semibold text-navy">Interpretation</h3>
-                    <p className="text-slate text-sm">
+                    <h3 className="text-base sm:text-lg font-poppins font-semibold text-navy">Interpretation</h3>
+                    <p className="text-slate text-xs sm:text-sm">
                       Get comprehensive clinical interpretation
                     </p>
                   </div>
 
                   {/* Arrow 4 */}
                   <div className="hidden lg:block">
-                    <ArrowRight className="w-8 h-8 text-accentCyan" />
+                    <ArrowRight className="w-6 h-6 sm:w-8 sm:h-8 text-accentCyan" />
                   </div>
 
                   {/* Step 5: Chat for Any further query */}
-                  <div className="text-center space-y-4 animate-fade-up hover-lift p-6 rounded-2xl transition-all" style={{ animationDelay: '0.4s' }}>
-                    <div className="w-16 h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
-                      <Brain className="w-8 h-8 text-white" />
+                  <div className="text-center space-y-2 sm:space-y-4 animate-fade-up hover-lift p-4 sm:p-6 rounded-xl sm:rounded-2xl transition-all w-full lg:w-auto" style={{ animationDelay: '0.4s' }}>
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
+                      <Brain className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                     </div>
-                    <h3 className="text-lg font-poppins font-semibold text-navy">Chat for Any further query</h3>
-                    <p className="text-slate text-sm">
+                    <h3 className="text-base sm:text-lg font-poppins font-semibold text-navy">Chat</h3>
+                    <p className="text-slate text-xs sm:text-sm">
                       Ask questions about your results
                     </p>
                   </div>
@@ -1068,19 +1068,19 @@ RAW DATA: ${baseContext}`;
             </section>
 
             {/* 3. UPLOAD SECTION */}
-            <section id="upload-section" className="py-24 bg-coolGray relative">
+            <section id="upload-section" className="py-12 sm:py-16 md:py-24 bg-coolGray relative">
               <div className="container mx-auto px-4 sm:px-6">
-                <div className="max-w-4xl mx-auto space-y-8">
-                  <div className="text-center space-y-4">
-                    <h2 className="text-3xl sm:text-4xl font-poppins font-semibold text-navy">
+                <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
+                  <div className="text-center space-y-3 sm:space-y-4">
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-semibold text-navy px-4">
                       Upload Your Test Report
                     </h2>
-                    <p className="text-slate text-lg">
+                    <p className="text-slate text-sm sm:text-base md:text-lg px-4">
                       Supported formats: PDF, JPG, PNG. Get instant AI-powered analysis.
                     </p>
                   </div>
                   
-                  <div className="bg-white rounded-2xl shadow-premium p-8 sm:p-12">
+                  <div className="bg-white rounded-xl sm:rounded-2xl shadow-premium p-4 sm:p-8 md:p-12">
                     <UploadZone onFileSelect={handleFileSelect} />
                   </div>
                   
@@ -1111,28 +1111,28 @@ RAW DATA: ${baseContext}`;
 
         {/* 4. AI ANALYSIS SECTION */}
         {isAnalyzing && (
-          <section id="analysis-section" className="py-24 bg-white min-h-screen flex items-center justify-center">
+          <section id="analysis-section" className="py-12 sm:py-16 md:py-24 bg-white min-h-screen flex items-center justify-center">
             <div className="container mx-auto px-4 sm:px-6">
-              <div className="max-w-4xl mx-auto text-center space-y-8">
-                <h2 className="text-3xl sm:text-4xl font-poppins font-semibold text-navy">
+              <div className="max-w-4xl mx-auto text-center space-y-6 sm:space-y-8">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-semibold text-navy px-4">
                   AI Analysis in Progress
                 </h2>
                 
                 {/* Status Chips */}
-                <div className="flex flex-wrap items-center justify-center gap-4">
-                  <div className={`px-6 py-3 rounded-xl border-2 ${selectedFile ? 'bg-green-50 border-green-500 text-green-800' : 'bg-slate/10 border-slate/30 text-slate'}`}>
-                    <span className="font-inter font-medium">File received</span>
+                <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 md:gap-4 px-4">
+                  <div className={`px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-lg sm:rounded-xl border-2 ${selectedFile ? 'bg-green-50 border-green-500 text-green-800' : 'bg-slate/10 border-slate/30 text-slate'}`}>
+                    <span className="font-inter font-medium text-xs sm:text-sm">File received</span>
                   </div>
-                  <div className={`px-6 py-3 rounded-xl border-2 ${processingStatus === 'processing' ? 'bg-yellow-50 border-yellow-500 text-yellow-900 animate-pulse' : processingStatus === 'completed' ? 'bg-green-50 border-green-500 text-green-800' : 'bg-slate/10 border-slate/30 text-slate'}`}>
-                    <span className="font-inter font-medium">Parsing & extraction</span>
+                  <div className={`px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-lg sm:rounded-xl border-2 ${processingStatus === 'processing' ? 'bg-yellow-50 border-yellow-500 text-yellow-900 animate-pulse' : processingStatus === 'completed' ? 'bg-green-50 border-green-500 text-green-800' : 'bg-slate/10 border-slate/30 text-slate'}`}>
+                    <span className="font-inter font-medium text-xs sm:text-sm">Parsing</span>
                   </div>
-                  <div className={`px-6 py-3 rounded-xl border-2 ${processingStatus === 'completed' ? 'bg-green-50 border-green-500 text-green-800' : 'bg-slate/10 border-slate/30 text-slate'}`}>
-                    <span className="font-inter font-medium">Insights generation</span>
+                  <div className={`px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-lg sm:rounded-xl border-2 ${processingStatus === 'completed' ? 'bg-green-50 border-green-500 text-green-800' : 'bg-slate/10 border-slate/30 text-slate'}`}>
+                    <span className="font-inter font-medium text-xs sm:text-sm">Insights</span>
                   </div>
                 </div>
                 
                 {/* Animated Loader */}
-                <div className="bg-coolGray rounded-2xl shadow-card p-12">
+                <div className="bg-coolGray rounded-xl sm:rounded-2xl shadow-card p-6 sm:p-8 md:p-12">
                   <AnimatedLoader 
                     message={getProcessingMessage()}
                     onCancel={processingStatus === 'processing' ? handleReset : undefined}
@@ -1171,28 +1171,30 @@ RAW DATA: ${baseContext}`;
         {/* 5. CLINICAL CHAT SECTION + 6. INTERPRETATION SECTION */}
         {showResults && !isAnalyzing && analysisData && (
           <>
-            <section className="py-16 bg-white">
+            <section className="py-8 sm:py-12 md:py-16 bg-white">
               <div className="container mx-auto px-4 sm:px-6">
-                <div className="flex items-center justify-between mb-8">
-                  <div>
-                    <h3 className="text-2xl font-poppins font-semibold text-navy">Your Analysis Results</h3>
-                    <p className="text-slate">Based on: {selectedFile?.name}</p>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 mb-6 sm:mb-8">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-xl sm:text-2xl font-poppins font-semibold text-navy mb-1">Your Analysis Results</h3>
+                    <p className="text-sm sm:text-base text-slate truncate">Based on: {selectedFile?.name}</p>
                   </div>
-                  <div className="flex gap-3">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
                     <Button
                       onClick={handleRefreshAnalysis}
                       variant="default"
-                      className="bg-primary hover:bg-primary/90"
+                      className="bg-primary hover:bg-primary/90 w-full sm:w-auto text-sm sm:text-base"
+                      size="sm"
                     >
-                      <RefreshCw className="w-4 h-4 mr-2" />
-                      Refresh Analysis
+                      <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+                      Refresh
                     </Button>
                     <Button
                       onClick={handleReset}
                       variant="outline"
-                      className="text-accentCyan border-accentCyan hover:bg-accentCyan/10"
+                      className="text-accentCyan border-accentCyan hover:bg-accentCyan/10 w-full sm:w-auto text-sm sm:text-base"
+                      size="sm"
                     >
-                      Analyze New Report
+                      New Report
                     </Button>
                   </div>
                 </div>
@@ -1212,9 +1214,9 @@ RAW DATA: ${baseContext}`;
               <ErrorBoundary>
                 <div className="w-full">
                   {/* Patient Details & Summary */}
-                  <section className="py-8 bg-coolGray">
+                  <section className="py-6 sm:py-8 bg-coolGray">
                     <div className="container mx-auto px-4 sm:px-6">
-                      <div className="max-w-6xl mx-auto space-y-6">
+                      <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
                         <ReportHeader 
                           patientName={analysisData?.patientName}
                           demographics={analysisData?.demographics}
@@ -1233,19 +1235,19 @@ RAW DATA: ${baseContext}`;
 
                   {/* Clinical Chat */}
                   {!isNonMedicalReport(analysisData) && (
-                    <section id="chat-section" className="py-16 bg-white">
+                    <section id="chat-section" className="py-8 sm:py-12 md:py-16 bg-white">
                       <div className="container mx-auto px-4 sm:px-6">
-                        <div className="max-w-4xl mx-auto space-y-6">
-                          <div className="text-center space-y-3">
-                            <h2 className="text-3xl font-poppins font-semibold text-navy">
+                        <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
+                          <div className="text-center space-y-2 sm:space-y-3 px-4">
+                            <h2 className="text-2xl sm:text-3xl font-poppins font-semibold text-navy">
                               Clinical Chat on Your Report
                             </h2>
-                            <p className="text-sm text-slate">
+                            <p className="text-xs sm:text-sm text-slate">
                               This chat is strictly about your uploaded test report. It does not replace medical diagnosis.
                             </p>
                           </div>
                           
-                          <div className="bg-coolGray rounded-2xl shadow-premium p-6">
+                          <div className="bg-coolGray rounded-xl sm:rounded-2xl shadow-premium p-4 sm:p-6">
                             <MedicalChatAgent
                               className="w-full"
                               analysisContext={createEnhancedAnalysisContext(analysisData)}
@@ -1262,16 +1264,16 @@ RAW DATA: ${baseContext}`;
 
                   {/* Final Interpretation */}
                   {!isNonMedicalReport(analysisData) && (
-                    <section id="interpretation-section" className="py-16 bg-coolGray">
+                    <section id="interpretation-section" className="py-8 sm:py-12 md:py-16 bg-coolGray">
                       <div className="container mx-auto px-4 sm:px-6">
-                        <div className="max-w-6xl mx-auto space-y-8">
-                          <div className="text-center">
-                            <h2 className="text-3xl font-poppins font-semibold text-navy mb-3">
+                        <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8">
+                          <div className="text-center px-4">
+                            <h2 className="text-2xl sm:text-3xl font-poppins font-semibold text-navy mb-2 sm:mb-3">
                               Final Interpretation
                             </h2>
                           </div>
 
-                          <div className="grid lg:grid-cols-3 gap-6">
+                          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                             {/* Left Column - Clinical Assessment */}
                             <div className="lg:col-span-2 space-y-6">
                               <ClinicalAssessmentHighlights clinicalData={clinicalAssessmentData} />
@@ -1285,21 +1287,21 @@ RAW DATA: ${baseContext}`;
 
                           {/* Download Button */}
                           {clinicalAssessmentData && (
-                            <div className="text-center pt-8">
+                            <div className="text-center pt-6 sm:pt-8">
                               <Button 
                                 onClick={handleDownloadComprehensiveReport}
                                 size="lg"
-                                className="bg-accentCyan text-navy hover:bg-accentCyan/90 font-poppins font-semibold px-8 py-6 rounded-xl hover-scale-102 shadow-premium"
+                                className="bg-accentCyan text-navy hover:bg-accentCyan/90 font-poppins font-semibold px-6 sm:px-8 py-4 sm:py-6 text-sm sm:text-base rounded-xl hover-scale-102 shadow-premium w-full sm:w-auto"
                               >
-                                <Download className="w-5 h-5 mr-2" />
+                                <Download className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                                 Download PDF
                               </Button>
                             </div>
                           )}
 
                           {/* Disclaimer */}
-                          <div className="mt-8 p-6 bg-yellow-50 border-2 border-yellow-200 rounded-xl">
-                            <p className="text-sm text-center text-slate leading-relaxed">
+                          <div className="mt-6 sm:mt-8 p-4 sm:p-6 bg-yellow-50 border-2 border-yellow-200 rounded-xl">
+                            <p className="text-xs sm:text-sm text-center text-slate leading-relaxed">
                               <span className="font-semibold text-navy">Disclaimer:</span> This is informational support only — not a medical diagnosis.
                             </p>
                           </div>
@@ -1353,14 +1355,14 @@ RAW DATA: ${baseContext}`;
         )}
 
         {/* 7. FAQ SECTION */}
-        <section id="faq-section" className="py-24 bg-white">
+        <section id="faq-section" className="py-12 sm:py-16 md:py-24 bg-white">
           <div className="container mx-auto px-4 sm:px-6">
             <div className="max-w-3xl mx-auto">
-              <h2 className="text-3xl sm:text-4xl font-poppins font-semibold text-navy text-center mb-12">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-semibold text-navy text-center mb-8 sm:mb-12 px-4">
                 Frequently Asked Questions
               </h2>
               
-              <div className="bg-coolGray rounded-2xl shadow-card p-8 space-y-4">
+              <div className="bg-coolGray rounded-xl sm:rounded-2xl shadow-card p-4 sm:p-6 md:p-8 space-y-3 sm:space-y-4">
                 <details className="group">
                   <summary className="flex items-center justify-between cursor-pointer py-4 font-inter font-medium text-navy">
                     What file formats are supported?
@@ -1444,21 +1446,21 @@ RAW DATA: ${baseContext}`;
         </section>
 
         {/* 8. Privacy & Compliance */}
-        <section className="py-16 bg-coolGray">
+        <section className="py-8 sm:py-12 md:py-16 bg-coolGray">
           <div className="container mx-auto px-4 sm:px-6">
-            <div className="max-w-4xl mx-auto text-center space-y-6">
-              <div className="flex items-center justify-center gap-8 flex-wrap">
-                <div className="flex items-center gap-2">
-                  <Shield className="w-6 h-6 text-accentCyan" />
-                  <span className="text-sm font-inter text-slate">NABL Accredited</span>
+            <div className="max-w-4xl mx-auto text-center space-y-4 sm:space-y-6">
+              <div className="flex items-center justify-center gap-4 sm:gap-6 md:gap-8 flex-wrap">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <Shield className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-accentCyan" />
+                  <span className="text-xs sm:text-sm font-inter text-slate">NABL Accredited</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Lock className="w-6 h-6 text-accentCyan" />
-                  <span className="text-sm font-inter text-slate">ISO Compliant</span>
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <Lock className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-accentCyan" />
+                  <span className="text-xs sm:text-sm font-inter text-slate">ISO Compliant</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Shield className="w-6 h-6 text-accentCyan" />
-                  <span className="text-sm font-inter text-slate">End-to-End Encrypted</span>
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <Shield className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-accentCyan" />
+                  <span className="text-xs sm:text-sm font-inter text-slate">End-to-End Encrypted</span>
                 </div>
               </div>
             </div>
@@ -1467,18 +1469,18 @@ RAW DATA: ${baseContext}`;
       </main>
 
       {/* 9. FOOTER */}
-      <footer className="bg-navy py-8 border-t border-slate/20">
+      <footer className="bg-navy py-6 sm:py-8 border-t border-slate/20">
         <div className="container mx-auto px-4 sm:px-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-coolGray text-sm font-inter">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4">
+            <p className="text-coolGray text-xs sm:text-sm font-inter text-center md:text-left">
               © 2025 Medical Analytics. All rights reserved.
             </p>
             
-            <div className="flex items-center gap-6">
-              <a href="#upload-section" className="text-coolGray hover:text-accentCyan text-sm transition-colors">Upload</a>
-              <a href="#analysis-section" className="text-coolGray hover:text-accentCyan text-sm transition-colors">Analysis</a>
-              <a href="#chat-section" className="text-coolGray hover:text-accentCyan text-sm transition-colors">Chat</a>
-              <a href="#faq-section" className="text-coolGray hover:text-accentCyan text-sm transition-colors">FAQ</a>
+            <div className="flex items-center gap-4 sm:gap-6 flex-wrap justify-center">
+              <a href="#upload-section" className="text-coolGray hover:text-accentCyan text-xs sm:text-sm transition-colors">Upload</a>
+              <a href="#analysis-section" className="text-coolGray hover:text-accentCyan text-xs sm:text-sm transition-colors">Analysis</a>
+              <a href="#chat-section" className="text-coolGray hover:text-accentCyan text-xs sm:text-sm transition-colors">Chat</a>
+              <a href="#faq-section" className="text-coolGray hover:text-accentCyan text-xs sm:text-sm transition-colors">FAQ</a>
             </div>
           </div>
         </div>
