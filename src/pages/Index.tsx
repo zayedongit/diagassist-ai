@@ -1490,6 +1490,9 @@ RAW DATA: ${baseContext}`;
         onOpenChange={setShowAuthDialog}
         onAuthSuccess={handleAuthSuccess}
       />
+      
+      {/* Eleven Labs Conversational AI Widget */}
+      <elevenlabs-convai agent-id="agent_7101k4sw7k0tfmpb2cxkrem0kna2"></elevenlabs-convai>
     </div>
   );
 };
