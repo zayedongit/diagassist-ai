@@ -212,16 +212,16 @@ function validateClinicalData(analysisResult: any): any {
           .find((lab: LabValue) => lab.name.toLowerCase().includes('hba1c') && parseFloat(lab.value) > 9);
         
         if (diabetesLab) {
-          analysisResult.summary = `This report shows SEVERE DIABETES with ${diabetesLab.name} of ${diabetesLab.value}${diabetesLab.unit || ''}, indicating dangerously poor blood sugar control requiring immediate medical attention.`;
+          analysisResult.summary = `Your blood sugar levels need attention, with an HbA1c of ${diabetesLab.value}${diabetesLab.unit || ''}. This shows your glucose has been running higher than optimal over recent months. The encouraging news is that with dietary adjustments, appropriate medication, and regular monitoring, many people bring these levels into a healthier range and feel significantly better.`;
           
-          // Add other critical conditions
+          // Add other critical conditions with gentle language
           const otherConditions = criticalConditions.filter(c => !c.toLowerCase().includes('diabetes'));
           if (otherConditions.length > 0) {
-            analysisResult.summary += ` Additional significant findings include: ${otherConditions.join(', ')}.`;
+            analysisResult.summary += ` Additional areas that could benefit from attention include: ${otherConditions.join(', ')}.`;
           }
         }
       } else if (criticalConditions.length > 0) {
-        analysisResult.summary = `This comprehensive analysis reveals multiple significant findings: ${criticalConditions.join(', ')}. These conditions require medical attention and appropriate management.`;
+        analysisResult.summary = `Your results show several areas that would benefit from medical attention: ${criticalConditions.join(', ')}. Early detection is positive - it means you can work with your doctor to improve your health. Many of these conditions respond very well to treatment when caught early.`;
       }
       
       console.log('✅ Summary reconstructed to prioritize critical conditions');
@@ -599,14 +599,27 @@ SPECIALIST RECOMMENDATIONS (based on most critical finding):
 - Hematologist: Blood disorders, severe anemia
 - Gastroenterologist: Liver dysfunction
 
+PATIENT NAME EXTRACTION (CRITICAL):
+You MUST thoroughly search the ENTIRE document for the patient's name in these locations:
+1. Document header/title (top of first page)
+2. "Patient Name:", "Name:", "Patient:", "Pt Name:" fields
+3. Look for titles: "Mr.", "Mrs.", "Ms.", "Dr." followed by a name
+4. Demographics/Patient Information section
+5. Billing or Registration information
+6. Near Date of Birth, Age, or Gender fields
+7. Signature or Authorization sections
+8. Any field that contains a person's full name
+
+CRITICAL: Extract the name if it appears ANYWHERE. Only return "Anonymous Patient" if absolutely no name exists after exhaustive search.
+
 COMPREHENSIVE REFERENCE RANGES:
-- HbA1c: Normal <5.7%, Pre-diabetic 5.7-6.4%, Diabetic ≥6.5%, Poor control >9%, CRITICAL >11%
-- Fasting Glucose: Normal <100, Pre-diabetic 100-125, Diabetic ≥126, CRITICAL >200 mg/dl
-- Hemoglobin: Men 13.5-17.5, Women 12.0-15.5 g/dl, CRITICAL <8 or >18 g/dl
-- Creatinine: Normal 0.6-1.2 mg/dl, CRITICAL >3.0 mg/dl
-- Total Cholesterol: Optimal <200, Borderline 200-239, High ≥240, CRITICAL >300 mg/dl
-- ALT/AST: Normal <40 U/L, CRITICAL >200 U/L
-- TSH: Normal 0.4-4.0 mIU/L, CRITICAL <0.1 or >10 mIU/L
+- HbA1c: Normal <5.7%, Pre-diabetic 5.7-6.4%, Diabetic ≥6.5%, Needs attention >9%, Requires immediate care >11%
+- Fasting Glucose: Normal <100, Pre-diabetic 100-125, Diabetic ≥126, Needs immediate care >200 mg/dl
+- Hemoglobin: Men 13.5-17.5, Women 12.0-15.5 g/dl, Needs attention <8 or >18 g/dl
+- Creatinine: Normal 0.6-1.2 mg/dl, Needs attention >3.0 mg/dl
+- Total Cholesterol: Optimal <200, Borderline 200-239, High ≥240, Needs attention >300 mg/dl
+- ALT/AST: Normal <40 U/L, Needs attention >200 U/L
+- TSH: Normal 0.4-4.0 mIU/L, Needs attention <0.1 or >10 mIU/L
 
 SUCCESS CRITERIA:
 ✅ EVERY parameter in the report is extracted and analyzed

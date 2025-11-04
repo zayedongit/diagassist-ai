@@ -9,6 +9,7 @@ import { HealthRisksSection } from "./HealthRisksSection";
 import { PredictiveInsightsSection } from "./PredictiveInsightsSection";
 import { ParameterContextSection } from "./ParameterContextSection";
 import { NextStepsSection } from "./NextStepsSection";
+import { ManagementRecommendations } from "./ManagementRecommendations";
 import { LabRangeBar } from "./LabRangeBar";
 import { getPopulationData } from "@/utils/populationData";
 import { MedicalAiAssistant } from "./MedicalAiAssistant";
@@ -208,6 +209,9 @@ export const AnalysisResult = ({
                 </CardContent>
               </Card>
             )}
+
+            {/* AI Medical Assistant - Prominently placed after summary */}
+            <MedicalAiAssistant />
 
             {/* Next Steps - Moved here after patient details */}
             <NextStepsSection 
@@ -661,6 +665,11 @@ export const AnalysisResult = ({
           </div>
         </CardContent>
       </Card>
+
+      {/* Management Recommendations - Show if available */}
+      {enhancedData?.managementRecommendations && enhancedData.managementRecommendations.length > 0 && (
+        <ManagementRecommendations recommendations={enhancedData.managementRecommendations} />
+      )}
 
       {/* Key Laboratory Results - Only show if there are abnormal parameters */}
       {normalizedData.labs && normalizedData.labs.filter(lab => lab.status !== 'normal').length > 0 && (

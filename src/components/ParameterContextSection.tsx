@@ -27,13 +27,25 @@ export const ParameterContextSection = ({ abnormalLabs }: ParameterContextSectio
 
   const getParameterContext = (lab: LabValue) => {
     const labName = lab.name.toLowerCase();
+    const value = parseFloat(lab.value);
+    const status = lab.status.toLowerCase();
     
-    // Define parameter contexts
+    // Define parameter contexts with value-specific information
     const contexts: Record<string, {
       whatItMeans: string;
       possibleCauses: string[];
       bodyConnection: string;
     }> = {
+      'hba1c': {
+        whatItMeans: `Your HbA1c level of ${lab.value}${lab.unit || '%'} indicates your average blood sugar over the past 2-3 months. ${
+          value > 11 ? 'This level requires immediate medical attention for diabetes management.' :
+          value > 9 ? 'This shows your blood sugar has been running significantly higher than optimal and needs attention.' :
+          value > 7 ? 'This is above the target range and can be improved with lifestyle changes and medication.' :
+          'This shows room for improvement in blood sugar control.'
+        }`,
+        possibleCauses: ['Uncontrolled diabetes', 'Insulin resistance', 'Diet high in refined carbohydrates and sugar', 'Inadequate medication or insulin dosage', 'Lack of regular physical activity', 'Stress affecting blood sugar'],
+        bodyConnection: `At ${lab.value}${lab.unit || '%'}, prolonged elevation can affect small blood vessels throughout your body, particularly in your eyes, kidneys, nerves, and heart. The good news is that improving control significantly reduces these risks, and many people successfully manage their levels with the right approach.`
+      },
       'total cholesterol': {
         whatItMeans: 'Total cholesterol measures all types of cholesterol in your blood. It\'s a key indicator of cardiovascular health and shows how well your body processes fats.',
         possibleCauses: ['High-fat diet', 'Lack of exercise', 'Genetics', 'Stress', 'Certain medications', 'Underlying health conditions'],
@@ -55,9 +67,15 @@ export const ParameterContextSection = ({ abnormalLabs }: ParameterContextSectio
         bodyConnection: 'When you eat more calories than your body needs, the extra calories are converted to triglycerides and stored as fat.'
       },
       'glucose': {
-        whatItMeans: 'Blood glucose (sugar) is your body\'s main source of energy. Levels that are too high or low can indicate problems with insulin function.',
-        possibleCauses: ['Diabetes', 'Pre-diabetes', 'Stress', 'Medications', 'Recent meals', 'Lack of sleep'],
-        bodyConnection: 'Glucose provides energy to every cell in your body, regulated by insulin from your pancreas.'
+        whatItMeans: `Your blood glucose level of ${lab.value} ${lab.unit || 'mg/dL'} ${
+          value > 200 ? 'is significantly elevated and requires immediate medical attention.' :
+          value > 126 ? 'is higher than normal and indicates you may have diabetes.' :
+          value > 100 ? 'is slightly elevated, suggesting pre-diabetes or insulin resistance.' :
+          status.includes('low') ? 'is lower than optimal and may cause symptoms.' :
+          'is your current glucose reading.'
+        } Blood glucose is your body's main source of energy.`,
+        possibleCauses: value > 100 ? ['Diabetes', 'Pre-diabetes', 'High carbohydrate diet', 'Stress hormones', 'Certain medications', 'Lack of physical activity'] : ['Skipped meals', 'Too much medication', 'Excessive exercise', 'Alcohol consumption', 'Hormonal issues'],
+        bodyConnection: `Glucose provides energy to every cell in your body. At ${lab.value} ${lab.unit || 'mg/dL'}, ${value > 126 ? 'consistently high levels can damage blood vessels and nerves over time' : value > 100 ? 'this level suggests your body may not be processing glucose efficiently' : 'maintaining stable levels is important for energy and health'}.`
       },
       'hemoglobin': {
         whatItMeans: 'Hemoglobin is the protein in red blood cells that carries oxygen from your lungs to the rest of your body.',

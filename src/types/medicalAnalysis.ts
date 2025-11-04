@@ -36,6 +36,13 @@ export interface PredictiveInsight {
   urgency: 'none' | 'mild' | 'moderate' | 'high';
 }
 
+export interface ManagementRecommendation {
+  category: string;
+  recommendation: string;
+  frequency?: string;
+  reasoning?: string;
+}
+
 export interface EnhancedAnalysisResult {
   overallStatus: 'good' | 'moderate' | 'concerning';
   summary: string;
@@ -59,6 +66,7 @@ export interface EnhancedAnalysisResult {
   patientName?: string;
   healthRisks?: HealthRisk[];
   predictiveInsights?: PredictiveInsight[];
+  managementRecommendations?: ManagementRecommendation[];
   // Legacy compatibility fields
   labs?: LabValue[];
   keyFindings?: string[];

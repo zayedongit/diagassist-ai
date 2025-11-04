@@ -417,17 +417,112 @@ export const NextStepsSection = ({ analysisData, specialist }: NextStepsSectionP
           </div>
         </div>
 
-        {/* General Timeline */}
-        <div className="mt-6 p-4 bg-muted/10 rounded-lg border border-border/20">
-          <h5 className="font-semibold text-foreground mb-2 flex items-center space-x-1">
-            <Calendar className="w-4 h-4 text-primary" />
-            <span>Recommended Timeline</span>
-          </h5>
-          <div className="space-y-1 text-sm text-muted-foreground">
-            <p>• <strong>Week 1-2:</strong> Schedule primary care physician appointment</p>
-            <p>• <strong>Week 2-4:</strong> Complete recommended follow-up tests</p>
-            <p>• <strong>Week 4-6:</strong> Specialist consultations if needed</p>
-            <p>• <strong>Week 6-8:</strong> Follow-up blood work to track progress</p>
+        {/* Detailed Step-by-Step Timeline */}
+        <div className="mt-6 bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg border-2 border-primary/30 overflow-hidden">
+          <div className="p-4 bg-primary/20 border-b border-primary/30">
+            <h5 className="font-bold text-foreground flex items-center space-x-2">
+              <Calendar className="w-5 h-5 text-primary" />
+              <span>Your Step-by-Step Action Timeline</span>
+            </h5>
+            <p className="text-xs text-muted-foreground mt-1">
+              Follow this timeline to address your results systematically
+            </p>
+          </div>
+          
+          <div className="p-4 space-y-4">
+            {/* Week 1-2 */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border-l-4 border-l-destructive shadow-sm">
+              <div className="flex items-center space-x-2 mb-2">
+                <Badge variant="destructive" className="font-bold">Week 1-2</Badge>
+                <span className="text-sm font-semibold text-foreground">Immediate Actions</span>
+              </div>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-start space-x-2">
+                  <ArrowRight className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
+                  <span><strong>Day 1-3:</strong> Schedule appointment with primary care physician to discuss results</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <ArrowRight className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
+                  <span><strong>Day 3-7:</strong> Begin dietary modifications (reduce sugar, increase fiber)</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <ArrowRight className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
+                  <span><strong>Day 7-14:</strong> Attend doctor appointment, discuss medication options</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Week 2-4 */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border-l-4 border-l-warning shadow-sm">
+              <div className="flex items-center space-x-2 mb-2">
+                <Badge variant="default" className="font-bold bg-warning text-warning-foreground">Week 2-4</Badge>
+                <span className="text-sm font-semibold text-foreground">Initial Management</span>
+              </div>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-start space-x-2">
+                  <ArrowRight className="w-4 h-4 text-warning mt-0.5 flex-shrink-0" />
+                  <span><strong>Week 2:</strong> Start prescribed medications if recommended</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <ArrowRight className="w-4 h-4 text-warning mt-0.5 flex-shrink-0" />
+                  <span><strong>Week 3:</strong> Complete any recommended follow-up blood tests</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <ArrowRight className="w-4 h-4 text-warning mt-0.5 flex-shrink-0" />
+                  <span><strong>Week 4:</strong> Begin regular exercise routine (30 min/day, 5x/week)</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Week 4-8 */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border-l-4 border-l-blue-500 shadow-sm">
+              <div className="flex items-center space-x-2 mb-2">
+                <Badge variant="secondary" className="font-bold bg-blue-500 text-white">Week 4-8</Badge>
+                <span className="text-sm font-semibold text-foreground">Specialist Consultation</span>
+              </div>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-start space-x-2">
+                  <ArrowRight className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                  <span><strong>Week 4-5:</strong> Schedule specialist appointment (if recommended)</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <ArrowRight className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                  <span><strong>Week 6:</strong> Attend specialist consultation, review detailed management plan</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <ArrowRight className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                  <span><strong>Week 8:</strong> Follow-up blood work to assess initial response to treatment</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Week 8-12 */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border-l-4 border-l-success shadow-sm">
+              <div className="flex items-center space-x-2 mb-2">
+                <Badge variant="secondary" className="font-bold bg-success text-white">Week 8-12</Badge>
+                <span className="text-sm font-semibold text-foreground">Progress Monitoring</span>
+              </div>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-start space-x-2">
+                  <ArrowRight className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
+                  <span><strong>Week 8-10:</strong> Review test results with your doctor, adjust treatment if needed</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <ArrowRight className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
+                  <span><strong>Week 10-12:</strong> Continue lifestyle modifications, track improvements</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <ArrowRight className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
+                  <span><strong>Week 12:</strong> Schedule next follow-up appointment and repeat testing (usually in 8-12 weeks)</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="p-4 bg-muted/20 border-t border-border/30">
+            <p className="text-xs text-muted-foreground italic text-center">
+              💡 <strong>Remember:</strong> Consistency is key. Small, steady changes lead to the best long-term results.
+            </p>
           </div>
         </div>
       </CardContent>
