@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      pdf_analyses: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          filename: string | null
+          id: string
+          pdf_path: string | null
+          result: Json | null
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          filename?: string | null
+          id: string
+          pdf_path?: string | null
+          result?: Json | null
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          filename?: string | null
+          id?: string
+          pdf_path?: string | null
+          result?: Json | null
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       sms_verifications: {
         Row: {
           created_at: string | null
