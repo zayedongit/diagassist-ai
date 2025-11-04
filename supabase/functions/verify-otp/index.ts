@@ -39,13 +39,13 @@ Deno.serve(async (req) => {
       }
     });
 
-    // Verify OTP - change .single() to .maybeSingle() to avoid errors when no data is found
+    // Verify OTP
     const { data: verification, error: verifyError } = await supabase
       .from('sms_verifications')
       .select('*')
       .eq('phone_number', phone_number)
       .eq('verification_code', otp)
-      .is('used_at', null)
+      .eq('verified', false)
       .gt('expires_at', new Date().toISOString())
       .order('created_at', { ascending: false })
       .limit(1)
@@ -65,10 +65,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Mark OTP as used
+    // Mark OTP as verified
     await supabase
       .from('sms_verifications')
-      .update({ used_at: new Date().toISOString() })
+      .update({ verified: true })
       .eq('id', verification.id);
 
     // Normalize phone number for search (both with and without +)
@@ -142,7 +142,8 @@ Deno.serve(async (req) => {
         }
       } catch (error) {
         console.error('User creation error:', error);
-        throw new Error('Failed to create or find user: ' + error.message);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        throw new Error('Failed to create or find user: ' + errorMessage);
       }
     }
 
@@ -326,10 +327,11 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('Verify OTP error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to verify OTP';
     return new Response(
       JSON.stringify({ 
         success: false,
-        error: error.message || 'Failed to verify OTP' 
+        error: errorMessage 
       }),
       { 
         status: 500, 
