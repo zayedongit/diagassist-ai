@@ -5,15 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { AlertCircle, Activity, Heart, FileText, Download, RefreshCw, Brain, Eye, EyeOff, Lock, BarChart3, Stethoscope, LogOut, CloudDownload, Shield, ArrowRight } from "lucide-react";
+import { AlertCircle, Activity, Heart, FileText, Download, RefreshCw, Brain, Eye, EyeOff, Lock, BarChart3, Stethoscope, CloudDownload, Shield, ArrowRight } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
 import jsPDF from 'jspdf';
 import { UploadZone } from "@/components/UploadZone";
 import { AnimatedLoader } from "@/components/AnimatedLoader";
-import { AuthDialog } from "@/components/AuthDialog";
 import { MedicalChatAgent } from "@/components/MedicalChatAgent";
-import { PaymentGate } from "@/components/PaymentGate";
 import { generateMockPdf } from "@/components/MockPdfGenerator";
 import { generateComprehensiveReportPdf } from "@/utils/generateComprehensiveReportPdf";
 import { ComprehensiveReport } from "@/components/ComprehensiveReport";
@@ -22,7 +20,6 @@ import { ReportHeader } from "@/components/ReportHeader";
 import { SummaryCard } from "@/components/SummaryCard";
 import { ClinicalAssessmentHighlights } from "@/components/ClinicalAssessmentHighlights";
 import { UnderstandingYourNumbers } from "@/components/UnderstandingYourNumbers";
-import { useAuth } from "@/hooks/useAuth";
 import { EnhancedAnalysisResult, extractAbnormalPanels } from "@/types/medicalAnalysis";
 import heroBackground from "@/assets/hero-background.jpg";
 import readyBackground from "@/assets/ready-background.jpg";
@@ -30,7 +27,6 @@ import readyBackground from "@/assets/ready-background.jpg";
 
 const Index = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated, signOut, isLoading: authLoading } = useAuth();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -44,48 +40,12 @@ const Index = () => {
   const [processingStatus, setProcessingStatus] = useState<string>('idle');
   const [showExtraction, setShowExtraction] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string>('');
-  const [showAuthDialog, setShowAuthDialog] = useState(false);
-  const [hasPaidPremium, setHasPaidPremium] = useState(false);
-  const [showPaymentGate, setShowPaymentGate] = useState(false);
   const [clinicalAssessmentData, setClinicalAssessmentData] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDriveSync, setIsDriveSync] = useState(false);
 
-  // Check if user is admin - specifically for phone number +91 7993448425
-  const [userProfile, setUserProfile] = useState<any>(null);
-  
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (user) {
-        console.log('Fetching profile for user:', user.id);
-        const { data: profile, error } = await supabase
-          .from('profiles' as any)
-          .select('phone_number')
-          .eq('user_id', user.id)
-          .maybeSingle();
-        
-        if (error) {
-          console.error('Profile fetch error:', error);
-        } else {
-          console.log('Profile fetched:', profile);
-          setUserProfile(profile);
-        }
-      } else {
-        setUserProfile(null);
-      }
-    };
-    
-    fetchUserProfile();
-  }, [user]);
-  
-  const isAdmin = userProfile?.phone_number?.replace('+', '') === '917993448425';
-
   // Handle single report processing
   const handleDriveSync = async () => {
-    if (!isAdmin) {
-      toast.error('Admin access only');
-      return;
-    }
 
     setIsDriveSync(true);
     try {
@@ -230,7 +190,6 @@ RAW DATA: ${baseContext}`;
   };
 
 
-  // Handle auth success from dialog
   // Handle comprehensive report download
   const handleDownloadComprehensiveReport = async () => {
     if (!analysisData) {
@@ -249,33 +208,10 @@ RAW DATA: ${baseContext}`;
     }
   };
 
-  const handleAuthSuccess = (user: any, session: any) => {
-    toast.success('Welcome! You now have access to premium features.');
-  };
-
-  // Handle payment success
-  const handlePaymentSuccess = () => {
-    setHasPaidPremium(true);
-    setShowPaymentGate(false);
-    toast.success('Premium features unlocked! You can now access all recommendations and downloads.');
-  };
-
-  // Handle premium feature access
-  const handlePremiumAccess = () => {
-    if (!isAuthenticated) {
-      setShowAuthDialog(true);
-    } else if (!hasPaidPremium) {
-      setShowPaymentGate(true);
-    }
-  };
-
   // Handle clinical assessment completion
   const handleClinicalAssessmentComplete = (reportData: any) => {
     setClinicalAssessmentData(reportData);
   };
-
-  // Check if user has premium access
-  const hasFullAccess = isAuthenticated && hasPaidPremium;
 
   // Helper function to detect non-medical reports
   const isNonMedicalReport = (data: any) => {
@@ -836,25 +772,6 @@ RAW DATA: ${baseContext}`;
       fileInputRef.current.value = '';
     }
     
-    // If user is logged in, try to delete their old analyses from database
-    if (user) {
-      try {
-        console.log('🗑️ Attempting to delete old analyses from database...');
-        const { error: deleteError } = await supabase
-          .from('pdf_analyses' as any)
-          .delete()
-          .eq('user_id', user.id);
-        
-        if (deleteError) {
-          console.error('Failed to delete old analyses:', deleteError);
-        } else {
-          console.log('✅ Old analyses deleted from database');
-        }
-      } catch (err) {
-        console.error('Error deleting old analyses:', err);
-      }
-    }
-    
     toast.success('Ready for fresh analysis with latest AI');
   };
 
@@ -991,24 +908,8 @@ RAW DATA: ${baseContext}`;
                 </div>
                 
                 <div className="flex flex-col lg:flex-row items-center justify-center gap-3 sm:gap-4 max-w-6xl mx-auto">
-                  {/* Step 1: Login */}
+                  {/* Step 1: Upload */}
                   <div className="text-center space-y-2 sm:space-y-4 animate-fade-up hover-lift p-4 sm:p-6 rounded-xl sm:rounded-2xl transition-all w-full lg:w-auto">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
-                      <LogOut className="w-6 h-6 sm:w-8 sm:h-8 text-white transform rotate-180" />
-                    </div>
-                    <h3 className="text-base sm:text-lg font-poppins font-semibold text-navy">Login</h3>
-                    <p className="text-slate text-xs sm:text-sm">
-                      Secure authentication to protect your data
-                    </p>
-                  </div>
-
-                  {/* Arrow 1 */}
-                  <div className="hidden lg:block">
-                    <ArrowRight className="w-6 h-6 sm:w-8 sm:h-8 text-accentCyan" />
-                  </div>
-
-                  {/* Step 2: Upload */}
-                  <div className="text-center space-y-2 sm:space-y-4 animate-fade-up hover-lift p-4 sm:p-6 rounded-xl sm:rounded-2xl transition-all w-full lg:w-auto" style={{ animationDelay: '0.1s' }}>
                     <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
                       <CloudDownload className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                     </div>
@@ -1018,13 +919,13 @@ RAW DATA: ${baseContext}`;
                     </p>
                   </div>
 
-                  {/* Arrow 2 */}
+                  {/* Arrow 1 */}
                   <div className="hidden lg:block">
                     <ArrowRight className="w-6 h-6 sm:w-8 sm:h-8 text-accentCyan" />
                   </div>
 
-                  {/* Step 3: Analysis */}
-                  <div className="text-center space-y-2 sm:space-y-4 animate-fade-up hover-lift p-4 sm:p-6 rounded-xl sm:rounded-2xl transition-all w-full lg:w-auto" style={{ animationDelay: '0.2s' }}>
+                  {/* Step 2: Analysis */}
+                  <div className="text-center space-y-2 sm:space-y-4 animate-fade-up hover-lift p-4 sm:p-6 rounded-xl sm:rounded-2xl transition-all w-full lg:w-auto" style={{ animationDelay: '0.1s' }}>
                     <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
                       <BarChart3 className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                     </div>
@@ -1034,13 +935,13 @@ RAW DATA: ${baseContext}`;
                     </p>
                   </div>
 
-                  {/* Arrow 3 */}
+                  {/* Arrow 2 */}
                   <div className="hidden lg:block">
                     <ArrowRight className="w-6 h-6 sm:w-8 sm:h-8 text-accentCyan" />
                   </div>
 
-                  {/* Step 4: Interpretation */}
-                  <div className="text-center space-y-2 sm:space-y-4 animate-fade-up hover-lift p-4 sm:p-6 rounded-xl sm:rounded-2xl transition-all w-full lg:w-auto" style={{ animationDelay: '0.3s' }}>
+                  {/* Step 3: Interpretation */}
+                  <div className="text-center space-y-2 sm:space-y-4 animate-fade-up hover-lift p-4 sm:p-6 rounded-xl sm:rounded-2xl transition-all w-full lg:w-auto" style={{ animationDelay: '0.2s' }}>
                     <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
                       <FileText className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                     </div>
@@ -1050,13 +951,13 @@ RAW DATA: ${baseContext}`;
                     </p>
                   </div>
 
-                  {/* Arrow 4 */}
+                  {/* Arrow 3 */}
                   <div className="hidden lg:block">
                     <ArrowRight className="w-6 h-6 sm:w-8 sm:h-8 text-accentCyan" />
                   </div>
 
-                  {/* Step 5: Chat for Any further query */}
-                  <div className="text-center space-y-2 sm:space-y-4 animate-fade-up hover-lift p-4 sm:p-6 rounded-xl sm:rounded-2xl transition-all w-full lg:w-auto" style={{ animationDelay: '0.4s' }}>
+                  {/* Step 4: Chat for Any further query */}
+                  <div className="text-center space-y-2 sm:space-y-4 animate-fade-up hover-lift p-4 sm:p-6 rounded-xl sm:rounded-2xl transition-all w-full lg:w-auto" style={{ animationDelay: '0.3s' }}>
                     <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
                       <Brain className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                     </div>
@@ -1203,20 +1104,10 @@ RAW DATA: ${baseContext}`;
               </div>
             </section>
 
-            {showPaymentGate ? (
-              <section className="py-16 bg-coolGray">
-                <div className="container mx-auto px-4 sm:px-6">
-                  <PaymentGate 
-                    onPaymentSuccess={handlePaymentSuccess}
-                    showMockPdf={generateMockPdf}
-                  />
-                </div>
-              </section>
-            ) : (
-              <ErrorBoundary>
-                <div className="w-full">
-                  {/* Patient Details & Summary */}
-                  <section className="py-6 sm:py-8 bg-coolGray">
+            <ErrorBoundary>
+              <div className="w-full">
+                {/* Patient Details & Summary */}
+                <section className="py-6 sm:py-8 bg-coolGray">
                     <div className="container mx-auto px-4 sm:px-6">
                       <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
                         <ReportHeader 
@@ -1352,7 +1243,6 @@ RAW DATA: ${baseContext}`;
                   )}
                 </div>
               </ErrorBoundary>
-            )}
           </>
         )}
 
@@ -1487,13 +1377,6 @@ RAW DATA: ${baseContext}`;
           </div>
         </div>
       </footer>
-
-      {/* Auth Dialog */}
-      <AuthDialog 
-        open={showAuthDialog}
-        onOpenChange={setShowAuthDialog}
-        onAuthSuccess={handleAuthSuccess}
-      />
     </div>
   );
 };

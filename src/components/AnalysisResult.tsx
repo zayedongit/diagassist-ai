@@ -43,16 +43,12 @@ interface AnalysisResultProps {
   patientName?: string;
   analysisData: EnhancedAnalysisResult | LegacyAnalysisResult;
   onDownload: () => void;
-  isAuthenticated?: boolean;
-  onLoginClick?: () => void;
 }
 
 export const AnalysisResult = ({ 
   patientName, 
   analysisData, 
-  onDownload, 
-  isAuthenticated = false, 
-  onLoginClick 
+  onDownload
 }: AnalysisResultProps) => {
   // Normalize data for backward compatibility
   const normalizedData = normalizeAnalysisData(analysisData);
@@ -751,10 +747,7 @@ export const AnalysisResult = ({
       {/* Premium Features Section - Show enhanced recommendations */}
       {(expandedAnalysisData.diet.avoid.length > 0 || expandedAnalysisData.diet.increase.length > 0 || expandedAnalysisData.lifestyle?.length > 0) && (
         <>
-          {isAuthenticated ? (
-            <>
-              {/* Authenticated: Show full recommendations */}
-              <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-2">
                 {/* Diet Card */}
                 {(expandedAnalysisData.diet.avoid.length > 0 || expandedAnalysisData.diet.increase.length > 0) && (
                   <Card className="shadow-card">
@@ -1137,7 +1130,7 @@ export const AnalysisResult = ({
                 </CardContent>
               </Card>
 
-              {/* Download Button for Premium Users */}
+              {/* Download Button */}
               <div className="flex justify-center pt-4">
                 <Button 
                   variant="default" 
@@ -1149,87 +1142,12 @@ export const AnalysisResult = ({
                   Download Report
                 </Button>
               </div>
-            </>
-          ) : (
-            /* Unauthenticated: Show Premium Feature Prompt with blurred preview */
-            <div className="space-y-4">
-              {/* Blurred Preview of Premium Features */}
-              <div className="relative">
-                <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-2 blur-sm opacity-50 pointer-events-none">
-                  <Card className="shadow-card">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base sm:text-lg flex items-center space-x-2">
-                        <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                        <span>Diet Changes</span>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div>
-                        <h4 className="text-xs sm:text-sm font-bold text-foreground mb-2">AVOID:</h4>
-                        <div className="flex flex-wrap gap-1 mb-3">
-                          <Badge variant="outline" className="text-xs">Processed foods</Badge>
-                          <Badge variant="outline" className="text-xs">High sugar items</Badge>
-                        </div>
-                      </div>
-                      <div>
-                        <h4 className="text-xs sm:text-sm font-bold text-foreground mb-2">INCREASE:</h4>
-                        <div className="flex flex-wrap gap-1">
-                          <Badge variant="outline" className="text-xs">Green vegetables</Badge>
-                          <Badge variant="outline" className="text-xs">Whole grains</Badge>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card className="shadow-card">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base sm:text-lg flex items-center space-x-2">
-                        <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
-                        <span>Lifestyle</span>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ul className="space-y-2">
-                        <li className="text-xs sm:text-sm flex items-start space-x-2">
-                          <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-success mt-0.5" />
-                          <span>Regular exercise routine</span>
-                        </li>
-                        <li className="text-xs sm:text-sm flex items-start space-x-2">
-                          <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-success mt-0.5" />
-                          <span>Adequate sleep schedule</span>
-                        </li>
-                      </ul>
-                    </CardContent>
-                  </Card>
-                </div>
-                
-                {/* Premium Gate Overlay */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center space-y-3 p-6 border-2 border-dashed border-primary/30 rounded-lg bg-background/95 backdrop-blur-sm shadow-lg max-w-md">
-                    <div className="flex items-center justify-center space-x-2 text-primary">
-                      <Download className="w-5 h-5" />
-                      <span className="font-semibold">Premium Feature</span>
-                    </div>
-                    <p className="text-sm text-persian-blue">
-                      Unlock detailed recommendations and download reports for just ₹150
-                    </p>
-                    <Button 
-                      variant="default" 
-                      size="sm"
-                      className="mt-2"
-                      onClick={onLoginClick}
-                    >
-                      Unlock Premium Features
-                    </Button>
-                  </div>
-                </div>
-              </div>
             </div>
-          )}
+          </div>
         </>
       )}
 
-      {/* AI Medical Assistant - Available to all users */}
+      {/* AI Medical Assistant */}
       <MedicalAiAssistant />
       
     </div>
