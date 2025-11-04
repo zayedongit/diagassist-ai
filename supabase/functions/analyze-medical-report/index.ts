@@ -360,6 +360,9 @@ serve(async (req) => {
 Return the extracted text in a clean, organized format.`;
       
       const visionResponse = await retryWithBackoff(async () => {
+        console.log('🔑 API Key configured:', !!LOVABLE_API_KEY);
+        console.log('📡 Calling Lovable AI vision API...');
+        
         const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
           method: 'POST',
           headers: {
@@ -383,10 +386,24 @@ Return the extracted text in a clean, organized format.`;
           }),
         });
 
+        console.log('📡 Vision API response status:', response.status);
+        
         if (!response.ok) {
           const errorData = await response.text();
-          console.error('Vision API error:', response.status, errorData);
-          throw new Error(`Vision API call failed: ${response.status}`);
+          console.error('❌ Vision API error:', response.status, errorData);
+          
+          // Better error messages for common issues
+          if (response.status === 401) {
+            throw new Error('Authentication failed: Lovable AI API key is invalid or not configured. Please contact support.');
+          }
+          if (response.status === 402) {
+            throw new Error('Payment required: Please add credits to your Lovable AI workspace.');
+          }
+          if (response.status === 429) {
+            throw new Error('Rate limit exceeded: Please try again in a few moments.');
+          }
+          
+          throw new Error(`Vision API call failed: ${response.status} - ${errorData}`);
         }
 
         return response;
@@ -550,6 +567,7 @@ SUCCESS CRITERIA:
 Respond with JSON only - no markdown formatting:`;
 
     const pass1Response = await retryWithBackoff(async () => {
+      console.log('📡 Calling Lovable AI for Pass 1 analysis...');
       const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -557,7 +575,7 @@ Respond with JSON only - no markdown formatting:`;
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-5',
+          model: 'google/gemini-2.5-flash', // Fixed: Changed from invalid 'claude-sonnet-4-5' to valid Lovable AI model
           messages: [
             {
               role: 'user',
@@ -568,10 +586,24 @@ Respond with JSON only - no markdown formatting:`;
         }),
       });
 
+      console.log('📡 Pass 1 API response status:', response.status);
+
       if (!response.ok) {
         const errorData = await response.text();
-        console.error('Lovable AI API error:', response.status, errorData);
-        throw new Error(`AI API call failed: ${response.status}`);
+        console.error('❌ Lovable AI API error:', response.status, errorData);
+        
+        // Better error messages
+        if (response.status === 401) {
+          throw new Error('Authentication failed: Lovable AI API key is invalid. Please contact support.');
+        }
+        if (response.status === 402) {
+          throw new Error('Payment required: Please add credits to your Lovable AI workspace.');
+        }
+        if (response.status === 429) {
+          throw new Error('Rate limit exceeded: Please try again in a few moments.');
+        }
+        
+        throw new Error(`AI API call failed: ${response.status} - ${errorData}`);
       }
 
       return response;
