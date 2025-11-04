@@ -361,7 +361,7 @@ Return the extracted text in a clean, organized format.`;
       
       const visionResponse = await retryWithBackoff(async () => {
         console.log('🔑 API Key configured:', !!LOVABLE_API_KEY);
-        console.log('📡 Calling Lovable AI vision API with OpenAI GPT-5...');
+        console.log('📡 Calling Lovable AI vision API with Gemini 2.5 Pro...');
         
         const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
           method: 'POST',
@@ -370,7 +370,7 @@ Return the extracted text in a clean, organized format.`;
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'openai/gpt-5', // Using OpenAI GPT-5 for vision
+            model: 'google/gemini-2.5-pro', // Best for image-text + OCR
             messages: [
               {
                 role: 'user',
@@ -383,7 +383,8 @@ Return the extracted text in a clean, organized format.`;
                 ]
               }
             ],
-            max_completion_tokens: 4000, // GPT-5 uses max_completion_tokens, not max_tokens
+            max_tokens: 4000,
+            temperature: 0.3,
           }),
         });
 
@@ -567,26 +568,27 @@ SUCCESS CRITERIA:
 
 Respond with JSON only - no markdown formatting:`;
 
-    const pass1Response = await retryWithBackoff(async () => {
-      console.log('📡 Calling Lovable AI for Pass 1 analysis with OpenAI GPT-5...');
-      const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'openai/gpt-5', // Using OpenAI GPT-5 for analysis
-          messages: [
-            {
-              role: 'user',
-              content: pass1Prompt
-            }
-          ],
-          response_format: { type: "json_object" },
-          max_completion_tokens: 16000, // GPT-5 uses max_completion_tokens, not max_tokens
-        }),
-      });
+      const pass1Response = await retryWithBackoff(async () => {
+        console.log('📡 Calling Lovable AI for Pass 1 analysis with Gemini 2.5 Flash...');
+        const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'google/gemini-2.5-flash', // Fast and efficient for text analysis
+            messages: [
+              {
+                role: 'user',
+                content: pass1Prompt
+              }
+            ],
+            response_format: { type: "json_object" },
+            max_tokens: 16000,
+            temperature: 0.3,
+          }),
+        });
 
       console.log('📡 Pass 1 API response status:', response.status);
 
