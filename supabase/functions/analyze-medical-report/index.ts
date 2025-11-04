@@ -566,7 +566,66 @@ SUCCESS CRITERIA:
 ✅ Correct specialist recommendation for most critical condition
 ✅ NO abnormal parameter is overlooked or minimized
 
-Respond with JSON only - no markdown formatting:`;
+REQUIRED JSON STRUCTURE - You MUST return this exact structure:
+{
+  "overallStatus": "good" | "moderate" | "concerning",
+  "summary": "string - patient-friendly summary following the tone guidelines above",
+  "demographics": {
+    "gender": "male" | "female" | "other",
+    "age": number
+  },
+  "medicalPanels": [
+    {
+      "name": "string - panel name like 'Diabetes Panel', 'Lipid Profile', etc.",
+      "description": "string - brief description of what this panel measures",
+      "abnormalLabs": [
+        {
+          "name": "string - parameter name",
+          "value": "string - the actual numeric value",
+          "unit": "string - unit of measurement",
+          "referenceRange": "string - normal reference range",
+          "status": "low" | "high" | "critical",
+          "significance": "string - brief clinical significance"
+        }
+      ],
+      "normalParameters": ["string - list of normal parameters in this panel"],
+      "interpretation": "string - clinical interpretation of this panel"
+    }
+  ],
+  "nextSteps": ["string - actionable next steps for the patient"],
+  "diet": {
+    "avoid": ["string - foods to avoid"],
+    "increase": ["string - foods to increase"],
+    "detailed": ["string - detailed dietary recommendations"]
+  },
+  "lifestyle": {
+    "recommendations": ["string - lifestyle recommendations"],
+    "detailed": ["string - detailed lifestyle guidance"]
+  },
+  "patientFriendlySummary": "string - very friendly, reassuring explanation in simple terms",
+  "specialist": "string - recommended specialist to consult",
+  "populationSource": "string - reference to population data source used",
+  "healthRisks": [
+    {
+      "category": "string - risk category",
+      "risk": "string - specific risk",
+      "level": "mild" | "moderate" | "high",
+      "description": "string - risk description"
+    }
+  ],
+  "predictiveInsights": [
+    {
+      "parameter": "string - parameter name",
+      "currentTrend": "string - current trend",
+      "timeframe": "string - prediction timeframe",
+      "prediction": "string - what might happen",
+      "intervention": "string - how to prevent/improve",
+      "urgency": "none" | "mild" | "moderate" | "high"
+    }
+  ]
+}
+
+Respond with JSON only matching this exact structure - no markdown formatting:`;
 
       const pass1Response = await retryWithBackoff(async () => {
         console.log('📡 Calling Lovable AI for Pass 1 analysis with Gemini 2.5 Flash...');
