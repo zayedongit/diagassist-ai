@@ -497,37 +497,14 @@ RAW DATA: ${baseContext}`;
 
       console.log('🚀 Sending request to edge function...');
       
-      // Create a timeout promise
-      const timeoutDuration = 30000; // 30 seconds
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Request timeout - starting background analysis')), timeoutDuration)
-      );
-      
-      // Race between fetch and timeout
-      let response;
-      try {
-        response = await Promise.race([
-          fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-medical-report`, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-            },
-            body: formData,
-          }),
-          timeoutPromise
-        ]);
-      } catch (timeoutError) {
-        // Timeout occurred - generate analysis ID and start polling
-        console.log('⏱️ Request timed out, starting background analysis mode...');
-        const generatedId = `analysis_${Date.now()}_timeout_${Math.random().toString(36).substr(2, 9)}`;
-        console.log('📋 Generated analysis ID for polling:', generatedId);
-        
-        return {
-          analysisId: generatedId,
-          status: 'processing',
-          message: 'Analysis started in background due to large report size'
-        };
-      }
+      // Server now returns immediately, so no timeout needed
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-medical-report`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: formData,
+      });
 
       console.log('📡 Response status:', response.status, response.statusText);
 

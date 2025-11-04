@@ -307,6 +307,10 @@ serve(async (req) => {
     }
     console.log('✅ Lovable AI API key found');
 
+    // Declare variables at function scope
+    let text = '';
+    let filename = 'report.pdf';
+    
     // Parse request body - handle both JSON and FormData
     let requestUserId: string | undefined = undefined;
     let images: string[] = [];
@@ -437,53 +441,6 @@ Return the complete extracted text maintaining the original structure and organi
       const requestBody = await req.json();
       text = requestBody.text;
       filename = requestBody.filename || filename;
-        
-        if (!response.ok) {
-          const errorData = await response.text();
-          console.error('❌ Vision API error:', response.status, errorData);
-          
-          // Better error messages for common issues
-          if (response.status === 401) {
-            throw new Error('Authentication failed: Lovable AI API key is invalid or not configured. Please contact support.');
-          }
-          if (response.status === 402) {
-            throw new Error('Payment required: Please add credits to your Lovable AI workspace.');
-          }
-          if (response.status === 429) {
-            throw new Error('Rate limit exceeded: Please try again in a few moments.');
-          }
-          
-          throw new Error(`Vision API call failed: ${response.status} - ${errorData}`);
-        }
-
-        return response;
-      }, 4, 2000, 'Vision Text Extraction');
-      
-      const visionData = await visionResponse.json();
-      text = visionData.choices[0].message.content.trim();
-      console.log('✅ Text extracted from images');
-      console.log('📝 Extracted text length:', text.length);
-      console.log('📝 Text preview:', text.substring(0, 500));
-      
-      // Validate extracted text contains actual medical data
-      if (text.length < 500 && images.length > 1) {
-        console.error('❌ Extracted text is suspiciously short for a multi-page report');
-        throw new Error(`Text extraction may be incomplete. Only ${text.length} characters extracted from ${images.length} pages. Please try again or contact support if the issue persists.`);
-      }
-      
-      // Check if text contains common medical report markers
-      const hasLabValues = /\d+\.?\d*\s*(?:mg\/dL|mmol\/L|g\/dL|%|cells\/μL|U\/L|mIU\/L)/i.test(text);
-      if (!hasLabValues && text.length < 1000) {
-        console.warn('⚠️ Extracted text may not contain valid lab values');
-        throw new Error('Unable to find valid laboratory values in the extracted text. Please ensure the uploaded file contains a medical lab report.');
-      }
-      
-    } else {
-      // Handle JSON with pre-extracted text
-      console.log('📄 Processing JSON with extracted text...');
-      const requestBody = await req.json();
-      text = requestBody.text;
-      filename = requestBody.filename || filename;
       
       if (!text) {
         throw new Error('No extracted text provided');
@@ -493,9 +450,41 @@ Return the complete extracted text maintaining the original structure and organi
     if (text.length < 50) {
       throw new Error('Extracted text is too short. Please ensure the PDF contains readable medical data.');
     }
-
+    
     console.log(`Processing report: ${filename}`);
     console.log(`Text length: ${text.length} characters`);
+    
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    
+    // Create analysis record FIRST with processing status
+    const analysisId = `analysis_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    console.log('📝 Creating analysis record:', analysisId);
+    
+    const { error: insertError } = await supabase
+      .from('pdf_analyses')
+      .insert({
+        id: analysisId,
+        user_id: requestUserId || null,
+        status: 'processing',
+        filename: filename,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      });
+      
+    if (insertError) {
+      console.error('Failed to create analysis record:', insertError);
+      throw new Error('Failed to initiate analysis');
+    }
+    
+    console.log('✅ Analysis record created, processing in background');
+    
+    // Process analysis in background - just start the async function without awaiting
+    (async () => {
+      try {
+        console.log('🔄 Background analysis started for:', analysisId);
 
     console.log('🏥 Starting two-pass text-based analysis...');
 
@@ -811,92 +800,43 @@ Respond with JSON only matching this exact structure - no markdown formatting:`;
       throw new Error('AI provided generic response - analysis must be based on actual report content');
     }
 
-    // Store the analysis result in the database for retrieval
-    const supabaseUrl = Deno.env.get('SUPABASE_URL');
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    // Update the existing analysis record with the result
+    const { error: updateError } = await supabase
+      .from('pdf_analyses')
+      .update({
+        status: 'completed',
+        result: analysisResult,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', analysisId);
     
-    if (supabaseUrl && supabaseServiceKey) {
-      const supabase = createClient(supabaseUrl, supabaseServiceKey);
-      
-      // Generate analysis ID
-      const analysisId = `analysis_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
-      try {
-        // First, insert with 'processing' status and return immediately
-        const { error: insertError } = await supabase
-          .from('pdf_analyses')
-          .insert({
-            id: analysisId,
-            user_id: requestUserId || 'anonymous',
-            status: 'processing',
-            result: null,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          });
-          
-        if (insertError) {
-          console.error('Failed to create analysis record:', insertError);
-          throw new Error('Failed to initiate analysis');
-        }
-        
-        console.log('✅ Analysis record created with ID:', analysisId, '- starting background processing');
-        
-        // Return immediately to avoid timeout
-        const immediateResponse = new Response(JSON.stringify({
-          success: true,
-          analysisId: analysisId,
-          status: 'processing',
-          message: 'Analysis started, processing in background'
-        }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-        
-        // Process analysis in background
-        (async () => {
-          try {
-            console.log('🔄 Background processing started for:', analysisId);
-            
-            // The analysis logic has already run above, just need to update DB
-            const { error: updateError } = await supabase
-              .from('pdf_analyses')
-              .update({
-                status: 'completed',
-                result: analysisResult,
-                updated_at: new Date().toISOString()
-              })
-              .eq('id', analysisId);
-            
-            if (updateError) {
-              console.error('Failed to update analysis result:', updateError);
-            } else {
-              console.log('✅ Analysis result stored in database with ID:', analysisId);
-            }
-          } catch (bgError) {
-            console.error('Background processing error:', bgError);
-            // Try to mark as failed
-            await supabase
-              .from('pdf_analyses')
-              .update({
-                status: 'failed',
-                updated_at: new Date().toISOString()
-              })
-              .eq('id', analysisId);
-          }
-        })();
-        
-        return immediateResponse;
-        
-      } catch (dbError) {
-        console.error('Database error:', dbError);
-        throw dbError;
-      }
+    if (updateError) {
+      console.error('Failed to update analysis result:', updateError);
+      throw new Error('Failed to save analysis result');
     }
     
-    // Should not reach here with new implementation
+    console.log('✅ Analysis result stored in database with ID:', analysisId);
+      } catch (bgError) {
+        console.error('Background processing error:', bgError);
+        // Try to mark as failed
+        await supabase
+          .from('pdf_analyses')
+          .update({
+            status: 'failed',
+            error: bgError instanceof Error ? bgError.message : 'Unknown error',
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', analysisId);
+      }
+    })(); // Execute background task immediately
+    
+    // Return immediately with the analysis ID
     return new Response(JSON.stringify({
-      error: 'Analysis configuration error'
+      success: true,
+      analysisId: analysisId,
+      status: 'processing',
+      message: 'Analysis started, processing in background'
     }), {
-      status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
