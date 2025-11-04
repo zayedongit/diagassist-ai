@@ -746,7 +746,7 @@ export const AnalysisResult = ({
 
       {/* Premium Features Section - Show enhanced recommendations */}
       {(expandedAnalysisData.diet.avoid.length > 0 || expandedAnalysisData.diet.increase.length > 0 || expandedAnalysisData.lifestyle?.length > 0) && (
-        <>
+        <div className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-2">
                 {/* Diet Card */}
                 {(expandedAnalysisData.diet.avoid.length > 0 || expandedAnalysisData.diet.increase.length > 0) && (
@@ -1129,23 +1129,23 @@ export const AnalysisResult = ({
                   </div>
                 </CardContent>
               </Card>
-
-              {/* Download Button */}
-              <div className="flex justify-center pt-4">
-                <Button 
-                  variant="default" 
-                  size="lg" 
-                  onClick={onDownload}
-                  className="w-full sm:w-auto sm:min-w-48 h-12 sm:h-10 text-sm sm:text-base"
-                >
-                  <Download className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                  Download Report
-                </Button>
-              </div>
-            </div>
+            )}
           </div>
-        </>
+        </div>
       )}
+
+      {/* Download Button */}
+      <div className="flex justify-center pt-4">
+        <Button
+          variant="default" 
+          size="lg" 
+          onClick={onDownload}
+          className="w-full sm:w-auto sm:min-w-48 h-12 sm:h-10 text-sm sm:text-base"
+        >
+          <Download className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+          Download Report
+        </Button>
+      </div>
 
       {/* AI Medical Assistant */}
       <MedicalAiAssistant />
