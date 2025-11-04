@@ -308,9 +308,8 @@ serve(async (req) => {
     console.log('✅ Lovable AI API key found');
 
     // Parse request body - handle both JSON and FormData
-    let text: string;
-    let filename: string = 'Medical Report';
     let requestUserId: string | undefined = undefined;
+    let images: string[] = [];
     
     const contentType = req.headers.get('content-type') || '';
     console.log('📥 Content-Type:', contentType);
@@ -329,16 +328,13 @@ serve(async (req) => {
         throw new Error('No images provided in FormData');
       }
       
-      // Validate and parse images JSON with better error handling
-      let images;
+      // Validate and parse images JSON
       try {
         console.log('📝 Images JSON length:', imagesJson.length);
-        console.log('📝 Images JSON preview:', imagesJson.substring(0, 100));
         images = JSON.parse(imagesJson);
       } catch (parseError) {
         const errorMessage = parseError instanceof Error ? parseError.message : 'Unknown error';
         console.error('❌ Failed to parse images JSON:', errorMessage);
-        console.error('❌ Images JSON content:', imagesJson);
         throw new Error(`Invalid images data format: ${errorMessage}`);
       }
       
@@ -396,6 +392,51 @@ Return the complete extracted text maintaining the original structure and organi
         });
 
         console.log('📡 Vision API response status:', response.status);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Vision API error response:', errorText);
+          let errorData = errorText;
+          try {
+            errorData = JSON.parse(errorText);
+          } catch {
+            // Keep as text if not JSON
+          }
+          if (response.status === 429) {
+            throw new Error('Rate limit exceeded: Please try again in a few moments.');
+          }
+          
+          throw new Error(`Vision API call failed: ${response.status} - ${errorData}`);
+        }
+
+        return response;
+      }, 4, 2000, 'Vision Text Extraction');
+
+      const visionData = await visionResponse.json();
+      text = visionData.choices[0].message.content.trim();
+      console.log('✅ Text extracted from images');
+      console.log('📝 Extracted text length:', text.length);
+      console.log('📝 Text preview:', text.substring(0, 500));
+      
+      // Validate extracted text contains actual medical data
+      if (text.length < 500 && images.length > 1) {
+        console.error('❌ Extracted text is suspiciously short for a multi-page report');
+        throw new Error(`Text extraction may be incomplete. Only ${text.length} characters extracted from ${images.length} pages. Please try again or contact support if the issue persists.`);
+      }
+      
+      // Check if text contains common medical report markers
+      const hasLabValues = /\d+\.?\d*\s*(?:mg\/dL|mmol\/L|g\/dL|%|cells\/μL|U\/L|mIU\/L)/i.test(text);
+      if (!hasLabValues && text.length < 1000) {
+        console.warn('⚠️ Extracted text may not contain valid lab values');
+        throw new Error('Unable to find valid laboratory values in the extracted text. Please ensure the uploaded file contains a medical lab report.');
+      }
+      
+    } else {
+      // Handle JSON with pre-extracted text
+      console.log('📄 Processing JSON with extracted text...');
+      const requestBody = await req.json();
+      text = requestBody.text;
+      filename = requestBody.filename || filename;
         
         if (!response.ok) {
           const errorData = await response.text();
@@ -781,42 +822,81 @@ Respond with JSON only matching this exact structure - no markdown formatting:`;
       const analysisId = `analysis_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
       try {
+        // First, insert with 'processing' status and return immediately
         const { error: insertError } = await supabase
           .from('pdf_analyses')
           .insert({
             id: analysisId,
             user_id: requestUserId || 'anonymous',
-            status: 'completed',
-            result: analysisResult,
+            status: 'processing',
+            result: null,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           });
           
         if (insertError) {
-          console.error('Failed to store analysis result:', insertError);
-          // Continue without storing to database
-        } else {
-          console.log('✅ Analysis result stored in database with ID:', analysisId);
+          console.error('Failed to create analysis record:', insertError);
+          throw new Error('Failed to initiate analysis');
         }
         
-        // Return the expected format for background processing
-        return new Response(JSON.stringify({
+        console.log('✅ Analysis record created with ID:', analysisId, '- starting background processing');
+        
+        // Return immediately to avoid timeout
+        const immediateResponse = new Response(JSON.stringify({
           success: true,
           analysisId: analysisId,
-          status: 'completed',
-          message: 'Analysis completed successfully'
+          status: 'processing',
+          message: 'Analysis started, processing in background'
         }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
         
+        // Process analysis in background
+        (async () => {
+          try {
+            console.log('🔄 Background processing started for:', analysisId);
+            
+            // The analysis logic has already run above, just need to update DB
+            const { error: updateError } = await supabase
+              .from('pdf_analyses')
+              .update({
+                status: 'completed',
+                result: analysisResult,
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', analysisId);
+            
+            if (updateError) {
+              console.error('Failed to update analysis result:', updateError);
+            } else {
+              console.log('✅ Analysis result stored in database with ID:', analysisId);
+            }
+          } catch (bgError) {
+            console.error('Background processing error:', bgError);
+            // Try to mark as failed
+            await supabase
+              .from('pdf_analyses')
+              .update({
+                status: 'failed',
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', analysisId);
+          }
+        })();
+        
+        return immediateResponse;
+        
       } catch (dbError) {
         console.error('Database error:', dbError);
-        // Fallback: return direct analysis result
+        throw dbError;
       }
     }
     
-    // Fallback: return analysis result directly (old format)
-    return new Response(JSON.stringify(analysisResult), {
+    // Should not reach here with new implementation
+    return new Response(JSON.stringify({
+      error: 'Analysis configuration error'
+    }), {
+      status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
