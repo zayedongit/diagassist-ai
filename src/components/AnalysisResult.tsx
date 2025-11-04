@@ -11,6 +11,7 @@ import { ParameterContextSection } from "./ParameterContextSection";
 import { NextStepsSection } from "./NextStepsSection";
 import { LabRangeBar } from "./LabRangeBar";
 import { getPopulationData } from "@/utils/populationData";
+import { MedicalAiAssistant } from "./MedicalAiAssistant";
 
 // Utility function to format text with proper line breaks and bullets
 const formatAnalysisText = (text: string) => {
@@ -1218,6 +1219,9 @@ export const AnalysisResult = ({
           )}
         </>
       )}
+
+      {/* AI Medical Assistant - Available to all users */}
+      <MedicalAiAssistant />
       
     </div>
   );
