@@ -113,9 +113,10 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('Send OTP error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to send OTP';
     return new Response(
       JSON.stringify({ 
-        error: error.message || 'Failed to send OTP' 
+        error: errorMessage 
       }),
       { 
         status: 500, 
