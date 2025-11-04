@@ -127,13 +127,14 @@ function validateClinicalData(analysisResult: any): any {
   });
 
   // Enhanced critical condition detection and summary validation
+  let criticalConditions: string[] = [];
+  
   if (totalValidAbnormalities === 0) {
     analysisResult.overallStatus = 'good';
     analysisResult.summary = 'All tested parameters are within normal limits. Overall health indicators appear good.';
     console.log('✅ Updated status to good - no valid abnormalities found');
   } else {
     // Critical condition detection with comprehensive checking
-    let criticalConditions = [];
     let hasCriticalDiabetes = false;
     let hasIronDeficiency = false;
     let hasHighCholesterol = false;
@@ -207,8 +208,8 @@ function validateClinicalData(analysisResult: any): any {
       
       if (hasCriticalDiabetes) {
         const diabetesLab = analysisResult.medicalPanels
-          .flatMap(panel => panel.abnormalLabs || [])
-          .find(lab => lab.name.toLowerCase().includes('hba1c') && parseFloat(lab.value) > 9);
+          .flatMap((panel: MedicalPanel) => panel.abnormalLabs || [])
+          .find((lab: LabValue) => lab.name.toLowerCase().includes('hba1c') && parseFloat(lab.value) > 9);
         
         if (diabetesLab) {
           analysisResult.summary = `This report shows SEVERE DIABETES with ${diabetesLab.name} of ${diabetesLab.value}${diabetesLab.unit || ''}, indicating dangerously poor blood sugar control requiring immediate medical attention.`;
@@ -600,7 +601,7 @@ Respond with JSON only - no markdown formatting:`;
     console.log(`   Medical Panels: ${analysisResult.medicalPanels?.length || 0}`);
     
     // Log all abnormal findings for verification
-    let allAbnormalLabs = [];
+    let allAbnormalLabs: string[] = [];
     analysisResult.medicalPanels?.forEach(panel => {
       panel.abnormalLabs?.forEach(lab => {
         allAbnormalLabs.push(`${lab.name}: ${lab.value}${lab.unit || ''} (${lab.status})`);
@@ -677,10 +678,12 @@ Respond with JSON only - no markdown formatting:`;
 
   } catch (error) {
     console.error('Error in analyze-medical-report function:', error);
+    const errorMessage = error instanceof Error ? error.message : 'An error occurred during analysis';
+    const errorDetails = error instanceof Error ? error.toString() : String(error);
     return new Response(
       JSON.stringify({ 
-        error: error.message || 'An error occurred during analysis',
-        details: error.toString()
+        error: errorMessage,
+        details: errorDetails
       }), 
       {
         status: 500,
@@ -688,3 +691,4 @@ Respond with JSON only - no markdown formatting:`;
       }
     );
   }
+});
