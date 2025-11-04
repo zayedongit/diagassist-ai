@@ -350,14 +350,21 @@ serve(async (req) => {
       
       // Use Lovable AI vision to extract text from images
       console.log('🔍 Extracting text from images using AI vision...');
-      const visionPrompt = `Extract ALL text from these medical report images. Include:
-- Patient information (name, age, gender, date)
-- ALL test parameters with their values, units, and reference ranges
-- Section headers and panel names
-- Any notes or interpretations
-- Maintain the structure and organization of the report
+      console.log(`📊 Processing ${images.length} pages for comprehensive analysis`);
+      const visionPrompt = `You are analyzing a ${images.length}-page medical laboratory report. Extract ALL text from EVERY page sequentially.
 
-Return the extracted text in a clean, organized format.`;
+CRITICAL INSTRUCTIONS:
+- Process EVERY image in order (page 1, page 2, page 3, etc.)
+- Extract EVERY test parameter name, value, unit, and reference range
+- Pay special attention to abnormal values (marked with *, H, L, or outside reference range)
+- Include patient demographics (name, age, gender, date)
+- Include all section headers and panel names
+- Do NOT skip any pages or test results
+- Prioritize test results over headers/footers
+
+IMPORTANT: Many medical reports have test values on multiple pages. Extract from ALL pages, not just the first few.
+
+Return the complete extracted text maintaining the original structure and organization.`;
       
       const visionResponse = await retryWithBackoff(async () => {
         console.log('🔑 API Key configured:', !!LOVABLE_API_KEY);
@@ -376,14 +383,14 @@ Return the extracted text in a clean, organized format.`;
                 role: 'user',
                 content: [
                   { type: 'text', text: visionPrompt },
-                  ...images.slice(0, 10).map((img: string) => ({
+                  ...images.map((img: string) => ({
                     type: 'image_url',
                     image_url: { url: img }
                   }))
                 ]
               }
             ],
-            max_tokens: 4000,
+            max_tokens: 16000,
             temperature: 0.3,
           }),
         });
@@ -415,7 +422,20 @@ Return the extracted text in a clean, organized format.`;
       text = visionData.choices[0].message.content.trim();
       console.log('✅ Text extracted from images');
       console.log('📝 Extracted text length:', text.length);
-      console.log('📝 Text preview:', text.substring(0, 300));
+      console.log('📝 Text preview:', text.substring(0, 500));
+      
+      // Validate extracted text contains actual medical data
+      if (text.length < 500 && images.length > 1) {
+        console.error('❌ Extracted text is suspiciously short for a multi-page report');
+        throw new Error(`Text extraction may be incomplete. Only ${text.length} characters extracted from ${images.length} pages. Please try again or contact support if the issue persists.`);
+      }
+      
+      // Check if text contains common medical report markers
+      const hasLabValues = /\d+\.?\d*\s*(?:mg\/dL|mmol\/L|g\/dL|%|cells\/μL|U\/L|mIU\/L)/i.test(text);
+      if (!hasLabValues && text.length < 1000) {
+        console.warn('⚠️ Extracted text may not contain valid lab values');
+        throw new Error('Unable to find valid laboratory values in the extracted text. Please ensure the uploaded file contains a medical lab report.');
+      }
       
     } else {
       // Handle JSON with pre-extracted text
