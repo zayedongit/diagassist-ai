@@ -361,7 +361,7 @@ Return the extracted text in a clean, organized format.`;
       
       const visionResponse = await retryWithBackoff(async () => {
         console.log('🔑 API Key configured:', !!LOVABLE_API_KEY);
-        console.log('📡 Calling Lovable AI vision API...');
+        console.log('📡 Calling Lovable AI vision API with OpenAI GPT-5...');
         
         const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
           method: 'POST',
@@ -370,7 +370,7 @@ Return the extracted text in a clean, organized format.`;
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'google/gemini-2.5-flash',
+            model: 'openai/gpt-5', // Using OpenAI GPT-5 for vision
             messages: [
               {
                 role: 'user',
@@ -383,6 +383,7 @@ Return the extracted text in a clean, organized format.`;
                 ]
               }
             ],
+            max_completion_tokens: 4000, // GPT-5 uses max_completion_tokens, not max_tokens
           }),
         });
 
@@ -567,7 +568,7 @@ SUCCESS CRITERIA:
 Respond with JSON only - no markdown formatting:`;
 
     const pass1Response = await retryWithBackoff(async () => {
-      console.log('📡 Calling Lovable AI for Pass 1 analysis...');
+      console.log('📡 Calling Lovable AI for Pass 1 analysis with OpenAI GPT-5...');
       const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -575,7 +576,7 @@ Respond with JSON only - no markdown formatting:`;
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'google/gemini-2.5-flash', // Fixed: Changed from invalid 'claude-sonnet-4-5' to valid Lovable AI model
+          model: 'openai/gpt-5', // Using OpenAI GPT-5 for analysis
           messages: [
             {
               role: 'user',
@@ -583,6 +584,7 @@ Respond with JSON only - no markdown formatting:`;
             }
           ],
           response_format: { type: "json_object" },
+          max_completion_tokens: 16000, // GPT-5 uses max_completion_tokens, not max_tokens
         }),
       });
 
