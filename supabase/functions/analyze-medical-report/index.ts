@@ -667,9 +667,22 @@ Respond with JSON only - no markdown formatting:`;
       sum + (panel.abnormalLabs?.length || 0), 0) || 0;
     console.log(`📊 Final analysis: ${finalAbnormalCount} clinically valid abnormal parameters`);
 
-    // Validate the response structure
-    if (!analysisResult.overallStatus || !analysisResult.summary || !analysisResult.medicalPanels || !analysisResult.nextSteps || !analysisResult.diet || !analysisResult.lifestyle || !analysisResult.patientFriendlySummary || !analysisResult.specialist || !analysisResult.populationSource) {
-      throw new Error('Incomplete analysis result - missing required fields');
+    // Validate the response structure with detailed logging
+    const missingFields = [];
+    if (!analysisResult.overallStatus) missingFields.push('overallStatus');
+    if (!analysisResult.summary) missingFields.push('summary');
+    if (!analysisResult.medicalPanels) missingFields.push('medicalPanels');
+    if (!analysisResult.nextSteps) missingFields.push('nextSteps');
+    if (!analysisResult.diet) missingFields.push('diet');
+    if (!analysisResult.lifestyle) missingFields.push('lifestyle');
+    if (!analysisResult.patientFriendlySummary) missingFields.push('patientFriendlySummary');
+    if (!analysisResult.specialist) missingFields.push('specialist');
+    if (!analysisResult.populationSource) missingFields.push('populationSource');
+    
+    if (missingFields.length > 0) {
+      console.error('❌ Missing required fields:', missingFields);
+      console.error('📋 Received analysis result keys:', Object.keys(analysisResult));
+      throw new Error(`Incomplete analysis result - missing: ${missingFields.join(', ')}`);
     }
 
     // Additional validation for specific content
