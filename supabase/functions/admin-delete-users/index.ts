@@ -121,7 +121,8 @@ serve(async (req) => {
           }
         } catch (error) {
           console.error(`Exception deleting user ${userId}:`, error);
-          results.push({ userId, success: false, error: error.message });
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          results.push({ userId, success: false, error: errorMessage });
         }
       }
 

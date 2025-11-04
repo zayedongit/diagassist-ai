@@ -203,109 +203,49 @@ Deno.serve(async (req) => {
       console.error('Profile handling error:', profileErr);
     }
 
-    // Create a session directly using admin API to bypass confirmation issues
-    console.log('Creating admin session for user:', user.id);
+    // Update user to ensure they're confirmed and set password
+    console.log('Updating user for authentication:', user.id);
     
-    let signInData;
+    const { error: updateError } = await supabase.auth.admin.updateUserById(user.id, {
+      email: tempEmail,
+      password: tempPassword,
+      email_confirm: true,
+      phone_confirm: true
+    });
     
-    try {
-      // First, update user to ensure they're confirmed
-      const { error: confirmError } = await supabase.auth.admin.updateUserById(user.id, {
-        email_confirm: true,
-        phone_confirm: true
-      });
-      
-      if (confirmError) {
-        console.error('Failed to confirm user:', confirmError);
-      }
-
-      // Generate a session link that creates a valid session
-      const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
-        type: 'magiclink',
-        email: tempEmail,
-        options: {
-          redirectTo: undefined // We don't need a redirect, just the tokens
+    if (updateError) {
+      console.error('User update error:', updateError);
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          error: 'Failed to prepare user session'
+        }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
-      });
-      
-      if (linkError) {
-        console.error('Failed to generate session link:', linkError);
-        throw linkError;
-      }
-      
-      console.log('Generated session tokens successfully');
-      
-      // Extract tokens from the response
-      const accessToken = linkData.properties?.access_token;
-      const refreshToken = linkData.properties?.refresh_token;
-      
-      if (!accessToken || !refreshToken) {
-        throw new Error('Failed to generate session tokens - missing tokens in response');
-      }
-      
-      // Create session object
-      const sessionData = {
-        access_token: accessToken,
-        refresh_token: refreshToken,
-        expires_in: 3600,
-        expires_at: Math.floor(Date.now() / 1000) + 3600,
-        token_type: 'bearer',
-        user: linkData.user
-      };
-      
-      console.log('Session created successfully for user:', user.id);
-      
-      signInData = {
-        user: linkData.user,
-        session: sessionData
-      };
+      );
+    }
 
-    } catch (sessionError) {
-      console.error('Session creation failed, falling back to password auth:', sessionError);
-      
-      // Fallback: Try to update user with confirmed flags and use password login
-      const { error: updateError } = await supabase.auth.admin.updateUserById(user.id, {
-        email: tempEmail,
-        password: tempPassword,
-        email_confirmed_at: new Date().toISOString(),
-        phone_confirmed_at: new Date().toISOString()
-      });
-      
-      if (updateError) {
-        console.error('User update error:', updateError);
-        return new Response(
-          JSON.stringify({ 
-            success: false,
-            error: 'Failed to create session: ' + updateError.message
-          }),
-          { 
-            status: 500, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          }
-        );
-      }
-      
-      // Try email login as fallback
-      const { data: fallbackData, error: fallbackError } = await supabase.auth.signInWithPassword({
-        email: tempEmail,
-        password: tempPassword
-      });
-      
-      if (fallbackError || !fallbackData?.session) {
-        console.error('Fallback login failed:', fallbackError);
-        return new Response(
-          JSON.stringify({ 
-            success: false,
-            error: 'Failed to create session: ' + (fallbackError?.message || 'Session creation failed')
-          }),
-          { 
-            status: 400, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          }
-        );
-      }
-      
-      signInData = fallbackData;
+    // Sign in with password to create a session
+    console.log('Creating session for user:', user.id);
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      email: tempEmail,
+      password: tempPassword
+    });
+    
+    if (signInError || !signInData?.session) {
+      console.error('Sign in failed:', signInError);
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          error: 'Failed to create session'
+        }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
 
     console.log('OTP verified successfully for:', phone_number, 'User ID:', user.id);

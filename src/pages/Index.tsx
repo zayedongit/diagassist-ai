@@ -59,7 +59,7 @@ const Index = () => {
       if (user) {
         console.log('Fetching profile for user:', user.id);
         const { data: profile, error } = await supabase
-          .from('profiles')
+          .from('profiles' as any)
           .select('phone_number')
           .eq('user_id', user.id)
           .maybeSingle();
@@ -369,7 +369,7 @@ RAW DATA: ${baseContext}`;
           try {
             console.log('🗑️ Deleting analysis record from database...');
             const { error: deleteError } = await supabase
-              .from('pdf_analyses')
+              .from('pdf_analyses' as any)
               .delete()
               .eq('id', id)
               .eq('user_id', userId);
@@ -839,7 +839,7 @@ RAW DATA: ${baseContext}`;
       try {
         console.log('🗑️ Attempting to delete old analyses from database...');
         const { error: deleteError } = await supabase
-          .from('pdf_analyses')
+          .from('pdf_analyses' as any)
           .delete()
           .eq('user_id', user.id);
         

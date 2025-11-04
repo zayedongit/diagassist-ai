@@ -187,8 +187,9 @@ Log in to your dashboard to manage this request.
 
   } catch (error) {
     console.error('Error in process-prescription-notifications function:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: errorMessage }),
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }

@@ -146,7 +146,8 @@ serve(async (req) => {
           await deleteGoogleDoc(accessToken, docId);
           
         } catch (summaryError) {
-          console.warn(`⚠️ Failed to create summary document: ${summaryError.message}`);
+          const summaryErrorMessage = summaryError instanceof Error ? summaryError.message : 'Unknown error';
+          console.warn(`⚠️ Failed to create summary document: ${summaryErrorMessage}`);
           // Continue with basic tracking - don't fail the whole process
         }
 
@@ -173,11 +174,12 @@ serve(async (req) => {
         console.error(`❌ Error processing ${file.name}:`, error);
 
         // Update tracking record with error
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         await supabase
           .from('google_drive_processed_files')
           .update({
             status: 'error',
-            error_message: error.message
+            error_message: errorMessage
           })
           .eq('drive_file_id', file.id);
 
@@ -185,7 +187,7 @@ serve(async (req) => {
           drive_file_id: file.id,
           filename: file.name,
           status: 'error',
-          error_message: error.message
+          error_message: errorMessage
         });
       }
     }
@@ -211,8 +213,9 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('❌ Google Drive Ingest error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: errorMessage }),
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }

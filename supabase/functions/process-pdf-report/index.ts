@@ -103,7 +103,8 @@ function safeParseJSON(content: string): any {
     } catch (fallbackError) {
       console.error('All JSON parsing attempts failed');
       console.error('Original content length:', content.length);
-      console.error('Parse error:', fallbackError.message);
+      const fallbackErrorMessage = fallbackError instanceof Error ? fallbackError.message : 'Unknown error';
+      console.error('Parse error:', fallbackErrorMessage);
       console.error('Content preview:', content.substring(0, 300) + '...');
       
       // Check if content appears to be truncated JSON
@@ -169,7 +170,8 @@ function parseToolCallArguments(toolCall: any, context: string): any {
   } catch (error) {
     console.error(`${context} - Failed to parse tool call arguments:`, error);
     console.error(`${context} - Raw arguments:`, toolCall?.function?.arguments?.substring(0, 200));
-    throw new Error(`Invalid tool call arguments in ${context}: ${error.message}`);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    throw new Error(`Invalid tool call arguments in ${context}: ${errorMessage}`);
   }
 }
 
@@ -549,7 +551,8 @@ Analyze these medical images with complete thoroughness. Extract and prioritize 
             throw new Error('Fallback parsing failed - no valid medical data found');
           }
         } catch (fallbackError) {
-          console.error('❌ Fallback parsing failed:', fallbackError.message);
+          const fallbackErrorMessage = fallbackError instanceof Error ? fallbackError.message : 'Unknown error';
+          console.error('❌ Fallback parsing failed:', fallbackErrorMessage);
           throw new Error('Pass 1: Function calling failed and fallback parsing unsuccessful');
         }
       } else {

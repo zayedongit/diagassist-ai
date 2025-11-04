@@ -106,10 +106,11 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('❌ Process single report error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to process report';
     return new Response(
       JSON.stringify({ 
         success: false,
-        error: error.message || 'Failed to process report'
+        error: errorMessage
       }),
       { 
         status: 500,

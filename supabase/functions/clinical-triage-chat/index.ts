@@ -284,13 +284,14 @@ CRITICAL OPERATIONAL GUIDELINES:
       console.log('Successfully parsed AI response:', { action: parsedResponse.action });
     } catch (e) {
       console.error('Failed to parse OpenAI response:', aiResponse);
-      console.error('Parse error:', e.message);
+      const errorMessage = e instanceof Error ? e.message : 'Unknown error';
+      console.error('Parse error:', errorMessage);
       
       // Try to fix common JSON issues
       let fixedResponse = aiResponse.trim();
       
       // Handle unterminated strings by finding the last complete JSON structure
-      if (e.message.includes('Unterminated string')) {
+      if (e instanceof Error && e.message.includes('Unterminated string')) {
         const lastCompleteJson = fixedResponse.lastIndexOf('"}');
         if (lastCompleteJson !== -1) {
           fixedResponse = fixedResponse.substring(0, lastCompleteJson + 2) + '}';
@@ -298,14 +299,15 @@ CRITICAL OPERATIONAL GUIDELINES:
             parsedResponse = JSON.parse(fixedResponse);
             console.log('Successfully parsed fixed AI response:', { action: parsedResponse.action });
           } catch (fixError) {
-            console.error('Failed to fix JSON response:', fixError.message);
-            throw new Error(`Failed to parse AI response: ${e.message}`);
+            const fixErrorMessage = fixError instanceof Error ? fixError.message : 'Unknown error';
+            console.error('Failed to fix JSON response:', fixErrorMessage);
+            throw new Error(`Failed to parse AI response: ${errorMessage}`);
           }
         } else {
-          throw new Error(`Failed to parse AI response: ${e.message}`);
+          throw new Error(`Failed to parse AI response: ${errorMessage}`);
         }
       } else {
-        throw new Error(`Failed to parse AI response: ${e.message}`);
+        throw new Error(`Failed to parse AI response: ${errorMessage}`);
       }
     }
 
@@ -352,15 +354,17 @@ CRITICAL OPERATIONAL GUIDELINES:
 
   } catch (error) {
     console.error('Error in clinical-triage-chat function:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : undefined;
     console.error('Error details:', {
-      message: error.message,
-      stack: error.stack,
+      message: errorMessage,
+      stack: errorStack,
       requestBody: { sessionId, isInitialization, analysisContext, demographics, abnormalPanels, state, selections, message, forceReport }
     });
     return new Response(JSON.stringify({ 
-      error: `Clinical triage error: ${error.message}`,
+      error: `Clinical triage error: ${errorMessage}`,
       type: 'error',
-      details: error.stack,
+      details: errorStack,
       requestInfo: { sessionId, isInitialization, hasAnalysis: !!analysisContext }
     }), {
       status: 500,
