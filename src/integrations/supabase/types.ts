@@ -14,7 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      sms_verifications: {
+        Row: {
+          created_at: string | null
+          expires_at: string
+          id: string
+          message_sid: string | null
+          phone_number: string
+          verification_code: string
+          verified: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          message_sid?: string | null
+          phone_number: string
+          verification_code: string
+          verified?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          message_sid?: string | null
+          phone_number?: string
+          verification_code?: string
+          verified?: boolean | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
