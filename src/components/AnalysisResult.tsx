@@ -970,7 +970,6 @@ export const AnalysisResult = ({
                     </CardContent>
                   </Card>
                 )}
-              </div>
 
               {/* Enhanced Lifestyle Modifications */}
               <Card className="shadow-card">
@@ -1129,7 +1128,6 @@ export const AnalysisResult = ({
                   </div>
                 </CardContent>
               </Card>
-            )}
           </div>
         </div>
       )}

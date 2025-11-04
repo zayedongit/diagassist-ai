@@ -8,117 +8,124 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;  /* Pure white background */
-    --foreground: 0 0% 9%;  /* Very dark text for maximum contrast */
+    /* Premium Deep Navy Background */
+    --background: 210 60% 8%;  /* #071A2C Deep navy */
+    --foreground: 0 0% 100%;  /* Pure white text */
 
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 9%;
+    /* Clean White Cards */
+    --card: 0 0% 100%;  /* #FFFFFF */
+    --card-foreground: 210 60% 8%;  /* Dark navy text on cards */
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 9%;
+    --popover-foreground: 210 60% 8%;
 
-    --primary: 225 100% 56%;
+    /* Electric Cyan Primary */
+    --primary: 195 100% 50%;  /* #00C6FF Electric cyan */
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 225 100% 56%;
+    --primary-glow: 195 100% 65%;  /* Lighter cyan for glow */
 
-    --secondary: 220 15% 96%;
-    --secondary-foreground: 0 0% 9%;
+    /* Soft Violet Secondary */
+    --secondary: 238 45% 68%;  /* #6B73FF Soft violet */
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 40%;
+    /* Glassmorphism Muted */
+    --muted: 210 60% 12%;  /* Slightly lighter navy */
+    --muted-foreground: 0 0% 85%;
 
-    --accent: 225 100% 56%;
+    /* Accent Gradient Colors */
+    --accent: 195 100% 50%;  /* Electric cyan */
     --accent-foreground: 0 0% 100%;
 
-    --success: 142 76% 36%;
+    --success: 142 76% 45%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 50%;
+    --warning: 38 92% 55%;
     --warning-foreground: 0 0% 9%;
 
-    --destructive: 0 85% 55%;
+    --destructive: 0 85% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 100%;
-    --ring: 225 100% 56%;
+    /* Glassmorphism Borders */
+    --border: 195 100% 50% / 0.2;  /* Cyan border with opacity */
+    --input: 210 60% 12%;
+    --ring: 195 100% 50%;
 
-    --radius: 12px;
+    --radius: 16px;  /* More rounded for premium feel */
 
-    /* App Specific - Medical Theme */
-    --app-blue: 225 100% 56%;
-    --app-light: 0 0% 100%;
-    --app-accent: 270 60% 70%;
-    --persian-blue: 220 74% 42%;
+    /* App Specific - Premium Medical Theme */
+    --app-blue: 195 100% 50%;  /* Electric cyan */
+    --app-violet: 238 45% 68%;  /* Soft violet */
+    --app-navy: 210 60% 8%;  /* Deep navy */
+    --app-light: 0 0% 100%;  /* Pure white */
     
-    /* Report-specific colors */
-    --report-bg: 0 0% 100%;     /* White background */
-    --report-text: 0 0% 9%;     /* Dark text for maximum contrast */
-    --report-danger: 0 84% 60%; /* Red for warnings/flags */
+    /* Gradient Definitions */
+    --gradient-primary: linear-gradient(135deg, hsl(195, 100%, 50%), hsl(238, 45%, 68%));
+    --gradient-cyan-violet: linear-gradient(135deg, #00C6FF 0%, #6B73FF 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(210, 60%, 10%), hsl(210, 60%, 8%));
+    --gradient-glow: radial-gradient(circle at center, hsl(195 100% 50% / 0.15), transparent);
     
-    /* Solid Colors - No Gradients */
-    --gradient-primary: hsl(225, 100%, 56%);
-    --gradient-app: hsl(225, 100%, 56%);
-    --gradient-subtle: hsl(270, 30%, 20%);
-    --gradient-golden: linear-gradient(135deg, hsl(225, 100%, 96%) 0%, hsl(225, 100%, 92%) 100%);
+    /* Premium Shadows with Glow */
+    --shadow-soft: 0 4px 20px -2px hsl(195 100% 50% / 0.15);
+    --shadow-glow: 0 0 40px hsl(195 100% 50% / 0.25), 0 8px 32px -4px hsl(0 0% 0% / 0.3);
+    --shadow-card: 0 8px 32px -4px hsl(0 0% 0% / 0.4);
+    --shadow-elegant: 0 10px 30px -10px hsl(195 100% 50% / 0.3);
     
-    /* Shadows */
-    --shadow-soft: 0 4px 20px -2px hsl(225 100% 56% / 0.1);
-    --shadow-app: 0 8px 32px -4px hsl(225 100% 56% / 0.15);
-    --shadow-card: 0 2px 12px -2px hsl(0 0% 0% / 0.08);
-    
-    /* Animations */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    /* Smooth Premium Animations */
+    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --transition-glow: all 0.3s ease-in-out;
 
-    --sidebar-background: 0 0% 10%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 225 100% 56%;
+    /* Sidebar in Navy Theme */
+    --sidebar-background: 210 60% 8%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 195 100% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 15%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 20%;
+    --sidebar-accent: 210 60% 12%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 195 100% 50% / 0.2;
   }
 
   .dark {
-    --background: 0 0% 8%;
-    --foreground: 221 100% 56%;
+    /* Keep same premium theme for dark mode */
+    --background: 210 60% 8%;
+    --foreground: 0 0% 100%;
 
-    --card: 0 0% 10%;
-    --card-foreground: 221 100% 56%;
+    --card: 0 0% 100%;
+    --card-foreground: 210 60% 8%;
 
-    --popover: 0 0% 10%;
-    --popover-foreground: 221 100% 56%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 60% 8%;
 
-    --primary: 45 100% 60%;
-    --primary-foreground: 0 0% 15%;
+    --primary: 195 100% 50%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 225 100% 56%;
+    --secondary: 238 45% 68%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 221 100% 56%;
+    --muted: 210 60% 12%;
+    --muted-foreground: 0 0% 85%;
 
-    --accent: 225 100% 56%;
+    --accent: 195 100% 50%;
     --accent-foreground: 0 0% 100%;
 
-    --warning: 38 92% 60%;
+    --warning: 38 92% 55%;
     --warning-foreground: 0 0% 100%;
 
-    --destructive: 0 62.8% 50%;
-    --destructive-foreground: 221 100% 56%;
+    --destructive: 0 85% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 45 100% 60%;
-    --sidebar-background: 0 0% 8%;
-    --sidebar-foreground: 221 100% 56%;
-    --sidebar-primary: 45 100% 60%;
-    --sidebar-primary-foreground: 0 0% 15%;
-    --sidebar-accent: 0 0% 15%;
-    --sidebar-accent-foreground: 221 100% 56%;
-    --sidebar-border: 0 0% 20%;
-    --sidebar-ring: 45 100% 60%;
+    --border: 195 100% 50% / 0.2;
+    --input: 210 60% 12%;
+    --ring: 195 100% 50%;
+    
+    --sidebar-background: 210 60% 8%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 195 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 60% 12%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 195 100% 50% / 0.2;
+    --sidebar-ring: 195 100% 50%;
   }
 }
 
@@ -133,18 +140,52 @@ All colors MUST be HSL.
 }
 
 @layer utilities {
+  /* Premium Hover Effects */
   .hover-scale-102 {
-    @apply hover:scale-[1.02] transition-transform duration-200;
+    @apply hover:scale-[1.02] transition-transform duration-300;
   }
   
   .hover-lift {
-    @apply hover:shadow-lift transition-shadow duration-200;
+    @apply hover:shadow-glow transition-all duration-300;
   }
   
+  .hover-glow {
+    @apply hover:shadow-glow transition-all duration-300;
+  }
+  
+  /* Glassmorphism Effect */
+  .glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .glass-card {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 198, 255, 0.2);
+    box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Glow Ring Effect */
+  .glow-ring {
+    box-shadow: 0 0 20px rgba(0, 198, 255, 0.4), inset 0 0 20px rgba(0, 198, 255, 0.1);
+  }
+  
+  /* Gradient Text */
+  .gradient-text {
+    background: linear-gradient(135deg, #00C6FF 0%, #6B73FF 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  /* Smooth Transitions */
   .parallax-layer {
     will-change: transform;
   }
   
+  /* Hide Scrollbar */
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
@@ -152,5 +193,19 @@ All colors MUST be HSL.
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+  
+  /* Pulse Animation for Buttons */
+  .pulse-glow {
+    animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(0, 198, 255, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 40px rgba(0, 198, 255, 0.6);
+    }
   }
 }
