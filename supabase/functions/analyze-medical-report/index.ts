@@ -329,7 +329,23 @@ serve(async (req) => {
         throw new Error('No images provided in FormData');
       }
       
-      const images = JSON.parse(imagesJson);
+      // Validate and parse images JSON with better error handling
+      let images;
+      try {
+        console.log('📝 Images JSON length:', imagesJson.length);
+        console.log('📝 Images JSON preview:', imagesJson.substring(0, 100));
+        images = JSON.parse(imagesJson);
+      } catch (parseError) {
+        const errorMessage = parseError instanceof Error ? parseError.message : 'Unknown error';
+        console.error('❌ Failed to parse images JSON:', errorMessage);
+        console.error('❌ Images JSON content:', imagesJson);
+        throw new Error(`Invalid images data format: ${errorMessage}`);
+      }
+      
+      if (!Array.isArray(images) || images.length === 0) {
+        throw new Error('Images must be a non-empty array');
+      }
+      
       console.log(`📸 Received ${images.length} images`);
       
       // Use Lovable AI vision to extract text from images
