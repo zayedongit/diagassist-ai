@@ -297,26 +297,26 @@ export const ParameterContextSection = ({ abnormalLabs }: ParameterContextSectio
                     
                     {/* What It Means */}
                     <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-                      <h5 className="font-semibold text-card-foreground mb-2 flex items-center space-x-1">
+                      <h5 className="font-semibold text-gray-900 mb-2 flex items-center space-x-1">
                         <Info className="w-4 h-4 text-blue-600" />
                         <span>What This Means</span>
                       </h5>
-                      <p className="text-sm text-card-foreground">{context.whatItMeans}</p>
+                      <p className="text-sm text-gray-800 leading-relaxed">{context.whatItMeans}</p>
                     </div>
                     
                     {/* Body Connection */}
                     <div className="bg-green-50 rounded-lg p-3 border border-green-200">
-                      <h5 className="font-semibold text-card-foreground mb-2">How It Relates to Your Body</h5>
-                      <p className="text-sm text-card-foreground">{context.bodyConnection}</p>
+                      <h5 className="font-semibold text-gray-900 mb-2">How It Relates to Your Body</h5>
+                      <p className="text-sm text-gray-800 leading-relaxed">{context.bodyConnection}</p>
                     </div>
                     
                     {/* Possible Causes */}
                     <div className="bg-yellow-50 rounded-lg p-3 border border-yellow-200">
-                      <h5 className="font-semibold text-card-foreground mb-2 flex items-center space-x-1">
+                      <h5 className="font-semibold text-gray-900 mb-2 flex items-center space-x-1">
                         <User className="w-4 h-4 text-yellow-700" />
                         <span>Possible Contributing Factors</span>
                       </h5>
-                      <ul className="text-sm text-card-foreground space-y-1">
+                      <ul className="text-sm text-gray-800 space-y-1">
                         {context.possibleCauses.map((cause, causeIndex) => (
                           <li key={causeIndex} className="flex items-start space-x-2">
                             <span className="text-yellow-700 mt-1.5 text-xs">•</span>
