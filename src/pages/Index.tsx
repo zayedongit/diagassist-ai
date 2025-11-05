@@ -505,56 +505,52 @@ RAW DATA: ${baseContext}`;
       formData.append('images', JSON.stringify(conversionResult.images));
       // Removed sending original PDF to reduce payload size and avoid request failures
 
-      console.log('🚀 Sending request to edge function...');
-      
-      // Server now returns immediately, so no timeout needed
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-medical-report`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: formData,
-      });
+      console.log('🚀 Sending request to backend function...');
+      try {
+        const { data, error } = await supabase.functions.invoke('analyze-medical-report', {
+          body: {
+            userId,
+            images: conversionResult.images,
+          },
+        });
 
-      console.log('📡 Response status:', response.status, response.statusText);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ Edge function error response:', errorText);
-        
-        let errorData;
-        try {
-          errorData = JSON.parse(errorText);
-        } catch {
-          errorData = { error: errorText || 'Failed to process images' };
+        if (error) {
+          console.error('❌ Backend function error:', error);
+          throw error;
         }
+
+        if (!data?.success) {
+          console.error('❌ Backend function returned failure:', data);
+          throw new Error(data?.error || 'Failed to start analysis');
+        }
+
+        console.log('✅ Client-side processing successful, analysis ID:', data.analysisId);
         
-        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+        // Clear progress once response is received
+        setProgressUpdate(null);
+        
+        return {
+          analysisId: data.analysisId,
+          status: data.status,
+          message: data.message || 'Processing started successfully',
+          userId,
+        };
+      } catch (e: any) {
+        // Retry once on transient browser network errors like 'Load failed'
+        const msg = typeof e?.message === 'string' ? e.message : '';
+        if (msg && /load failed|network/i.test(msg)) {
+          console.warn('⚠️ Transient network error, retrying once...');
+          const { data, error } = await supabase.functions.invoke('analyze-medical-report', {
+            body: { userId, images: conversionResult.images },
+          });
+          if (error || !data?.success) {
+            throw new Error(error?.message || data?.error || 'Failed to start analysis');
+          }
+          setProgressUpdate(null);
+          return { analysisId: data.analysisId, status: data.status, message: data.message || 'Processing started successfully', userId };
+        }
+        throw e;
       }
-
-      const result = await response.json();
-      console.log('📋 Edge function response:', result);
-      
-      if (result.error) {
-        console.error('❌ Edge function returned error:', result.error);
-        throw new Error(result.error);
-      }
-
-      if (!result.success) {
-        console.error('❌ Edge function returned failure:', result);
-        throw new Error(result.error || 'Failed to process images');
-      }
-
-      console.log('✅ Client-side processing successful, analysis ID:', result.analysisId);
-      
-      // Clear progress once response is received
-      setProgressUpdate(null);
-      
-      return {
-        analysisId: result.analysisId,
-        status: result.status,
-        message: result.message || 'Processing started successfully'
-      };
     } catch (error) {
       console.error('Client-side processing failed:', error);
       setProgressUpdate(null);
