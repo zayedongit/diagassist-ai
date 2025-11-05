@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf';
 import { EnhancedAnalysisResult, LabValue } from '@/types/medicalAnalysis';
 import { compareWithPopulation } from '@/utils/populationData';
+import { getParameterContext } from './parameterContextDatabase';
 
 function parseNumericValue(value: string): number | null {
   const cleaned = value.replace(/[^0-9.]/g, '');
@@ -179,6 +180,50 @@ export async function generateConciseSummaryPdf(
     });
     
     yPos += 8;
+  }
+  
+  // PARAMETER-SPECIFIC INSIGHTS
+  if (topAbnormal.length > 0 && yPos < pageHeight - 50) {
+    const topThree = topAbnormal.slice(0, 3);
+    
+    topThree.forEach((lab) => {
+      if (yPos > pageHeight - 45) return;
+      
+      const context = getParameterContext(lab);
+      
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(41, 98, 255);
+      pdf.text(`${lab.name} (${lab.value} ${lab.unit})`, margin, yPos);
+      yPos += 6;
+      
+      pdf.setFontSize(8);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('Body Impact:', margin + 2, yPos);
+      yPos += 4;
+      
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(60, 60, 60);
+      const bodyLines = pdf.splitTextToSize(context.bodyConnection, pageWidth - 2 * margin - 4);
+      pdf.text(bodyLines.slice(0, 3), margin + 2, yPos);
+      yPos += Math.min(bodyLines.length, 3) * 4 + 2;
+      
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('Key Factors:', margin + 2, yPos);
+      yPos += 4;
+      
+      pdf.setFont('helvetica', 'normal');
+      const topCauses = context.possibleCauses.slice(0, 3);
+      topCauses.forEach(cause => {
+        const causeLines = pdf.splitTextToSize(`• ${cause}`, pageWidth - 2 * margin - 6);
+        pdf.text(causeLines, margin + 4, yPos);
+        yPos += causeLines.length * 4;
+      });
+      
+      yPos += 4;
+    });
   }
   
   // Trend Comparison (if previous analysis exists)
