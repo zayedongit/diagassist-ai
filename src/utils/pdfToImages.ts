@@ -13,9 +13,15 @@ export interface ConversionResult {
   finalSizeMB?: number;
 }
 
+export interface ProgressUpdate {
+  message: string;
+  percentage?: number;
+  estimatedSecondsRemaining?: number;
+}
+
 export async function convertPdfToImages(
   file: File, 
-  onProgress?: (message: string) => void
+  onProgress?: (update: ProgressUpdate) => void
 ): Promise<ConversionResult> {
   try {
     console.log('Starting PDF to image conversion...');
@@ -160,13 +166,18 @@ export async function convertPdfToImages(
     
     if (totalSizeMB > MAX_PAYLOAD_MB) {
       console.log(`⚠️ Payload too large (${totalSizeMB.toFixed(2)}MB), recompressing...`);
-      onProgress?.(`Compressing images (${totalSizeMB.toFixed(1)}MB → target: ${MAX_PAYLOAD_MB}MB)...`);
+      onProgress?.({
+        message: `Compressing images (${totalSizeMB.toFixed(1)}MB → ${MAX_PAYLOAD_MB}MB)...`,
+        percentage: 0
+      });
       
       // Calculate target quality to achieve desired size
       const targetQuality = Math.max(0.3, (MAX_PAYLOAD_MB / totalSizeMB) * quality * 0.9);
       console.log(`🔄 Recompressing with quality ${targetQuality.toFixed(2)}`);
       
+      const startTime = Date.now();
       finalImages = [];
+      
       for (let i = 0; i < images.length; i++) {
         // Create image from base64
         const img = new Image();
@@ -188,10 +199,22 @@ export async function convertPdfToImages(
         const compressed = canvas.toDataURL('image/jpeg', targetQuality);
         finalImages.push(compressed);
         
-        if ((i + 1) % 5 === 0 || i === images.length - 1) {
-          const currentSize = finalImages.reduce((sum, img) => sum + img.length, 0) / (1024 * 1024);
-          onProgress?.(`Compressing images... ${i + 1}/${images.length} (${currentSize.toFixed(1)}MB)`);
-        }
+        // Calculate progress and estimate time
+        const completed = i + 1;
+        const percentage = Math.round((completed / images.length) * 100);
+        const currentSize = finalImages.reduce((sum, img) => sum + img.length, 0) / (1024 * 1024);
+        
+        // Estimate time remaining
+        const elapsedMs = Date.now() - startTime;
+        const avgTimePerImage = elapsedMs / completed;
+        const remainingImages = images.length - completed;
+        const estimatedSecondsRemaining = Math.ceil((avgTimePerImage * remainingImages) / 1000);
+        
+        onProgress?.({
+          message: `Compressing ${completed}/${images.length} pages (${currentSize.toFixed(1)}MB)`,
+          percentage,
+          estimatedSecondsRemaining: estimatedSecondsRemaining > 0 ? estimatedSecondsRemaining : undefined
+        });
       }
       
       wasCompressed = true;

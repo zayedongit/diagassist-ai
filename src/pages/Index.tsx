@@ -25,6 +25,11 @@ import { EnhancedAnalysisResult, extractAbnormalPanels } from "@/types/medicalAn
 import { parseClinicalContext } from "@/utils/parseClinicalContext";
 import heroBackground from "@/assets/hero-background.jpg";
 import readyBackground from "@/assets/ready-background.jpg";
+import { fetchUserAnalysisHistory } from '@/utils/fetchUserAnalysisHistory';
+import { PhoneAuth } from '@/components/PhoneAuth';
+import { useAuth } from '@/hooks/useAuth';
+import { CompressionProgress } from '@/components/CompressionProgress';
+import type { ProgressUpdate } from '@/utils/pdfToImages';
 
 
 const Index = () => {
@@ -38,6 +43,7 @@ const Index = () => {
   const [error, setError] = useState<string | null>(null);
   const [extractedText, setExtractedText] = useState("");
   const [extractionStep, setExtractionStep] = useState("");
+  const [progressUpdate, setProgressUpdate] = useState<ProgressUpdate | null>(null);
   const [analysisId, setAnalysisId] = useState<string | null>(null);
   const [processingStatus, setProcessingStatus] = useState<string>('idle');
   const [showExtraction, setShowExtraction] = useState(false);
@@ -410,8 +416,9 @@ RAW DATA: ${baseContext}`;
       
       // Convert PDF to images on client side
       console.log('🖼️ Starting PDF to image conversion...');
-      const conversionResult = await convertPdfToImages(file, (message) => {
-        setExtractionStep(message);
+      const conversionResult = await convertPdfToImages(file, (update) => {
+        setProgressUpdate(update);
+        setExtractionStep(update.message);
       });
       
       if (!conversionResult.success) {
@@ -421,6 +428,9 @@ RAW DATA: ${baseContext}`;
       
       console.log(`✅ Client-side conversion successful: ${conversionResult.images?.length} images`);
       console.log('📊 Image sizes:', conversionResult.images?.map(img => Math.round(img.length / 1024) + 'KB'));
+      
+      // Clear progress after completion
+      setProgressUpdate(null);
       
       if (conversionResult.wasCompressed) {
         setExtractionStep(
@@ -507,6 +517,7 @@ RAW DATA: ${baseContext}`;
     setIsAnalyzing(true);
     setExtractedText("");
     setExtractionStep("");
+    setProgressUpdate(null);
     setShowResults(false);
     setAnalysisData(null);
     setClinicalAssessmentData(null);
@@ -544,6 +555,7 @@ RAW DATA: ${baseContext}`;
       setError(err instanceof Error ? err.message : 'Analysis failed. Please try again.');
       setIsAnalyzing(false);
       setExtractionStep("");
+      setProgressUpdate(null);
     }
   };
 
@@ -771,6 +783,7 @@ RAW DATA: ${baseContext}`;
     setError(null);
     setExtractedText("");
     setExtractionStep("");
+    setProgressUpdate(null);
     setAnalysisId(null);
     setProcessingStatus('idle');
     setIsAnalyzing(false);
@@ -1070,10 +1083,20 @@ RAW DATA: ${baseContext}`;
                 
                 {/* Animated Loader */}
                 <div className="bg-coolGray rounded-xl sm:rounded-2xl shadow-card p-6 sm:p-8 md:p-12">
-                  <AnimatedLoader 
-                    message={getProcessingMessage()}
-                    onCancel={processingStatus === 'processing' ? handleReset : undefined}
-                  />
+                  {progressUpdate ? (
+                    <div className="space-y-4">
+                      <CompressionProgress 
+                        message={progressUpdate.message}
+                        percentage={progressUpdate.percentage}
+                        estimatedSecondsRemaining={progressUpdate.estimatedSecondsRemaining}
+                      />
+                    </div>
+                  ) : (
+                    <AnimatedLoader 
+                      message={getProcessingMessage()}
+                      onCancel={processingStatus === 'processing' ? handleReset : undefined}
+                    />
+                  )}
                 </div>
               </div>
             </div>
