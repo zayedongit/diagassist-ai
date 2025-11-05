@@ -874,22 +874,6 @@ RAW DATA: ${baseContext}`;
                     </p>
                   </div>
                   
-                  {/* Trust Badges */}
-                  <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 pt-2 sm:pt-4 text-xs sm:text-sm text-white/70">
-                    <div className="flex items-center gap-2">
-                      <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                      <span className="font-inter">NABL Accredited</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                      <span className="font-inter">ISO Compliant</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                      <span className="font-inter">Encrypted Data</span>
-                    </div>
-                  </div>
-                  
                   {/* Primary CTAs with Premium Styling */}
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 pt-6 sm:pt-8">
                     <button
@@ -971,27 +955,27 @@ RAW DATA: ${baseContext}`;
 
                   {/* Step 3: Interpretation */}
                   <div className="text-center space-y-4 sm:space-y-6 glass-card p-8 sm:p-10 rounded-3xl transition-all hover:shadow-float hover:-translate-y-2 duration-400 w-full lg:flex-1">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
-                      <FileText className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-2xl flex items-center justify-center glow-ring" style={{ background: 'linear-gradient(135deg, #00C6FF 0%, #44FFE8 100%)' }}>
+                      <FileText className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                     </div>
-                    <h3 className="text-base sm:text-lg font-poppins font-semibold text-navy">Interpretation</h3>
-                    <p className="text-slate text-xs sm:text-sm">
-                      Get comprehensive clinical interpretation
+                    <h3 className="text-lg sm:text-xl font-poppins font-bold text-navy">Interpretation</h3>
+                    <p className="text-slate text-sm sm:text-base leading-relaxed">
+                      Get clear, personalized health insights
                     </p>
                   </div>
 
                   {/* Arrow 3 */}
                   <div className="hidden lg:block">
-                    <ArrowRight className="w-6 h-6 sm:w-8 sm:h-8 text-accentCyan" />
+                    <ArrowRight className="w-8 h-8 text-primary/40" />
                   </div>
 
-                  {/* Step 4: Chat for Any further query */}
-                  <div className="text-center space-y-2 sm:space-y-4 animate-fade-up hover-lift p-4 sm:p-6 rounded-xl sm:rounded-2xl transition-all w-full lg:w-auto" style={{ animationDelay: '0.3s' }}>
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
-                      <Brain className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                  {/* Step 4: Chat */}
+                  <div className="text-center space-y-4 sm:space-y-6 glass-card p-8 sm:p-10 rounded-3xl transition-all hover:shadow-float hover:-translate-y-2 duration-400 w-full lg:flex-1">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-2xl flex items-center justify-center glow-ring" style={{ background: 'linear-gradient(135deg, #00C6FF 0%, #44FFE8 100%)' }}>
+                      <Brain className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                     </div>
-                    <h3 className="text-base sm:text-lg font-poppins font-semibold text-navy">Chat</h3>
-                    <p className="text-slate text-xs sm:text-sm">
+                    <h3 className="text-lg sm:text-xl font-poppins font-bold text-navy">Chat</h3>
+                    <p className="text-slate text-sm sm:text-base leading-relaxed">
                       Ask questions about your results
                     </p>
                   </div>
