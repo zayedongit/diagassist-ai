@@ -14,9 +14,13 @@ export const UploadZone = ({ onFileSelect }: UploadZoneProps) => {
   const [showLoginForm, setShowLoginForm] = useState(false);
   const { isAuthenticated, user } = useAuth();
 
+  // BYPASS AUTH FOR TESTING - Set to true to re-enable auth before deployment
+  const BYPASS_AUTH = true;
+  const effectiveAuth = BYPASS_AUTH || isAuthenticated;
+
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-    if (isAuthenticated) {
+    if (effectiveAuth) {
       setIsDragOver(true);
     }
   };
@@ -29,7 +33,7 @@ export const UploadZone = ({ onFileSelect }: UploadZoneProps) => {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
-    if (!isAuthenticated) return;
+    if (!effectiveAuth) return;
     
     const files = e.dataTransfer.files;
     if (files.length > 0 && files[0].type === 'application/pdf') {
@@ -39,7 +43,7 @@ export const UploadZone = ({ onFileSelect }: UploadZoneProps) => {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!isAuthenticated) return;
+    if (!effectiveAuth) return;
     
     const files = e.target.files;
     if (files && files.length > 0) {
@@ -54,7 +58,7 @@ export const UploadZone = ({ onFileSelect }: UploadZoneProps) => {
 
   return (
     <div className="text-center space-y-6 p-4">
-      {!isAuthenticated && !showLoginForm ? (
+      {!effectiveAuth && !showLoginForm ? (
         <div className="space-y-4">
           <div className="flex flex-col items-center space-y-4">
             <User className="w-12 h-12 drop-shadow-lg" style={{color: 'hsl(220, 74%, 42%)'}} />
@@ -78,7 +82,7 @@ export const UploadZone = ({ onFileSelect }: UploadZoneProps) => {
             Login
           </Button>
         </div>
-      ) : !isAuthenticated && showLoginForm ? (
+      ) : !effectiveAuth && showLoginForm ? (
         <div className="space-y-4 bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
           <div className="text-center">
             <h3 className="text-xl font-semibold drop-shadow-lg mb-2" style={{color: 'hsl(220, 74%, 42%)'}}>
