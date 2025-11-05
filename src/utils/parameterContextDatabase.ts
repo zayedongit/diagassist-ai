@@ -225,6 +225,59 @@ export function getParameterContext(lab: LabValue): ParameterContext {
     }
   };
 
+  // Map common lab name variations to standard keys
+  const aliasMap: Record<string, string> = {
+    'hba1c': 'hba1c',
+    'hemoglobin a1c': 'hba1c',
+    'glycosylated hemoglobin': 'hba1c',
+    'glycated hemoglobin': 'hba1c',
+    'a1c': 'hba1c',
+    'glucose': 'glucose',
+    'blood sugar': 'glucose',
+    'blood glucose': 'glucose',
+    'hemoglobin': 'hemoglobin',
+    'hgb': 'hemoglobin',
+    'hb': 'hemoglobin',
+    'ferritin': 'ferritin',
+    'iron': 'iron',
+    'serum iron': 'iron',
+    'tibc': 'tibc',
+    'total iron binding capacity': 'tibc',
+    'cholesterol': 'cholesterol',
+    'total cholesterol': 'cholesterol',
+    'ldl': 'ldl',
+    'ldl cholesterol': 'ldl',
+    'ldl-c': 'ldl',
+    'low density lipoprotein': 'ldl',
+    'hdl': 'hdl',
+    'hdl cholesterol': 'hdl',
+    'hdl-c': 'hdl',
+    'high density lipoprotein': 'hdl',
+    'triglycerides': 'triglycerides',
+    'tg': 'triglycerides',
+    'trigs': 'triglycerides',
+    'alt': 'alt',
+    'sgpt': 'alt',
+    'alanine aminotransferase': 'alt',
+    'ast': 'ast',
+    'sgot': 'ast',
+    'aspartate aminotransferase': 'ast',
+    'creatinine': 'creatinine',
+    'serum creatinine': 'creatinine',
+    'tsh': 'tsh',
+    'thyroid stimulating hormone': 'tsh',
+    'sodium': 'sodium',
+    'na': 'sodium',
+    'serum sodium': 'sodium'
+  };
+
+  // Try to match using aliases first
+  for (const [alias, contextKey] of Object.entries(aliasMap)) {
+    if (labName.includes(alias) && contexts[contextKey]) {
+      return contexts[contextKey];
+    }
+  }
+
   // Find matching context with priority for more specific matches
   const sortedKeys = Object.keys(contexts).sort((a, b) => b.length - a.length);
   for (const key of sortedKeys) {
