@@ -22,6 +22,7 @@ import { ClinicalAssessmentHighlights } from "@/components/ClinicalAssessmentHig
 import { UnderstandingYourNumbers } from "@/components/UnderstandingYourNumbers";
 import { HealthRiskDashboardWithTimeline } from "@/components/HealthRiskDashboard";
 import { EnhancedAnalysisResult, extractAbnormalPanels } from "@/types/medicalAnalysis";
+import { parseClinicalContext } from "@/utils/parseClinicalContext";
 import heroBackground from "@/assets/hero-background.jpg";
 import readyBackground from "@/assets/ready-background.jpg";
 
@@ -42,6 +43,7 @@ const Index = () => {
   const [showExtraction, setShowExtraction] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string>('');
   const [clinicalAssessmentData, setClinicalAssessmentData] = useState<any>(null);
+  const [showPostChatSections, setShowPostChatSections] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDriveSync, setIsDriveSync] = useState(false);
 
@@ -212,6 +214,8 @@ RAW DATA: ${baseContext}`;
   // Handle clinical assessment completion
   const handleClinicalAssessmentComplete = (reportData: any) => {
     setClinicalAssessmentData(reportData);
+    setShowPostChatSections(true); // Enable detailed analysis sections
+    toast.success('Clinical assessment complete! Loading personalized analysis...');
   };
 
   // Helper function to detect non-medical reports
@@ -1143,21 +1147,7 @@ RAW DATA: ${baseContext}`;
                     </div>
                   </section>
 
-                  {/* Health Risk Calculator with Prediction Timeline */}
-                  {!isNonMedicalReport(analysisData) && enhancedData && (
-                    <section className="py-6 sm:py-8 bg-white">
-                      <div className="container mx-auto px-4 sm:px-6">
-                        <div className="max-w-6xl mx-auto">
-                          <HealthRiskDashboardWithTimeline 
-                            analysisData={enhancedData}
-                            demographics={analysisData?.demographics}
-                          />
-                        </div>
-                      </div>
-                    </section>
-                  )}
-
-                  {/* Clinical Chat */}
+                  {/* Clinical Chat - Moved before detailed analysis */}
                   {!isNonMedicalReport(analysisData) && (
                     <section id="chat-section" className="py-8 sm:py-12 md:py-16 bg-white">
                       <div className="container mx-auto px-4 sm:px-6">
@@ -1186,8 +1176,41 @@ RAW DATA: ${baseContext}`;
                     </section>
                   )}
 
+                  {/* Health Risk Calculator with Prediction Timeline - After Clinical Chat */}
+                  {!isNonMedicalReport(analysisData) && enhancedData && showPostChatSections && (
+                    <section className="py-6 sm:py-8 bg-white">
+                      <div className="container mx-auto px-4 sm:px-6">
+                        <div className="max-w-6xl mx-auto">
+                          <HealthRiskDashboardWithTimeline 
+                            analysisData={enhancedData}
+                            demographics={analysisData?.demographics}
+                            clinicalContext={parseClinicalContext(clinicalAssessmentData)}
+                          />
+                        </div>
+                      </div>
+                    </section>
+                  )}
+
+                  {/* Placeholder when clinical chat not complete */}
+                  {!isNonMedicalReport(analysisData) && enhancedData && !showPostChatSections && (
+                    <section className="py-6 sm:py-8 bg-coolGray">
+                      <div className="container mx-auto px-4 sm:px-6">
+                        <div className="max-w-4xl mx-auto">
+                          <Alert className="bg-blue-50 border-blue-200">
+                            <AlertCircle className="h-5 w-5 text-blue-600" />
+                            <AlertTitle className="text-blue-900 font-semibold">Complete Clinical Assessment Above</AlertTitle>
+                            <AlertDescription className="text-blue-800">
+                              Complete the clinical chat assessment above to unlock personalized health risk predictions, 
+                              10-year risk projections, and tailored recommendations based on both your lab values and clinical context.
+                            </AlertDescription>
+                          </Alert>
+                        </div>
+                      </div>
+                    </section>
+                  )}
+
                   {/* Final Interpretation */}
-                  {!isNonMedicalReport(analysisData) && (
+                  {!isNonMedicalReport(analysisData) && showPostChatSections && (
                     <section id="interpretation-section" className="py-8 sm:py-12 md:py-16 bg-coolGray">
                       <div className="container mx-auto px-4 sm:px-6">
                         <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8">

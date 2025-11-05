@@ -1,4 +1,5 @@
 import { EnhancedAnalysisResult, Demographics } from '@/types/medicalAnalysis';
+import { ClinicalContext } from './parseClinicalContext';
 
 export interface RiskScore {
   score: number; // 0-100
@@ -45,7 +46,8 @@ function getLabValue(analysisData: EnhancedAnalysisResult, labNames: string[]): 
 // Calculate Cardiovascular Risk Score
 function calculateCardiovascularRisk(
   analysisData: EnhancedAnalysisResult,
-  demographics?: Demographics
+  demographics?: Demographics,
+  clinicalContext?: ClinicalContext
 ): RiskScore {
   const factors: string[] = [];
   let riskPoints = 0;
@@ -154,6 +156,38 @@ function calculateCardiovascularRisk(
     factors.push('Elevated liver enzymes (may indicate inflammation)');
   }
   
+  // Clinical context factors
+  if (clinicalContext) {
+    // Family history
+    if (clinicalContext.familyHistory && clinicalContext.familyHistory.length > 0) {
+      const hasCardiacHistory = clinicalContext.familyHistory.some(h => 
+        h.toLowerCase().includes('heart') || h.toLowerCase().includes('cardiac') || h.toLowerCase().includes('stroke')
+      );
+      if (hasCardiacHistory) {
+        riskPoints += 15;
+        factors.push('Family history of heart disease reported');
+      }
+    }
+    
+    // Smoking
+    if (clinicalContext.lifestyle?.smoking) {
+      riskPoints += 20;
+      factors.push('Current smoker (major modifiable risk factor)');
+    }
+    
+    // Sedentary lifestyle
+    if (clinicalContext.lifestyle?.exercise === 'sedentary' || clinicalContext.lifestyle?.exercise === 'minimal') {
+      riskPoints += 10;
+      factors.push('Sedentary lifestyle reported');
+    }
+    
+    // Alcohol consumption
+    if (clinicalContext.lifestyle?.alcohol === 'heavy' || clinicalContext.lifestyle?.alcohol === 'excessive') {
+      riskPoints += 8;
+      factors.push('Heavy alcohol consumption');
+    }
+  }
+  
   // Determine risk level
   let level: 'low' | 'moderate' | 'high' | 'very-high';
   let description: string;
@@ -183,7 +217,8 @@ function calculateCardiovascularRisk(
 // Calculate Diabetes Risk Score
 function calculateDiabetesRisk(
   analysisData: EnhancedAnalysisResult,
-  demographics?: Demographics
+  demographics?: Demographics,
+  clinicalContext?: ClinicalContext
 ): RiskScore {
   const factors: string[] = [];
   let riskPoints = 0;
@@ -250,6 +285,37 @@ function calculateDiabetesRisk(
   if (alt !== null && alt > 40) {
     riskPoints += 8;
     factors.push(`Elevated liver enzymes (potential fatty liver)`);
+  }
+  
+  // Clinical context factors
+  if (clinicalContext) {
+    // Family history of diabetes
+    if (clinicalContext.familyHistory && clinicalContext.familyHistory.length > 0) {
+      const hasDiabetesHistory = clinicalContext.familyHistory.some(h => 
+        h.toLowerCase().includes('diabetes') || h.toLowerCase().includes('sugar')
+      );
+      if (hasDiabetesHistory) {
+        riskPoints += 15;
+        factors.push('Family history of diabetes reported');
+      }
+    }
+    
+    // Lifestyle factors
+    if (clinicalContext.lifestyle?.exercise === 'sedentary' || clinicalContext.lifestyle?.exercise === 'minimal') {
+      riskPoints += 10;
+      factors.push('Sedentary lifestyle (major diabetes risk factor)');
+    }
+    
+    // Check for PCOS or hormonal conditions
+    if (clinicalContext.conditions && clinicalContext.conditions.length > 0) {
+      const hasHormonalIssue = clinicalContext.conditions.some(c => 
+        c.name.toLowerCase().includes('pcos') || c.name.toLowerCase().includes('hormonal')
+      );
+      if (hasHormonalIssue) {
+        riskPoints += 10;
+        factors.push('Hormonal condition increasing insulin resistance');
+      }
+    }
   }
   
   // Determine risk level
@@ -365,10 +431,11 @@ function assessMetabolicSyndrome(
 // Main calculation function
 export function calculateHealthRisks(
   analysisData: EnhancedAnalysisResult,
-  demographics?: Demographics
+  demographics?: Demographics,
+  clinicalContext?: ClinicalContext
 ): HealthRiskCalculation {
-  const cardiovascularRisk = calculateCardiovascularRisk(analysisData, demographics);
-  const diabetesRisk = calculateDiabetesRisk(analysisData, demographics);
+  const cardiovascularRisk = calculateCardiovascularRisk(analysisData, demographics, clinicalContext);
+  const diabetesRisk = calculateDiabetesRisk(analysisData, demographics, clinicalContext);
   const metabolicSyndrome = assessMetabolicSyndrome(analysisData, demographics);
   
   // Determine overall risk level (take the highest)

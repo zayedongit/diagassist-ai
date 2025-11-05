@@ -1,4 +1,5 @@
 import { RiskScore } from './healthRiskCalculator';
+import { ClinicalContext } from './parseClinicalContext';
 
 export interface RiskProjection {
   year: number;
@@ -128,15 +129,21 @@ function projectDiabetesRisk(diabetesRisk: RiskScore): RiskProjection[] {
 }
 
 /**
- * Generate specific recommendations based on risk factors
+ * Generate specific recommendations based on risk factors and clinical context
  */
 function generateRecommendations(
   cvRisk: RiskScore,
-  diabetesRisk: RiskScore
+  diabetesRisk: RiskScore,
+  clinicalContext?: ClinicalContext
 ): TimelineProjections['recommendations'] {
   const lifestyle: string[] = [];
   const dietary: string[] = [];
   const medical: string[] = [];
+  
+  // Prioritize smoking cessation if smoker
+  if (clinicalContext?.lifestyle?.smoking) {
+    lifestyle.push('🚭 Smoking cessation - HIGHEST PRIORITY (reduces CV risk by 50% within 1 year)');
+  }
   
   // Cardiovascular recommendations
   if (cvRisk.level === 'high' || cvRisk.level === 'very-high') {
@@ -182,9 +189,22 @@ function generateRecommendations(
     medical.push('Maintain up-to-date vaccinations');
   }
   
-  // Add smoking cessation if high risk
-  if (cvRisk.level === 'high' || cvRisk.level === 'very-high') {
-    lifestyle.push('If smoker: Quit smoking (reduces CV risk by 50% within 1 year)');
+  // Add exercise recommendations based on current level
+  if (clinicalContext?.lifestyle?.exercise === 'sedentary') {
+    lifestyle.unshift('Start with 10-15 min daily walks, build up gradually to 150 min/week');
+  }
+  
+  // Family history specific recommendations
+  if (clinicalContext?.familyHistory && clinicalContext.familyHistory.length > 0) {
+    const hasDiabetesHistory = clinicalContext.familyHistory.some(h => h.toLowerCase().includes('diabetes'));
+    const hasCardiacHistory = clinicalContext.familyHistory.some(h => h.toLowerCase().includes('heart') || h.toLowerCase().includes('cardiac'));
+    
+    if (hasDiabetesHistory) {
+      medical.push('Regular screening critical due to family history of diabetes');
+    }
+    if (hasCardiacHistory) {
+      medical.push('Cardiac screening recommended due to family history');
+    }
   }
   
   return { lifestyle, dietary, medical };
@@ -251,11 +271,12 @@ function generatePotentialBenefits(
  */
 export function generateRiskTimeline(
   cardiovascularRisk: RiskScore,
-  diabetesRisk: RiskScore
+  diabetesRisk: RiskScore,
+  clinicalContext?: ClinicalContext
 ): TimelineProjections {
   const cvProjections = projectCardiovascularRisk(cardiovascularRisk);
   const diabetesProjections = projectDiabetesRisk(diabetesRisk);
-  const recommendations = generateRecommendations(cardiovascularRisk, diabetesRisk);
+  const recommendations = generateRecommendations(cardiovascularRisk, diabetesRisk, clinicalContext);
   const potentialBenefits = generatePotentialBenefits(
     cardiovascularRisk,
     diabetesRisk,

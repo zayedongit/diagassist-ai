@@ -6,14 +6,16 @@ import { TrendingDown, TrendingUp, Calendar, Heart, Activity, CheckCircle2, Aler
 import { RiskScore } from "@/utils/healthRiskCalculator";
 import { generateRiskTimeline, TimelineProjections } from "@/utils/riskProjection";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ClinicalContext } from "@/utils/parseClinicalContext";
 
 interface RiskPredictionTimelineProps {
   cardiovascularRisk: RiskScore;
   diabetesRisk: RiskScore;
+  clinicalContext?: ClinicalContext;
 }
 
-export const RiskPredictionTimeline = ({ cardiovascularRisk, diabetesRisk }: RiskPredictionTimelineProps) => {
-  const timeline: TimelineProjections = generateRiskTimeline(cardiovascularRisk, diabetesRisk);
+export const RiskPredictionTimeline = ({ cardiovascularRisk, diabetesRisk, clinicalContext }: RiskPredictionTimelineProps) => {
+  const timeline: TimelineProjections = generateRiskTimeline(cardiovascularRisk, diabetesRisk, clinicalContext);
   
   // Custom tooltip for charts
   const CustomTooltip = ({ active, payload, label }: any) => {

@@ -6,14 +6,16 @@ import { Heart, Activity, AlertCircle, CheckCircle2, TrendingUp, Shield } from "
 import { EnhancedAnalysisResult, Demographics } from "@/types/medicalAnalysis";
 import { calculateHealthRisks, HealthRiskCalculation } from "@/utils/healthRiskCalculator";
 import { RiskPredictionTimeline } from "@/components/RiskPredictionTimeline";
+import { ClinicalContext } from "@/utils/parseClinicalContext";
 
 interface HealthRiskDashboardProps {
   analysisData: EnhancedAnalysisResult;
   demographics?: Demographics;
+  clinicalContext?: ClinicalContext;
 }
 
-export const HealthRiskDashboard = ({ analysisData, demographics }: HealthRiskDashboardProps) => {
-  const riskCalculation: HealthRiskCalculation = calculateHealthRisks(analysisData, demographics);
+export const HealthRiskDashboard = ({ analysisData, demographics, clinicalContext }: HealthRiskDashboardProps) => {
+  const riskCalculation: HealthRiskCalculation = calculateHealthRisks(analysisData, demographics, clinicalContext);
   
   const getRiskColor = (level: string) => {
     switch (level) {
@@ -246,15 +248,28 @@ export const HealthRiskDashboard = ({ analysisData, demographics }: HealthRiskDa
 };
 
 // Export with Timeline wrapper component for easy integration
-export const HealthRiskDashboardWithTimeline = ({ analysisData, demographics }: { analysisData: EnhancedAnalysisResult; demographics?: Demographics }) => {
-  const riskCalculation = calculateHealthRisks(analysisData, demographics);
+export const HealthRiskDashboardWithTimeline = ({ 
+  analysisData, 
+  demographics, 
+  clinicalContext 
+}: { 
+  analysisData: EnhancedAnalysisResult; 
+  demographics?: Demographics;
+  clinicalContext?: ClinicalContext;
+}) => {
+  const riskCalculation = calculateHealthRisks(analysisData, demographics, clinicalContext);
   
   return (
     <div className="space-y-6">
-      <HealthRiskDashboard analysisData={analysisData} demographics={demographics} />
+      <HealthRiskDashboard 
+        analysisData={analysisData} 
+        demographics={demographics}
+        clinicalContext={clinicalContext}
+      />
       <RiskPredictionTimeline 
         cardiovascularRisk={riskCalculation.cardiovascularRisk}
         diabetesRisk={riskCalculation.diabetesRisk}
+        clinicalContext={clinicalContext}
       />
     </div>
   );
