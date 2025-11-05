@@ -180,6 +180,13 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
               : `Enter the 6-digit code sent to ${formatPhoneNumber(phoneNumber)}`
             }
           </p>
+          {step === 'phone' && (
+            <div className="mt-3 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+              <p className="text-xs text-primary font-medium">
+                🧪 Test Credentials: Phone: <span className="font-mono">9999999999</span> | OTP: <span className="font-mono">123456</span>
+              </p>
+            </div>
+          )}
         </div>
       </div>
 

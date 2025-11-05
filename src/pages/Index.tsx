@@ -564,7 +564,7 @@ RAW DATA: ${baseContext}`;
       pdf.setTextColor(255, 255, 255);
       pdf.setFontSize(20);
       pdf.setFont(undefined, 'bold');
-      pdf.text('Medical Analytics - Analysis Report', pageWidth / 2, 15, { align: 'center' });
+      pdf.text('MomentumhealthAi - Analysis Report', pageWidth / 2, 15, { align: 'center' });
       
       yPosition = 35;
 
@@ -829,7 +829,7 @@ RAW DATA: ${baseContext}`;
               </div>
               <div>
                 <h1 className="text-base sm:text-xl font-poppins font-semibold text-white">
-                  Medical Analytics
+                  MomentumhealthAi
                 </h1>
                 <p className="text-[10px] sm:text-xs text-coolGray">AI-Powered Lab Analysis</p>
               </div>
