@@ -877,7 +877,10 @@ RAW DATA: ${baseContext}`;
                   {/* Primary CTAs with Premium Styling */}
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 pt-6 sm:pt-8">
                     <button
-                      onClick={() => fileInputRef.current?.click()}
+                      onClick={() => {
+                        const uploadSection = document.getElementById('upload-section');
+                        uploadSection?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }}
                       className="group px-10 py-5 rounded-full font-poppins font-semibold text-base sm:text-lg text-white transition-all duration-400 hover:scale-105 active:scale-95 w-full sm:w-auto shadow-elegant hover:shadow-glow"
                       style={{ background: 'linear-gradient(135deg, #00C6FF 0%, #44FFE8 50%, #7CFFCB 100%)' }}
                     >
@@ -889,8 +892,8 @@ RAW DATA: ${baseContext}`;
                     
                     <button
                       onClick={() => {
-                        const uploadSection = document.getElementById('upload-section');
-                        uploadSection?.scrollIntoView({ behavior: 'smooth' });
+                        const howItWorks = document.getElementById('how-it-works');
+                        howItWorks?.scrollIntoView({ behavior: 'smooth' });
                       }}
                       className="px-10 py-5 rounded-full font-poppins font-semibold text-base sm:text-lg glass-dark text-white border border-primary/30 transition-all duration-400 hover:shadow-glow hover:border-primary/60 hover:scale-105 active:scale-95 w-full sm:w-auto backdrop-blur-md"
                     >
@@ -909,7 +912,7 @@ RAW DATA: ${baseContext}`;
             </section>
 
             {/* Process Flow Section - Premium Spacing */}
-            <section id="upload-section" className="py-20 sm:py-28 md:py-32 bg-white relative z-10">
+            <section id="how-it-works" className="py-20 sm:py-28 md:py-32 bg-white relative z-10">
               <div className="container mx-auto px-4 sm:px-6">
                 <div className="text-center mb-12 sm:mb-16 md:mb-20 space-y-4">
                   <h2 className="text-3xl sm:text-4xl md:text-5xl font-poppins font-bold text-navy">
