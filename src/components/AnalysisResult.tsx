@@ -13,6 +13,12 @@ import { ManagementRecommendations } from "./ManagementRecommendations";
 import { LabRangeBar } from "./LabRangeBar";
 import { getPopulationData } from "@/utils/populationData";
 import { MedicalAiAssistant } from "./MedicalAiAssistant";
+import { LabTrendComparison } from "./LabTrendComparison";
+import { fetchUserAnalysisHistory } from "@/utils/fetchUserAnalysisHistory";
+import { generateConciseSummaryPdf } from "@/utils/generateConciseSummaryPdf";
+import { useAuth } from "@/hooks/useAuth";
+import { useState, useEffect } from "react";
+import { toast } from "@/hooks/use-toast";
 
 // Utility function to format text with proper line breaks and bullets
 const formatAnalysisText = (text: string) => {
@@ -50,10 +56,53 @@ export const AnalysisResult = ({
   analysisData, 
   onDownload
 }: AnalysisResultProps) => {
+  const { user } = useAuth();
+  const [previousAnalysis, setPreviousAnalysis] = useState<EnhancedAnalysisResult | null>(null);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+
   // Normalize data for backward compatibility
   const normalizedData = normalizeAnalysisData(analysisData);
   const isEnhancedData = 'medicalPanels' in analysisData;
   const enhancedData = isEnhancedData ? analysisData as EnhancedAnalysisResult : null;
+
+  // Fetch previous analysis for trend comparison
+  useEffect(() => {
+    if (user?.id) {
+      setIsLoadingHistory(true);
+      fetchUserAnalysisHistory(user.id, 5)
+        .then(history => {
+          if (history.length > 1) {
+            setPreviousAnalysis(history[1].result);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching history:', error);
+        })
+        .finally(() => {
+          setIsLoadingHistory(false);
+        });
+    }
+  }, [user?.id]);
+
+  // Handler for concise summary download
+  const handleDownloadConciseSummary = async () => {
+    try {
+      if (enhancedData) {
+        await generateConciseSummaryPdf(enhancedData, previousAnalysis || undefined);
+        toast({
+          title: "Success",
+          description: "Concise summary downloaded successfully",
+        });
+      }
+    } catch (error) {
+      console.error('Error generating concise summary:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate concise summary",
+        variant: "destructive"
+      });
+    }
+  };
 
   // Helper function to expand generic food categories to specific food names
   const expandFoodCategories = (items: string[]) => {
@@ -208,6 +257,14 @@ export const AnalysisResult = ({
 
             {/* AI Medical Assistant - Prominently placed after summary */}
             <MedicalAiAssistant />
+
+            {/* Lab Trend Comparison - Show if previous analysis exists */}
+            {!isLoadingHistory && previousAnalysis && enhancedData && (
+              <LabTrendComparison 
+                currentAnalysis={enhancedData}
+                previousAnalysis={previousAnalysis}
+              />
+            )}
 
             {/* Next Steps - Moved here after patient details */}
             <NextStepsSection 
@@ -1132,21 +1189,26 @@ export const AnalysisResult = ({
         </div>
       )}
 
-      {/* Download Button */}
-      <div className="flex justify-center pt-4">
+      {/* Download Buttons */}
+      <div className="flex flex-col sm:flex-row justify-center gap-3 pt-4">
         <Button
-          variant="default" 
+          onClick={handleDownloadConciseSummary}
+          size="lg" 
+          className="w-full sm:w-auto sm:min-w-48 h-12 sm:h-10 text-sm sm:text-base"
+        >
+          <Download className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+          Quick Summary (1 page)
+        </Button>
+        <Button
+          variant="outline" 
           size="lg" 
           onClick={onDownload}
           className="w-full sm:w-auto sm:min-w-48 h-12 sm:h-10 text-sm sm:text-base"
         >
-          <Download className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-          Download Report
+          <FileText className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+          Full Report
         </Button>
       </div>
-
-      {/* AI Medical Assistant */}
-      <MedicalAiAssistant />
       
     </div>
   );
