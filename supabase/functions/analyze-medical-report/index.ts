@@ -366,67 +366,74 @@ IMPORTANT: Many medical reports have test values on multiple pages. Extract from
 
 Return the complete extracted text maintaining the original structure and organization.`;
       
-      const visionResponse = await retryWithBackoff(async () => {
-        console.log('🔑 API Key configured:', !!OPENAI_API_KEY);
-        console.log('📡 Calling OpenAI Vision API with GPT-4o...');
-        
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${OPENAI_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: 'gpt-4o',
-            messages: [
-              {
-                role: 'user',
-                content: [
-                  { type: 'text', text: visionPrompt },
-                  ...images.map((img: string) => ({
-                    type: 'image_url',
-                    image_url: { url: img }
-                  }))
-                ]
-              }
-            ],
-            max_tokens: 16000,
-            temperature: 0.1,
-          }),
-        });
+      // Process images in small batches to avoid token/size limits
+      const BATCH_SIZE = 4;
+      const segments: string[] = [];
 
-        console.log('📡 Vision API response status:', response.status);
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Vision API error response:', errorText);
-          let errorData = errorText;
-          try {
-            errorData = JSON.parse(errorText);
-          } catch {
-            // Keep as text if not JSON
-          }
+      for (let start = 0; start < images.length; start += BATCH_SIZE) {
+        const end = Math.min(start + BATCH_SIZE, images.length);
+        const batch = images.slice(start, end);
+        console.log(`📦 Vision batch ${start + 1}-${end} of ${images.length}`);
+
+        const visionResponse = await retryWithBackoff(async () => {
+          console.log('🔑 API Key configured:', !!OPENAI_API_KEY);
+          console.log('📡 Calling OpenAI Vision API with GPT-4o for batch...');
           
-          // Better error messages
-          if (response.status === 401) {
-            throw new Error('Authentication failed: OpenAI API key is invalid. Please check your API key.');
-          }
-          if (response.status === 402) {
-            throw new Error('Payment required: Please add credits to your OpenAI account.');
-          }
-          if (response.status === 429) {
-            throw new Error('Rate limit exceeded: Please try again in a few moments.');
-          }
+          const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${OPENAI_API_KEY}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'gpt-4o',
+              messages: [
+                {
+                  role: 'user',
+                  content: [
+                    { type: 'text', text: `${visionPrompt}\n\nProcess ONLY pages ${start + 1}-${end}. Return plain text, preserve structure.` },
+                    ...batch.map((img: string) => ({
+                      type: 'image_url',
+                      image_url: { url: img }
+                    }))
+                  ]
+                }
+              ],
+              max_tokens: 4000,
+              temperature: 0.1,
+            }),
+          });
+  
+          console.log('📡 Vision API response status:', response.status);
           
-          const errorMessage = typeof errorData === 'object' ? JSON.stringify(errorData) : errorData;
-          throw new Error(`Vision API call failed: ${response.status} - ${errorMessage}`);
-        }
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Vision API error response:', errorText);
+            let errorData = errorText;
+            try { errorData = JSON.parse(errorText); } catch {}
+            if (response.status === 401) {
+              throw new Error('Authentication failed: OpenAI API key is invalid. Please check your API key.');
+            }
+            if (response.status === 402) {
+              throw new Error('Payment required: Please add credits to your OpenAI account.');
+            }
+            if (response.status === 429) {
+              throw new Error('Rate limit exceeded: Please try again in a few moments.');
+            }
+            const errorMessage = typeof errorData === 'object' ? JSON.stringify(errorData) : errorData;
+            throw new Error(`Vision API call failed: ${response.status} - ${errorMessage}`);
+          }
+  
+          return response;
+        }, 4, 2000, 'Vision Text Extraction');
+  
+        const visionData = await visionResponse.json();
+        const segment = visionData.choices?.[0]?.message?.content?.trim?.() ?? '';
+        console.log(`✅ Batch extracted length: ${segment.length}`);
+        segments.push(segment);
+      }
 
-        return response;
-      }, 4, 2000, 'Vision Text Extraction');
-
-      const visionData = await visionResponse.json();
-      text = visionData.choices[0].message.content.trim();
+      text = segments.join('\n\n---\n\n');
       console.log('✅ Text extracted from images');
       console.log('📝 Extracted text length:', text.length);
       console.log('📝 Text preview:', text.substring(0, 500));
@@ -803,7 +810,7 @@ CRITICAL SUCCESS CRITERIA:
 
 Respond ONLY with valid JSON matching the structure above - no markdown, no explanations:`;
 
-      const pass1Response = await retryWithBackoff(async () => {
+      const pass1Response: Response = await retryWithBackoff(async (): Promise<Response> => {
         console.log('📡 Calling OpenAI API with GPT-4o-mini...');
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
@@ -825,28 +832,27 @@ Respond ONLY with valid JSON matching the structure above - no markdown, no expl
           }),
         });
 
-      console.log('📡 Pass 1 API response status:', response.status);
+      console.log('📡 Pass 1 API response status:', pass1Response.status);
 
-      if (!response.ok) {
-        const errorData = await response.text();
-        console.error('❌ OpenAI API error:', response.status, errorData);
+      if (!pass1Response.ok) {
+        const errorData = await pass1Response.text();
+        console.error('❌ OpenAI API error:', pass1Response.status, errorData);
         
-        // Better error messages
-        if (response.status === 401) {
+        if (pass1Response.status === 401) {
           throw new Error('Authentication failed: OpenAI API key is invalid. Please check your API key.');
         }
-        if (response.status === 402) {
+        if (pass1Response.status === 402) {
           throw new Error('Payment required: Please add credits to your OpenAI account.');
         }
-        if (response.status === 429) {
+        if (pass1Response.status === 429) {
           throw new Error('Rate limit exceeded: Please try again in a few moments.');
         }
         
         const errorMessage = typeof errorData === 'string' ? errorData : JSON.stringify(errorData);
-        throw new Error(`AI API call failed: ${response.status} - ${errorMessage}`);
+        throw new Error(`AI API call failed: ${pass1Response.status} - ${errorMessage}`);
       }
 
-      return response;
+      return pass1Response;
     }, 4, 2000, 'Pass 1 Analysis');
 
     const pass1Data = await pass1Response.json();
