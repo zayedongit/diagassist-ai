@@ -30,6 +30,7 @@ import { PhoneAuth } from '@/components/PhoneAuth';
 import { useAuth } from '@/hooks/useAuth';
 import { CompressionProgress } from '@/components/CompressionProgress';
 import type { ProgressUpdate } from '@/utils/pdfToImages';
+import { StageProgress, Stage } from '@/components/StageProgress';
 
 
 const Index = () => {
@@ -48,6 +49,8 @@ const Index = () => {
   const [processingStatus, setProcessingStatus] = useState<string>('idle');
   const [showExtraction, setShowExtraction] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string>('');
+  const [currentStage, setCurrentStage] = useState<Stage>('conversion');
+  const [wasCompressed, setWasCompressed] = useState(false);
   const [clinicalAssessmentData, setClinicalAssessmentData] = useState<any>(null);
   const [showPostChatSections, setShowPostChatSections] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -76,6 +79,7 @@ const Index = () => {
       if (data.result) {
         setAnalysisData(data.result);
         setAnalysisId(data.analysisId);
+        setCurrentStage('results');
         setShowResults(true);
       }
       
@@ -348,6 +352,7 @@ RAW DATA: ${baseContext}`;
           };
           
           setAnalysisData(normalizedData);
+          setCurrentStage('results');
           setShowResults(true);
           setIsAnalyzing(false);
           setExtractedText(`Analysis completed successfully!`);
@@ -409,6 +414,9 @@ RAW DATA: ${baseContext}`;
     try {
       console.log('🔄 Starting PDF analysis process...');
       console.log('📄 File details:', { name: file.name, size: file.size, type: file.type });
+      
+      // Stage 1: PDF Conversion
+      setCurrentStage('conversion');
       setExtractionStep("Converting PDF to images...");
       
       // Import PDF conversion utility
@@ -417,6 +425,10 @@ RAW DATA: ${baseContext}`;
       // Convert PDF to images on client side
       console.log('🖼️ Starting PDF to image conversion...');
       const conversionResult = await convertPdfToImages(file, (update) => {
+        // If compression is happening, move to optimization stage
+        if (update.message.toLowerCase().includes('compress') || update.message.toLowerCase().includes('optim')) {
+          setCurrentStage('optimization');
+        }
         setProgressUpdate(update);
         setExtractionStep(update.message);
       });
@@ -429,7 +441,11 @@ RAW DATA: ${baseContext}`;
       console.log(`✅ Client-side conversion successful: ${conversionResult.images?.length} images`);
       console.log('📊 Image sizes:', conversionResult.images?.map(img => Math.round(img.length / 1024) + 'KB'));
       
-      // Show analysis progress without percentage (indeterminate)
+      // Track if compression occurred
+      setWasCompressed(conversionResult.wasCompressed || false);
+      
+      // Stage 3: AI Analysis
+      setCurrentStage('analysis');
       setProgressUpdate({
         message: `Analyzing your ${conversionResult.images?.length}-page medical report...`,
         percentage: undefined,
@@ -531,6 +547,8 @@ RAW DATA: ${baseContext}`;
     setAnalysisData(null);
     setClinicalAssessmentData(null);
     setProcessingStatus('starting');
+    setCurrentStage('conversion');
+    setWasCompressed(false);
 
     try {
       // Process PDF on client side only
@@ -555,6 +573,7 @@ RAW DATA: ${baseContext}`;
         // Fallback for old response format (shouldn't happen with new implementation)
         setExtractedText(`Analysis completed successfully for ${file.name}`);
         setAnalysisData(response);
+        setCurrentStage('results');
         setShowResults(true);
         setIsAnalyzing(false);
       }
@@ -798,6 +817,8 @@ RAW DATA: ${baseContext}`;
     setIsAnalyzing(false);
     setShowExtraction(false);
     setCurrentUserId('');
+    setCurrentStage('conversion');
+    setWasCompressed(false);
     
     // Clear ALL localStorage keys
     localStorage.clear();
@@ -1089,6 +1110,12 @@ RAW DATA: ${baseContext}`;
                     <span className="font-inter font-medium text-xs sm:text-sm">Insights</span>
                   </div>
                 </div>
+                
+                {/* Stage Progress Indicator */}
+                <StageProgress 
+                  currentStage={currentStage}
+                  wasCompressed={wasCompressed}
+                />
                 
                 {/* Animated Loader */}
                 <div className="bg-coolGray rounded-xl sm:rounded-2xl shadow-card p-6 sm:p-8 md:p-12">
