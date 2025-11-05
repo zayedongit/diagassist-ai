@@ -434,7 +434,7 @@ RAW DATA: ${baseContext}`;
       console.log('👤 Using userId:', userId);
       formData.append('userId', userId);
       formData.append('images', JSON.stringify(conversionResult.images));
-      formData.append('file', file); // Changed from 'pdfFile' to 'file' to match edge function
+      // Removed sending original PDF to reduce payload size and avoid request failures
 
       console.log('🚀 Sending request to edge function...');
       
