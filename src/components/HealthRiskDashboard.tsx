@@ -5,6 +5,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Heart, Activity, AlertCircle, CheckCircle2, TrendingUp, Shield } from "lucide-react";
 import { EnhancedAnalysisResult, Demographics } from "@/types/medicalAnalysis";
 import { calculateHealthRisks, HealthRiskCalculation } from "@/utils/healthRiskCalculator";
+import { RiskPredictionTimeline } from "@/components/RiskPredictionTimeline";
 
 interface HealthRiskDashboardProps {
   analysisData: EnhancedAnalysisResult;
@@ -241,5 +242,20 @@ export const HealthRiskDashboard = ({ analysisData, demographics }: HealthRiskDa
         </Alert>
       </CardContent>
     </Card>
+  );
+};
+
+// Export with Timeline wrapper component for easy integration
+export const HealthRiskDashboardWithTimeline = ({ analysisData, demographics }: { analysisData: EnhancedAnalysisResult; demographics?: Demographics }) => {
+  const riskCalculation = calculateHealthRisks(analysisData, demographics);
+  
+  return (
+    <div className="space-y-6">
+      <HealthRiskDashboard analysisData={analysisData} demographics={demographics} />
+      <RiskPredictionTimeline 
+        cardiovascularRisk={riskCalculation.cardiovascularRisk}
+        diabetesRisk={riskCalculation.diabetesRisk}
+      />
+    </div>
   );
 };

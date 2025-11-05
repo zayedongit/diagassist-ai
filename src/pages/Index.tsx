@@ -20,7 +20,7 @@ import { ReportHeader } from "@/components/ReportHeader";
 import { SummaryCard } from "@/components/SummaryCard";
 import { ClinicalAssessmentHighlights } from "@/components/ClinicalAssessmentHighlights";
 import { UnderstandingYourNumbers } from "@/components/UnderstandingYourNumbers";
-import { HealthRiskDashboard } from "@/components/HealthRiskDashboard";
+import { HealthRiskDashboardWithTimeline } from "@/components/HealthRiskDashboard";
 import { EnhancedAnalysisResult, extractAbnormalPanels } from "@/types/medicalAnalysis";
 import heroBackground from "@/assets/hero-background.jpg";
 import readyBackground from "@/assets/ready-background.jpg";
@@ -1143,12 +1143,12 @@ RAW DATA: ${baseContext}`;
                     </div>
                   </section>
 
-                  {/* Health Risk Calculator */}
+                  {/* Health Risk Calculator with Prediction Timeline */}
                   {!isNonMedicalReport(analysisData) && enhancedData && (
                     <section className="py-6 sm:py-8 bg-white">
                       <div className="container mx-auto px-4 sm:px-6">
                         <div className="max-w-6xl mx-auto">
-                          <HealthRiskDashboard 
+                          <HealthRiskDashboardWithTimeline 
                             analysisData={enhancedData}
                             demographics={analysisData?.demographics}
                           />
