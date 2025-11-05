@@ -832,27 +832,27 @@ Respond ONLY with valid JSON matching the structure above - no markdown, no expl
           }),
         });
 
-      console.log('📡 Pass 1 API response status:', pass1Response.status);
+      console.log('📡 Pass 1 API response status:', response.status);
 
-      if (!pass1Response.ok) {
-        const errorData = await pass1Response.text();
-        console.error('❌ OpenAI API error:', pass1Response.status, errorData);
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error('❌ OpenAI API error:', response.status, errorData);
         
-        if (pass1Response.status === 401) {
+        if (response.status === 401) {
           throw new Error('Authentication failed: OpenAI API key is invalid. Please check your API key.');
         }
-        if (pass1Response.status === 402) {
+        if (response.status === 402) {
           throw new Error('Payment required: Please add credits to your OpenAI account.');
         }
-        if (pass1Response.status === 429) {
+        if (response.status === 429) {
           throw new Error('Rate limit exceeded: Please try again in a few moments.');
         }
         
         const errorMessage = typeof errorData === 'string' ? errorData : JSON.stringify(errorData);
-        throw new Error(`AI API call failed: ${pass1Response.status} - ${errorMessage}`);
+        throw new Error(`AI API call failed: ${response.status} - ${errorMessage}`);
       }
 
-      return pass1Response;
+      return response;
     }, 4, 2000, 'Pass 1 Analysis');
 
     const pass1Data = await pass1Response.json();

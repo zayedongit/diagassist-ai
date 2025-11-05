@@ -42,15 +42,18 @@ export const CompressionProgress = ({
         )}
       </div>
       
-      {percentage !== undefined && (
-        <div className="space-y-1.5">
-          <Progress value={percentage} className="h-2" />
+      <div className="space-y-1.5">
+        <Progress 
+          value={percentage} 
+          className={`h-2 ${percentage === undefined ? 'animate-pulse' : ''}`}
+        />
+        {percentage !== undefined && (
           <div className="flex justify-between text-xs text-muted-foreground">
             <span>Optimizing for upload</span>
             <span>{percentage < 100 ? 'Processing...' : 'Complete'}</span>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

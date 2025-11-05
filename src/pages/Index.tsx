@@ -429,18 +429,22 @@ RAW DATA: ${baseContext}`;
       console.log(`✅ Client-side conversion successful: ${conversionResult.images?.length} images`);
       console.log('📊 Image sizes:', conversionResult.images?.map(img => Math.round(img.length / 1024) + 'KB'));
       
-      // Clear progress after completion
-      setProgressUpdate(null);
+      // Show analysis progress without percentage (indeterminate)
+      setProgressUpdate({
+        message: `Analyzing your ${conversionResult.images?.length}-page medical report...`,
+        percentage: undefined,
+        estimatedSecondsRemaining: undefined
+      });
       
       if (conversionResult.wasCompressed) {
         setExtractionStep(
           `Converted & compressed ${conversionResult.images?.length} images ` +
-          `(${conversionResult.originalSizeMB?.toFixed(1)}MB → ${conversionResult.finalSizeMB?.toFixed(1)}MB), sending for analysis...`
+          `(${conversionResult.originalSizeMB?.toFixed(1)}MB → ${conversionResult.finalSizeMB?.toFixed(1)}MB). Analyzing medical data...`
         );
       } else {
         setExtractionStep(
           `Converted to ${conversionResult.images?.length} images ` +
-          `(${conversionResult.finalSizeMB?.toFixed(1)}MB), sending for analysis...`
+          `(${conversionResult.finalSizeMB?.toFixed(1)}MB). Analyzing medical data...`
         );
       }
       
@@ -500,6 +504,10 @@ RAW DATA: ${baseContext}`;
       }
 
       console.log('✅ Client-side processing successful, analysis ID:', result.analysisId);
+      
+      // Clear progress once response is received
+      setProgressUpdate(null);
+      
       return {
         analysisId: result.analysisId,
         status: result.status,
@@ -507,6 +515,7 @@ RAW DATA: ${baseContext}`;
       };
     } catch (error) {
       console.error('Client-side processing failed:', error);
+      setProgressUpdate(null);
       throw new Error(`PDF processing failed. ${error instanceof Error ? error.message : 'Please ensure your PDF is readable and try again.'}`);
     }
   };
