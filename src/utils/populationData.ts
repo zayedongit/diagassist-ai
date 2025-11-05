@@ -157,6 +157,30 @@ const indianPopulationNorms: Record<string, PopulationNorm> = {
     },
     unit: 'mIU/L',
     normalRange: '0.5-4.5 mIU/L'
+  },
+  'potassium': {
+    parameter: 'Potassium',
+    ageGroups: {
+      '20-30': { male: 4.1, female: 4.0 },
+      '31-40': { male: 4.1, female: 4.0 },
+      '41-50': { male: 4.2, female: 4.1 },
+      '51-60': { male: 4.2, female: 4.1 },
+      '60+': { male: 4.3, female: 4.2 }
+    },
+    unit: 'mmol/L',
+    normalRange: '3.5-5.0 mmol/L'
+  },
+  'sodium': {
+    parameter: 'Sodium',
+    ageGroups: {
+      '20-30': { male: 139, female: 139 },
+      '31-40': { male: 140, female: 139 },
+      '41-50': { male: 140, female: 140 },
+      '51-60': { male: 141, female: 140 },
+      '60+': { male: 141, female: 141 }
+    },
+    unit: 'mmol/L',
+    normalRange: '135-145 mmol/L'
   }
 };
 
@@ -184,7 +208,13 @@ function normalizeParameterName(name: string): string {
     'sgot': 'ast',
     'hb': 'hemoglobin',
     '25-oh vitamin d': 'vitamin d',
-    'vitamin d3': 'vitamin d'
+    'vitamin d3': 'vitamin d',
+    'k+': 'potassium',
+    'serum potassium': 'potassium',
+    'potassium (k+)': 'potassium',
+    'na+': 'sodium',
+    'serum sodium': 'sodium',
+    'sodium (na+)': 'sodium'
   };
   
   // Check direct mappings first

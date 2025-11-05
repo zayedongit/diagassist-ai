@@ -209,6 +209,34 @@ export const UnderstandingYourNumbers = ({ analysisData }: UnderstandingYourNumb
         } B12 is essential for nerves, DNA, and RBC formation.`,
         possibleCauses: value < 300 ? ['Pernicious anemia (autoimmune)', 'Vegetarian/vegan diet', 'Malabsorption (celiac, Crohn, gastric bypass)', 'Medications (metformin, PPIs, H2 blockers)', 'Aging', 'H. pylori', 'Alcohol abuse'] : ['B12 supplementation', 'Liver disease', 'Myeloproliferative disorders'],
         bodyConnection: `At ${lab.value} ${lab.unit || 'pg/mL'}, ${value < 200 ? 'severe B12 deficiency causes megaloblastic anemia (fatigue, weakness, breathlessness). More critically, causes irreversible neurological damage: peripheral neuropathy (numbness/tingling), balance problems, memory loss, dementia, subacute combined degeneration (paralysis). Psychiatric: depression, psychosis, cognitive decline. Early B12 injections prevent permanent nerve damage.' : value < 300 ? 'borderline B12 may cause subtle symptoms: fatigue, weakness, difficulty concentrating, mood changes, mild neuropathy. Progress to severe complications untreated. Supplementation (1000 mcg daily or injections) prevents progression, often improves symptoms.' : value > 1000 ? 'very high B12 from supplementation is not harmful. Water-soluble; excess excreted. Extremely elevated levels (>2000) may rarely indicate liver disease, blood cancers, or excessive supplementation.' : 'normal B12 supports RBC formation, neurological function, DNA synthesis, energy production. Stored in liver for 2-4 years.'}`
+      },
+      
+      // ELECTROLYTES
+      'potassium': {
+        whatItMeans: `Potassium of ${lab.value} ${lab.unit || 'mmol/L'} is crucial for nerve and muscle function. ${
+          value > 6.0 ? 'This is severely elevated (hyperkalemia) - MEDICAL EMERGENCY. Can cause fatal cardiac arrhythmias.' :
+          value > 5.5 ? 'This is moderately elevated. Risk of cardiac arrhythmias.' :
+          value > 5.0 ? 'This is mildly elevated. Monitor closely.' :
+          value < 2.5 ? 'This is severely low - URGENT. Risk of life-threatening arrhythmias.' :
+          value < 3.0 ? 'This is moderately low. Can cause muscle weakness and cardiac issues.' :
+          value < 3.5 ? 'This is mildly low. May cause fatigue and muscle weakness.' :
+          'This is normal (3.5-5.0 mmol/L).'
+        } Potassium regulates heart rhythm, muscle contractions, and nerve signals.`,
+        possibleCauses: value > 5.0 ? ['Chronic kidney disease', 'Acute kidney injury', 'Medications (ACE inhibitors, ARBs, potassium-sparing diuretics)', 'Addison disease', 'Diabetic ketoacidosis', 'Rhabdomyolysis', 'Excessive potassium intake'] : ['Diuretics', 'Vomiting or diarrhea', 'Primary aldosteronism', 'Low dietary intake', 'Hypomagnesemia'],
+        bodyConnection: `At ${lab.value} ${lab.unit || 'mmol/L'}, ${value > 6.0 ? 'severely elevated potassium disrupts cardiac electrical conduction, causing life-threatening arrhythmias including cardiac arrest. Also causes muscle weakness. Requires immediate treatment with insulin+glucose, calcium gluconate, or dialysis.' : value > 5.0 ? 'elevated potassium affects cardiac conduction, increasing arrhythmia risk. May cause muscle weakness and nausea. Stop offending medications and treat underlying cause.' : value < 2.5 ? 'severely low potassium causes muscle weakness, paralysis, respiratory failure, and dangerous cardiac arrhythmias. Urgent IV potassium replacement needed.' : value < 3.5 ? 'low potassium impairs muscle contraction causing fatigue, weakness, cramps, constipation. Increases arrhythmia risk. Oral potassium supplementation corrects levels.' : 'normal potassium maintains nerve conduction, muscle contraction, and cellular function.'}`
+      },
+      'sodium': {
+        whatItMeans: `Sodium of ${lab.value} ${lab.unit || 'mmol/L'} regulates fluid balance. ${
+          value > 160 ? 'This is severely elevated - EMERGENCY. Risk of brain damage.' :
+          value > 150 ? 'This is significantly elevated. Can cause neurological symptoms.' :
+          value > 145 ? 'This is mildly elevated. Requires investigation.' :
+          value < 120 ? 'This is severely low - EMERGENCY. Risk of seizures and coma.' :
+          value < 125 ? 'This is significantly low. Can cause confusion and seizures.' :
+          value < 135 ? 'This is mildly low. May cause subtle symptoms.' :
+          'This is normal (135-145 mmol/L).'
+        } Sodium is the primary electrolyte regulating fluid balance and blood pressure.`,
+        possibleCauses: value > 145 ? ['Dehydration', 'Diabetes insipidus', 'Excessive salt intake', 'Loss of free water'] : ['SIADH', 'Diuretics', 'Heart failure', 'Cirrhosis', 'Kidney disease', 'Adrenal insufficiency', 'Excessive water intake'],
+        bodyConnection: `At ${lab.value} ${lab.unit || 'mmol/L'}, ${value > 160 ? 'severely elevated sodium causes brain cells to shrink, leading to altered mental status, seizures, coma, and brain damage. Correction must be gradual with IV hypotonic fluids.' : value > 145 ? 'elevated sodium causes brain cells to shrink, causing thirst, confusion, weakness. Treatment: increase water intake and treat underlying cause.' : value < 120 ? 'severely low sodium causes brain swelling (cerebral edema), leading to headache, confusion, seizures, coma, and death. Requires immediate ICU treatment with hypertonic saline.' : value < 135 ? 'low sodium causes cell swelling. Symptoms: fatigue, nausea, confusion, muscle cramps. Treatment: fluid restriction or IV saline depending on cause.' : 'normal sodium maintains osmotic balance, blood pressure, and enables nerve and muscle function.'}`
       }
     };
 
@@ -363,7 +391,7 @@ export const UnderstandingYourNumbers = ({ analysisData }: UnderstandingYourNumb
         
         {/* Special Note for AUTO-DETECTED values */}
         <div className="mt-4 p-3 bg-muted/10 rounded-lg border border-border/20">
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-gray-700">
             <strong>Note:</strong> These explanations are for educational purposes. 
             Always discuss your results with your healthcare provider for proper interpretation and treatment recommendations.
           </p>

@@ -8,16 +8,16 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Premium Deep Navy Background - PredLabs Style */
-    --background: 210 60% 8%;  /* #071A2C Deep navy */
-    --foreground: 0 0% 100%;  /* Pure white text */
+    /* Light Mode - Clean & Readable */
+    --background: 0 0% 100%;  /* Pure white background */
+    --foreground: 222 47% 11%;  /* Dark blue-gray text */
 
-    /* Clean White Cards with Glass Effect */
+    /* Clean White Cards */
     --card: 0 0% 100%;  /* #FFFFFF */
-    --card-foreground: 210 60% 8%;  /* Dark navy text on cards */
+    --card-foreground: 222 47% 11%;  /* Dark text on cards */
 
     --popover: 0 0% 100%;
-    --popover-foreground: 210 60% 8%;
+    --popover-foreground: 222 47% 11%;
 
     /* Electric Cyan Primary - Accent Color */
     --primary: 195 100% 50%;  /* #00C6FF Electric cyan */
@@ -29,9 +29,9 @@ All colors MUST be HSL.
     --secondary: 238 45% 68%;  /* #6B73FF Soft violet */
     --secondary-foreground: 0 0% 100%;
 
-    /* Glassmorphism Muted */
-    --muted: 210 60% 12%;  /* Slightly lighter navy */
-    --muted-foreground: 0 0% 85%;
+    /* Light Muted */
+    --muted: 210 40% 96%;  /* Light blue-gray */
+    --muted-foreground: 215 16% 47%;  /* Medium gray text */
 
     /* Accent Gradient Colors */
     --accent: 195 100% 50%;  /* Electric cyan */
@@ -46,9 +46,9 @@ All colors MUST be HSL.
     --destructive: 0 85% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Glassmorphism Borders */
-    --border: 195 100% 50% / 0.15;  /* Cyan border with subtle opacity */
-    --input: 210 60% 12%;
+    /* Light Borders */
+    --border: 214 32% 91%;  /* Light gray border */
+    --input: 214 32% 91%;  /* Light gray input background */
     --ring: 195 100% 50%;
 
     --radius: 20px;  /* Ultra-rounded for premium feel */
@@ -93,12 +93,12 @@ All colors MUST be HSL.
   }
 
   .dark {
-    /* Keep same premium theme for dark mode */
-    --background: 210 60% 8%;
-    --foreground: 0 0% 100%;
+    /* Premium Dark Navy Theme */
+    --background: 210 60% 8%;  /* Deep navy */
+    --foreground: 0 0% 100%;  /* White text */
 
-    --card: 0 0% 100%;
-    --card-foreground: 210 60% 8%;
+    --card: 0 0% 100%;  /* White cards in dark mode */
+    --card-foreground: 210 60% 8%;  /* Dark text on white cards */
 
     --popover: 0 0% 100%;
     --popover-foreground: 210 60% 8%;
@@ -109,8 +109,8 @@ All colors MUST be HSL.
     --secondary: 238 45% 68%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 60% 12%;
-    --muted-foreground: 0 0% 85%;
+    --muted: 210 60% 12%;  /* Slightly lighter navy */
+    --muted-foreground: 0 0% 85%;  /* Light gray text */
 
     --accent: 195 100% 50%;
     --accent-foreground: 0 0% 100%;
