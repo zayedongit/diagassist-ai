@@ -8,21 +8,22 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Premium Deep Navy Background */
+    /* Premium Deep Navy Background - PredLabs Style */
     --background: 210 60% 8%;  /* #071A2C Deep navy */
     --foreground: 0 0% 100%;  /* Pure white text */
 
-    /* Clean White Cards */
+    /* Clean White Cards with Glass Effect */
     --card: 0 0% 100%;  /* #FFFFFF */
     --card-foreground: 210 60% 8%;  /* Dark navy text on cards */
 
     --popover: 0 0% 100%;
     --popover-foreground: 210 60% 8%;
 
-    /* Electric Cyan Primary */
+    /* Electric Cyan Primary - Accent Color */
     --primary: 195 100% 50%;  /* #00C6FF Electric cyan */
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 195 100% 65%;  /* Lighter cyan for glow */
+    --primary-glow: 180 100% 60%;  /* Aqua glow */
+    --primary-mint: 165 100% 65%;  /* Mint accent */
 
     /* Soft Violet Secondary */
     --secondary: 238 45% 68%;  /* #6B73FF Soft violet */
@@ -46,34 +47,40 @@ All colors MUST be HSL.
     --destructive-foreground: 0 0% 100%;
 
     /* Glassmorphism Borders */
-    --border: 195 100% 50% / 0.2;  /* Cyan border with opacity */
+    --border: 195 100% 50% / 0.15;  /* Cyan border with subtle opacity */
     --input: 210 60% 12%;
     --ring: 195 100% 50%;
 
-    --radius: 16px;  /* More rounded for premium feel */
+    --radius: 20px;  /* Ultra-rounded for premium feel */
 
     /* App Specific - Premium Medical Theme */
     --app-blue: 195 100% 50%;  /* Electric cyan */
+    --app-aqua: 180 100% 60%;  /* Aqua highlight */
+    --app-mint: 165 100% 65%;  /* Mint accent */
     --app-violet: 238 45% 68%;  /* Soft violet */
     --app-navy: 210 60% 8%;  /* Deep navy */
+    --app-navy-light: 210 60% 12%;  /* Lighter navy */
     --app-light: 0 0% 100%;  /* Pure white */
     
-    /* Gradient Definitions */
-    --gradient-primary: linear-gradient(135deg, hsl(195, 100%, 50%), hsl(238, 45%, 68%));
-    --gradient-cyan-violet: linear-gradient(135deg, #00C6FF 0%, #6B73FF 100%);
+    /* Premium Gradient Definitions */
+    --gradient-primary: linear-gradient(135deg, hsl(195, 100%, 50%) 0%, hsl(180, 100%, 60%) 50%, hsl(165, 100%, 65%) 100%);
+    --gradient-cyan-aqua-mint: linear-gradient(135deg, #00C6FF 0%, #44FFE8 50%, #7CFFCB 100%);
+    --gradient-hero: radial-gradient(ellipse at top, hsl(210, 60%, 10%) 0%, hsl(210, 60%, 8%) 50%, hsl(210, 60%, 6%) 100%);
     --gradient-subtle: linear-gradient(180deg, hsl(210, 60%, 10%), hsl(210, 60%, 8%));
-    --gradient-glow: radial-gradient(circle at center, hsl(195 100% 50% / 0.15), transparent);
+    --gradient-glow: radial-gradient(circle at center, hsl(195 100% 50% / 0.2), transparent 70%);
+    --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
     
-    /* Premium Shadows with Glow */
-    --shadow-soft: 0 4px 20px -2px hsl(195 100% 50% / 0.15);
-    --shadow-glow: 0 0 40px hsl(195 100% 50% / 0.25), 0 8px 32px -4px hsl(0 0% 0% / 0.3);
-    --shadow-card: 0 8px 32px -4px hsl(0 0% 0% / 0.4);
-    --shadow-elegant: 0 10px 30px -10px hsl(195 100% 50% / 0.3);
+    /* Premium Shadows with Soft Glow */
+    --shadow-soft: 0 4px 24px -2px hsl(195 100% 50% / 0.12);
+    --shadow-glow: 0 0 50px hsl(195 100% 50% / 0.3), 0 8px 32px -4px hsl(0 0% 0% / 0.4);
+    --shadow-card: 0 10px 40px -8px hsl(0 0% 0% / 0.3), 0 0 0 1px hsl(195 100% 50% / 0.1);
+    --shadow-elegant: 0 12px 40px -10px hsl(195 100% 50% / 0.25);
+    --shadow-float: 0 20px 60px -15px hsl(0 0% 0% / 0.4), 0 0 0 1px hsl(195 100% 50% / 0.15);
     
-    /* Smooth Premium Animations */
+    /* Smooth Premium Animations - Apple-style */
     --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    --transition-glow: all 0.3s ease-in-out;
+    --transition-elegant: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    --transition-glow: all 0.35s ease-in-out;
 
     /* Sidebar in Navy Theme */
     --sidebar-background: 210 60% 8%;
@@ -140,44 +147,129 @@ All colors MUST be HSL.
 }
 
 @layer utilities {
-  /* Premium Hover Effects */
-  .hover-scale-102 {
-    @apply hover:scale-[1.02] transition-transform duration-300;
+  /* Premium Hover Effects - Apple Style */
+  .hover-scale {
+    @apply hover:scale-[1.04] active:scale-[0.98] transition-all duration-300 ease-out;
   }
   
   .hover-lift {
-    @apply hover:shadow-glow transition-all duration-300;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .hover-lift:hover {
+    box-shadow: 0 20px 60px -15px hsl(0 0% 0% / 0.4), 0 0 0 1px hsl(195 100% 50% / 0.15);
+    transform: translateY(-4px);
   }
   
   .hover-glow {
-    @apply hover:shadow-glow transition-all duration-300;
+    @apply hover:shadow-glow transition-all duration-350 ease-in-out;
   }
   
-  /* Glassmorphism Effect */
+  /* Premium Glassmorphism Effects */
   .glass {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
   
   .glass-card {
     background: rgba(255, 255, 255, 0.98);
-    backdrop-filter: blur(20px);
+    backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(0, 198, 255, 0.15);
+    box-shadow: 0 10px 40px -8px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 198, 255, 0.1);
+  }
+  
+  .glass-dark {
+    background: rgba(7, 26, 44, 0.7);
+    backdrop-filter: blur(20px) saturate(180%);
     border: 1px solid rgba(0, 198, 255, 0.2);
-    box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.1);
   }
   
   /* Glow Ring Effect */
   .glow-ring {
-    box-shadow: 0 0 20px rgba(0, 198, 255, 0.4), inset 0 0 20px rgba(0, 198, 255, 0.1);
+    box-shadow: 0 0 30px rgba(0, 198, 255, 0.5), 
+                inset 0 0 20px rgba(0, 198, 255, 0.15),
+                0 0 60px rgba(68, 255, 232, 0.3);
   }
   
-  /* Gradient Text */
+  .glow-border {
+    border: 1px solid rgba(0, 198, 255, 0.3);
+    box-shadow: 0 0 20px rgba(0, 198, 255, 0.2);
+  }
+  
+  /* Premium Gradient Text */
   .gradient-text {
+    background: linear-gradient(135deg, #00C6FF 0%, #44FFE8 50%, #7CFFCB 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .gradient-text-cyan-violet {
     background: linear-gradient(135deg, #00C6FF 0%, #6B73FF 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+  
+  /* Floating Animation */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px) scale(1);
+    }
+    50% {
+      transform: translateY(-20px) scale(1.05);
+    }
+  }
+  
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  /* Pulse Glow Animation */
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(0, 198, 255, 0.4),
+                  0 0 40px rgba(0, 198, 255, 0.2);
+    }
+    50% {
+      box-shadow: 0 0 40px rgba(0, 198, 255, 0.6),
+                  0 0 60px rgba(68, 255, 232, 0.4);
+    }
+  }
+  
+  .pulse-glow {
+    animation: pulse-glow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  /* Gentle Pulse for Buttons */
+  @keyframes gentle-pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.02);
+    }
+  }
+  
+  .animate-gentle-pulse {
+    animation: gentle-pulse 2s ease-in-out infinite;
+  }
+  
+  /* Fade Up Animation */
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-fade-up {
+    animation: fade-up 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
   }
   
   /* Smooth Transitions */
@@ -195,17 +287,17 @@ All colors MUST be HSL.
     scrollbar-width: none;
   }
   
-  /* Pulse Animation for Buttons */
-  .pulse-glow {
-    animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-  
-  @keyframes pulse-glow {
+  /* Breathing Effect */
+  @keyframes breathe {
     0%, 100% {
-      box-shadow: 0 0 20px rgba(0, 198, 255, 0.4);
+      opacity: 0.6;
     }
     50% {
-      box-shadow: 0 0 40px rgba(0, 198, 255, 0.6);
+      opacity: 1;
     }
+  }
+  
+  .animate-breathe {
+    animation: breathe 4s ease-in-out infinite;
   }
 }

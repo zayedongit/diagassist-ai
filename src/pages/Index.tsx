@@ -839,109 +839,138 @@ RAW DATA: ${baseContext}`;
       </header>
 
       <main className="w-full">
-        {/* 2. HERO SECTION - Parallax + Video */}
+        {/* 2. HERO SECTION - Premium PredLabs Style */}
         {!selectedFile && !showResults && !error && (
           <>
-            <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-navy">
-              {/* Video Background */}
+            <section className="relative min-h-screen flex items-center justify-center overflow-hidden" style={{ background: 'radial-gradient(ellipse at top, hsl(210, 60%, 10%) 0%, hsl(210, 60%, 8%) 50%, hsl(210, 60%, 6%) 100%)' }}>
+              {/* Subtle animated gradient background */}
               <div className="absolute inset-0 z-0">
-                <img 
-                  src={heroBackground}
-                  alt="Medical Analysis Background"
-                  className="w-full h-full object-cover opacity-20"
-                />
-                <div className="absolute inset-0 bg-gradient-to-b from-navy/80 via-navy/60 to-navy/80" />
+                <div className="absolute inset-0 bg-gradient-to-br from-navy/90 via-navy to-[#0a1f3d]/90" />
+                <div className="absolute top-0 left-0 w-full h-full opacity-30">
+                  <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-breathe" />
+                  <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#44FFE8]/10 rounded-full blur-3xl animate-breathe" style={{ animationDelay: '1.5s' }} />
+                </div>
               </div>
               
-              {/* Floating molecular shapes (mid layer) */}
-              <div className="absolute inset-0 z-10 opacity-10 pointer-events-none">
-                <div className="absolute top-1/4 left-1/4 w-32 h-32 border border-accentCyan rounded-full animate-float" />
-                <div className="absolute top-1/3 right-1/4 w-24 h-24 border border-accentCyan rounded-full animate-float" style={{ animationDelay: '1s' }} />
-                <div className="absolute bottom-1/4 left-1/3 w-20 h-20 border border-accentCyan rounded-full animate-float" style={{ animationDelay: '2s' }} />
+              {/* Floating orb particles */}
+              <div className="absolute inset-0 z-10 opacity-20 pointer-events-none overflow-hidden">
+                <div className="absolute top-1/4 left-1/4 w-32 h-32 border border-primary/40 rounded-full animate-float glow-border" />
+                <div className="absolute top-1/3 right-1/4 w-24 h-24 border border-[#44FFE8]/30 rounded-full animate-float glow-border" style={{ animationDelay: '1s', animationDuration: '8s' }} />
+                <div className="absolute bottom-1/4 left-1/3 w-20 h-20 border border-[#7CFFCB]/30 rounded-full animate-float glow-border" style={{ animationDelay: '2s', animationDuration: '7s' }} />
+                <div className="absolute top-1/2 right-1/3 w-16 h-16 border border-primary/30 rounded-full animate-float glow-border" style={{ animationDelay: '1.5s', animationDuration: '9s' }} />
               </div>
               
-              {/* Hero Content (foreground) */}
+              {/* Hero Content */}
               <div className="relative z-20 container mx-auto px-4 sm:px-6 text-center">
-                <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 animate-fade-up">
-                  <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-poppins font-semibold text-white leading-tight px-4">
-                    AI-Powered Medical Report Analysis
-                    <br className="hidden sm:block" />
-                    <span className="block sm:inline text-accentCyan"> Clear, Actionable Insights</span>
-                  </h1>
+                <div className="max-w-5xl mx-auto space-y-8 sm:space-y-12 animate-fade-up">
+                  {/* Main Headline */}
+                  <div className="space-y-4 sm:space-y-6">
+                    <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-poppins font-bold text-white leading-tight px-4">
+                      AI-Powered Medical <br className="hidden sm:block" />
+                      Report Analysis
+                    </h1>
+                    <p className="text-lg sm:text-xl md:text-2xl gradient-text font-medium">
+                      Personalized, Clear & Clinically Relevant Insights
+                    </p>
+                  </div>
                   
-                  {/* Trust Strip */}
-                  <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 pt-4 sm:pt-8 text-xs sm:text-sm text-coolGray">
-                    <div className="flex items-center gap-1.5 sm:gap-2">
-                      <Shield className="w-3 h-3 sm:w-4 sm:h-4 text-accentCyan" />
-                      <span>NABL Accredited</span>
+                  {/* Trust Badges */}
+                  <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 pt-2 sm:pt-4 text-xs sm:text-sm text-white/70">
+                    <div className="flex items-center gap-2">
+                      <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                      <span className="font-inter">NABL Accredited</span>
                     </div>
-                    <div className="flex items-center gap-1.5 sm:gap-2">
-                      <Lock className="w-3 h-3 sm:w-4 sm:h-4 text-accentCyan" />
-                      <span>ISO-compliant</span>
+                    <div className="flex items-center gap-2">
+                      <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                      <span className="font-inter">ISO Compliant</span>
                     </div>
-                    <div className="flex items-center gap-1.5 sm:gap-2">
-                      <Shield className="w-3 h-3 sm:w-4 sm:h-4 text-accentCyan" />
-                      <span>Encrypted data</span>
+                    <div className="flex items-center gap-2">
+                      <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                      <span className="font-inter">Encrypted Data</span>
                     </div>
+                  </div>
+                  
+                  {/* Primary CTAs with Premium Styling */}
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 pt-6 sm:pt-8">
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="group px-10 py-5 rounded-full font-poppins font-semibold text-base sm:text-lg text-white transition-all duration-400 hover:scale-105 active:scale-95 w-full sm:w-auto shadow-elegant hover:shadow-glow"
+                      style={{ background: 'linear-gradient(135deg, #00C6FF 0%, #44FFE8 50%, #7CFFCB 100%)' }}
+                    >
+                      <span className="flex items-center justify-center gap-2">
+                        Upload Your Report
+                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                      </span>
+                    </button>
+                    
+                    <button
+                      onClick={() => {
+                        const uploadSection = document.getElementById('upload-section');
+                        uploadSection?.scrollIntoView({ behavior: 'smooth' });
+                      }}
+                      className="px-10 py-5 rounded-full font-poppins font-semibold text-base sm:text-lg glass-dark text-white border border-primary/30 transition-all duration-400 hover:shadow-glow hover:border-primary/60 hover:scale-105 active:scale-95 w-full sm:w-auto backdrop-blur-md"
+                    >
+                      How It Works
+                    </button>
                   </div>
                 </div>
               </div>
               
-              {/* Scroll indicator */}
-              <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 animate-bounce">
-                <div className="w-6 h-10 border-2 border-accentCyan rounded-full flex items-start justify-center p-2">
-                  <div className="w-1 h-2 bg-accentCyan rounded-full" />
+              {/* Scroll indicator with glow */}
+              <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 animate-bounce opacity-60">
+                <div className="w-6 h-10 border-2 border-primary/60 rounded-full flex items-start justify-center p-2 glow-border">
+                  <div className="w-1 h-2 bg-primary rounded-full animate-pulse" />
                 </div>
               </div>
             </section>
 
-            {/* Process Flow Section */}
-            <section className="py-12 sm:py-16 md:py-24 bg-white relative z-10">
+            {/* Process Flow Section - Premium Spacing */}
+            <section id="upload-section" className="py-20 sm:py-28 md:py-32 bg-white relative z-10">
               <div className="container mx-auto px-4 sm:px-6">
-                <div className="text-center mb-8 sm:mb-12 md:mb-16">
-                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-semibold text-navy mb-3 sm:mb-4">
+                <div className="text-center mb-12 sm:mb-16 md:mb-20 space-y-4">
+                  <h2 className="text-3xl sm:text-4xl md:text-5xl font-poppins font-bold text-navy">
                     How It Works
                   </h2>
-                  <p className="text-slate text-sm sm:text-base md:text-lg px-4">
+                  <p className="text-slate text-base sm:text-lg md:text-xl max-w-2xl mx-auto leading-relaxed px-4">
                     Simple, secure, and comprehensive medical report analysis in 5 easy steps
                   </p>
                 </div>
                 
-                <div className="flex flex-col lg:flex-row items-center justify-center gap-3 sm:gap-4 max-w-6xl mx-auto">
+                <div className="flex flex-col lg:flex-row items-center justify-center gap-6 sm:gap-8 max-w-6xl mx-auto mb-16 sm:mb-20">
                   {/* Step 1: Upload */}
-                  <div className="text-center space-y-2 sm:space-y-4 animate-fade-up hover-lift p-4 sm:p-6 rounded-xl sm:rounded-2xl transition-all w-full lg:w-auto">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
-                      <CloudDownload className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                  <div className="text-center space-y-4 sm:space-y-6 glass-card p-8 sm:p-10 rounded-3xl transition-all hover:shadow-float hover:-translate-y-2 duration-400 w-full lg:flex-1">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-2xl flex items-center justify-center glow-ring" style={{ background: 'linear-gradient(135deg, #00C6FF 0%, #44FFE8 100%)' }}>
+                      <CloudDownload className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                     </div>
-                    <h3 className="text-base sm:text-lg font-poppins font-semibold text-navy">Upload</h3>
-                    <p className="text-slate text-xs sm:text-sm">
-                      Upload your medical report (PDF/JPG/PNG)
+                    <h3 className="text-lg sm:text-xl font-poppins font-bold text-navy">Upload</h3>
+                    <p className="text-slate text-sm sm:text-base leading-relaxed">
+                      Upload your medical report securely (PDF/JPG/PNG)
                     </p>
                   </div>
 
                   {/* Arrow 1 */}
                   <div className="hidden lg:block">
-                    <ArrowRight className="w-6 h-6 sm:w-8 sm:h-8 text-accentCyan" />
+                    <ArrowRight className="w-8 h-8 text-primary/40" />
                   </div>
 
                   {/* Step 2: Analysis */}
-                  <div className="text-center space-y-2 sm:space-y-4 animate-fade-up hover-lift p-4 sm:p-6 rounded-xl sm:rounded-2xl transition-all w-full lg:w-auto" style={{ animationDelay: '0.1s' }}>
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
-                      <BarChart3 className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                  <div className="text-center space-y-4 sm:space-y-6 glass-card p-8 sm:p-10 rounded-3xl transition-all hover:shadow-float hover:-translate-y-2 duration-400 w-full lg:flex-1">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-2xl flex items-center justify-center glow-ring" style={{ background: 'linear-gradient(135deg, #00C6FF 0%, #44FFE8 100%)' }}>
+                      <BarChart3 className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                     </div>
-                    <h3 className="text-base sm:text-lg font-poppins font-semibold text-navy">Analysis</h3>
-                    <p className="text-slate text-xs sm:text-sm">
-                      AI analyzes your report parameters
+                    <h3 className="text-lg sm:text-xl font-poppins font-bold text-navy">AI Analysis</h3>
+                    <p className="text-slate text-sm sm:text-base leading-relaxed">
+                      AI analyzes your report parameters in real-time
                     </p>
                   </div>
 
                   {/* Arrow 2 */}
                   <div className="hidden lg:block">
-                    <ArrowRight className="w-6 h-6 sm:w-8 sm:h-8 text-accentCyan" />
+                    <ArrowRight className="w-8 h-8 text-primary/40" />
                   </div>
 
                   {/* Step 3: Interpretation */}
-                  <div className="text-center space-y-2 sm:space-y-4 animate-fade-up hover-lift p-4 sm:p-6 rounded-xl sm:rounded-2xl transition-all w-full lg:w-auto" style={{ animationDelay: '0.2s' }}>
+                  <div className="text-center space-y-4 sm:space-y-6 glass-card p-8 sm:p-10 rounded-3xl transition-all hover:shadow-float hover:-translate-y-2 duration-400 w-full lg:flex-1">
                     <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-accentCyan to-primary rounded-full flex items-center justify-center mx-auto">
                       <FileText className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                     </div>

@@ -101,17 +101,18 @@ export default {
 				'gradient-golden': 'var(--gradient-golden)'
 			},
 			boxShadow: {
-				'soft': 'var(--shadow-soft)',
-				'app': 'var(--shadow-app)',
-				'card': 'var(--shadow-card)',
-				'glow': 'var(--shadow-glow)',
-				'elegant': 'var(--shadow-elegant)',
+				'soft': '0 4px 24px -2px hsl(195 100% 50% / 0.12)',
+				'glow': '0 0 50px hsl(195 100% 50% / 0.3), 0 8px 32px -4px hsl(0 0% 0% / 0.4)',
+				'card': '0 10px 40px -8px hsl(0 0% 0% / 0.3), 0 0 0 1px hsl(195 100% 50% / 0.1)',
+				'elegant': '0 12px 40px -10px hsl(195 100% 50% / 0.25)',
+				'float': '0 20px 60px -15px hsl(0 0% 0% / 0.4), 0 0 0 1px hsl(195 100% 50% / 0.15)',
 				'premium': '0 10px 40px -10px rgba(0, 0, 0, 0.15)',
 				'lift': '0 20px 60px -15px rgba(0, 0, 0, 0.25)'
 			},
 			transitionTimingFunction: {
-				'smooth': 'var(--transition-smooth)',
-				'bounce': 'var(--transition-bounce)'
+				'smooth': 'cubic-bezier(0.4, 0, 0.2, 1)',
+				'elegant': 'cubic-bezier(0.23, 1, 0.32, 1)',
+				'glow': 'ease-in-out'
 			},
 			fontFamily: {
 				sans: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
