@@ -327,27 +327,27 @@ export const UnderstandingYourNumbers = ({ analysisData }: UnderstandingYourNumb
                   
                   {/* What It Means */}
                   <div>
-                    <h5 className="font-medium text-foreground mb-2">What It Means</h5>
-                    <p className="text-sm text-muted-foreground bg-blue-50 p-3 rounded border border-blue-200">
+                    <h5 className="font-medium text-card-foreground mb-2">What It Means</h5>
+                    <p className="text-sm text-card-foreground bg-blue-50 p-3 rounded border border-blue-200">
                       {context.whatItMeans}
                     </p>
                   </div>
                   
                   {/* Body Connection */}
                   <div>
-                    <h5 className="font-medium text-foreground mb-2">Body Connection</h5>
-                    <p className="text-sm text-muted-foreground bg-green-50 p-3 rounded border border-green-200">
+                    <h5 className="font-medium text-card-foreground mb-2">Body Connection</h5>
+                    <p className="text-sm text-card-foreground bg-green-50 p-3 rounded border border-green-200">
                       {context.bodyConnection}
                     </p>
                   </div>
                   
                   {/* Possible Contributing Factors */}
                   <div>
-                    <h5 className="font-medium text-foreground mb-2">Possible Contributing Factors</h5>
+                    <h5 className="font-medium text-card-foreground mb-2">Possible Contributing Factors</h5>
                     <div className="bg-yellow-50 p-3 rounded border border-yellow-200">
                       <ul className="space-y-1">
                         {context.possibleCauses.map((cause, causeIndex) => (
-                          <li key={causeIndex} className="text-sm text-muted-foreground flex items-start gap-2">
+                          <li key={causeIndex} className="text-sm text-card-foreground flex items-start gap-2">
                             <span className="w-1 h-1 rounded-full bg-yellow-500 mt-2 flex-shrink-0"></span>
                             {cause}
                           </li>

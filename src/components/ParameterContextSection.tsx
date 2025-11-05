@@ -83,7 +83,7 @@ export const ParameterContextSection = ({ abnormalLabs }: ParameterContextSectio
           value > 300 ? 'This is elevated, which may indicate iron overload, inflammation, liver disease, or hemochromatosis.' :
           'This is within normal range.'
         } Ferritin is the most sensitive indicator of iron deficiency.`,
-        possibleCauses: value < 50 ? ['Inadequate dietary iron intake', 'Poor iron absorption (celiac disease, H. pylori, gastric surgery)', 'Chronic blood loss (heavy periods, GI bleeding)', 'Pregnancy and breastfeeding (increased demand)', 'Vegetarian/vegan diet without supplementation', 'Frequent blood donation', 'Intense athletic training'], ['Hemochromatosis (genetic iron overload)', 'Chronic liver disease', 'Inflammatory conditions (ferritin is an acute phase reactant)', 'Repeated blood transfusions', 'Alcohol abuse', 'Certain cancers or infections'],
+        possibleCauses: value < 50 ? ['Inadequate dietary iron intake', 'Poor iron absorption (celiac disease, H. pylori, gastric surgery)', 'Chronic blood loss (heavy periods, GI bleeding)', 'Pregnancy and breastfeeding (increased demand)', 'Vegetarian/vegan diet without supplementation', 'Frequent blood donation', 'Intense athletic training'] : ['Hemochromatosis (genetic iron overload)', 'Chronic liver disease', 'Inflammatory conditions (ferritin is an acute phase reactant)', 'Repeated blood transfusions', 'Alcohol abuse', 'Certain cancers or infections'],
         bodyConnection: `At ${lab.value} ${lab.unit || 'ng/mL'}, ${value < 50 ? 'depleted iron stores prevent adequate hemoglobin production, causing fatigue, weakness, brittle nails, hair loss, restless leg syndrome, and impaired cognitive function. In children, iron deficiency affects brain development and learning. Low ferritin precedes anemia and is easier to treat early.' : value > 300 ? 'excess iron deposited in organs (liver, heart, pancreas) causes organ damage. Liver: cirrhosis. Heart: cardiomyopathy. Pancreas: diabetes. Joints: arthritis. Skin: bronze discoloration. Requires phlebotomy or chelation therapy.' : 'adequate iron stores support hemoglobin production, oxygen transport, and energy metabolism.'}`
       },
       'iron': {
@@ -296,30 +296,30 @@ export const ParameterContextSection = ({ abnormalLabs }: ParameterContextSectio
                     )}
                     
                     {/* What It Means */}
-                    <div className="bg-blue/5 rounded-lg p-3 border border-blue/20">
-                      <h5 className="font-semibold text-foreground mb-2 flex items-center space-x-1">
-                        <Info className="w-4 h-4 text-blue" />
+                    <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                      <h5 className="font-semibold text-card-foreground mb-2 flex items-center space-x-1">
+                        <Info className="w-4 h-4 text-blue-600" />
                         <span>What This Means</span>
                       </h5>
-                      <p className="text-sm text-foreground">{context.whatItMeans}</p>
+                      <p className="text-sm text-card-foreground">{context.whatItMeans}</p>
                     </div>
                     
                     {/* Body Connection */}
-                    <div className="bg-primary/5 rounded-lg p-3 border border-primary/20">
-                      <h5 className="font-semibold text-foreground mb-2">How It Relates to Your Body</h5>
-                      <p className="text-sm text-foreground">{context.bodyConnection}</p>
+                    <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+                      <h5 className="font-semibold text-card-foreground mb-2">How It Relates to Your Body</h5>
+                      <p className="text-sm text-card-foreground">{context.bodyConnection}</p>
                     </div>
                     
                     {/* Possible Causes */}
-                    <div className="bg-warning/5 rounded-lg p-3 border border-warning/20">
-                      <h5 className="font-semibold text-foreground mb-2 flex items-center space-x-1">
-                        <User className="w-4 h-4 text-warning" />
+                    <div className="bg-yellow-50 rounded-lg p-3 border border-yellow-200">
+                      <h5 className="font-semibold text-card-foreground mb-2 flex items-center space-x-1">
+                        <User className="w-4 h-4 text-yellow-700" />
                         <span>Possible Contributing Factors</span>
                       </h5>
-                      <ul className="text-sm text-foreground space-y-1">
+                      <ul className="text-sm text-card-foreground space-y-1">
                         {context.possibleCauses.map((cause, causeIndex) => (
                           <li key={causeIndex} className="flex items-start space-x-2">
-                            <span className="text-warning mt-1.5 text-xs">•</span>
+                            <span className="text-yellow-700 mt-1.5 text-xs">•</span>
                             <span>{cause}</span>
                           </li>
                         ))}
