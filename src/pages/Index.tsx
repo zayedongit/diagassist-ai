@@ -1337,46 +1337,7 @@ RAW DATA: ${baseContext}`;
           </div>
         </section>
 
-        {/* 8. Privacy & Compliance */}
-        <section className="py-8 sm:py-12 md:py-16 bg-coolGray">
-          <div className="container mx-auto px-4 sm:px-6">
-            <div className="max-w-4xl mx-auto text-center space-y-4 sm:space-y-6">
-              <div className="flex items-center justify-center gap-4 sm:gap-6 md:gap-8 flex-wrap">
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <Shield className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-accentCyan" />
-                  <span className="text-xs sm:text-sm font-inter text-slate">NABL Accredited</span>
-                </div>
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <Lock className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-accentCyan" />
-                  <span className="text-xs sm:text-sm font-inter text-slate">ISO Compliant</span>
-                </div>
-                <div className="flex items-center gap-1.5 sm:gap-2">
-                  <Shield className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-accentCyan" />
-                  <span className="text-xs sm:text-sm font-inter text-slate">End-to-End Encrypted</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
       </main>
-
-      {/* 9. FOOTER */}
-      <footer className="bg-navy py-6 sm:py-8 border-t border-slate/20">
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4">
-            <p className="text-coolGray text-xs sm:text-sm font-inter text-center md:text-left">
-              © 2025 Medical Analytics. All rights reserved.
-            </p>
-            
-            <div className="flex items-center gap-4 sm:gap-6 flex-wrap justify-center">
-              <a href="#upload-section" className="text-coolGray hover:text-accentCyan text-xs sm:text-sm transition-colors">Upload</a>
-              <a href="#analysis-section" className="text-coolGray hover:text-accentCyan text-xs sm:text-sm transition-colors">Analysis</a>
-              <a href="#chat-section" className="text-coolGray hover:text-accentCyan text-xs sm:text-sm transition-colors">Chat</a>
-              <a href="#faq-section" className="text-coolGray hover:text-accentCyan text-xs sm:text-sm transition-colors">FAQ</a>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };
