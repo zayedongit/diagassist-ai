@@ -410,7 +410,9 @@ RAW DATA: ${baseContext}`;
       
       // Convert PDF to images on client side
       console.log('🖼️ Starting PDF to image conversion...');
-      const conversionResult = await convertPdfToImages(file);
+      const conversionResult = await convertPdfToImages(file, (message) => {
+        setExtractionStep(message);
+      });
       
       if (!conversionResult.success) {
         console.error('❌ PDF conversion failed:', conversionResult.error);
@@ -419,7 +421,18 @@ RAW DATA: ${baseContext}`;
       
       console.log(`✅ Client-side conversion successful: ${conversionResult.images?.length} images`);
       console.log('📊 Image sizes:', conversionResult.images?.map(img => Math.round(img.length / 1024) + 'KB'));
-      setExtractionStep(`Converted to ${conversionResult.images?.length} images, sending for analysis...`);
+      
+      if (conversionResult.wasCompressed) {
+        setExtractionStep(
+          `Converted & compressed ${conversionResult.images?.length} images ` +
+          `(${conversionResult.originalSizeMB?.toFixed(1)}MB → ${conversionResult.finalSizeMB?.toFixed(1)}MB), sending for analysis...`
+        );
+      } else {
+        setExtractionStep(
+          `Converted to ${conversionResult.images?.length} images ` +
+          `(${conversionResult.finalSizeMB?.toFixed(1)}MB), sending for analysis...`
+        );
+      }
       
       // Send images and original PDF to server for analysis
       const formData = new FormData();

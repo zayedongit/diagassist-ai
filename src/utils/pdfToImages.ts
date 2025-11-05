@@ -8,9 +8,15 @@ export interface ConversionResult {
   success: boolean;
   images?: string[];
   error?: string;
+  wasCompressed?: boolean;
+  originalSizeMB?: number;
+  finalSizeMB?: number;
 }
 
-export async function convertPdfToImages(file: File): Promise<ConversionResult> {
+export async function convertPdfToImages(
+  file: File, 
+  onProgress?: (message: string) => void
+): Promise<ConversionResult> {
   try {
     console.log('Starting PDF to image conversion...');
     console.log('Worker source:', pdfjsLib.GlobalWorkerOptions.workerSrc);
@@ -141,7 +147,73 @@ export async function convertPdfToImages(file: File): Promise<ConversionResult> 
     }
     
     console.log(`PDF conversion completed: ${images.length} images`);
-    return { success: true, images };
+    
+    // Calculate total payload size
+    const totalSizeBytes = images.reduce((sum, img) => sum + img.length, 0);
+    const totalSizeMB = totalSizeBytes / (1024 * 1024);
+    console.log(`📊 Total payload size: ${totalSizeMB.toFixed(2)}MB`);
+    
+    // If payload exceeds 7MB, recompress images
+    const MAX_PAYLOAD_MB = 7;
+    let wasCompressed = false;
+    let finalImages = images;
+    
+    if (totalSizeMB > MAX_PAYLOAD_MB) {
+      console.log(`⚠️ Payload too large (${totalSizeMB.toFixed(2)}MB), recompressing...`);
+      onProgress?.(`Compressing images (${totalSizeMB.toFixed(1)}MB → target: ${MAX_PAYLOAD_MB}MB)...`);
+      
+      // Calculate target quality to achieve desired size
+      const targetQuality = Math.max(0.3, (MAX_PAYLOAD_MB / totalSizeMB) * quality * 0.9);
+      console.log(`🔄 Recompressing with quality ${targetQuality.toFixed(2)}`);
+      
+      finalImages = [];
+      for (let i = 0; i < images.length; i++) {
+        // Create image from base64
+        const img = new Image();
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+          img.src = images[i];
+        });
+        
+        // Redraw with lower quality
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('Could not get canvas context');
+        
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        
+        const compressed = canvas.toDataURL('image/jpeg', targetQuality);
+        finalImages.push(compressed);
+        
+        if ((i + 1) % 5 === 0 || i === images.length - 1) {
+          const currentSize = finalImages.reduce((sum, img) => sum + img.length, 0) / (1024 * 1024);
+          onProgress?.(`Compressing images... ${i + 1}/${images.length} (${currentSize.toFixed(1)}MB)`);
+        }
+      }
+      
+      wasCompressed = true;
+      const finalSizeBytes = finalImages.reduce((sum, img) => sum + img.length, 0);
+      const finalSizeMB = finalSizeBytes / (1024 * 1024);
+      console.log(`✅ Compression complete: ${totalSizeMB.toFixed(2)}MB → ${finalSizeMB.toFixed(2)}MB`);
+      
+      return { 
+        success: true, 
+        images: finalImages,
+        wasCompressed,
+        originalSizeMB: totalSizeMB,
+        finalSizeMB
+      };
+    }
+    
+    return { 
+      success: true, 
+      images: finalImages,
+      originalSizeMB: totalSizeMB,
+      finalSizeMB: totalSizeMB
+    };
     
   } catch (error) {
     console.error('PDF conversion error:', error);
