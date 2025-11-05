@@ -406,11 +406,20 @@ Return the complete extracted text maintaining the original structure and organi
           } catch {
             // Keep as text if not JSON
           }
+          
+          // Better error messages
+          if (response.status === 401) {
+            throw new Error('Authentication failed: Lovable AI API key is invalid. Please contact support.');
+          }
+          if (response.status === 402) {
+            throw new Error('Payment required: Please add credits to your Lovable AI workspace.');
+          }
           if (response.status === 429) {
             throw new Error('Rate limit exceeded: Please try again in a few moments.');
           }
           
-          throw new Error(`Vision API call failed: ${response.status} - ${errorData}`);
+          const errorMessage = typeof errorData === 'object' ? JSON.stringify(errorData) : errorData;
+          throw new Error(`Vision API call failed: ${response.status} - ${errorMessage}`);
         }
 
         return response;
@@ -833,7 +842,8 @@ Respond ONLY with valid JSON matching the structure above - no markdown, no expl
           throw new Error('Rate limit exceeded: Please try again in a few moments.');
         }
         
-        throw new Error(`AI API call failed: ${response.status} - ${errorData}`);
+        const errorMessage = typeof errorData === 'string' ? errorData : JSON.stringify(errorData);
+        throw new Error(`AI API call failed: ${response.status} - ${errorMessage}`);
       }
 
       return response;
