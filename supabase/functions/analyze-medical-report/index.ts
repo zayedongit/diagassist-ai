@@ -300,12 +300,12 @@ serve(async (req) => {
   try {
     console.log('🏥 Starting medical analysis...');
     
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      console.error('Missing Lovable AI API key');
-      throw new Error('Lovable AI API key not configured');
+    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+    if (!OPENAI_API_KEY) {
+      console.error('Missing OpenAI API key');
+      throw new Error('OpenAI API key not configured');
     }
-    console.log('✅ Lovable AI API key found');
+    console.log('✅ OpenAI API key found');
 
     // Declare variables at function scope
     let text = '';
@@ -367,17 +367,17 @@ IMPORTANT: Many medical reports have test values on multiple pages. Extract from
 Return the complete extracted text maintaining the original structure and organization.`;
       
       const visionResponse = await retryWithBackoff(async () => {
-        console.log('🔑 API Key configured:', !!LOVABLE_API_KEY);
-        console.log('📡 Calling Lovable AI vision API with Gemini 2.5 Pro...');
+        console.log('🔑 API Key configured:', !!OPENAI_API_KEY);
+        console.log('📡 Calling OpenAI Vision API with GPT-5...');
         
-        const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+            'Authorization': `Bearer ${OPENAI_API_KEY}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'google/gemini-2.5-pro', // Best for image-text + OCR
+            model: 'gpt-5-2025-08-07',
             messages: [
               {
                 role: 'user',
@@ -390,8 +390,7 @@ Return the complete extracted text maintaining the original structure and organi
                 ]
               }
             ],
-            max_tokens: 16000,
-            temperature: 0.3,
+            max_completion_tokens: 16000,
           }),
         });
 
@@ -409,10 +408,10 @@ Return the complete extracted text maintaining the original structure and organi
           
           // Better error messages
           if (response.status === 401) {
-            throw new Error('Authentication failed: Lovable AI API key is invalid. Please contact support.');
+            throw new Error('Authentication failed: OpenAI API key is invalid. Please check your API key.');
           }
           if (response.status === 402) {
-            throw new Error('Payment required: Please add credits to your Lovable AI workspace.');
+            throw new Error('Payment required: Please add credits to your OpenAI account.');
           }
           if (response.status === 429) {
             throw new Error('Rate limit exceeded: Please try again in a few moments.');
@@ -804,15 +803,15 @@ CRITICAL SUCCESS CRITERIA:
 Respond ONLY with valid JSON matching the structure above - no markdown, no explanations:`;
 
       const pass1Response = await retryWithBackoff(async () => {
-        console.log('📡 Calling Lovable AI for Pass 1 analysis with Gemini 2.5 Flash...');
-        const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        console.log('📡 Calling OpenAI API with GPT-5 Mini...');
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+            'Authorization': `Bearer ${OPENAI_API_KEY}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'google/gemini-2.5-flash', // Fast and efficient for text analysis
+            model: 'gpt-5-mini-2025-08-07',
             messages: [
               {
                 role: 'user',
@@ -820,8 +819,7 @@ Respond ONLY with valid JSON matching the structure above - no markdown, no expl
               }
             ],
             response_format: { type: "json_object" },
-            max_tokens: 16000,
-            temperature: 0.3,
+            max_completion_tokens: 16000,
           }),
         });
 
@@ -829,14 +827,14 @@ Respond ONLY with valid JSON matching the structure above - no markdown, no expl
 
       if (!response.ok) {
         const errorData = await response.text();
-        console.error('❌ Lovable AI API error:', response.status, errorData);
+        console.error('❌ OpenAI API error:', response.status, errorData);
         
         // Better error messages
         if (response.status === 401) {
-          throw new Error('Authentication failed: Lovable AI API key is invalid. Please contact support.');
+          throw new Error('Authentication failed: OpenAI API key is invalid. Please check your API key.');
         }
         if (response.status === 402) {
-          throw new Error('Payment required: Please add credits to your Lovable AI workspace.');
+          throw new Error('Payment required: Please add credits to your OpenAI account.');
         }
         if (response.status === 429) {
           throw new Error('Rate limit exceeded: Please try again in a few moments.');
