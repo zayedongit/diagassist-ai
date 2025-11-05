@@ -60,25 +60,31 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Fetching analysis result for ID: ${analysisId}, User: ${userId || 'anonymous'}`);
+    console.log(`🔍 Fetching analysis result for ID: ${analysisId}, User: ${userId || 'anonymous'}`);
 
-    // Query the analysis result using service role (bypasses RLS)
-    const { data: analysis, error } = await supabase
+    // Query with validation and ordering to get the most recent matching record
+    const query = supabase
       .from('pdf_analyses')
       .select('*')
       .eq('id', analysisId)
-      .single();
+      .order('created_at', { ascending: false });
+    
+    // Add user validation if userId is provided
+    if (userId) {
+      query.eq('user_id', userId);
+    }
+    
+    const { data: analysis, error } = await query.maybeSingle();
 
     if (error) {
-      console.error('Database query error:', error);
-      console.error('Query details:', { analysisId, userId });
+      console.error('❌ Database query error:', error);
       return new Response(
         JSON.stringify({ 
-          error: 'Analysis not found or access denied',
-          debug: { analysisId, errorMessage: error.message }
+          error: 'Failed to fetch analysis result',
+          debug: { errorMessage: error.message }
         }),
         { 
-          status: 404,
+          status: 500,
           headers: { 
             ...corsHeaders,
             'Content-Type': 'application/json'
@@ -88,29 +94,13 @@ serve(async (req) => {
     }
 
     if (!analysis) {
-      console.log(`No analysis found for ID: ${analysisId}`);
+      console.log(`⚠️ Analysis not found or user mismatch for ID: ${analysisId}`);
       return new Response(
         JSON.stringify({ 
-          error: 'Analysis not found',
-          debug: { analysisId }
+          error: 'Analysis not found or access denied'
         }),
         { 
           status: 404,
-          headers: { 
-            ...corsHeaders,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-    }
-
-    // Additional security check: if userId is provided, verify it matches
-    if (userId && analysis.user_id !== userId) {
-      console.log(`User ID mismatch: provided ${userId}, found ${analysis.user_id}`);
-      return new Response(
-        JSON.stringify({ error: 'Access denied' }),
-        { 
-          status: 403,
           headers: { 
             ...corsHeaders,
             'Content-Type': 'application/json'

@@ -25,21 +25,34 @@ serve(async (req) => {
     // Initialize Supabase client with service role key for admin access
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Delete completed analyses older than 1 hour
+    // Delete completed analyses older than 24 hours
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    
+    // Delete failed analyses older than 1 hour
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
     
-    const { data: oldAnalyses, error: fetchError } = await supabase
+    // Fetch old completed analyses
+    const { data: completedAnalyses, error: fetchCompletedError } = await supabase
       .from('pdf_analyses')
       .select('id, pdf_path, created_at, status')
       .eq('status', 'completed')
+      .lt('updated_at', twentyFourHoursAgo);
+
+    // Fetch old failed analyses
+    const { data: failedAnalyses, error: fetchFailedError } = await supabase
+      .from('pdf_analyses')
+      .select('id, pdf_path, created_at, status')
+      .eq('status', 'failed')
       .lt('updated_at', oneHourAgo);
 
-    if (fetchError) {
-      console.error('Error fetching old analyses:', fetchError);
-      throw fetchError;
+    if (fetchCompletedError || fetchFailedError) {
+      console.error('Error fetching old analyses:', fetchCompletedError || fetchFailedError);
+      throw fetchCompletedError || fetchFailedError;
     }
 
-    if (!oldAnalyses || oldAnalyses.length === 0) {
+    const oldAnalyses = [...(completedAnalyses || []), ...(failedAnalyses || [])];
+
+    if (oldAnalyses.length === 0) {
       console.log('✅ No old analyses to clean up');
       return new Response(
         JSON.stringify({ 
@@ -51,7 +64,7 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Found ${oldAnalyses.length} old analyses to clean up`);
+    console.log(`Found ${oldAnalyses.length} old analyses to clean up (${completedAnalyses?.length || 0} completed, ${failedAnalyses?.length || 0} failed)`);
 
     // Delete PDFs from storage
     let pdfDeleteCount = 0;
@@ -95,7 +108,9 @@ serve(async (req) => {
         message: 'Cleanup completed successfully',
         deleted: {
           analyses: analysisIds.length,
-          pdfs: pdfDeleteCount
+          pdfs: pdfDeleteCount,
+          completed: completedAnalyses?.length || 0,
+          failed: failedAnalyses?.length || 0
         }
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

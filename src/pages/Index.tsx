@@ -55,6 +55,10 @@ const Index = () => {
   const [showPostChatSections, setShowPostChatSections] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDriveSync, setIsDriveSync] = useState(false);
+  
+  // Polling cancellation refs to prevent cross-contamination
+  const pollingActiveRef = useRef(false);
+  const currentPollingIdRef = useRef<string | null>(null);
 
   // Handle single report processing
   const handleDriveSync = async () => {
@@ -249,13 +253,19 @@ RAW DATA: ${baseContext}`;
     return nonMedicalIndicators.some(indicator => text.includes(indicator));
   };
 
-  // Initialize or restore analysis state from localStorage
+  // Initialize or restore analysis state from localStorage with validation
   useEffect(() => {
     const storedAnalysisId = localStorage.getItem('analysisId');
     const storedUserId = localStorage.getItem('currentUserId');
     const storedStatus = localStorage.getItem('processingStatus');
+    const storedTimestamp = localStorage.getItem('analysisTimestamp');
     
-    if (storedAnalysisId && storedUserId && storedStatus !== 'completed' && storedStatus !== 'failed') {
+    // Only restore if analysis is less than 1 hour old
+    const ONE_HOUR = 60 * 60 * 1000;
+    const isRecent = storedTimestamp && (Date.now() - parseInt(storedTimestamp)) < ONE_HOUR;
+    
+    if (storedAnalysisId && storedUserId && storedStatus !== 'completed' && storedStatus !== 'failed' && isRecent) {
+      console.log('📦 Restoring recent analysis from localStorage:', storedAnalysisId);
       setAnalysisId(storedAnalysisId);
       setCurrentUserId(storedUserId);
       setProcessingStatus(storedStatus || 'processing');
@@ -264,16 +274,33 @@ RAW DATA: ${baseContext}`;
       
       // Resume polling
       pollForResults(storedAnalysisId, storedUserId);
+    } else if (storedAnalysisId) {
+      // Clear stale data
+      console.log('🧹 Clearing stale localStorage data');
+      localStorage.removeItem('analysisId');
+      localStorage.removeItem('currentUserId');
+      localStorage.removeItem('processingStatus');
+      localStorage.removeItem('analysisTimestamp');
     }
   }, []);
   
   // Poll for analysis results with progressive intervals for better UX
   const pollForResults = useCallback(async (id: string, userId: string) => {
+    console.log('🔄 Starting to poll for results for analysis:', id);
+    pollingActiveRef.current = true;
+    currentPollingIdRef.current = id;
+    
     const maxPollingTime = 300000; // 5 minutes total timeout (increased for complex reports)
     const startTime = Date.now();
     let attempts = 0;
     
     const poll = async () => {
+      // Check if polling should be cancelled
+      if (!pollingActiveRef.current || currentPollingIdRef.current !== id) {
+        console.log('🛑 Polling cancelled for:', id);
+        return;
+      }
+      
       const elapsedTime = Date.now() - startTime;
       attempts++;
       
@@ -291,9 +318,12 @@ RAW DATA: ${baseContext}`;
         setError('Analysis is taking longer than expected. This may be due to a very complex report or high server load. Please try again.');
         setIsAnalyzing(false);
         setProcessingStatus('failed');
+        pollingActiveRef.current = false;
+        currentPollingIdRef.current = null;
         localStorage.removeItem('analysisId');
         localStorage.removeItem('currentUserId');
         localStorage.removeItem('processingStatus');
+        localStorage.removeItem('analysisTimestamp');
         return;
       }
       
@@ -316,23 +346,7 @@ RAW DATA: ${baseContext}`;
         localStorage.setItem('processingStatus', analysis.status);
         
         if (analysis.status === 'completed' && analysis.result) {
-          // CRITICAL: Delete analysis record from database after retrieval
-          try {
-            console.log('🗑️ Deleting analysis record from database...');
-            const { error: deleteError } = await supabase
-              .from('pdf_analyses' as any)
-              .delete()
-              .eq('id', id)
-              .eq('user_id', userId);
-            
-            if (deleteError) {
-              console.error('Failed to delete analysis record:', deleteError);
-            } else {
-              console.log('✅ Analysis record deleted from database');
-            }
-          } catch (deleteErr) {
-            console.error('Error deleting analysis record:', deleteErr);
-          }
+          // Note: Database cleanup is handled by scheduled cleanup-old-analyses function
           
           // Normalize the analysis data structure
           const rawData = analysis.result;
@@ -356,21 +370,30 @@ RAW DATA: ${baseContext}`;
           setShowResults(true);
           setIsAnalyzing(false);
           setExtractedText(`Analysis completed successfully!`);
-          toast.success('PDF analysis completed successfully!');
+          
+          pollingActiveRef.current = false;
+          currentPollingIdRef.current = null;
           
           // Clear localStorage after successful completion
           localStorage.removeItem('analysisId');
           localStorage.removeItem('currentUserId');
           localStorage.removeItem('processingStatus');
+          localStorage.removeItem('analysisTimestamp');
+          
+          toast.success('PDF analysis completed successfully!');
         } else if (analysis.status === 'failed') {
           console.error('❌ Analysis failed:', analysis.error_message);
           setError(analysis.error_message || 'Analysis failed');
           setIsAnalyzing(false);
           
+          pollingActiveRef.current = false;
+          currentPollingIdRef.current = null;
+          
           // Clear localStorage after failure
           localStorage.removeItem('analysisId');
           localStorage.removeItem('currentUserId');  
           localStorage.removeItem('processingStatus');
+          localStorage.removeItem('analysisTimestamp');
         } else {
           // Progressive polling intervals: start fast, then slow down
           let nextPollInterval;
@@ -398,9 +421,12 @@ RAW DATA: ${baseContext}`;
           setError('Connection error while checking analysis status. Please try again.');
           setIsAnalyzing(false);
           setProcessingStatus('failed');
+          pollingActiveRef.current = false;
+          currentPollingIdRef.current = null;
           localStorage.removeItem('analysisId');
           localStorage.removeItem('currentUserId');
           localStorage.removeItem('processingStatus');
+          localStorage.removeItem('analysisTimestamp');
         }
       }
     };
@@ -537,6 +563,14 @@ RAW DATA: ${baseContext}`;
   };
 
   const handleFileSelect = async (file: File) => {
+    console.log('📁 File selected:', file.name);
+    
+    // CRITICAL: Clear all previous state and cancel any ongoing polling FIRST
+    console.log('🧹 Clearing previous analysis state and cancelling active polling');
+    pollingActiveRef.current = false;
+    currentPollingIdRef.current = null;
+    localStorage.clear();
+    
     setSelectedFile(file);
     setError(null);
     setIsAnalyzing(true);
@@ -549,6 +583,10 @@ RAW DATA: ${baseContext}`;
     setProcessingStatus('starting');
     setCurrentStage('conversion');
     setWasCompressed(false);
+    
+    toast.info("Starting New Analysis", {
+      description: "Clearing previous data and processing your new report...",
+    });
 
     try {
       // Process PDF on client side only
@@ -558,10 +596,11 @@ RAW DATA: ${baseContext}`;
         // Background processing started successfully
         setAnalysisId(response.analysisId);
         
-        // Store analysis state in localStorage for persistence
+        // Store analysis state in localStorage for persistence with timestamp
         localStorage.setItem('analysisId', response.analysisId);
         localStorage.setItem('currentUserId', currentUserId);
         localStorage.setItem('processingStatus', 'processing');
+        localStorage.setItem('analysisTimestamp', Date.now().toString());
         
         setExtractedText(`Processing started for ${file.name}. Analysis typically completes in 30-60 seconds.`);
         setProcessingStatus('processing');
@@ -802,6 +841,10 @@ RAW DATA: ${baseContext}`;
 
   const handleReset = async () => {
     console.log('🧹 Starting comprehensive cleanup...');
+    
+    // Cancel any active polling FIRST
+    pollingActiveRef.current = false;
+    currentPollingIdRef.current = null;
     
     // Clear all state
     setSelectedFile(null);
