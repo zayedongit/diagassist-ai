@@ -486,209 +486,313 @@ Return the complete extracted text maintaining the original structure and organi
       try {
         console.log('🔄 Background analysis started for:', analysisId);
 
-    console.log('🏥 Starting two-pass text-based analysis...');
+    console.log('🏥 Starting medical-grade text-based analysis...');
 
-    // PASS 1: Structured Analysis with retry logic
-    console.log('📋 PASS 1: Comprehensive medical analysis...');
-    const pass1Prompt = `You are an expert clinical pathologist analyzing a comprehensive laboratory report. Perform COMPLETE analysis extracting EVERY parameter found in the text.
+    // PASS 1: MEDICAL-GRADE Structured Analysis with Clinical Precision
+    console.log('📋 PASS 1: Medical-grade comprehensive analysis...');
+    const pass1Prompt = `You are a board-certified clinical pathologist with 20+ years of experience analyzing laboratory reports. Perform MEDICAL-GRADE analysis with ABSOLUTE ACCURACY.
 
 Medical Report Text:
 ${text}
 
-COMPREHENSIVE EXTRACTION REQUIREMENTS:
-1. Extract EVERY SINGLE parameter with numbers found in the report - do not miss any test results
-2. NEVER use placeholders, AUTO-DETECTED, or made-up values
-3. MANDATORY COMPREHENSIVE SCAN - Analyze ALL sections including:
-   - Blood Sugar Panel (HbA1c, Fasting Glucose, Random Glucose, OGTT)
-   - Complete Blood Count (Hemoglobin, WBC, RBC, Platelets, MCV, MCH, MCHC)
-   - Lipid Profile (Total Cholesterol, LDL, HDL, Triglycerides, Ratios)
-   - Liver Function (ALT, AST, Bilirubin, ALP, Total Protein, Albumin)
-   - Kidney Function (Creatinine, Urea, BUN, eGFR, Uric Acid)
-   - Thyroid Function (TSH, T3, T4, Free T3, Free T4)
-   - Iron Studies (Serum Iron, Ferritin, TIBC, Transferrin Saturation)
-   - Vitamin Levels (Vitamin D, B12, Folate, other vitamins)
-   - Cardiac Markers (Troponins, CK-MB, LDH if present)
-   - Inflammatory Markers (ESR, CRP if present)
-   - Electrolytes (Sodium, Potassium, Chloride if present)
-   - Hormonal Tests (any hormones mentioned)
-   - Urine Analysis (all urine parameters if present)
-   - Any other specialized tests or parameters found
+=== CRITICAL MEDICAL ACCURACY REQUIREMENTS ===
 
-DYNAMIC CLINICAL SEVERITY ASSESSMENT:
-Automatically determine the most critical findings based on actual values:
+🎯 ZERO TOLERANCE FOR ERRORS:
+- Every number must be EXACT from the report
+- Every interpretation must be CLINICALLY ACCURATE
+- Use proper medical terminology and clinical thresholds
+- NEVER make assumptions or use generic statements
+- CRITICAL: Identify ACUTE conditions with precision
 
-CRITICAL CONDITIONS (overallStatus: "concerning", urgent medical attention):
-- HbA1c >11% or Random Glucose >300 mg/dl or Fasting Glucose >250 mg/dl
-- Creatinine >3.0 mg/dl or eGFR <30 mL/min
-- Hemoglobin <8 g/dl or >18 g/dl
-- ALT/AST >200 U/L (acute liver damage)
-- Troponins elevated (heart attack markers)
-- Severe electrolyte imbalances
+=== COMPREHENSIVE EXTRACTION - MANDATORY ===
 
-SEVERE CONDITIONS (overallStatus: "concerning", immediate care):
-- HbA1c >9% or Fasting Glucose >200 mg/dl (severe diabetes)
-- Creatinine 1.5-3.0 mg/dl (kidney dysfunction)
-- Hemoglobin 8-10 g/dl (significant anemia)
-- Total Cholesterol >300 mg/dl or Triglycerides >500 mg/dl
-- TSH <0.1 or >10 mIU/L (severe thyroid dysfunction)
+Extract EVERY parameter from ALL sections:
 
-MODERATE CONDITIONS (overallStatus: "moderate", medical follow-up):
-- HbA1c 7-9% or Fasting Glucose 126-200 mg/dl
-- Iron deficiency (Serum Iron <50 μg/dl, Hemoglobin <12 g/dl)
-- Total Cholesterol 240-300 mg/dl
-- Mild-moderate liver/kidney dysfunction
-- Thyroid abnormalities (TSH 0.1-0.4 or 4-10)
+1. **BLOOD SUGAR & DIABETES PANEL**:
+   - HbA1c (glycated hemoglobin)
+   - Fasting Plasma Glucose (FPG)
+   - Random Blood Sugar (RBS)
+   - Post-Prandial Glucose (PPG)
+   - OGTT (Oral Glucose Tolerance Test) if present
+   - Insulin, C-Peptide if present
 
-MINOR CONDITIONS (overallStatus: "good" or "moderate"):
-- Vitamin deficiencies (D <20 ng/mL, B12 <200 pg/mL)
-- Borderline values slightly outside normal ranges
+2. **COMPLETE BLOOD COUNT (CBC)**:
+   - Hemoglobin (Hb)
+   - Total RBC count
+   - Total WBC count with differential (Neutrophils, Lymphocytes, Monocytes, Eosinophils, Basophils)
+   - Platelet count
+   - PCV/Hematocrit
+   - MCV, MCH, MCHC (RBC indices)
+   - RDW (Red Cell Distribution Width)
 
-SUMMARY GENERATION (CRITICAL - READ CAREFULLY):
-Generate a human-friendly, reassuring summary that explains findings in layman terms:
+3. **IRON STUDIES** (CRITICAL for iron deficiency):
+   - Serum Iron
+   - Ferritin (storage iron)
+   - TIBC (Total Iron Binding Capacity)
+   - Transferrin Saturation %
+   - Note: Hemoglobin <12 g/dL (women) or <13 g/dL (men) = Anemia
 
-TONE & LANGUAGE RULES (MUST FOLLOW):
-- Use simple, non-frightening language that a family member would use
-- Be reassuring, supportive, and hopeful
-- Avoid ALL medical jargon and specific parameter values
-- Focus on general health insights rather than technical numbers
-- NEVER use alarming words like "ACUTE", "SEVERE", "CRITICAL" unless truly life-threatening
-- Be a caring health companion, not a clinical diagnosis machine
+4. **LIPID PROFILE**:
+   - Total Cholesterol
+   - LDL Cholesterol (bad cholesterol)
+   - HDL Cholesterol (good cholesterol)
+   - VLDL Cholesterol
+   - Triglycerides
+   - Total Cholesterol/HDL Ratio
+   - LDL/HDL Ratio
 
-CONTENT GUIDELINES:
-- NEVER mention specific lab values, numbers, or percentages
-- For mildly elevated values (10-30% above normal): "shows room for improvement"
-- For moderately elevated values (30-50% above): "needs attention and lifestyle adjustments"
-- For significantly elevated values (>50% above): "requires medical consultation"
-- ALWAYS end with hope and actionable direction
-- Use "your body" not "your labs"
-- Focus on "what you can do" not "what's wrong"
+5. **LIVER FUNCTION TESTS (LFTs)** - CRITICAL THRESHOLDS:
+   - ALT (SGPT): Normal <40 U/L
+     * 40-100 U/L = Mild elevation
+     * 100-200 U/L = Moderate elevation
+     * >200 U/L = ACUTE HEPATOCELLULAR INJURY (requires immediate evaluation)
+   - AST (SGOT): Normal <40 U/L
+     * >200 U/L with ALT >200 = ACUTE LIVER DAMAGE
+   - Alkaline Phosphatase (ALP)
+   - Total Bilirubin, Direct Bilirubin, Indirect Bilirubin
+   - Total Protein, Albumin, Globulin, A/G Ratio
+   - GGT (Gamma-Glutamyl Transferase)
 
-EXAMPLES OF GOOD VS BAD LANGUAGE:
-❌ BAD: "ACUTE LIVER DAMAGE with ALT 82 requiring immediate attention"
-✅ GOOD: "Your liver enzymes show mild elevation, which often improves with healthy lifestyle changes like reducing alcohol and eating a balanced diet"
+6. **KIDNEY FUNCTION TESTS (KFTs)**:
+   - Serum Creatinine (Normal: 0.6-1.2 mg/dL)
+   - Blood Urea Nitrogen (BUN)
+   - Urea
+   - eGFR (estimated Glomerular Filtration Rate)
+   - Uric Acid
+   - Electrolytes: Sodium, Potassium, Chloride, Bicarbonate
 
-❌ BAD: "SEVERE DIABETES with HbA1c 10.6% indicating dangerously poor control"
-✅ GOOD: "Your blood sugar management needs attention. The good news is that with proper care, medication, and lifestyle changes, many people successfully bring these levels down to healthier ranges"
+7. **THYROID FUNCTION**:
+   - TSH (Thyroid Stimulating Hormone)
+   - Free T4 (Thyroxine)
+   - Free T3 (Triiodothyronine)
+   - Total T4, Total T3
+   - TPO Antibodies, Thyroglobulin Antibodies
 
-❌ BAD: "Critical iron deficiency causing severe anemia"
-✅ GOOD: "Your iron levels are lower than ideal, which can make you feel tired. This is common and typically improves with iron-rich foods or supplements"
+8. **VITAMIN & MINERAL LEVELS**:
+   - Vitamin D (25-OH Vitamin D): Normal >30 ng/mL, Deficient <20 ng/mL
+   - Vitamin B12: Normal >200 pg/mL
+   - Folate (Folic Acid)
+   - Calcium, Magnesium, Phosphorus
+   - Zinc, Copper if present
 
-❌ BAD: "Multiple abnormalities detected across panels"
-✅ GOOD: "Your results show a few areas where your body could use some extra support through simple lifestyle changes"
+9. **CARDIAC MARKERS** (if present):
+   - Troponin I, Troponin T
+   - CK-MB, CK-Total
+   - LDH
+   - BNP, NT-proBNP
 
-EXAMPLE SUMMARIES BY SEVERITY:
-Good Status: "Great news! Your test results show that your body is functioning well. Any values that caught our attention are minor and easily managed. Keep up the healthy habits that are working for you."
+10. **INFLAMMATORY MARKERS** (if present):
+    - ESR (Erythrocyte Sedimentation Rate)
+    - CRP (C-Reactive Protein)
+    - hs-CRP (high-sensitivity CRP)
 
-Moderate Status: "Your results show a few areas where your body could use some support. These are opportunities to improve your health with manageable changes to diet and lifestyle. Early awareness means you can take positive action now."
+11. **HORMONAL TESTS** (if present):
+    - Cortisol, ACTH
+    - Testosterone, DHEA-S
+    - Estrogen, Progesterone, FSH, LH
+    - Prolactin, Growth Hormone
 
-Concerning Status: "Your results show some areas that would benefit from medical attention. Early detection is positive - it means you can work with your doctor to improve your health. Many of these conditions respond very well to treatment when caught early."
+12. **URINE ANALYSIS** (if present):
+    - Color, Appearance, pH, Specific Gravity
+    - Protein, Glucose, Ketones
+    - Blood, Bilirubin, Urobilinogen
+    - WBC, RBC, Epithelial cells, Casts, Crystals
 
-KEY PRINCIPLES:
-- Be a supportive friend, not a medical report
-- Emphasize hope and empowerment over fear
-- Use "shows room for improvement" instead of "abnormal"  
-- Use "could benefit from attention" instead of "elevated"
-- Use "needs support" instead of "dysfunction"
-- Always include reassuring context about treatability and hope
+13. **SPECIALIZED TESTS** (extract any found):
+    - Tumor markers (CEA, CA 19-9, PSA, AFP, etc.)
+    - Autoimmune markers (ANA, RF, Anti-CCP)
+    - Coagulation studies (PT, INR, aPTT)
+    - Liver fibrosis scores
+    - Any other specialized parameters
 
+=== CLINICAL SEVERITY CLASSIFICATION - MEDICAL-GRADE ===
 
-SPECIALIST RECOMMENDATIONS (based on most critical finding):
-- Endocrinologist: Diabetes (HbA1c >7%), thyroid disorders
-- Nephrologist: Kidney dysfunction (Creatinine >1.5)
-- Cardiologist: Heart disease markers, severe dyslipidemia
-- Hematologist: Blood disorders, severe anemia
-- Gastroenterologist: Liver dysfunction
+**CRITICAL CONDITIONS** → overallStatus: "concerning" + IMMEDIATE medical attention:
 
-PATIENT NAME EXTRACTION (CRITICAL):
-You MUST thoroughly search the ENTIRE document for the patient's name in these locations:
-1. Document header/title (top of first page)
-2. "Patient Name:", "Name:", "Patient:", "Pt Name:" fields
-3. Look for titles: "Mr.", "Mrs.", "Ms.", "Dr." followed by a name
-4. Demographics/Patient Information section
-5. Billing or Registration information
-6. Near Date of Birth, Age, or Gender fields
-7. Signature or Authorization sections
-8. Any field that contains a person's full name
+1. **ACUTE LIVER DAMAGE**:
+   - ALT >200 U/L AND/OR AST >200 U/L
+   - Interpretation: "Acute hepatocellular injury requiring immediate hepatology evaluation"
+   - Specialist: Hepatologist/Gastroenterologist
 
-CRITICAL: Extract the name if it appears ANYWHERE. Only return "Anonymous Patient" if absolutely no name exists after exhaustive search.
+2. **SEVERE UNCONTROLLED DIABETES**:
+   - HbA1c >11% OR Fasting Glucose >250 mg/dL OR Random Glucose >300 mg/dL
+   - Interpretation: "Severe hyperglycemia requiring urgent endocrinology consultation"
+   - Specialist: Endocrinologist
 
-COMPREHENSIVE REFERENCE RANGES:
-- HbA1c: Normal <5.7%, Pre-diabetic 5.7-6.4%, Diabetic ≥6.5%, Needs attention >9%, Requires immediate care >11%
-- Fasting Glucose: Normal <100, Pre-diabetic 100-125, Diabetic ≥126, Needs immediate care >200 mg/dl
-- Hemoglobin: Men 13.5-17.5, Women 12.0-15.5 g/dl, Needs attention <8 or >18 g/dl
-- Creatinine: Normal 0.6-1.2 mg/dl, Needs attention >3.0 mg/dl
-- Total Cholesterol: Optimal <200, Borderline 200-239, High ≥240, Needs attention >300 mg/dl
-- ALT/AST: Normal <40 U/L, Needs attention >200 U/L
-- TSH: Normal 0.4-4.0 mIU/L, Needs attention <0.1 or >10 mIU/L
+3. **SEVERE ANEMIA**:
+   - Hemoglobin <8 g/dL
+   - Interpretation: "Severe anemia requiring urgent hematology evaluation"
+   - Specialist: Hematologist
 
-SUCCESS CRITERIA:
-✅ EVERY parameter in the report is extracted and analyzed
-✅ Most critical finding automatically identified and prioritized
-✅ Summary covers ALL abnormal findings in clinical severity order
-✅ Appropriate overallStatus based on highest severity finding
-✅ Correct specialist recommendation for most critical condition
-✅ NO abnormal parameter is overlooked or minimized
+4. **ACUTE KIDNEY INJURY**:
+   - Creatinine >3.0 mg/dL OR eGFR <30 mL/min
+   - Interpretation: "Acute kidney injury/CKD Stage 4-5 requiring nephrology care"
+   - Specialist: Nephrologist
 
-REQUIRED JSON STRUCTURE - You MUST return this exact structure:
+5. **SEVERE ELECTROLYTE IMBALANCE**:
+   - Potassium <2.5 or >6.0 mEq/L
+   - Sodium <125 or >155 mEq/L
+   - Interpretation: "Life-threatening electrolyte imbalance requiring emergency care"
+
+**SEVERE CONDITIONS** → overallStatus: "concerning" + Urgent medical follow-up:
+
+1. **IRON DEFICIENCY ANEMIA**:
+   - Hemoglobin <12 g/dL (women) or <13 g/dL (men) AND
+   - Ferritin <30 ng/mL OR Serum Iron <50 μg/dL
+   - Interpretation: "Iron deficiency anemia requiring iron supplementation and cause evaluation"
+
+2. **MODERATE-SEVERE DIABETES**:
+   - HbA1c 9-11% OR Fasting Glucose 200-250 mg/dL
+   - Interpretation: "Poorly controlled diabetes requiring medication adjustment"
+
+3. **SIGNIFICANT LIVER DYSFUNCTION**:
+   - ALT/AST 100-200 U/L
+   - Interpretation: "Moderate hepatocellular injury requiring evaluation"
+
+4. **SEVERE DYSLIPIDEMIA**:
+   - Total Cholesterol >300 mg/dL OR Triglycerides >500 mg/dL OR LDL >190 mg/dL
+   - Interpretation: "Severe dyslipidemia with high cardiovascular risk"
+
+5. **SEVERE THYROID DYSFUNCTION**:
+   - TSH <0.1 mIU/L (severe hyperthyroidism) OR >10 mIU/L (severe hypothyroidism)
+
+**MODERATE CONDITIONS** → overallStatus: "moderate" + Medical follow-up recommended:
+
+1. **CONTROLLED/BORDERLINE DIABETES**:
+   - HbA1c 7-9% OR Fasting Glucose 126-200 mg/dL
+   - Pre-diabetes: HbA1c 5.7-6.4% OR Fasting Glucose 100-125 mg/dL
+
+2. **MILD ANEMIA**:
+   - Hemoglobin 10-12 g/dL (women) or 10-13 g/dL (men)
+
+3. **MODERATE DYSLIPIDEMIA**:
+   - Total Cholesterol 240-300 mg/dL OR LDL 160-190 mg/dL
+
+4. **MILD LIVER ENZYME ELEVATION**:
+   - ALT/AST 40-100 U/L
+   - Interpretation: "Mild hepatocellular inflammation - lifestyle modifications recommended"
+
+5. **MILD-MODERATE KIDNEY DYSFUNCTION**:
+   - Creatinine 1.3-3.0 mg/dL OR eGFR 30-60 mL/min
+
+6. **THYROID ABNORMALITIES**:
+   - TSH 0.1-0.4 mIU/L (mild hyperthyroidism) OR 4.0-10 mIU/L (mild hypothyroidism)
+
+**MINOR CONDITIONS** → overallStatus: "good" or "moderate":
+
+1. **VITAMIN DEFICIENCIES**:
+   - Vitamin D <20 ng/mL (deficient) or 20-30 ng/mL (insufficient)
+   - Vitamin B12 <200 pg/mL
+
+2. **BORDERLINE ABNORMALITIES**:
+   - Values 5-15% outside normal range
+
+=== SUMMARY GENERATION - MEDICAL-GRADE BUT PATIENT-FRIENDLY ===
+
+**TONE RULES** (CRITICAL):
+- Be accurate but reassuring
+- Use medical precision WITHOUT medical jargon
+- Start with the most serious finding
+- Explain clinical significance in layman terms
+- End with hope and actionable steps
+
+**LANGUAGE GUIDELINES**:
+- For ACUTE LIVER DAMAGE: "Your liver enzyme levels are significantly elevated, indicating active liver inflammation that needs prompt medical evaluation"
+- For IRON DEFICIENCY: "Your iron stores are lower than optimal, causing your hemoglobin to drop. This is common and treatable with iron supplements and dietary changes"
+- For SEVERE DIABETES: "Your blood sugar has been running quite high over recent months. With proper medication, diet, and monitoring, many people successfully bring these levels down"
+
+**SPECIALIST RECOMMENDATION** (Based on PRIMARY concern):
+- Acute Liver Damage (ALT/AST >200) → Hepatologist/Gastroenterologist
+- Iron Deficiency Anemia → Hematologist or Primary Care with Iron Therapy
+- Diabetes (HbA1c >7%) → Endocrinologist
+- Kidney Dysfunction → Nephrologist
+- Severe Dyslipidemia → Cardiologist
+- Thyroid Disorders → Endocrinologist
+
+=== PATIENT NAME EXTRACTION (MANDATORY) ===
+
+Search EXHAUSTIVELY for patient name in:
+1. Report header/letterhead
+2. "Patient Name:", "Name:", "Patient:", "Pt Name:", "Mr./Mrs./Ms." fields
+3. Demographics section
+4. Near DOB, Age, Gender fields
+5. Billing/Registration info
+6. Signature sections
+
+ONLY use "Anonymous Patient" if absolutely no name found after thorough search.
+
+=== JSON STRUCTURE (EXACT FORMAT REQUIRED) ===
+
 {
+  "patientName": "string - Full name extracted from report or 'Anonymous Patient'",
   "overallStatus": "good" | "moderate" | "concerning",
-  "summary": "string - patient-friendly summary following the tone guidelines above",
+  "summary": "string - Clinically accurate, patient-friendly summary prioritizing most serious findings",
   "demographics": {
     "gender": "male" | "female" | "other",
     "age": number
   },
   "medicalPanels": [
     {
-      "name": "string - panel name like 'Diabetes Panel', 'Lipid Profile', etc.",
-      "description": "string - brief description of what this panel measures",
+      "name": "string - Specific panel name (e.g., 'Diabetes Panel', 'Liver Function Tests')",
+      "description": "string - Clinical description of panel purpose",
       "abnormalLabs": [
         {
-          "name": "string - parameter name",
-          "value": "string - the actual numeric value",
-          "unit": "string - unit of measurement",
-          "referenceRange": "string - normal reference range",
+          "name": "string - Exact parameter name",
+          "value": "string - Exact numeric value from report",
+          "unit": "string - Exact unit",
+          "referenceRange": "string - Normal range from report or standard clinical range",
           "status": "low" | "high" | "critical",
-          "significance": "string - brief clinical significance"
+          "significance": "string - Brief clinical significance with specific thresholds"
         }
       ],
-      "normalParameters": ["string - list of normal parameters in this panel"],
-      "interpretation": "string - clinical interpretation of this panel"
+      "normalParameters": ["string - List of normal parameter values in this panel with values"],
+      "interpretation": "string - Medical-grade clinical interpretation with specific condition names"
     }
   ],
-  "nextSteps": ["string - actionable next steps for the patient"],
+  "nextSteps": [
+    "string - Specific, actionable clinical recommendations"
+  ],
   "diet": {
-    "avoid": ["string - foods to avoid"],
-    "increase": ["string - foods to increase"],
-    "detailed": ["string - detailed dietary recommendations"]
+    "avoid": ["string - Specific foods to avoid with clinical reasoning"],
+    "increase": ["string - Specific foods to increase with clinical benefits"],
+    "detailed": ["string - Detailed dietary recommendations based on conditions"]
   },
   "lifestyle": {
-    "recommendations": ["string - lifestyle recommendations"],
-    "detailed": ["string - detailed lifestyle guidance"]
+    "recommendations": ["string - Specific lifestyle changes"],
+    "detailed": ["string - Detailed lifestyle guidance with clinical rationale"]
   },
-  "patientFriendlySummary": "string - very friendly, reassuring explanation in simple terms",
-  "specialist": "string - recommended specialist to consult",
-  "populationSource": "string - reference to population data source used",
+  "patientFriendlySummary": "string - Simple, reassuring explanation",
+  "specialist": "string - Specific specialist type for PRIMARY concern",
+  "populationSource": "Clinical laboratory reference ranges and population health data",
   "healthRisks": [
     {
-      "category": "string - risk category",
-      "risk": "string - specific risk",
+      "category": "string - Risk category",
+      "risk": "string - Specific medical risk",
       "level": "mild" | "moderate" | "high",
-      "description": "string - risk description"
+      "description": "string - Clinical risk description"
     }
   ],
   "predictiveInsights": [
     {
-      "parameter": "string - parameter name",
-      "currentTrend": "string - current trend",
-      "timeframe": "string - prediction timeframe",
-      "prediction": "string - what might happen",
-      "intervention": "string - how to prevent/improve",
+      "parameter": "string - Parameter name",
+      "currentTrend": "string - Current clinical trend",
+      "timeframe": "string - Evidence-based timeframe",
+      "prediction": "string - Clinical prediction",
+      "intervention": "string - Evidence-based intervention",
       "urgency": "none" | "mild" | "moderate" | "high"
     }
   ]
 }
 
-Respond with JSON only matching this exact structure - no markdown formatting:`;
+CRITICAL SUCCESS CRITERIA:
+✅ Every parameter extracted with exact values
+✅ Acute conditions (ALT/AST >200, HbA1c >11, Hb <8, Creatinine >3) correctly identified
+✅ Iron deficiency properly diagnosed (low Hb + low Ferritin/Iron)
+✅ Most critical finding prioritized in summary
+✅ Appropriate specialist for PRIMARY concern
+✅ Clinical accuracy verified against standard medical guidelines
+
+Respond ONLY with valid JSON matching the structure above - no markdown, no explanations:`;
 
       const pass1Response = await retryWithBackoff(async () => {
         console.log('📡 Calling Lovable AI for Pass 1 analysis with Gemini 2.5 Flash...');

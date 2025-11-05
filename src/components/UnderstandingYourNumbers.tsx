@@ -32,66 +32,199 @@ export const UnderstandingYourNumbers = ({ analysisData }: UnderstandingYourNumb
   );
 
   const getParameterContext = (lab: any) => {
+    const labName = lab.name.toLowerCase();
+    const value = parseFloat(lab.value);
+    
+    // Use the same comprehensive contexts from ParameterContextSection
     const contexts: Record<string, { whatItMeans: string; possibleCauses: string[]; bodyConnection: string; }> = {
-      'glucose': {
-        whatItMeans: 'Glucose is your body\'s primary fuel source. This test reveals how effectively your cells are using sugar for energy and whether your pancreas is producing adequate insulin to regulate blood sugar levels.',
-        possibleCauses: ['Consuming high-glycemic foods (white bread, sweets)', 'Sedentary lifestyle reducing insulin sensitivity', 'Chronic stress elevating cortisol', 'Certain medications (steroids, diuretics)', 'Pancreatic dysfunction or insulin resistance', 'Hormonal changes during pregnancy or menopause'],
-        bodyConnection: 'Elevated glucose damages the delicate lining of blood vessels throughout your body, particularly in the eyes (retinopathy), kidneys (nephropathy), and nerves (neuropathy). It also accelerates atherosclerosis, increasing heart attack and stroke risk.'
-      },
+      // BLOOD SUGAR
       'hba1c': {
-        whatItMeans: 'HbA1c is like a "glucose memory test" - it shows how well your blood sugar has been controlled over the past 2-3 months by measuring glucose attached to your red blood cells. It\'s the gold standard for diabetes monitoring.',
-        possibleCauses: ['Inconsistent medication adherence', 'Unbalanced meal timing and portions', 'Inadequate physical activity patterns', 'Unmanaged emotional stress', 'Sleep disorders affecting glucose metabolism', 'Other health conditions like infections'],
-        bodyConnection: 'High HbA1c indicates prolonged glucose exposure, accelerating the formation of advanced glycation end products (AGEs) that cause premature aging of tissues, particularly affecting cardiovascular, kidney, and nerve health.'
+        whatItMeans: `HbA1c of ${lab.value}${lab.unit || '%'} reflects your average blood sugar over 2-3 months. ${
+          value >= 11 ? 'This level requires immediate endocrinology consultation for severe diabetes.' :
+          value >= 9 ? 'This indicates poorly controlled diabetes requiring medication adjustment.' :
+          value >= 7 ? 'This is above diabetes target. With proper care, many improve to <7%.' :
+          value >= 6.5 ? 'This indicates diabetes. Early intervention prevents complications.' :
+          value >= 5.7 ? 'This is pre-diabetes range. Lifestyle changes can prevent progression.' :
+          'This shows room for improvement.'
+        } HbA1c is the gold standard for diabetes monitoring.`,
+        possibleCauses: ['Type 2 diabetes with inadequate medication', 'Insulin resistance', 'High refined carb diet', 'Physical inactivity', 'Stress', 'Medication non-compliance', 'Undiagnosed Type 1 diabetes', 'Pancreatic disorders'],
+        bodyConnection: `Elevated glucose damages blood vessels throughout your body, affecting eyes (diabetic retinopathy), kidneys (nephropathy), nerves (neuropathy), and heart. Each 1% HbA1c reduction decreases complications by 37% and heart attack risk by 14%.`
       },
+      'glucose': {
+        whatItMeans: `Blood glucose of ${lab.value} ${lab.unit || 'mg/dL'} ${
+          value >= 300 ? 'is dangerously high—emergency attention needed.' :
+          value >= 200 ? 'is severely elevated. If fasting, this indicates diabetes.' :
+          value >= 126 ? 'is elevated. If fasting, this meets diabetes criteria.' :
+          value >= 100 ? 'is pre-diabetes range if fasting.' :
+          value < 70 ? 'is low (hypoglycemia). Consume 15g carbs if symptomatic.' :
+          'is within range.'
+        } Glucose is your body's primary fuel.`,
+        possibleCauses: value >= 100 ? ['Diabetes', 'Pre-diabetes', 'High glycemic diet', 'Inactivity', 'Obesity', 'Stress', 'Medications', 'Pancreatitis'] : ['Excess insulin', 'Skipped meals', 'Intense exercise', 'Alcohol', 'Medication timing'],
+        bodyConnection: `At ${lab.value} ${lab.unit || 'mg/dL'}, ${value >= 126 ? 'chronic hyperglycemia causes protein glycation, forming AGEs that damage vessels, nerves, and organs—accelerating aging and disease.' : value >= 100 ? 'this level indicates insulin resistance. Early intervention prevents diabetes.' : value < 70 ? 'low glucose deprives brain/muscles of energy, causing confusion and weakness.' : 'stable glucose provides consistent energy.'}`
+      },
+      
+      // IRON & ANEMIA
+      'hemoglobin': {
+        whatItMeans: `Hemoglobin of ${lab.value} ${lab.unit || 'g/dL'} ${
+          value < 8 ? 'is severely low—urgent hematology consultation and possible transfusion needed.' :
+          value < 10 ? 'indicates moderate anemia requiring iron studies and treatment.' :
+          value < 12 ? 'is low (mild anemia in women; normal >12 g/dL).' :
+          value < 13 ? 'is low (mild anemia in men; normal >13 g/dL).' :
+          value > 18 ? 'is abnormally high—may indicate polycythemia or dehydration.' :
+          'is normal.'
+        } Hemoglobin carries oxygen to every cell.`,
+        possibleCauses: value < 12 || value < 13 ? ['Iron deficiency (most common)', 'Chronic blood loss', 'B12/folate deficiency', 'Chronic kidney disease', 'Chronic disease', 'Thalassemia', 'Bone marrow disorders'] : ['Polycythemia vera', 'Chronic hypoxia', 'Dehydration', 'Smoking', 'High altitude'],
+        bodyConnection: `At ${lab.value} ${lab.unit || 'g/dL'}, ${value < 12 || value < 13 ? 'low hemoglobin reduces oxygen delivery, causing fatigue, weakness, shortness of breath, dizziness, pale skin, and cold extremities. Severe anemia strains the heart, risking heart failure. In pregnancy, increases maternal/fetal risks.' : value > 18 ? 'elevated hemoglobin thickens blood, increasing clot risk (stroke, heart attack, DVT).' : 'normal hemoglobin ensures adequate oxygen for energy and function.'}`
+      },
+      'ferritin': {
+        whatItMeans: `Ferritin of ${lab.value} ${lab.unit || 'ng/mL'} measures iron storage. ${
+          value < 15 ? 'This indicates depleted iron stores and iron deficiency anemia.' :
+          value < 30 ? 'This is low—iron deficiency anemia is developing.' :
+          value < 50 ? 'This is borderline low. Iron stores are suboptimal.' :
+          value > 300 ? 'This is elevated—may indicate iron overload, inflammation, or liver disease.' :
+          'This is normal.'
+        } Ferritin is the most sensitive iron deficiency indicator.`,
+        possibleCauses: value < 50 ? ['Inadequate dietary iron', 'Poor absorption', 'Chronic blood loss', 'Pregnancy/breastfeeding', 'Vegetarian/vegan diet', 'Blood donation', 'Athletic training'] : ['Hemochromatosis', 'Liver disease', 'Inflammation', 'Blood transfusions', 'Alcohol abuse', 'Certain cancers'],
+        bodyConnection: `At ${lab.value} ${lab.unit || 'ng/mL'}, ${value < 50 ? 'depleted iron prevents hemoglobin production, causing fatigue, weakness, brittle nails, hair loss, restless legs, and cognitive impairment. In children, affects brain development.' : value > 300 ? 'excess iron deposits in organs (liver, heart, pancreas) causing cirrhosis, heart failure, and diabetes. Requires phlebotomy or chelation.' : 'adequate iron supports oxygen transport and energy.'}`
+      },
+      'iron': {
+        whatItMeans: `Serum iron of ${lab.value} ${lab.unit || 'μg/dL'} measures circulating iron. ${
+          value < 50 ? 'This is low—indicates iron deficiency with low ferritin and high TIBC.' :
+          value < 60 ? 'This is borderline low. Check ferritin and TIBC.' :
+          value > 160 ? 'This is elevated—may indicate iron overload or over-supplementation.' :
+          'This is normal.'
+        } Serum iron varies daily; interpret with ferritin/TIBC.`,
+        possibleCauses: value < 60 ? ['Iron deficiency', 'Chronic blood loss', 'Pregnancy', 'Growth spurts', 'Chronic disease', 'Inflammation'] : ['Hemochromatosis', 'Iron poisoning', 'Hemolytic anemia', 'Liver disease', 'Blood transfusions'],
+        bodyConnection: `At ${lab.value} ${lab.unit || 'μg/dL'}, ${value < 60 ? 'insufficient iron limits hemoglobin synthesis, reducing oxygen capacity. Causes fatigue, weakness, impaired immunity. Iron is essential for DNA synthesis, neurotransmitters, and energy.' : value > 160 ? 'excess free iron generates oxidative damage. Iron overload harms liver, heart, and endocrine glands.' : 'adequate iron supports RBC production.'}`
+      },
+
+      // LIPIDS
       'cholesterol': {
-        whatItMeans: 'Cholesterol is essential for cell membrane structure and hormone production, but excess amounts form fatty deposits in arteries. LDL ("bad") cholesterol builds up in artery walls, while HDL ("good") cholesterol helps remove it.',
-        possibleCauses: ['Diet rich in saturated fats (red meat, full-fat dairy)', 'Trans fats from processed foods', 'Genetic predisposition (familial hypercholesterolemia)', 'Obesity and metabolic syndrome', 'Sedentary lifestyle', 'Smoking and excessive alcohol consumption'],
-        bodyConnection: 'Excess cholesterol forms plaques in coronary arteries, increasing heart attack risk. It also affects cerebral circulation (stroke risk) and peripheral vessels (poor circulation in legs). The inflammatory response to cholesterol deposits accelerates atherosclerosis.'
-      },
-      'creatinine': {
-        whatItMeans: 'Creatinine is a waste product from muscle metabolism that healthy kidneys efficiently filter out. Rising levels indicate declining kidney function, as your kidneys struggle to maintain their filtration capacity.',
-        possibleCauses: ['Chronic dehydration reducing kidney blood flow', 'High protein diet overwhelming kidney capacity', 'Diabetes or high blood pressure damaging kidney filters', 'Certain medications (NSAIDs, ACE inhibitors)', 'Muscle disorders or intense exercise', 'Kidney stones or infections'],
-        bodyConnection: 'Impaired kidney function affects your body\'s ability to regulate fluid balance, blood pressure, and electrolytes. It also impacts red blood cell production and bone health through disrupted mineral metabolism.'
-      },
-      'alt': {
-        whatItMeans: 'ALT (Alanine Aminotransferase) is an enzyme primarily found inside liver cells. When liver cells are damaged, ALT leaks into the bloodstream, making it a sensitive marker of liver health and inflammation.',
-        possibleCauses: ['Fatty liver disease from obesity or alcohol', 'Viral hepatitis infections', 'Medication-induced liver toxicity', 'Autoimmune liver conditions', 'Excessive alcohol consumption', 'Metabolic disorders affecting liver function'],
-        bodyConnection: 'Your liver performs over 500 vital functions including detoxification, protein synthesis, and glucose regulation. Liver damage affects your body\'s ability to process toxins, maintain blood sugar, and produce essential proteins for blood clotting and immunity.'
-      },
-      'vitamin d': {
-        whatItMeans: 'Vitamin D acts more like a hormone than a vitamin, regulating calcium absorption, immune function, and gene expression in over 200 genes. Deficiency is extremely common, especially in areas with limited sunlight.',
-        possibleCauses: ['Limited sun exposure (office work, covering skin)', 'Dark skin requiring more sun for synthesis', 'Geographic location with limited UV radiation', 'Malabsorption disorders (celiac, Crohn\'s)', 'Kidney or liver disease affecting activation', 'Age-related decreased skin synthesis'],
-        bodyConnection: 'Vitamin D deficiency weakens bones (osteoporosis risk), compromises immune function (increased infections), affects muscle strength and balance (fall risk), and may contribute to depression, autoimmune diseases, and cardiovascular problems.'
-      },
-      'triglycerides': {
-        whatItMeans: 'Triglycerides are fats circulating in your blood, primarily from dietary fats and excess carbohydrates converted by the liver. High levels indicate metabolic dysfunction and increased cardiovascular risk.',
-        possibleCauses: ['High carbohydrate diet converting to fat', 'Excessive alcohol consumption', 'Obesity and insulin resistance', 'Sedentary lifestyle patterns', 'Genetic predisposition', 'Certain medications and medical conditions'],
-        bodyConnection: 'Elevated triglycerides contribute to arterial plaque formation, increase risk of pancreatitis, and often indicate metabolic syndrome - a cluster of conditions that raise diabetes and heart disease risk.'
+        whatItMeans: `Total cholesterol of ${lab.value} ${lab.unit || 'mg/dL'} ${
+          value >= 300 ? 'is very high—severe dyslipidemia with high cardiovascular risk. Cardiology consultation recommended.' :
+          value >= 240 ? 'is high, doubling heart disease risk. Statin therapy typically indicated.' :
+          value >= 200 ? 'is borderline high. Lifestyle modifications needed.' :
+          'is desirable (<200 mg/dL).'
+        } Cholesterol builds cell membranes and hormones, but excess causes atherosclerosis.`,
+        possibleCauses: ['High saturated fat diet', 'Trans fats', 'Familial hypercholesterolemia', 'Obesity', 'Inactivity', 'Diabetes', 'Hypothyroidism', 'Kidney disease', 'Alcohol', 'Smoking', 'Medications'],
+        bodyConnection: `At ${lab.value} ${lab.unit || 'mg/dL'}, ${value >= 240 ? 'elevated cholesterol forms plaques in coronary arteries, progressively narrowing them. Plaques can rupture, causing heart attacks. Also affects cerebral arteries (stroke), peripheral arteries, and aorta.' : value >= 200 ? 'borderline high cholesterol begins plaque formation. Early intervention prevents cardiovascular disease.' : 'optimal cholesterol protects cardiovascular health.'}`
       },
       'ldl': {
-        whatItMeans: 'LDL (Low-Density Lipoprotein) cholesterol carries cholesterol from the liver to tissues. When oxidized, it becomes harmful, infiltrating artery walls and initiating the atherosclerotic process.',
-        possibleCauses: ['Diet high in saturated and trans fats', 'Genetic factors affecting cholesterol metabolism', 'Insulin resistance and diabetes', 'Hypothyroidism slowing cholesterol clearance', 'Chronic inflammation', 'Sedentary lifestyle'],
-        bodyConnection: 'Oxidized LDL particles are recognized as foreign by immune cells, triggering inflammation in artery walls. This process creates unstable plaques that can rupture, causing heart attacks and strokes.'
+        whatItMeans: `LDL (bad cholesterol) of ${lab.value} ${lab.unit || 'mg/dL'} ${
+          value >= 190 ? 'is very high—genetic dyslipidemia. High-intensity statin recommended.' :
+          value >= 160 ? 'is high. With diabetes/CVD, aggressive treatment needed.' :
+          value >= 130 ? 'is borderline high. With risk factors, treatment recommended.' :
+          value >= 100 ? 'is near optimal. For CVD/diabetes, target <70 mg/dL.' :
+          'is optimal (<100 mg/dL).'
+        } LDL drives atherosclerotic cardiovascular disease.`,
+        possibleCauses: ['High saturated fat intake', 'Trans fats', 'Familial hypercholesterolemia', 'Obesity', 'Diabetes', 'Hypothyroidism', 'Kidney disease', 'Medications', 'Sedentary lifestyle'],
+        bodyConnection: `At ${lab.value} ${lab.unit || 'mg/dL'}, ${value >= 160 ? 'elevated LDL infiltrates artery walls, oxidizes, and triggers inflammation. Macrophages form foam cells creating plaques that rupture, causing heart attacks/strokes. Each 39 mg/dL LDL reduction decreases events 20%.' : value >= 100 ? 'moderately elevated LDL begins plaque formation. Early intervention prevents CVD. Statins reduce LDL 30-50%.' : 'optimal LDL minimizes atherosclerosis.'}`
       },
       'hdl': {
-        whatItMeans: 'HDL (High-Density Lipoprotein) is the "good" cholesterol that transports cholesterol from tissues back to the liver for disposal. Higher levels are protective against heart disease.',
-        possibleCauses: ['Sedentary lifestyle reducing HDL production', 'Smoking damaging HDL particles', 'Excess refined carbohydrates', 'Genetic factors affecting HDL metabolism', 'Obesity and metabolic syndrome', 'Certain medications'],
-        bodyConnection: 'HDL has anti-inflammatory and antioxidant properties, protecting artery walls from damage. It also helps remove excess cholesterol from peripheral tissues, maintaining vascular health and reducing atherosclerosis risk.'
+        whatItMeans: `HDL (good cholesterol) of ${lab.value} ${lab.unit || 'mg/dL'} ${
+          value < 40 ? 'is low in men (normal >40), significantly increasing heart disease risk.' :
+          value < 50 ? 'is low in women (normal >50), increasing cardiovascular risk.' :
+          value >= 60 ? 'is optimal, protecting against heart disease. High HDL reduces risk 2-3% per 1 mg/dL.' :
+          'is normal.'
+        } HDL removes cholesterol from arteries; has anti-inflammatory, antioxidant properties.`,
+        possibleCauses: value < 50 ? ['Physical inactivity', 'Smoking', 'Obesity', 'Diabetes', 'High refined carbs', 'Genetics', 'Medications', 'Hypertriglyceridemia'] : ['Regular exercise', 'Moderate alcohol', 'Healthy fats', 'Weight loss', 'Genetics'],
+        bodyConnection: `At ${lab.value} ${lab.unit || 'mg/dL'}, ${value < 50 ? 'low HDL reduces reverse cholesterol transport—removing cholesterol from plaques. Low HDL means less antioxidant/anti-inflammatory protection. Each 1 mg/dL HDL decrease increases heart disease 2-3%. Often accompanies metabolic syndrome.' : value >= 60 ? 'high HDL actively removes cholesterol from plaques, preventing/reversing atherosclerosis. Transports antioxidants, reduces inflammation, promotes endothelial function. HDL ≥60 is protective even with other risk factors.' : 'normal HDL provides moderate cardiovascular protection.'}`
+      },
+      'triglycerides': {
+        whatItMeans: `Triglycerides of ${lab.value} ${lab.unit || 'mg/dL'} ${
+          value >= 500 ? 'are extremely high—acute pancreatitis risk. Immediate treatment needed.' :
+          value >= 200 ? 'are high. With high LDL/diabetes, significantly increases cardiovascular risk.' :
+          value >= 150 ? 'are borderline high. Lifestyle modifications recommended.' :
+          'are normal (<150 mg/dL).'
+        } Triglycerides are fats for energy but promote atherosclerosis when elevated.`,
+        possibleCauses: ['High carbohydrate intake', 'Obesity', 'Alcohol', 'Inactivity', 'Diabetes', 'Hypothyroidism', 'Kidney disease', 'Genetics', 'Medications', 'Pregnancy'],
+        bodyConnection: `At ${lab.value} ${lab.unit || 'mg/dL'}, ${value >= 500 ? 'severely elevated triglycerides increase blood viscosity, obstructing pancreatic capillaries—causing acute pancreatitis (life-threatening).' : value >= 200 ? 'high triglycerides contribute to plaques, especially with low HDL/high LDL. Indicate insulin resistance and metabolic syndrome. Dramatically increase CVD risk with diabetes.' : value >= 150 ? 'borderline high suggests excess calories and insulin resistance. Often with obesity, low HDL, hypertension.' : 'normal triglycerides indicate balanced energy metabolism.'}`
+      },
+
+      // LIVER
+      'alt': {
+        whatItMeans: `ALT of ${lab.value} ${lab.unit || 'U/L'} is liver-specific. ${
+          value > 200 ? 'Severely elevated—ACUTE HEPATOCELLULAR INJURY. Immediate hepatology consultation required.' :
+          value > 100 ? 'Moderately elevated—significant liver inflammation. Requires investigation.' :
+          value > 40 ? 'Mildly elevated. Common: fatty liver, alcohol, metabolic syndrome.' :
+          'Normal (<40 U/L).'
+        } ALT is more specific for liver than AST.`,
+        possibleCauses: value > 40 ? ['Non-alcoholic fatty liver disease (most common)', 'Viral hepatitis', 'Alcohol-related liver disease', 'Drug-induced liver injury', 'Autoimmune hepatitis', 'Hemochromatosis', 'Wilson disease', 'Liver ischemia', 'Celiac disease'] : [],
+        bodyConnection: `At ${lab.value} ${lab.unit || 'U/L'}, ${value > 200 ? 'severely elevated ALT indicates active liver cell death (necrosis). Requires urgent investigation—acute viral hepatitis, acetaminophen overdose, ischemic hepatitis can cause acute liver failure (fatal without transplant).' : value > 100 ? 'moderately elevated ALT indicates ongoing inflammation. Liver performs 500+ functions: detoxification, protein synthesis, glucose regulation. Persistent inflammation → fibrosis → cirrhosis → failure/cancer. Early intervention reverses damage.' : value > 40 ? 'mildly elevated ALT suggests early inflammation, often fatty liver from obesity/diabetes. Reversible with 5-10% weight loss, exercise, no alcohol.' : 'normal ALT indicates healthy liver.'}`
+      },
+      'ast': {
+        whatItMeans: `AST of ${lab.value} ${lab.unit || 'U/L'} is in liver, heart, muscle. ${
+          value > 200 ? 'Severely elevated. With ALT >200, indicates acute liver damage. If AST >> ALT, consider heart/muscle damage.' :
+          value > 100 ? 'Moderately elevated. AST/ALT ratio helps: >2 suggests alcohol, <1 suggests fatty liver.' :
+          value > 40 ? 'Mildly elevated. Check ratio and consider liver/muscle/heart issues.' :
+          'Normal (<40 U/L).'
+        } AST is less specific than ALT but helps identify injury source.`,
+        possibleCauses: value > 40 ? ['Liver diseases (fatty liver, hepatitis, cirrhosis)', 'Alcoholic liver damage (AST often 2x ALT)', 'Heart attack', 'Muscle damage (rhabdomyolysis)', 'Hemolysis', 'Celiac', 'Hypothyroidism', 'Medications'] : [],
+        bodyConnection: `At ${lab.value} ${lab.unit || 'U/L'}, ${value > 200 ? 'severely elevated AST with ALT >200 indicates massive hepatocellular necrosis. If AST >> ALT (ratio >2), consider alcoholic hepatitis, cirrhosis, or non-hepatic causes (MI, rhabdomyolysis). Urgent evaluation needed.' : value > 100 ? 'moderately elevated AST requires ALT interpretation. AST/ALT >2 suggests alcoholic liver disease. <1 suggests fatty liver. Both progress to cirrhosis untreated. AST from heart/muscle needs different urgent interventions.' : value > 40 ? 'mildly elevated AST—check CK (muscle), troponins (heart), liver imaging (fatty liver). If isolated AST, consider hemolysis or exercise.' : 'normal AST indicates no significant tissue damage.'}`
+      },
+
+      // KIDNEY
+      'creatinine': {
+        whatItMeans: `Creatinine of ${lab.value} ${lab.unit || 'mg/dL'} measures kidney function. ${
+          value > 3.0 ? 'Severely elevated—CKD Stage 4-5 or acute kidney injury. Urgent nephrology consultation.' :
+          value > 1.5 ? 'Moderately elevated—kidney dysfunction (CKD Stage 3). Requires monitoring.' :
+          value > 1.2 ? 'Mildly elevated. Early dysfunction, dehydration, or high muscle mass.' :
+          'Normal (0.6-1.2 mg/dL).'
+        } Creatinine is from muscles, filtered by kidneys.`,
+        possibleCauses: value > 1.2 ? ['Chronic kidney disease', 'Acute kidney injury', 'Urinary obstruction', 'Glomerulonephritis', 'Polycystic kidneys', 'Nephrotoxic medications', 'Rhabdomyolysis', 'Heart failure'] : [],
+        bodyConnection: `At ${lab.value} ${lab.unit || 'mg/dL'}, ${value > 3.0 ? 'severely elevated creatinine means kidneys at <30% capacity. Waste/toxins accumulate causing uremia, hyperkalemia, acidosis, anemia. May need dialysis/transplant. Complications: heart disease, bone disease, electrolyte emergencies.' : value > 1.5 ? 'moderately elevated indicates significant dysfunction. Kidneys regulate fluid, BP, electrolytes, acid-base, vitamin D, RBC production. Impairment causes hypertension, anemia, bone disease, CVD. Progression slowed with BP control (ACE-I/ARBs), diabetes management, avoiding nephrotoxins.' : value > 1.2 ? 'mildly elevated suggests early dysfunction or decreased blood flow from dehydration, heart failure, medications. Early detection allows intervention to prevent progression. CKD increases heart disease 2-3x.' : 'normal creatinine indicates healthy kidney filtration.'}`
+      },
+
+      // THYROID
+      'tsh': {
+        whatItMeans: `TSH of ${lab.value} ${lab.unit || 'mIU/L'} controls thyroid hormones. ${
+          value > 10 ? 'Severely elevated—hypothyroidism (underactive thyroid). Endocrinology consultation recommended.' :
+          value > 4.0 ? 'Mildly elevated—subclinical hypothyroidism. Monitor, may require treatment.' :
+          value < 0.1 ? 'Severely suppressed—hyperthyroidism (overactive thyroid). Can cause heart problems.' :
+          value < 0.4 ? 'Low—mild hyperthyroidism or thyroid over-replacement.' :
+          'Normal (0.4-4.0 mIU/L).'
+        } TSH is most sensitive thyroid test.`,
+        possibleCauses: value > 4.0 ? ['Hashimoto thyroiditis (autoimmune)', 'Iodine deficiency', 'Thyroid surgery/radioiodine', 'Medications (lithium, amiodarone)', 'Pituitary tumor'] : ['Graves disease (autoimmune)', 'Toxic nodules', 'Thyroiditis', 'Excessive thyroid medication', 'Pituitary dysfunction'],
+        bodyConnection: `At ${lab.value} ${lab.unit || 'mIU/L'}, ${value > 10 ? 'severely elevated TSH means pituitary desperately stimulating underactive thyroid. Hypothyroidism slows metabolism: fatigue, weight gain, depression, constipation, cold intolerance, dry skin, hair loss, weakness, high cholesterol, irregular periods. Untreated severe hypothyroidism → myxedema coma (life-threatening). Levothyroxine normalizes metabolism/symptoms.' : value > 4.0 ? 'mildly elevated TSH indicates early hypothyroidism. Even subclinical hypothyroidism increases cholesterol, heart disease, pregnancy complications. Treatment depends on symptoms/antibodies.' : value < 0.1 ? 'severely suppressed TSH indicates hyperthyroidism—excess thyroid hormone accelerating metabolism. Causes anxiety, insomnia, tachycardia, palpitations, weight loss, tremors, heat intolerance, frequent bowel movements. Untreated → atrial fibrillation, stroke, osteoporosis, thyroid storm (life-threatening). Treatment: antithyroid drugs, radioiodine, or surgery.' : value < 0.4 ? 'mildly suppressed TSH suggests mild overactivity. May cause subtle symptoms and bone loss. Requires monitoring, possibly medication adjustment.' : 'normal TSH indicates balanced thyroid regulating metabolism, energy, growth.'}`
+      },
+
+      // VITAMINS
+      'vitamin d': {
+        whatItMeans: `Vitamin D of ${lab.value} ${lab.unit || 'ng/mL'} ${
+          value < 12 ? 'is severely deficient. Immediate high-dose supplementation (50,000 IU weekly) prevents bone disease.' :
+          value < 20 ? 'is deficient. Daily supplementation (1000-2000 IU) required.' :
+          value < 30 ? 'is insufficient. Supplementation (800-1000 IU daily) recommended.' :
+          value > 100 ? 'is excessively high. Stop supplementation to prevent toxicity.' :
+          'is optimal (30-50 ng/mL).'
+        } Vitamin D is actually a hormone regulating calcium and immunity.`,
+        possibleCauses: value < 30 ? ['Limited sun exposure', 'Dark skin', 'High latitude/winter', 'Aging', 'Obesity', 'Malabsorption', 'Liver/kidney disease', 'Medications'] : ['Excessive supplementation'],
+        bodyConnection: `At ${lab.value} ${lab.unit || 'ng/mL'}, ${value < 20 ? 'severe deficiency impairs calcium absorption, causing rickets (children) and osteomalacia (adults). Also compromises immunity (infections, autoimmunity), increases CVD risk, contributes to depression, causes muscle weakness/falls, linked to cancer risk. Vitamin D regulates 200+ genes controlling cell growth, immunity, inflammation.' : value < 30 ? 'insufficient vitamin D reduces calcium absorption, depleting bone density. Associates with infections, fatigue, mood issues, potentially higher autoimmune/cancer risk. Supplementation improves bone health, immunity, reduces fall risk.' : value > 100 ? 'excessive vitamin D causes hypercalcemia (nausea, vomiting, confusion, kidney stones, potentially kidney failure). Discontinue supplementation and monitor calcium.' : 'optimal vitamin D supports calcium absorption for strong bones, regulates immune system, maintains muscle strength, supports mood, reduces CVD risk.'}`
+      },
+      'b12': {
+        whatItMeans: `Vitamin B12 of ${lab.value} ${lab.unit || 'pg/mL'} ${
+          value < 200 ? 'is deficient. Can cause irreversible neurological damage. Urgent B12 injections or high-dose oral supplementation needed.' :
+          value < 300 ? 'is borderline low. Supplementation recommended if symptomatic.' :
+          value > 1000 ? 'is very high from supplementation; generally not harmful but stop excess intake.' :
+          'is normal (>300 pg/mL).'
+        } B12 is essential for nerves, DNA, and RBC formation.`,
+        possibleCauses: value < 300 ? ['Pernicious anemia (autoimmune)', 'Vegetarian/vegan diet', 'Malabsorption (celiac, Crohn, gastric bypass)', 'Medications (metformin, PPIs, H2 blockers)', 'Aging', 'H. pylori', 'Alcohol abuse'] : ['B12 supplementation', 'Liver disease', 'Myeloproliferative disorders'],
+        bodyConnection: `At ${lab.value} ${lab.unit || 'pg/mL'}, ${value < 200 ? 'severe B12 deficiency causes megaloblastic anemia (fatigue, weakness, breathlessness). More critically, causes irreversible neurological damage: peripheral neuropathy (numbness/tingling), balance problems, memory loss, dementia, subacute combined degeneration (paralysis). Psychiatric: depression, psychosis, cognitive decline. Early B12 injections prevent permanent nerve damage.' : value < 300 ? 'borderline B12 may cause subtle symptoms: fatigue, weakness, difficulty concentrating, mood changes, mild neuropathy. Progress to severe complications untreated. Supplementation (1000 mcg daily or injections) prevents progression, often improves symptoms.' : value > 1000 ? 'very high B12 from supplementation is not harmful. Water-soluble; excess excreted. Extremely elevated levels (>2000) may rarely indicate liver disease, blood cancers, or excessive supplementation.' : 'normal B12 supports RBC formation, neurological function, DNA synthesis, energy production. Stored in liver for 2-4 years.'}`
       }
     };
 
-    const labName = lab.name.toLowerCase();
-    for (const [key, context] of Object.entries(contexts)) {
+    // Find matching context with priority for longer (more specific) matches
+    const sortedKeys = Object.keys(contexts).sort((a, b) => b.length - a.length);
+    for (const key of sortedKeys) {
       if (labName.includes(key)) {
-        return context;
+        return contexts[key];
       }
     }
 
-    // Generic context for unrecognized labs
+    // Specific message for unknown parameters
     return {
-      whatItMeans: 'This parameter provides valuable insights into specific body functions and metabolic processes that your healthcare provider monitors to assess your overall health status.',
-      possibleCauses: ['Various lifestyle factors including diet, exercise, and stress management', 'Genetic predisposition and family history', 'Environmental exposures and medication effects', 'Underlying health conditions and age-related changes'],
-      bodyConnection: 'This marker reflects the complex interplay between your body systems and can provide early indicators of potential health changes that may benefit from lifestyle modifications or medical attention.'
+      whatItMeans: `${lab.name} at ${lab.value} ${lab.unit || ''} is ${lab.status}. Your healthcare provider can interpret this parameter in context of your complete health picture.`,
+      possibleCauses: ['Various medical conditions', 'Lifestyle factors (diet, exercise, stress)', 'Medications', 'Genetic factors', 'Recent illness or activities', 'Other health conditions'],
+      bodyConnection: 'This parameter provides information about specific physiological processes. Your healthcare provider can explain its significance and necessary follow-up based on your individual health status and medical history.'
     };
   };
 

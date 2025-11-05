@@ -449,10 +449,10 @@ export const MedicalChatAgent = ({
                       <Bot className="w-4 h-4 text-primary" />
                     </div>
                   )}
-                  <div className={`max-w-[80%] rounded-lg p-3 ${
+                  <div className={`max-w-[80%] rounded-lg p-3 shadow-sm ${
                     message.type === 'user' 
-                      ? 'bg-primary text-primary-foreground ml-auto' 
-                      : 'bg-muted'
+                      ? 'bg-gradient-to-r from-primary/10 to-primary/20 text-foreground border border-primary/30 ml-auto' 
+                      : 'bg-white text-gray-900 border border-gray-200'
                   }`}>
                     <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                     <p className="text-xs opacity-70 mt-1">
