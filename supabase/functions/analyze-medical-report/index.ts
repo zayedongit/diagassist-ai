@@ -368,7 +368,7 @@ Return the complete extracted text maintaining the original structure and organi
       
       const visionResponse = await retryWithBackoff(async () => {
         console.log('🔑 API Key configured:', !!OPENAI_API_KEY);
-        console.log('📡 Calling OpenAI Vision API with GPT-5...');
+        console.log('📡 Calling OpenAI Vision API with GPT-4o...');
         
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
@@ -377,7 +377,7 @@ Return the complete extracted text maintaining the original structure and organi
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'gpt-5-2025-08-07',
+            model: 'gpt-4o',
             messages: [
               {
                 role: 'user',
@@ -390,7 +390,8 @@ Return the complete extracted text maintaining the original structure and organi
                 ]
               }
             ],
-            max_completion_tokens: 16000,
+            max_tokens: 16000,
+            temperature: 0.1,
           }),
         });
 
@@ -803,7 +804,7 @@ CRITICAL SUCCESS CRITERIA:
 Respond ONLY with valid JSON matching the structure above - no markdown, no explanations:`;
 
       const pass1Response = await retryWithBackoff(async () => {
-        console.log('📡 Calling OpenAI API with GPT-5 Mini...');
+        console.log('📡 Calling OpenAI API with GPT-4o-mini...');
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
           headers: {
@@ -811,7 +812,7 @@ Respond ONLY with valid JSON matching the structure above - no markdown, no expl
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'gpt-5-mini-2025-08-07',
+            model: 'gpt-4o-mini',
             messages: [
               {
                 role: 'user',
@@ -819,7 +820,8 @@ Respond ONLY with valid JSON matching the structure above - no markdown, no expl
               }
             ],
             response_format: { type: "json_object" },
-            max_completion_tokens: 16000,
+            max_tokens: 16000,
+            temperature: 0.3,
           }),
         });
 
