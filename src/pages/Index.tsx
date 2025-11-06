@@ -992,6 +992,9 @@ RAW DATA: ${baseContext}`;
                     <p className="text-lg sm:text-xl md:text-2xl gradient-text font-medium">
                       Personalized, Clear & Clinically Relevant Insights
                     </p>
+                    <p className="text-sm sm:text-base text-white/70 font-inter">
+                      Created by Physician and Pathologist
+                    </p>
                   </div>
                   
                   {/* Primary CTAs with Premium Styling */}
@@ -1431,7 +1434,8 @@ RAW DATA: ${baseContext}`;
           </>
         )}
 
-        {/* 7. FAQ SECTION */}
+        {/* 7. FAQ SECTION - Only show when no results */}
+        {!showResults && (
         <section id="faq-section" className="py-12 sm:py-16 md:py-24 bg-white">
           <div className="container mx-auto px-4 sm:px-6">
             <div className="max-w-3xl mx-auto">
@@ -1521,6 +1525,7 @@ RAW DATA: ${baseContext}`;
             </div>
           </div>
         </section>
+        )}
 
       </main>
     </div>
