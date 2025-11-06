@@ -452,14 +452,99 @@ Return the complete extracted text maintaining the original structure and organi
       }
       
     } else {
-      // Handle JSON with pre-extracted text
-      console.log('📄 Processing JSON with extracted text...');
+      // Handle JSON with images array or pre-extracted text
+      console.log('📄 Processing JSON request...');
       const requestBody = await req.json();
-      text = requestBody.text;
+      requestUserId = requestBody.userId;
       filename = requestBody.filename || filename;
       
-      if (!text) {
-        throw new Error('No extracted text provided');
+      console.log('👤 User ID:', requestUserId);
+      
+      if (requestBody.images && Array.isArray(requestBody.images)) {
+        // Process images array
+        images = requestBody.images;
+        console.log(`📸 Received ${images.length} images via JSON`);
+        
+        if (images.length === 0) {
+          throw new Error('Images array is empty');
+        }
+        
+        // Use vision API to extract text from images
+        console.log('🔍 Extracting text from images using AI vision...');
+        const visionPrompt = `You are analyzing a ${images.length}-page medical laboratory report. Extract ALL text from EVERY page sequentially.
+
+CRITICAL INSTRUCTIONS:
+- Process EVERY image in order (page 1, page 2, page 3, etc.)
+- Extract EVERY test parameter name, value, unit, and reference range
+- Pay special attention to abnormal values (marked with *, H, L, or outside reference range)
+- Include patient demographics (name, age, gender, date)
+- Include all section headers and panel names
+- Do NOT skip any pages or test results
+- Prioritize test results over headers/footers
+
+Return the complete extracted text maintaining the original structure and organization.`;
+        
+        const BATCH_SIZE = 4;
+        const segments: string[] = [];
+
+        for (let start = 0; start < images.length; start += BATCH_SIZE) {
+          const end = Math.min(start + BATCH_SIZE, images.length);
+          const batch = images.slice(start, end);
+          console.log(`📦 Vision batch ${start + 1}-${end} of ${images.length}`);
+
+          const visionResponse = await retryWithBackoff(async () => {
+            console.log('📡 Calling OpenAI Vision API with GPT-4o for batch...');
+            
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${OPENAI_API_KEY}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                model: 'gpt-4o',
+                messages: [
+                  {
+                    role: 'user',
+                    content: [
+                      { type: 'text', text: `${visionPrompt}\n\nProcess ONLY pages ${start + 1}-${end}. Return plain text, preserve structure.` },
+                      ...batch.map((img: string) => ({
+                        type: 'image_url',
+                        image_url: { url: img }
+                      }))
+                    ]
+                  }
+                ],
+                max_tokens: 4096,
+              }),
+            });
+
+            if (!response.ok) {
+              const errorText = await response.text();
+              console.error('❌ OpenAI Vision API error:', response.status, errorText);
+              throw new Error(`Vision API failed: ${response.status} ${errorText}`);
+            }
+
+            return response;
+          }, 3, 2000, 'Vision API batch');
+
+          const visionData = await visionResponse.json();
+          const segment = visionData.choices?.[0]?.message?.content?.trim?.() ?? '';
+          console.log(`✅ Batch extracted length: ${segment.length}`);
+          segments.push(segment);
+        }
+
+        text = segments.join('\n\n---\n\n');
+        console.log('✅ Text extracted from images');
+        console.log('📝 Extracted text length:', text.length);
+        console.log('📝 Text preview:', text.substring(0, 500));
+        
+      } else if (requestBody.text) {
+        // Use pre-extracted text
+        text = requestBody.text;
+        console.log('📝 Using pre-extracted text, length:', text.length);
+      } else {
+        throw new Error('No images or extracted text provided');
       }
     }
     
