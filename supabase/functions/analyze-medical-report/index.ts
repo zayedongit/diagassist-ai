@@ -486,56 +486,82 @@ Return the complete extracted text maintaining the original structure and organi
         
         const BATCH_SIZE = 4;
         const segments: string[] = [];
+        const MAX_OCR_PAGES = 25; // Cap for very long PDFs
+        const imagesToProcess = images.length > MAX_OCR_PAGES ? images.slice(0, MAX_OCR_PAGES) : images;
+        
+        if (images.length > MAX_OCR_PAGES) {
+          console.log(`⚠️ PDF has ${images.length} pages, processing first ${MAX_OCR_PAGES} for OCR`);
+        }
 
-        for (let start = 0; start < images.length; start += BATCH_SIZE) {
-          const end = Math.min(start + BATCH_SIZE, images.length);
-          const batch = images.slice(start, end);
-          console.log(`📦 Vision batch ${start + 1}-${end} of ${images.length}`);
-
-          const visionResponse = await retryWithBackoff(async () => {
-            console.log('📡 Calling OpenAI Vision API with GPT-4o for batch...');
+        // Process batches in parallel with concurrency of 2
+        const CONCURRENCY = 2;
+        
+        for (let start = 0; start < imagesToProcess.length; start += BATCH_SIZE * CONCURRENCY) {
+          const batchPromises = [];
+          
+          for (let c = 0; c < CONCURRENCY; c++) {
+            const batchStart = start + (c * BATCH_SIZE);
+            if (batchStart >= imagesToProcess.length) break;
             
-            const response = await fetch('https://api.openai.com/v1/chat/completions', {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${OPENAI_API_KEY}`,
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                model: 'gpt-4o',
-                messages: [
-                  {
-                    role: 'user',
-                    content: [
-                      { type: 'text', text: `${visionPrompt}\n\nProcess ONLY pages ${start + 1}-${end}. Return plain text, preserve structure.` },
-                      ...batch.map((img: string) => ({
-                        type: 'image_url',
-                        image_url: { url: img }
-                      }))
-                    ]
-                  }
-                ],
-                max_tokens: 4096,
-              }),
-            });
+            const end = Math.min(batchStart + BATCH_SIZE, imagesToProcess.length);
+            const batch = imagesToProcess.slice(batchStart, end);
+            
+            console.log(`📦 Starting OCR batch ${batchStart + 1}-${end} of ${imagesToProcess.length}`);
+            
+            batchPromises.push(
+              retryWithBackoff(async () => {
+                console.log(`📡 OCR batch ${batchStart + 1}-${end} with gpt-4o-mini (faster)...`);
+                
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                  method: 'POST',
+                  headers: {
+                    'Authorization': `Bearer ${OPENAI_API_KEY}`,
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    model: 'gpt-4o-mini',
+                    messages: [
+                      {
+                        role: 'user',
+                        content: [
+                          { type: 'text', text: `${visionPrompt}\n\nProcess ONLY pages ${batchStart + 1}-${end}. Return plain text, preserve structure.` },
+                          ...batch.map((img: string) => ({
+                            type: 'image_url',
+                            image_url: { url: img }
+                          }))
+                        ]
+                      }
+                    ],
+                    max_tokens: 2048,
+                  }),
+                });
 
-            if (!response.ok) {
-              const errorText = await response.text();
-              console.error('❌ OpenAI Vision API error:', response.status, errorText);
-              throw new Error(`Vision API failed: ${response.status} ${errorText}`);
-            }
+                if (!response.ok) {
+                  const errorText = await response.text();
+                  console.error('❌ OpenAI Vision API error:', response.status, errorText);
+                  throw new Error(`Vision API failed: ${response.status} ${errorText}`);
+                }
 
-            return response;
-          }, 3, 2000, 'Vision API batch');
-
-          const visionData = await visionResponse.json();
-          const segment = visionData.choices?.[0]?.message?.content?.trim?.() ?? '';
-          console.log(`✅ Batch extracted length: ${segment.length}`);
-          segments.push(segment);
+                const visionData = await response.json();
+                const segment = visionData.choices?.[0]?.message?.content?.trim?.() ?? '';
+                console.log(`✅ Batch ${batchStart + 1}-${end} extracted: ${segment.length} chars`);
+                
+                return { batchStart, segment };
+              }, 3, 2000, `OCR batch ${batchStart + 1}-${end}`)
+            );
+          }
+          
+          // Wait for current parallel batches to complete
+          const results = await Promise.all(batchPromises);
+          
+          // Sort by batch start to maintain page order
+          for (const result of results.sort((a, b) => a.batchStart - b.batchStart)) {
+            segments.push(result.segment);
+          }
         }
 
         text = segments.join('\n\n---\n\n');
-        console.log('✅ Text extracted from images');
+        console.log('✅ Text extracted from images via OCR');
         console.log('📝 Extracted text length:', text.length);
         console.log('📝 Text preview:', text.substring(0, 500));
         

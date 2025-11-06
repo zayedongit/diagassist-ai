@@ -31,6 +31,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { CompressionProgress } from '@/components/CompressionProgress';
 import type { ProgressUpdate } from '@/utils/pdfToImages';
 import { StageProgress, Stage } from '@/components/StageProgress';
+import { extractPdfText } from '@/utils/extractPdfText';
 
 
 const Index = () => {
@@ -55,6 +56,7 @@ const Index = () => {
   const [showPostChatSections, setShowPostChatSections] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDriveSync, setIsDriveSync] = useState(false);
+  const [usedTextExtraction, setUsedTextExtraction] = useState(false);
   
   // Polling cancellation refs to prevent cross-contamination
   const pollingActiveRef = useRef(false);
@@ -436,62 +438,61 @@ RAW DATA: ${baseContext}`;
 
   // Simplified processing - client-side only
 
+  // Process the PDF on the client-side: try text extraction first, fallback to images
   const processClientSide = async (file: File) => {
     try {
       console.log('🔄 Starting PDF analysis process...');
       console.log('📄 File details:', { name: file.name, size: file.size, type: file.type });
       
-      // Stage 1: PDF Conversion
+      // STEP 1: Try fast text extraction first
+      console.log('🚀 Attempting fast text extraction...');
+      setExtractionStep("Extracting text locally...");
       setCurrentStage('conversion');
-      setExtractionStep("Converting PDF to images...");
       
-      // Import PDF conversion utility
-      const { convertPdfToImages } = await import('@/utils/pdfToImages');
+      const textResult = await extractPdfText(file);
       
-      // Convert PDF to images on client side
-      console.log('🖼️ Starting PDF to image conversion...');
-      const conversionResult = await convertPdfToImages(file, (update) => {
-        // If compression is happening, move to optimization stage
-        if (update.message.toLowerCase().includes('compress') || update.message.toLowerCase().includes('optim')) {
-          setCurrentStage('optimization');
-        }
-        setProgressUpdate(update);
-        setExtractionStep(update.message);
-      });
+      let images: string[] = [];
+      let extractedTextContent = '';
       
-      if (!conversionResult.success) {
-        console.error('❌ PDF conversion failed:', conversionResult.error);
-        throw new Error(`PDF conversion failed: ${conversionResult.error}`);
-      }
-      
-      console.log(`✅ Client-side conversion successful: ${conversionResult.images?.length} images`);
-      console.log('📊 Image sizes:', conversionResult.images?.map(img => Math.round(img.length / 1024) + 'KB'));
-      
-      // Track if compression occurred
-      setWasCompressed(conversionResult.wasCompressed || false);
-      
-      // Stage 3: AI Analysis
-      setCurrentStage('analysis');
-      setProgressUpdate({
-        message: `Analyzing your ${conversionResult.images?.length}-page medical report...`,
-        percentage: undefined,
-        estimatedSecondsRemaining: undefined
-      });
-      
-      if (conversionResult.wasCompressed) {
-        setExtractionStep(
-          `Converted & compressed ${conversionResult.images?.length} images ` +
-          `(${conversionResult.originalSizeMB?.toFixed(1)}MB → ${conversionResult.finalSizeMB?.toFixed(1)}MB). Analyzing medical data...`
-        );
+      // STEP 2: Check if we have selectable text (fast path)
+      if (textResult.success && textResult.isSelectableText && textResult.text && textResult.text.length > 1000) {
+        console.log('✅ Fast path: Using extracted text (no OCR needed)');
+        extractedTextContent = textResult.text;
+        setUsedTextExtraction(true);
+        setExtractionStep(`Extracted text from ${textResult.pagesAnalyzed} pages. Uploading for analysis...`);
+        setCurrentStage('analysis');
       } else {
-        setExtractionStep(
-          `Converted to ${conversionResult.images?.length} images ` +
-          `(${conversionResult.finalSizeMB?.toFixed(1)}MB). Analyzing medical data...`
-        );
+        // STEP 3: Fallback to image conversion for scanned PDFs
+        console.log('📸 Scanned PDF detected, converting to images for OCR...');
+        setExtractionStep("Scanning pages for text...");
+        
+        const { convertPdfToImages } = await import('@/utils/pdfToImages');
+        
+        setProgressUpdate({ message: "Converting scanned pages to images...", percentage: 0 });
+        
+        const conversionResult = await convertPdfToImages(file, (update) => {
+          if (update.message.toLowerCase().includes('compress') || update.message.toLowerCase().includes('optim')) {
+            setCurrentStage('optimization');
+          }
+          setProgressUpdate(update);
+        });
+        
+        if (!conversionResult.success) {
+          throw new Error(conversionResult.error || 'Failed to convert PDF');
+        }
+        
+        setWasCompressed(conversionResult.wasCompressed || false);
+        images = conversionResult.images || [];
+        console.log(`✅ Converted ${images.length} pages to images`);
+        
+        setExtractionStep(`Converted ${images.length} pages. Uploading for OCR analysis...`);
+        setProgressUpdate(null);
+        setCurrentStage('analysis');
       }
       
-      // Send images and original PDF to server for analysis
-      const formData = new FormData();
+      // STEP 4: Send to backend for analysis
+      console.log('📤 Sending to backend for analysis...');
+      setCurrentStage('analysis');
       
       // Use existing userId or create new one
       let userId = currentUserId;
@@ -501,17 +502,21 @@ RAW DATA: ${baseContext}`;
       }
       
       console.log('👤 Using userId:', userId);
-      formData.append('userId', userId);
-      formData.append('images', JSON.stringify(conversionResult.images));
-      // Removed sending original PDF to reduce payload size and avoid request failures
-
-      console.log('🚀 Sending request to backend function...');
+      
+      const requestBody: any = {
+        userId,
+        filename: file.name
+      };
+      
+      if (extractedTextContent) {
+        requestBody.text = extractedTextContent;
+      } else {
+        requestBody.images = images;
+      }
+      
       try {
         const { data, error } = await supabase.functions.invoke('analyze-medical-report', {
-          body: {
-            userId,
-            images: conversionResult.images,
-          },
+          body: requestBody
         });
 
         if (error) {
@@ -524,7 +529,7 @@ RAW DATA: ${baseContext}`;
           throw new Error(data?.error || 'Failed to start analysis');
         }
 
-        console.log('✅ Client-side processing successful, analysis ID:', data.analysisId);
+        console.log('✅ Analysis started successfully, ID:', data.analysisId);
         
         // Clear progress once response is received
         setProgressUpdate(null);
@@ -533,21 +538,26 @@ RAW DATA: ${baseContext}`;
           analysisId: data.analysisId,
           status: data.status,
           message: data.message || 'Processing started successfully',
-          userId,
+          userId: data.userId || userId,
         };
       } catch (e: any) {
-        // Retry once on transient browser network errors like 'Load failed'
+        // Retry once on transient browser network errors
         const msg = typeof e?.message === 'string' ? e.message : '';
         if (msg && /load failed|network/i.test(msg)) {
           console.warn('⚠️ Transient network error, retrying once...');
           const { data, error } = await supabase.functions.invoke('analyze-medical-report', {
-            body: { userId, images: conversionResult.images },
+            body: requestBody,
           });
           if (error || !data?.success) {
             throw new Error(error?.message || data?.error || 'Failed to start analysis');
           }
           setProgressUpdate(null);
-          return { analysisId: data.analysisId, status: data.status, message: data.message || 'Processing started successfully', userId };
+          return { 
+            analysisId: data.analysisId, 
+            status: data.status, 
+            message: data.message || 'Processing started successfully', 
+            userId: data.userId || userId 
+          };
         }
         throw e;
       }
@@ -590,20 +600,27 @@ RAW DATA: ${baseContext}`;
       
       if (response.analysisId) {
         // Background processing started successfully
-        setAnalysisId(response.analysisId);
+        const returnedUserId = response.userId || currentUserId;
         
-        // Store analysis state in localStorage for persistence with timestamp
+        setAnalysisId(response.analysisId);
+        setCurrentUserId(returnedUserId);
+        
+        // Store analysis state in localStorage for persistence with timestamp - use returned userId
         localStorage.setItem('analysisId', response.analysisId);
-        localStorage.setItem('currentUserId', currentUserId);
+        localStorage.setItem('currentUserId', returnedUserId);
         localStorage.setItem('processingStatus', 'processing');
         localStorage.setItem('analysisTimestamp', Date.now().toString());
         
-        setExtractedText(`Processing started for ${file.name}. Analysis typically completes in 30-60 seconds.`);
+        if (usedTextExtraction) {
+          setExtractedText(`Processing started for ${file.name}. Fast mode: typically completes in 30-60 seconds.`);
+        } else {
+          setExtractedText(`Processing started for ${file.name}. OCR mode: typically completes in 1-2 minutes.`);
+        }
         setProcessingStatus('processing');
         setExtractionStep("Analysis in progress... Results will appear automatically.");
         
-        // Start polling for results
-        pollForResults(response.analysisId, currentUserId);
+        // Start polling for results with correct userId
+        pollForResults(response.analysisId, returnedUserId);
       } else {
         // Fallback for old response format (shouldn't happen with new implementation)
         setExtractedText(`Analysis completed successfully for ${file.name}`);
@@ -899,11 +916,14 @@ RAW DATA: ${baseContext}`;
   };
 
   const getProcessingMessage = () => {
+    if (usedTextExtraction) {
+      return 'AI is analyzing your lab values... (Fast mode: 30-60s)';
+    }
     switch (processingStatus) {
       case 'starting':
         return "Initializing analysis...";
       case 'processing':
-        return "Analysis in progress... Typically completes in 30-60 seconds.";
+        return "Analysis in progress... Typically completes in 1-2 minutes.";
       case 'completed':
         return "Analysis completed successfully!";
       case 'failed':
