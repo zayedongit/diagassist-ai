@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { AlertCircle, Activity, Heart, FileText, Download, RefreshCw, Brain, Eye, EyeOff, Lock, BarChart3, Stethoscope, CloudDownload, Shield, ArrowRight } from "lucide-react";
+import { AlertCircle, Activity, Heart, FileText, Download, RefreshCw, Brain, Eye, EyeOff, Lock, BarChart3, Stethoscope, CloudDownload, Shield, ArrowRight, ShieldCheck } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
 import jsPDF from 'jspdf';
@@ -983,6 +983,14 @@ RAW DATA: ${baseContext}`;
               {/* Hero Content */}
               <div className="relative z-20 container mx-auto px-4 sm:px-6 text-center">
                 <div className="max-w-5xl mx-auto space-y-8 sm:space-y-12 animate-fade-up">
+                  {/* Medical Validation Badge */}
+                  <div className="flex justify-center mb-6">
+                    <Badge className="px-4 py-2 text-sm sm:text-base font-semibold bg-white/10 backdrop-blur-sm border-2 border-primary/50 text-white hover:bg-white/20 transition-all duration-300 shadow-lg hover:shadow-glow">
+                      <ShieldCheck className="w-5 h-5 mr-2 text-primary" />
+                      Physician Approved & Medically Validated
+                    </Badge>
+                  </div>
+                  
                   {/* Main Headline */}
                   <div className="space-y-4 sm:space-y-6">
                     <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-poppins font-bold text-white leading-tight px-4">
