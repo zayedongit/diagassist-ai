@@ -21,6 +21,7 @@ import { SummaryCard } from "@/components/SummaryCard";
 import { ClinicalAssessmentHighlights } from "@/components/ClinicalAssessmentHighlights";
 import { UnderstandingYourNumbers } from "@/components/UnderstandingYourNumbers";
 import { HealthRiskDashboardWithTimeline } from "@/components/HealthRiskDashboard";
+import { MedicalAiAssistant } from "@/components/MedicalAiAssistant";
 import { EnhancedAnalysisResult, extractAbnormalPanels } from "@/types/medicalAnalysis";
 import { parseClinicalContext } from "@/utils/parseClinicalContext";
 import heroBackground from "@/assets/hero-background.jpg";
@@ -1569,6 +1570,17 @@ RAW DATA: ${baseContext}`;
                               <span className="font-semibold text-navy">Disclaimer:</span> This is informational support only — not a medical diagnosis.
                             </p>
                           </div>
+                        </div>
+                      </div>
+                    </section>
+                  )}
+
+                  {/* AI Voice Assistant */}
+                  {!isNonMedicalReport(analysisData) && (selectedTier === 'basic' || showPostChatSections) && (
+                    <section className="py-8 sm:py-12 bg-white">
+                      <div className="container mx-auto px-4 sm:px-6">
+                        <div className="max-w-4xl mx-auto">
+                          <MedicalAiAssistant />
                         </div>
                       </div>
                     </section>
