@@ -1139,11 +1139,11 @@ RAW DATA: ${baseContext}`;
               onClick={() => navigate('/')}
             >
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-accentCyan to-primary rounded-lg flex items-center justify-center">
-                <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
               <div>
                 <h1 className="text-base sm:text-xl font-poppins font-semibold text-foreground">
-                  daigassist-health-ai
+                  Daigassist
                 </h1>
                 <p className="text-[10px] sm:text-xs text-muted-foreground">AI-Powered Lab Analysis</p>
               </div>

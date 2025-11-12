@@ -131,11 +131,30 @@ const Analytics = () => {
   }));
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-between h-14 sm:h-16">
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-accentCyan to-primary rounded-lg flex items-center justify-center">
+                <Activity className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-base sm:text-xl font-poppins font-semibold text-foreground">
+                  Daigassist
+                </h1>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Analytics Dashboard</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Usage Analytics</h1>
+            <h2 className="text-3xl font-bold text-foreground">Usage Analytics</h2>
             <p className="text-muted-foreground mt-1">
               Monitor your medical report analysis tool usage
               <span className="ml-2 text-xs">
