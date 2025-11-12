@@ -4,9 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { FileText, Calendar, Target, Activity, Utensils, FlaskConical, Stethoscope, CheckCircle2 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { FileText, Calendar, Target, Activity, Utensils, FlaskConical, Stethoscope, CheckCircle2, Clock } from "lucide-react";
+import { useState } from "react";
+import { format, addDays, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, startOfWeek, endOfWeek } from "date-fns";
 
 export const SampleReportPreview = () => {
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const startDate = startOfMonth(new Date());
+  const endDate = endOfMonth(addDays(startDate, 30));
   const samplePlan = {
     focusAreas: ["Kidney Function", "Blood Health"],
     overallGoal: "Improve targeted body systems through lifestyle modifications, dietary changes, and medical monitoring over the next 30 days",
@@ -80,6 +86,71 @@ export const SampleReportPreview = () => {
       "Sleep quality and duration",
       "Medication compliance"
     ]
+  };
+
+  // Generate 30-day schedule with activities
+  const generateDailySchedule = () => {
+    const schedule: Record<string, Array<{ type: string; activity: string; icon: any; color: string }>> = {};
+    
+    for (let day = 1; day <= 30; day++) {
+      const date = addDays(startDate, day - 1);
+      const dateKey = format(date, 'yyyy-MM-dd');
+      const weekNum = Math.ceil(day / 7);
+      
+      schedule[dateKey] = [
+        { type: "exercise", activity: "30-min walk", icon: Activity, color: "text-green-600" },
+        { type: "monitoring", activity: "BP check (2x)", icon: CheckCircle2, color: "text-blue-600" },
+        { type: "diet", activity: "Healthy meals", icon: Utensils, color: "text-orange-600" }
+      ];
+
+      // Add week-specific activities
+      if (weekNum === 1 && day === 2) {
+        schedule[dateKey].push({ type: "test", activity: "Baseline blood tests", icon: FlaskConical, color: "text-red-600" });
+      }
+      if (weekNum === 1 && day === 4) {
+        schedule[dateKey].push({ type: "appointment", activity: "Doctor review", icon: Stethoscope, color: "text-purple-600" });
+      }
+      if (weekNum === 2 && day === 12) {
+        schedule[dateKey].push({ type: "test", activity: "Iron Studies & Electrolytes", icon: FlaskConical, color: "text-red-600" });
+      }
+      if (weekNum === 2 && day === 10) {
+        schedule[dateKey].push({ type: "appointment", activity: "Specialist appointment", icon: Stethoscope, color: "text-purple-600" });
+      }
+      if (weekNum === 3 && day === 19) {
+        schedule[dateKey].push({ type: "test", activity: "Urine Microalbumin", icon: FlaskConical, color: "text-red-600" });
+      }
+      if (weekNum === 3 && day === 21) {
+        schedule[dateKey].push({ type: "test", activity: "B12 & Folate", icon: FlaskConical, color: "text-red-600" });
+      }
+      if (weekNum === 4 && day === 28) {
+        schedule[dateKey].push({ type: "test", activity: "Comprehensive testing", icon: FlaskConical, color: "text-red-600" });
+      }
+      if (weekNum === 4 && day === 30) {
+        schedule[dateKey].push({ type: "appointment", activity: "Progress review", icon: Stethoscope, color: "text-purple-600" });
+      }
+    }
+    
+    return schedule;
+  };
+
+  const dailySchedule = generateDailySchedule();
+
+  // Get activities for selected date
+  const getActivitiesForDate = (date: Date) => {
+    const dateKey = format(date, 'yyyy-MM-dd');
+    return dailySchedule[dateKey] || [];
+  };
+
+  // Generate calendar days for display (including padding)
+  const calendarDays = () => {
+    const start = startOfWeek(startDate);
+    const end = endOfWeek(addDays(startDate, 29));
+    return eachDayOfInterval({ start, end });
+  };
+
+  const isInPlan = (date: Date) => {
+    const daysDiff = Math.floor((date.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    return daysDiff >= 0 && daysDiff < 30;
   };
 
   return (
@@ -214,7 +285,135 @@ export const SampleReportPreview = () => {
 
             <Separator />
 
-            {/* 4-Week Action Plan */}
+            {/* Interactive 30-Day Calendar */}
+            <Card className="animate-fade-in border-primary/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Calendar className="w-5 h-5 text-primary" />
+                  Interactive 30-Day Schedule
+                </CardTitle>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Click on any day to see scheduled activities
+                </p>
+              </CardHeader>
+              <CardContent>
+                {/* Calendar Grid */}
+                <div className="space-y-4">
+                  {/* Weekday Headers */}
+                  <div className="grid grid-cols-7 gap-2 text-center">
+                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                      <div key={day} className="text-xs font-semibold text-muted-foreground py-2">
+                        {day}
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Calendar Days */}
+                  <div className="grid grid-cols-7 gap-2">
+                    {calendarDays().map((date, idx) => {
+                      const dateKey = format(date, 'yyyy-MM-dd');
+                      const activities = dailySchedule[dateKey] || [];
+                      const inPlan = isInPlan(date);
+                      const isSelected = selectedDate && isSameDay(date, selectedDate);
+                      
+                      return (
+                        <Popover key={idx}>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className={`h-16 p-1 flex flex-col items-center justify-start relative ${
+                                !inPlan ? 'opacity-30 cursor-not-allowed' : 'hover:border-primary hover:bg-primary/5'
+                              } ${isSelected ? 'border-primary bg-primary/10' : ''}`}
+                              disabled={!inPlan}
+                              onClick={() => setSelectedDate(date)}
+                            >
+                              <span className={`text-xs font-semibold ${inPlan ? 'text-foreground' : 'text-muted-foreground'}`}>
+                                {format(date, 'd')}
+                              </span>
+                              {inPlan && activities.length > 0 && (
+                                <div className="flex gap-0.5 mt-1 flex-wrap justify-center">
+                                  {activities.slice(0, 4).map((activity, aIdx) => (
+                                    <div
+                                      key={aIdx}
+                                      className={`w-1.5 h-1.5 rounded-full ${
+                                        activity.type === 'test' ? 'bg-red-500' :
+                                        activity.type === 'appointment' ? 'bg-purple-500' :
+                                        activity.type === 'exercise' ? 'bg-green-500' :
+                                        activity.type === 'diet' ? 'bg-orange-500' :
+                                        'bg-blue-500'
+                                      }`}
+                                    />
+                                  ))}
+                                </div>
+                              )}
+                            </Button>
+                          </PopoverTrigger>
+                          {inPlan && (
+                            <PopoverContent className="w-80 pointer-events-auto" align="start">
+                              <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                  <h4 className="font-semibold text-sm flex items-center gap-2">
+                                    <Clock className="w-4 h-4 text-primary" />
+                                    {format(date, 'EEEE, MMM d')}
+                                  </h4>
+                                  <Badge variant="secondary" className="text-xs">
+                                    Day {Math.floor((date.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1}
+                                  </Badge>
+                                </div>
+                                <Separator />
+                                <div className="space-y-2">
+                                  {activities.map((activity, aIdx) => {
+                                    const Icon = activity.icon;
+                                    return (
+                                      <div key={aIdx} className="flex items-start gap-2 p-2 bg-muted/50 rounded-md">
+                                        <Icon className={`w-4 h-4 ${activity.color} flex-shrink-0 mt-0.5`} />
+                                        <div className="flex-1">
+                                          <p className="text-xs font-medium">{activity.activity}</p>
+                                          <p className="text-xs text-muted-foreground capitalize">{activity.type}</p>
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            </PopoverContent>
+                          )}
+                        </Popover>
+                      );
+                    })}
+                  </div>
+
+                  {/* Legend */}
+                  <div className="pt-4 border-t">
+                    <p className="text-xs font-semibold text-muted-foreground mb-2">Activity Types:</p>
+                    <div className="flex flex-wrap gap-3">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-2 h-2 rounded-full bg-green-500" />
+                        <span className="text-xs text-muted-foreground">Exercise</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-2 h-2 rounded-full bg-blue-500" />
+                        <span className="text-xs text-muted-foreground">Monitoring</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-2 h-2 rounded-full bg-orange-500" />
+                        <span className="text-xs text-muted-foreground">Diet</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-2 h-2 rounded-full bg-red-500" />
+                        <span className="text-xs text-muted-foreground">Tests</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-2 h-2 rounded-full bg-purple-500" />
+                        <span className="text-xs text-muted-foreground">Appointments</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Separator />
             <Card className="animate-fade-in">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
