@@ -16,7 +16,7 @@ export const AuthDialog = ({ open, onOpenChange, onAuthSuccess }: AuthDialogProp
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md [&>button]:hidden">
         <DialogHeader>
           <DialogTitle className="text-center">Access Premium Features</DialogTitle>
         </DialogHeader>

@@ -52,7 +52,7 @@ const HeaderNav = () => {
   
   return (
     <div className="bg-white border-b border-border sticky top-0 z-50 shadow-sm">
-      <div className="container mx-auto px-3 sm:px-4 py-2 sm:py-3">
+      <div className="container mx-auto px-2 sm:px-3 md:px-4 py-2 sm:py-3">
         <div className="flex items-center justify-between">
           {/* Logo Section */}
           <button
@@ -62,9 +62,9 @@ const HeaderNav = () => {
             <img 
               src={daigassistLogo} 
               alt="Daigassist" 
-              className="h-8 sm:h-10 w-auto"
+              className="h-6 sm:h-8 md:h-10 w-auto"
             />
-            <span className="text-base sm:text-lg font-bold text-navy hidden xs:block">
+            <span className="text-base sm:text-lg font-bold text-navy hidden sm:block">
               Daigassist
             </span>
           </button>
@@ -76,7 +76,7 @@ const HeaderNav = () => {
                 onClick={() => navigate('/my-reports')}
                 variant="default"
                 size="sm"
-                className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-4"
+                className="text-[11px] xs:text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3 md:px-4"
               >
                 My Reports
               </Button>
@@ -88,7 +88,7 @@ const HeaderNav = () => {
                 }}
                 variant="outline"
                 size="sm"
-                className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-4"
+                className="text-[11px] xs:text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3 md:px-4"
               >
                 Sign In
               </Button>
