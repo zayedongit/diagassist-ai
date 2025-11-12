@@ -1624,6 +1624,21 @@ RAW DATA: ${baseContext}`;
                   {/* New Sections After Clinical Chat Completion */}
                   {!isNonMedicalReport(analysisData) && enhancedData && showPostChatSections && (
                     <>
+                      {/* Report Summary in Layman's Language */}
+                      <section className="py-6 sm:py-8 bg-white transition-all duration-500">
+                        <div className="container mx-auto px-4 sm:px-6 animate-fade-in">
+                          <div className="max-w-4xl mx-auto animate-scale-in">
+                            <SummaryCard 
+                              summary={analysisData.summary}
+                              overallStatus={analysisData.overallStatus}
+                              abnormalCount={analysisData.abnormalCount || 0}
+                              normalCount={analysisData.normalCount}
+                              analysisData={enhancedData}
+                            />
+                          </div>
+                        </div>
+                      </section>
+
                       {/* Abnormal Panels Summary */}
                       <section className="py-6 sm:py-8 bg-coolGray transition-all duration-500">
                         <div className="container mx-auto px-4 sm:px-6 animate-fade-in">
