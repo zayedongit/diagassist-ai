@@ -41,8 +41,15 @@ export default function Users() {
     try {
       setLoading(true);
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+      
+      console.log('Loading users, session exists:', !!session);
+      
+      if (!session) {
+        toast.error('No active session');
+        return;
+      }
 
+      console.log('Calling get-all-users function...');
       const { data, error } = await supabase.functions.invoke('get-all-users', {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -50,11 +57,23 @@ export default function Users() {
         body: { search, page: 1, limit: 100 },
       });
 
-      if (error) throw error;
-      setUsers(data.users || []);
+      console.log('get-all-users response:', { data, error });
+
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
+      }
+      
+      if (data && data.users) {
+        console.log('Loaded users:', data.users.length);
+        setUsers(data.users);
+      } else {
+        console.warn('No users in response data');
+        setUsers([]);
+      }
     } catch (error) {
       console.error('Error loading users:', error);
-      toast.error('Failed to load users');
+      toast.error(`Failed to load users: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
