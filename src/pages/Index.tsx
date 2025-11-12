@@ -35,53 +35,9 @@ import { extractPdfText } from '@/utils/extractPdfText';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
 import { ReportPreviewModal } from '@/components/ReportPreviewModal';
 
-// Header Navigation Component
+// Header Navigation Component - Hidden for free tool promotion
 const HeaderNav = () => {
-  const { user, signOut } = useAuth();
-  const { isAdmin } = useAdminCheck();
-  const navigate = useNavigate();
-
-  const handleSignOut = async () => {
-    await signOut();
-    toast.success('Signed out successfully');
-  };
-
-  if (!user) {
-    return (
-      <Button
-        onClick={() => navigate('/auth')}
-        variant="default"
-        size="sm"
-        className="gap-2"
-      >
-        Sign In
-      </Button>
-    );
-  }
-
-  return (
-    <div className="flex items-center gap-2">
-      {isAdmin && (
-        <Button
-          onClick={() => navigate('/admin')}
-          variant="outline"
-          size="sm"
-          className="gap-2"
-        >
-          <Shield className="w-4 h-4" />
-          Admin
-        </Button>
-      )}
-      <Button
-        onClick={handleSignOut}
-        variant="ghost"
-        size="sm"
-        className="gap-2"
-      >
-        Sign Out
-      </Button>
-    </div>
-  );
+  return null;
 };
 
 
