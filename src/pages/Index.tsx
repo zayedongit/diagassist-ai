@@ -13,7 +13,7 @@ import { UploadZone } from "@/components/UploadZone";
 import { AnimatedLoader } from "@/components/AnimatedLoader";
 import { MedicalChatAgent } from "@/components/MedicalChatAgent";
 import { generateMockPdf } from "@/components/MockPdfGenerator";
-import { generateComprehensiveReportPdf } from "@/utils/generateComprehensiveReportPdf";
+import { generateEssentialReportPdf } from "@/utils/generateEssentialReportPdf";
 import { ComprehensiveReport } from "@/components/ComprehensiveReport";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ReportHeader } from "@/components/ReportHeader";
@@ -259,21 +259,47 @@ RAW DATA: ${baseContext}`;
   };
 
 
-  // Handle comprehensive report download
-  const handleDownloadComprehensiveReport = async () => {
+  // Handle essential report download
+  const handleDownloadEssentialReport = async () => {
     if (!analysisData) {
-      toast.error('No analysis data available for comprehensive report');
+      toast.error('No analysis data available for report');
       return;
     }
     
     try {
-      await generateComprehensiveReportPdf({
-        patientName: analysisData?.patientName,
-        bloodAnalysis: analysisData,
-        clinicalAssessment: clinicalAssessmentData
+      // Map analysis data to essential report format
+      const allAbnormalLabs = analysisData.medicalPanels?.flatMap((panel: any) => 
+        panel.abnormalLabs.map((lab: any) => ({
+          parameter: lab.name,
+          value: lab.value,
+          unit: lab.unit || '',
+          normalRange: lab.referenceRange || '',
+          status: lab.status
+        }))
+      ) || [];
+
+      await generateEssentialReportPdf({
+        patientInfo: {
+          name: analysisData.patientName || analysisData.profileName,
+          age: analysisData.demographics?.age,
+          gender: analysisData.demographics?.gender,
+          testDate: analysisData.testDate
+        },
+        overallStatus: analysisData.overallStatus,
+        summary: analysisData.summary,
+        abnormalLabs: allAbnormalLabs,
+        actionItems: analysisData.nextSteps,
+        dietaryRecommendations: {
+          toAdd: analysisData.diet?.increase,
+          toLimitOrAvoid: analysisData.diet?.avoid
+        },
+        lifestyleModifications: analysisData.lifestyle?.recommendations,
+        followUpGuidance: analysisData.specialist ? 
+          `Consult ${analysisData.specialist}. Retest recommended in 3-6 months.` : 
+          'Retest recommended in 3-6 months. Consult your healthcare provider if symptoms worsen.'
       });
     } catch (error) {
-      toast.error(`Failed to download comprehensive report: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error(`Failed to download report: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -1431,12 +1457,12 @@ RAW DATA: ${baseContext}`;
                           {clinicalAssessmentData && (
                             <div className="text-center pt-6 sm:pt-8">
                               <Button 
-                                onClick={handleDownloadComprehensiveReport}
+                                onClick={handleDownloadEssentialReport}
                                 size="lg"
                                 className="bg-accentCyan text-navy hover:bg-accentCyan/90 font-poppins font-semibold px-6 sm:px-8 py-4 sm:py-6 text-sm sm:text-base rounded-xl hover-scale-102 shadow-premium w-full sm:w-auto"
                               >
                                 <Download className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                                Download PDF
+                                Download Essential Report
                               </Button>
                             </div>
                           )}
