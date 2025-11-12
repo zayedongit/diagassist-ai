@@ -39,6 +39,8 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/h
 import { SampleReportPreview } from '@/components/SampleReportPreview';
 import { AbnormalPanelsSummary } from '@/components/AbnormalPanelsSummary';
 import { ValuesNeedingAttention } from '@/components/ValuesNeedingAttention';
+import { HealthScoreCard } from '@/components/HealthScoreCard';
+import { calculateHealthScore } from '@/utils/healthScoreCalculator';
 
 // Header Navigation Component - Hidden for free tool promotion
 const HeaderNav = () => {
@@ -121,10 +123,10 @@ const Index = () => {
     }
   }, [showResults, isAnalyzing, isMobile]);
 
-  // Auto-scroll: When clinical chat completes, scroll to abnormal panels section
+  // Auto-scroll: When clinical chat completes, scroll to health score section
   useEffect(() => {
     if (showPostChatSections && !isMobile) {
-      scrollToSection('abnormal-panels-section', 500);
+      scrollToSection('health-score-section', 500);
     }
   }, [showPostChatSections, isMobile]);
 
@@ -1634,6 +1636,21 @@ RAW DATA: ${baseContext}`;
                               abnormalCount={analysisData.abnormalCount || 0}
                               normalCount={analysisData.normalCount}
                               analysisData={enhancedData}
+                            />
+                          </div>
+                        </div>
+                      </section>
+
+                      {/* Health Score Calculator */}
+                      <section id="health-score-section" className="py-6 sm:py-8 bg-gradient-to-br from-blue-50 to-purple-50 transition-all duration-500">
+                        <div className="container mx-auto px-4 sm:px-6 animate-fade-in">
+                          <div className="max-w-4xl mx-auto animate-scale-in">
+                            <HealthScoreCard 
+                              breakdown={calculateHealthScore(
+                                enhancedData,
+                                analysisData.demographics,
+                                parseClinicalContext(clinicalAssessmentData)
+                              )}
                             />
                           </div>
                         </div>

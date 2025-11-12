@@ -9,6 +9,9 @@ import { HealthRiskDashboardWithTimeline } from "@/components/HealthRiskDashboar
 import { UnderstandingYourNumbers } from "@/components/UnderstandingYourNumbers";
 import { MedicalChatAgent } from "@/components/MedicalChatAgent";
 import { EnhancedAnalysisResult, extractAbnormalPanels } from "@/types/medicalAnalysis";
+import { parseClinicalContext } from "@/utils/parseClinicalContext";
+import { HealthScoreCard } from "@/components/HealthScoreCard";
+import { calculateHealthScore } from "@/utils/healthScoreCalculator";
 
 interface MobileResultsViewProps {
   analysisData: any;
@@ -34,6 +37,13 @@ export const MobileResultsView = ({
   const [isDismissing, setIsDismissing] = useState(false);
 
   const cards = [
+    {
+      id: 'score',
+      title: 'Health Score',
+      icon: Activity,
+      color: 'text-primary',
+      bgColor: 'bg-primary/10'
+    },
     {
       id: 'chat',
       title: 'Clinical Chat',
@@ -123,6 +133,21 @@ export const MobileResultsView = ({
     const card = cards[currentCard];
 
     switch (card.id) {
+      case 'score':
+        return enhancedData ? (
+          <div className="pb-4">
+            <HealthScoreCard 
+              breakdown={calculateHealthScore(
+                enhancedData,
+                analysisData.demographics,
+                parseClinicalContext(clinicalAssessmentData)
+              )}
+            />
+          </div>
+        ) : (
+          <p className="text-slate text-center py-8">No health data available for scoring</p>
+        );
+      
       case 'chat':
         const createEnhancedAnalysisContext = (data: any) => {
           return JSON.stringify({
