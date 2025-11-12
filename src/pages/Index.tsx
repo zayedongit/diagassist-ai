@@ -1404,8 +1404,8 @@ RAW DATA: ${baseContext}`;
                   </p>
                   
                   {/* Tagline - Mobile Optimized */}
-                  <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-100 font-inter font-bold tracking-wide opacity-0 animate-fade-in px-2 pt-8 sm:pt-10 md:pt-12" style={{ animationDelay: '0.6s', animationFillMode: 'forwards' }}>
-                    Guided by Science. Driven by Compassion. Powered by MomentumHealth.
+                  <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-100 font-inter font-bold tracking-wide opacity-0 animate-fade-in px-2 pt-12 sm:pt-16 md:pt-20" style={{ animationDelay: '0.6s', animationFillMode: 'forwards' }}>
+                    Guided by Science. Driven by Compassion.
                   </p>
                   
                   {/* CTA Buttons - Mobile Optimized */}
