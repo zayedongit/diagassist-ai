@@ -6,6 +6,7 @@ import Users from './admin/Users';
 import DemoLinks from './admin/DemoLinks';
 import LabConfigs from './admin/LabConfigs';
 import PaymentSettings from './admin/PaymentSettings';
+import Analytics from './admin/Analytics';
 
 export default function AdminDashboard() {
   return (
@@ -30,6 +31,7 @@ export default function AdminDashboard() {
               <Route path="/demo-links" element={<DemoLinks />} />
               <Route path="/labs" element={<LabConfigs />} />
               <Route path="/payments" element={<PaymentSettings />} />
+              <Route path="/analytics" element={<Analytics />} />
               <Route path="/settings" element={<div className="text-center py-20 text-muted-foreground">Settings coming soon...</div>} />
             </Routes>
           </main>

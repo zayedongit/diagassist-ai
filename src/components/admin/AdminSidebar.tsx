@@ -5,7 +5,8 @@ import {
   FlaskConical, 
   CreditCard, 
   Settings,
-  LogOut
+  LogOut,
+  BarChart3
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -31,6 +32,7 @@ const menuItems = [
   { title: 'Demo Links', url: '/admin/demo-links', icon: LinkIcon },
   { title: 'Lab Configs', url: '/admin/labs', icon: FlaskConical },
   { title: 'Payments', url: '/admin/payments', icon: CreditCard },
+  { title: 'Analytics', url: '/admin/analytics', icon: BarChart3 },
   { title: 'Settings', url: '/admin/settings', icon: Settings },
 ];
 
