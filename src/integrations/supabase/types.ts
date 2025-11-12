@@ -355,6 +355,7 @@ export type Database = {
       }
       pdf_analyses: {
         Row: {
+          admin_alerted: boolean | null
           created_at: string | null
           demo_link_id: string | null
           demo_session_id: string | null
@@ -372,6 +373,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          admin_alerted?: boolean | null
           created_at?: string | null
           demo_link_id?: string | null
           demo_session_id?: string | null
@@ -389,6 +391,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          admin_alerted?: boolean | null
           created_at?: string | null
           demo_link_id?: string | null
           demo_session_id?: string | null

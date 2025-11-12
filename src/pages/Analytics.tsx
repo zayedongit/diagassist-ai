@@ -46,11 +46,47 @@ const Analytics = () => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const { toast } = useToast();
 
+  // Check admin status on mount
   useEffect(() => {
-    fetchAnalytics();
-  }, [timeframe]);
+    const checkAdminAccess = async () => {
+      try {
+        const { data: authData, error } = await supabase.functions.invoke('check-admin-role');
+        
+        if (error) throw error;
+        
+        if (!authData?.isAdmin) {
+          toast({
+            title: 'Access Denied',
+            description: 'This page is only accessible to administrators',
+            variant: 'destructive',
+          });
+          navigate('/');
+          return;
+        }
+        
+        setIsAdmin(true);
+      } catch (error) {
+        console.error('Admin check error:', error);
+        toast({
+          title: 'Access Denied',
+          description: 'Unable to verify admin access',
+          variant: 'destructive',
+        });
+        navigate('/');
+      }
+    };
+
+    checkAdminAccess();
+  }, [navigate, toast]);
+
+  useEffect(() => {
+    if (isAdmin) {
+      fetchAnalytics();
+    }
+  }, [timeframe, isAdmin]);
 
   // Auto-refresh every 30 seconds
   useEffect(() => {
@@ -103,7 +139,7 @@ const Analytics = () => {
     premium: 'hsl(var(--chart-3))',
   };
 
-  if (loading) {
+  if (isAdmin === null || loading) {
     return (
       <div className="min-h-screen bg-background p-4 md:p-8">
         <div className="max-w-7xl mx-auto space-y-6">
@@ -119,7 +155,7 @@ const Analytics = () => {
     );
   }
 
-  if (!data) return null;
+  if (!isAdmin || !data) return null;
 
   const tierChartData = [
     { name: 'Basic', value: data.tierDistribution.basic, color: tierColors.basic },
@@ -178,58 +214,58 @@ const Analytics = () => {
           </Tabs>
         </div>
 
-        {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Key Metrics - Mobile Optimized */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Analyses</CardTitle>
-              <Activity className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+              <CardTitle className="text-xs sm:text-sm font-medium">Total</CardTitle>
+              <Activity className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{data.summary.totalAnalyses}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {data.summary.avgAnalysesPerUser} per user avg
+            <CardContent className="p-3 sm:p-6 pt-0">
+              <div className="text-xl sm:text-2xl font-bold">{data.summary.totalAnalyses}</div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
+                {data.summary.avgAnalysesPerUser} per user
               </p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Unique Users</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+              <CardTitle className="text-xs sm:text-sm font-medium">Users</CardTitle>
+              <Users className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{data.summary.uniqueUsers}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Active users
+            <CardContent className="p-3 sm:p-6 pt-0">
+              <div className="text-xl sm:text-2xl font-bold">{data.summary.uniqueUsers}</div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
+                Active
               </p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
-              <CheckCircle className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+              <CardTitle className="text-xs sm:text-sm font-medium">Success</CardTitle>
+              <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{data.summary.successRate}%</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {data.summary.completedAnalyses} completed
+            <CardContent className="p-3 sm:p-6 pt-0">
+              <div className="text-xl sm:text-2xl font-bold">{data.summary.successRate}%</div>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
+                {data.summary.completedAnalyses} done
               </p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Peak Hour</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+              <CardTitle className="text-xs sm:text-sm font-medium">Peak</CardTitle>
+              <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
+            <CardContent className="p-3 sm:p-6 pt-0">
+              <div className="text-xl sm:text-2xl font-bold">
                 {data.summary.peakHour ? formatHour(data.summary.peakHour.hour) : 'N/A'}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {data.summary.peakHour ? `${data.summary.peakHour.count} analyses` : 'No data'}
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
+                {data.summary.peakHour ? `${data.summary.peakHour.count} uses` : 'No data'}
               </p>
             </CardContent>
           </Card>
@@ -243,8 +279,8 @@ const Analytics = () => {
               <CardTitle>Analyses Over Time</CardTitle>
               <CardDescription>Daily analysis volume</CardDescription>
             </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
+            <CardContent className="p-3 sm:p-6">
+              <ResponsiveContainer width="100%" height={250}>
                 <LineChart data={data.chartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis 
@@ -286,8 +322,8 @@ const Analytics = () => {
               <CardTitle>Feature Tier Distribution</CardTitle>
               <CardDescription>Usage by tier selection</CardDescription>
             </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
+            <CardContent className="p-3 sm:p-6">
+              <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
                   <Pie
                     data={tierChartData}
@@ -321,8 +357,8 @@ const Analytics = () => {
               <CardTitle>Analysis Status</CardTitle>
               <CardDescription>Completed vs failed analyses</CardDescription>
             </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
+            <CardContent className="p-3 sm:p-6">
+              <ResponsiveContainer width="100%" height={250}>
                 <BarChart data={data.chartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis 
@@ -352,8 +388,8 @@ const Analytics = () => {
               <CardTitle>Usage by Hour</CardTitle>
               <CardDescription>Peak usage times</CardDescription>
             </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
+            <CardContent className="p-3 sm:p-6">
+              <ResponsiveContainer width="100%" height={250}>
                 <BarChart data={hourlyChartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis 

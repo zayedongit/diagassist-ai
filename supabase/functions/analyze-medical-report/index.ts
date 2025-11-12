@@ -1061,16 +1061,36 @@ Respond ONLY with valid JSON matching the structure above - no markdown, no expl
     
     console.log('✅ Analysis result stored in database with ID:', analysisId);
       } catch (bgError) {
-        console.error('Background processing error:', bgError);
-        // Try to mark as failed
+        console.error('❌ CRITICAL BACKGROUND PROCESSING ERROR:', bgError);
+        const errorMessage = bgError instanceof Error ? bgError.message : 'Unknown error';
+        const errorStack = bgError instanceof Error ? bgError.stack : '';
+        
+        // Mark analysis as failed
         await supabase
           .from('pdf_analyses')
           .update({
             status: 'failed',
-            error: bgError instanceof Error ? bgError.message : 'Unknown error',
+            error_message: errorMessage,
+            admin_alerted: true,
             updated_at: new Date().toISOString()
           })
           .eq('id', analysisId);
+
+        // Send immediate SMS alert to admin
+        try {
+          await supabase.functions.invoke('send-admin-alert', {
+            body: {
+              analysisId,
+              error: `${errorMessage}\n\nStack:\n${errorStack}`,
+              userId: analysisId.split('_')[2] || 'unknown',
+              timestamp: new Date().toISOString()
+            }
+          });
+          console.log('✅ Admin SMS alert sent for failed analysis');
+        } catch (alertError) {
+          console.error('❌ Failed to send admin alert:', alertError);
+          // Don't throw - we still want to continue even if alert fails
+        }
       }
     })(); // Execute background task immediately
     

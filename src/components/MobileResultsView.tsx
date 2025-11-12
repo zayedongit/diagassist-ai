@@ -459,46 +459,37 @@ export const MobileResultsView = ({
         </div>
       </div>
 
-      {/* Navigation Footer */}
-      <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-border px-4 py-3 flex items-center justify-between">
-        <Button
-          onClick={goToPrevious}
-          variant="outline"
-          size="sm"
-          disabled={currentCard === 0}
-          className="flex items-center gap-2"
-        >
-          <ChevronLeft className="w-4 h-4" />
-          Previous
-        </Button>
+      {/* Navigation Footer - Mobile Optimized */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-border shadow-lg" 
+           style={{ paddingBottom: 'env(safe-area-inset-bottom, 12px)' }}>
+        <div className="px-4 py-3 flex items-center justify-between gap-4">
+          <Button
+            onClick={goToPrevious}
+            disabled={currentCard === 0}
+            variant="outline"
+            size="lg"
+            className="rounded-xl min-h-[48px] min-w-[48px] flex-col gap-1"
+          >
+            <ChevronLeft className="w-5 h-5" />
+            <span className="text-[10px]">Prev</span>
+          </Button>
 
-        <div className="flex gap-1">
-          {cards.map((card, idx) => (
-            <button
-              key={card.id}
-              onClick={() => setCurrentCard(idx)}
-              className={`w-8 h-8 rounded-lg transition-all ${
-                idx === currentCard
-                  ? 'bg-primary text-white'
-                  : 'bg-gray-100 text-gray-400'
-              }`}
-              aria-label={card.title}
-            >
-              <card.icon className="w-4 h-4 mx-auto" />
-            </button>
-          ))}
+          <div className="flex-1 flex flex-col items-center justify-center gap-1 min-h-[48px]">
+            <span className="text-xs font-medium text-foreground">{currentCardData.title}</span>
+            <span className="text-[10px] text-muted-foreground">Swipe or tap arrows</span>
+          </div>
+
+          <Button
+            onClick={goToNext}
+            disabled={currentCard === cards.length - 1}
+            variant="outline"
+            size="lg"
+            className="rounded-xl min-h-[48px] min-w-[48px] flex-col gap-1"
+          >
+            <ChevronRight className="w-5 h-5" />
+            <span className="text-[10px]">Next</span>
+          </Button>
         </div>
-
-        <Button
-          onClick={goToNext}
-          variant="outline"
-          size="sm"
-          disabled={currentCard === cards.length - 1}
-          className="flex items-center gap-2"
-        >
-          Next
-          <ChevronRight className="w-4 h-4" />
-        </Button>
       </div>
 
       {/* 30-Day Improvement Plan Modal */}

@@ -16,9 +16,15 @@ import {
   Clock,
   Activity,
   ArrowLeft,
-  Loader2
+  Loader2,
+  Award
 } from "lucide-react";
 import { HealthScoreTimeline } from "@/components/HealthScoreTimeline";
+import { HealthPlanCalendar } from "@/components/HealthPlanCalendar";
+import { useHealthJourney } from "@/hooks/useHealthJourney";
+import { generate30DayPlan } from "@/utils/generate30DayPlan";
+import { calculateHealthScore } from "@/utils/healthScoreCalculator";
+import { parseClinicalContext } from "@/utils/parseClinicalContext";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { jsPDF } from "jspdf";
@@ -29,6 +35,106 @@ interface AnalysisRecord {
   result: any;
   status: string;
 }
+
+// Calendar component with integrated plan
+const CalendarWithPlan = ({ analysis }: { analysis: AnalysisRecord }) => {
+  const [planStartDate] = useState(new Date().toISOString().split('T')[0]);
+  
+  const healthScoreBreakdown = calculateHealthScore(
+    analysis.result,
+    analysis.result.demographics,
+    parseClinicalContext(analysis.result.clinicalContext || {})
+  );
+
+  const plan = generate30DayPlan(healthScoreBreakdown);
+
+  const {
+    completions,
+    loading,
+    toggleActivity,
+    addNote,
+    getCompletionStats,
+  } = useHealthJourney(plan, planStartDate);
+
+  const stats = getCompletionStats();
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <div className="text-center py-8">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
+            <p className="text-muted-foreground">Loading your 30-day plan...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Stats Overview */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <Card className="p-3 sm:p-4">
+          <div className="flex items-center gap-2 mb-1">
+            <Calendar className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
+            <span className="text-xs sm:text-sm text-muted-foreground">Day</span>
+          </div>
+          <div className="text-lg sm:text-2xl font-bold">
+            {stats.currentDay} / 30
+          </div>
+        </Card>
+
+        <Card className="p-3 sm:p-4">
+          <div className="flex items-center gap-2 mb-1">
+            <Activity className="w-3 h-3 sm:w-4 sm:h-4 text-green-500" />
+            <span className="text-xs sm:text-sm text-muted-foreground">Done</span>
+          </div>
+          <div className="text-lg sm:text-2xl font-bold">
+            {stats.completionRate.toFixed(0)}%
+          </div>
+        </Card>
+
+        <Card className="p-3 sm:p-4">
+          <div className="flex items-center gap-2 mb-1">
+            <Award className="w-3 h-3 sm:w-4 sm:h-4 text-amber-500" />
+            <span className="text-xs sm:text-sm text-muted-foreground">Streak</span>
+          </div>
+          <div className="text-lg sm:text-2xl font-bold">
+            {stats.currentStreak} days
+          </div>
+        </Card>
+
+        <Card className="p-3 sm:p-4">
+          <div className="flex items-center gap-2 mb-1">
+            <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-blue-500" />
+            <span className="text-xs sm:text-sm text-muted-foreground">Left</span>
+          </div>
+          <div className="text-lg sm:text-2xl font-bold">
+            {stats.daysRemaining}
+          </div>
+        </Card>
+      </div>
+
+      {/* Calendar */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Your 30-Day Health Plan</CardTitle>
+          <CardDescription>{plan.overallGoal}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <HealthPlanCalendar
+            plan={plan}
+            planStartDate={planStartDate}
+            completions={completions}
+            onToggleActivity={toggleActivity}
+            onAddNote={addNote}
+          />
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
 
 export default function MyReports() {
   const navigate = useNavigate();
@@ -315,21 +421,25 @@ export default function MyReports() {
                 </TabsContent>
 
                 <TabsContent value="calendar">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>30-Day Improvement Plan</CardTitle>
-                      <CardDescription>
-                        Your personalized health improvement calendar
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-center py-8 text-muted-foreground">
-                        <Calendar className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                        <p>30-day plan feature coming soon</p>
-                        <p className="text-sm mt-2">Complete your health assessment to generate a personalized improvement plan</p>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  {selectedAnalysis && selectedAnalysis.result?.healthScore ? (
+                    <CalendarWithPlan analysis={selectedAnalysis} />
+                  ) : (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>30-Day Improvement Plan</CardTitle>
+                        <CardDescription>
+                          Your personalized health improvement calendar
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-center py-8 text-muted-foreground">
+                          <Calendar className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                          <p>30-day plan feature coming soon</p>
+                          <p className="text-sm mt-2">Complete your health assessment with health score to generate a personalized improvement plan</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
                 </TabsContent>
               </Tabs>
             </div>
