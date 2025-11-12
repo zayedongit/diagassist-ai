@@ -45,18 +45,18 @@ export const MobileResultsView = ({
 
   const cards = [
     {
-      id: 'score',
-      title: 'Health Score',
-      icon: Activity,
-      color: 'text-primary',
-      bgColor: 'bg-primary/10'
-    },
-    {
       id: 'chat',
       title: 'Clinical Chat',
       icon: MessageCircle,
       color: 'text-cyan-500',
       bgColor: 'bg-cyan-50'
+    },
+    {
+      id: 'score',
+      title: 'Health Score',
+      icon: Activity,
+      color: 'text-primary',
+      bgColor: 'bg-primary/10'
     },
     {
       id: 'plan',
