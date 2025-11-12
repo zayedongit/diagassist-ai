@@ -1348,19 +1348,27 @@ RAW DATA: ${baseContext}`;
           <>
             <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
               {/* Full-width Background Video with Parallax */}
-              <div className="absolute inset-0 z-0 overflow-hidden">
+              <div className="absolute inset-0 z-0 overflow-hidden bg-gradient-to-br from-navy to-slate">
                 <video
                   autoPlay
                   loop
                   muted
                   playsInline
-                  className="absolute top-0 left-0 w-full h-full object-cover transform scale-105 transition-transform duration-[10000ms] ease-out"
+                  preload="metadata"
+                  className="absolute top-0 left-0 w-full h-full object-cover transform scale-105 transition-transform duration-[10000ms] ease-out opacity-0 animate-fade-in"
                   style={{ 
                     willChange: 'transform',
-                    filter: 'brightness(1.2) contrast(1.1)'
+                    filter: 'brightness(1.2) contrast(1.1)',
+                    animationDelay: '0.3s',
+                    animationFillMode: 'forwards'
+                  }}
+                  onLoadedData={(e) => {
+                    const video = e.target as HTMLVideoElement;
+                    video.style.opacity = '1';
                   }}
                 >
                   <source src="/hero-video.mp4" type="video/mp4" />
+                  Your browser does not support the video tag.
                 </video>
                 
                 {/* Lighter Semi-transparent Dark Gradient Overlay for better video visibility */}
