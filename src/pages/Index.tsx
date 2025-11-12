@@ -25,6 +25,7 @@ import { EnhancedAnalysisResult, extractAbnormalPanels } from "@/types/medicalAn
 import { parseClinicalContext } from "@/utils/parseClinicalContext";
 import heroBackground from "@/assets/hero-background.jpg";
 import readyBackground from "@/assets/ready-background.jpg";
+import daigassistLogo from "@/assets/daigassist-logo-main.png";
 import { fetchUserAnalysisHistory } from '@/utils/fetchUserAnalysisHistory';
 import { PhoneAuth } from '@/components/PhoneAuth';
 import { useAuth } from '@/hooks/useAuth';
@@ -36,9 +37,17 @@ import { ReportPreviewModal } from '@/components/ReportPreviewModal';
 import { MobileResultsView } from '@/components/MobileResultsView';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-// Header Navigation Component - Hidden for free tool promotion
+// Header Navigation Component
 const HeaderNav = () => {
-  return null;
+  return (
+    <nav className="flex items-center gap-6">
+      <img 
+        src={daigassistLogo} 
+        alt="Daigassist Logo" 
+        className="h-8 sm:h-10 md:h-12 w-auto object-contain"
+      />
+    </nav>
+  );
 };
 
 
