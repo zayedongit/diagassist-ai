@@ -1169,26 +1169,40 @@ serve(async (req) => {
     let isJsonInput = false;
 
     if (contentType.includes('application/json')) {
-      // New JSON input format for Google Drive integration
-      console.log('Processing JSON input for Google Drive integration');
-      const { pdfBase64, filename } = await req.json();
+      // JSON input format - supports camera images, text extraction, or PDF base64
+      console.log('Processing JSON input');
+      const body = await req.json();
       
-      if (!pdfBase64) {
-        throw new Error('No pdfBase64 provided in JSON input');
-      }
-      
-      pdfFileName = filename || 'google-drive-report.pdf';
+      userId = body.userId || 'anonymous-' + Date.now();
+      pdfFileName = body.filename || 'unknown.pdf';
       isJsonInput = true;
       
-      // Convert base64 PDF to images using pdf2pic simulation
-      const pdfBuffer = Uint8Array.from(atob(pdfBase64), c => c.charCodeAt(0));
+      // Handle different JSON input types
+      if (body.images && Array.isArray(body.images) && body.images.length > 0) {
+        // Camera-captured images or pre-converted PDF images
+        console.log(`Received ${body.images.length} images from camera/conversion`);
+        preConvertedImages = JSON.stringify(body.images);
+      } else if (body.text) {
+        // Text extraction (fast path)
+        console.log('Received extracted text for fast processing');
+        preConvertedImages = JSON.stringify([]); // Will be handled by text param
+      } else if (body.pdfBase64) {
+        // Base64 PDF (Google Drive integration or fallback)
+        console.log('Received PDF as base64');
+        const base64Image = 'data:image/pdf;base64,' + body.pdfBase64;
+        preConvertedImages = JSON.stringify([base64Image]);
+      } else {
+        throw new Error('No valid input provided (expected images, text, or pdfBase64)');
+      }
       
-      // For Google Drive integration, we'll use a simplified image conversion
-      // In production, you'd want to implement proper PDF to image conversion here
-      const base64Image = 'data:image/pdf;base64,' + pdfBase64;
-      preConvertedImages = JSON.stringify([base64Image]);
-      
-      console.log('Converted PDF to base64 image for processing');
+      console.log('JSON input processed:', {
+        userId,
+        filename: pdfFileName,
+        hasImages: !!body.images,
+        imageCount: body.images?.length || 0,
+        hasText: !!body.text,
+        hasPdfBase64: !!body.pdfBase64
+      });
     } else {
       // Original form data format
       console.log('Processing form data input');

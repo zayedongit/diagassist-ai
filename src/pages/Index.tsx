@@ -43,6 +43,7 @@ const HeaderNav = () => {
 const Index = () => {
   const navigate = useNavigate();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [capturedImages, setCapturedImages] = useState<string[]>([]);
   
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisData, setAnalysisData] = useState<any>(null);
@@ -329,6 +330,7 @@ RAW DATA: ${baseContext}`;
     
     const summary = data.summary || '';
     const detailedAnalysis = data.detailedAnalysis || [];
+    const medicalPanels = data.medicalPanels || [];
     
     // Check for common non-medical report indicators
     const nonMedicalIndicators = [
@@ -337,11 +339,23 @@ RAW DATA: ${baseContext}`;
       'no medical analysis can be performed',
       'not a blood report',
       'technical drawing',
-      'electrical drawing'
+      'electrical drawing',
+      'invoice',
+      'receipt',
+      'prescription note',
+      'appointment slip',
+      'discharge summary',
+      'medical bill'
     ];
     
     const text = (summary + ' ' + detailedAnalysis.join(' ')).toLowerCase();
-    return nonMedicalIndicators.some(indicator => text.includes(indicator));
+    const hasNonMedicalIndicator = nonMedicalIndicators.some(indicator => text.includes(indicator));
+    
+    // Also check if medicalPanels is empty or has very few parameters
+    const hasInsufficientData = medicalPanels.length === 0 || 
+      (medicalPanels.length === 1 && medicalPanels[0].abnormalLabs?.length === 0);
+    
+    return hasNonMedicalIndicator || hasInsufficientData;
   };
 
   // Initialize or restore analysis state from localStorage with validation
@@ -667,6 +681,7 @@ RAW DATA: ${baseContext}`;
     localStorage.clear();
     
     setSelectedFile(file);
+    setCapturedImages([]);
     setError(null);
     setIsAnalyzing(true);
     setExtractedText("");
@@ -721,6 +736,92 @@ RAW DATA: ${baseContext}`;
       
     } catch (err) {
       console.error('Analysis error:', err);
+      setError(err instanceof Error ? err.message : 'Analysis failed. Please try again.');
+      setIsAnalyzing(false);
+      setExtractionStep("");
+      setProgressUpdate(null);
+    }
+  };
+
+  // Handle camera-captured images
+  const handleCameraImages = async (images: string[]) => {
+    console.log(`📸 ${images.length} images captured from camera`);
+    
+    // CRITICAL: Clear all previous state and cancel any ongoing polling FIRST
+    console.log('🧹 Clearing previous analysis state and cancelling active polling');
+    pollingActiveRef.current = false;
+    currentPollingIdRef.current = null;
+    localStorage.clear();
+    
+    setSelectedFile(null);
+    setCapturedImages(images);
+    setError(null);
+    setIsAnalyzing(true);
+    setExtractedText("");
+    setExtractionStep("");
+    setProgressUpdate(null);
+    setShowResults(false);
+    setAnalysisData(null);
+    setClinicalAssessmentData(null);
+    setProcessingStatus('starting');
+    setCurrentStage('analysis'); // Skip conversion for camera images
+    setWasCompressed(false);
+    
+    toast.info("Starting New Analysis", {
+      description: `Processing ${images.length} captured photos...`,
+    });
+
+    try {
+      setExtractedText(`Processing ${images.length} images from camera...`);
+      setCurrentStage('analysis');
+      
+      // Use existing userId or create new one
+      let userId = currentUserId;
+      if (!userId) {
+        userId = 'anonymous-' + Date.now();
+        setCurrentUserId(userId);
+      }
+      
+      console.log('👤 Using userId:', userId);
+      
+      const requestBody = {
+        userId,
+        filename: `camera-capture-${Date.now()}.jpg`,
+        type: 'images',
+        images: images
+      };
+      
+      const { data, error } = await supabase.functions.invoke('process-pdf-report', {
+        body: requestBody
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      if (!data.success) {
+        throw new Error(data.error || 'Processing failed');
+      }
+      
+      if (data.analysisId) {
+        const returnedUserId = data.userId || userId;
+        
+        setAnalysisId(data.analysisId);
+        setCurrentUserId(returnedUserId);
+        
+        localStorage.setItem('analysisId', data.analysisId);
+        localStorage.setItem('currentUserId', returnedUserId);
+        localStorage.setItem('processingStatus', 'processing');
+        localStorage.setItem('analysisTimestamp', Date.now().toString());
+        
+        setExtractedText(`Processing ${images.length} camera images. Typically completes in 1-2 minutes.`);
+        setProcessingStatus('processing');
+        
+        pollForResults(data.analysisId, returnedUserId);
+      }
+      
+    } catch (err) {
+      console.error('Camera images analysis error:', err);
       setError(err instanceof Error ? err.message : 'Analysis failed. Please try again.');
       setIsAnalyzing(false);
       setExtractionStep("");
@@ -950,6 +1051,7 @@ RAW DATA: ${baseContext}`;
     
     // Clear all state
     setSelectedFile(null);
+    setCapturedImages([]);
     setAnalysisData(null);
     setClinicalAssessmentData(null);
     setShowResults(false);
@@ -1223,7 +1325,10 @@ RAW DATA: ${baseContext}`;
                   </div>
                   
                   <div className="bg-white rounded-xl sm:rounded-2xl shadow-premium p-4 sm:p-8 md:p-12">
-                    <UploadZone onFileSelect={handleFileSelect} />
+                    <UploadZone 
+                      onFileSelect={handleFileSelect}
+                      onImagesCapture={handleCameraImages}
+                    />
                   </div>
                   
                   {/* Privacy Notice */}
@@ -1329,6 +1434,40 @@ RAW DATA: ${baseContext}`;
         {/* 5. CLINICAL CHAT SECTION + 6. INTERPRETATION SECTION */}
         {showResults && !isAnalyzing && analysisData && (
           <>
+            {/* Non-Medical Report Alert */}
+            {isNonMedicalReport(analysisData) && (
+              <section className="py-8 bg-yellow-50">
+                <div className="container mx-auto px-4 sm:px-6">
+                  <Alert className="max-w-3xl mx-auto border-yellow-400 bg-white shadow-lg">
+                    <AlertCircle className="h-5 w-5 text-yellow-600" />
+                    <AlertTitle className="text-lg font-semibold text-yellow-900">
+                      Not a Medical Lab Report
+                    </AlertTitle>
+                    <AlertDescription className="mt-2 space-y-3">
+                      <p className="text-yellow-800">
+                        Thank you for using our service! We specialize in analyzing <strong>blood tests and medical laboratory reports</strong>. 
+                        The document you uploaded appears to be a different type of document.
+                      </p>
+                      <p className="text-yellow-800">
+                        Please upload a medical lab report containing:
+                      </p>
+                      <ul className="list-disc list-inside space-y-1 text-yellow-800 ml-2">
+                        <li>Blood test results (CBC, lipid profile, etc.)</li>
+                        <li>Chemistry panels (liver function, kidney function)</li>
+                        <li>Other diagnostic laboratory test results</li>
+                      </ul>
+                      <Button 
+                        onClick={handleReset}
+                        className="mt-4 bg-yellow-600 hover:bg-yellow-700 text-white"
+                      >
+                        Try Another Document
+                      </Button>
+                    </AlertDescription>
+                  </Alert>
+                </div>
+              </section>
+            )}
+
             <section className="py-8 sm:py-12 md:py-16 bg-white">
               <div className="container mx-auto px-4 sm:px-6">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 mb-6 sm:mb-8">

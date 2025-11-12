@@ -2,6 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Mobile-First Responsive Design */
+/* Touch-friendly spacing and sizing */
+
+@layer base {
+  /* Mobile base styles */
+  html {
+    font-size: 14px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Desktop base styles */
+  @media (min-width: 768px) {
+    html {
+      font-size: 16px;
+    }
+  }
+  
+  /* Touch target minimum sizes */
+  button, a, input, select, textarea {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Prevent text selection during touch */
+  .touch-action-none {
+    touch-action: none;
+  }
+}
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */
