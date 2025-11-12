@@ -45,19 +45,16 @@ Deno.serve(async (req) => {
     const search = url.searchParams.get('search') || '';
     const offset = (page - 1) * limit;
 
-    // Get profiles with roles (using left join to include users without roles)
-    let query = supabase
+    // Get all profiles
+    let profilesQuery = supabase
       .from('profiles')
-      .select(`
-        *,
-        user_roles(role)
-      `, { count: 'exact' });
+      .select('*', { count: 'exact' });
 
     if (search) {
-      query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,phone_number.ilike.%${search}%`);
+      profilesQuery = profilesQuery.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,phone_number.ilike.%${search}%`);
     }
 
-    const { data: profiles, error: profilesError, count } = await query
+    const { data: profiles, error: profilesError, count } = await profilesQuery
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
@@ -68,8 +65,21 @@ Deno.serve(async (req) => {
 
     console.log('Fetched profiles:', profiles?.length);
 
-    // Get analysis counts for each user
+    // Get roles for these users
     const userIds = profiles?.map(p => p.user_id) || [];
+    const { data: userRoles } = await supabase
+      .from('user_roles')
+      .select('user_id, role')
+      .in('user_id', userIds);
+
+    // Create a map of user_id to roles
+    const rolesMap = (userRoles || []).reduce((acc: any, ur: any) => {
+      if (!acc[ur.user_id]) acc[ur.user_id] = [];
+      acc[ur.user_id].push(ur.role);
+      return acc;
+    }, {});
+
+    // Get analysis counts for each user
     const { data: analysisCounts } = await supabase
       .from('pdf_analyses')
       .select('user_id')
@@ -82,7 +92,7 @@ Deno.serve(async (req) => {
 
     const usersWithCounts = profiles?.map(profile => ({
       ...profile,
-      roles: profile.user_roles?.map((r: any) => r.role) || [],
+      roles: rolesMap[profile.user_id] || [],
       analysisCount: countsByUser[profile.user_id] || 0
     }));
 
