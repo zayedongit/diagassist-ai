@@ -388,21 +388,21 @@ RAW DATA: ${baseContext}`;
 
     const abnormalPanels = extractAbnormalPanels(enhancedData).map(panel => ({
       panelName: panel.name || 'Unknown Panel',
-      abnormalLabs: (panel.tests || []).filter(t => t.status !== 'normal').map(lab => ({
+      abnormalLabs: (panel.abnormalLabs || []).map(lab => ({
         parameter: lab.name,
         value: lab.value,
-        unit: lab.unit,
+        unit: lab.unit || '',
         normalRange: lab.referenceRange || 'N/A',
         status: lab.status as 'high' | 'low' | 'normal'
       }))
     }));
 
     const valuesNeedingAttention = enhancedData.medicalPanels
-      .flatMap(p => (p.tests || []).filter(t => t.status !== 'normal'))
+      .flatMap(p => p.abnormalLabs || [])
       .map(lab => ({
         parameter: lab.name,
         value: lab.value,
-        unit: lab.unit,
+        unit: lab.unit || '',
         normalRange: lab.referenceRange || 'N/A',
         status: lab.status as 'high' | 'low' | 'normal'
       }));
