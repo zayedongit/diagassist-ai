@@ -48,18 +48,18 @@ export const MobileResultsView = ({
       bgColor: 'bg-primary/10'
     },
     {
-      id: 'plan',
-      title: '30-Day Plan',
-      icon: Calendar,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50'
-    },
-    {
       id: 'chat',
       title: 'Clinical Chat',
       icon: MessageCircle,
       color: 'text-cyan-500',
       bgColor: 'bg-cyan-50'
+    },
+    {
+      id: 'plan',
+      title: '30-Day Plan',
+      icon: Calendar,
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50'
     },
     {
       id: 'risks',
@@ -277,7 +277,7 @@ export const MobileResultsView = ({
         };
 
         return (
-          <div className="h-[calc(100vh-300px)] min-h-[400px]">
+          <div className="pb-4">
             <MedicalChatAgent
               analysisContext={createEnhancedAnalysisContext(analysisData)}
               demographics={analysisData.demographics}
