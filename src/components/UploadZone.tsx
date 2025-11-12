@@ -167,7 +167,7 @@ export const UploadZone = ({ onFileSelect, onImagesCapture }: UploadZoneProps) =
               onClick={() => setShowCamera(true)}
             >
               <Camera className="w-5 h-5" />
-              {capturedImagesCount > 0 ? 'Take More Photos' : 'Take Photos (Recommended)'}
+              {capturedImagesCount > 0 ? 'Take More Photos' : 'Take Photos'}
             </Button>
 
             {/* PDF Upload Button - Secondary */}
