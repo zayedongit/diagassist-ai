@@ -32,7 +32,6 @@ import { CompressionProgress } from '@/components/CompressionProgress';
 import type { ProgressUpdate } from '@/utils/pdfToImages';
 import { StageProgress, Stage } from '@/components/StageProgress';
 import { extractPdfText } from '@/utils/extractPdfText';
-import { useAdminCheck } from '@/hooks/useAdminCheck';
 import { ReportPreviewModal } from '@/components/ReportPreviewModal';
 
 // Header Navigation Component - Hidden for free tool promotion

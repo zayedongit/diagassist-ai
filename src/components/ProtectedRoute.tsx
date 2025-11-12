@@ -1,6 +1,5 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useAdminCheck } from '@/hooks/useAdminCheck';
 import { Loader2 } from 'lucide-react';
 
 interface ProtectedRouteProps {

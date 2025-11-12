@@ -6,8 +6,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
-import PhoneAuthPage from "./pages/PhoneAuthPage";
-import AdminDashboard from "./pages/AdminDashboard";
 import DemoPage from "./pages/DemoPage";
 import NotFound from "./pages/NotFound";
 
@@ -22,16 +20,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<PhoneAuthPage />} />
             <Route path="/demo/:token" element={<DemoPage />} />
-            <Route
-              path="/admin/*"
-              element={
-                <ProtectedRoute requiredRole="admin">
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
