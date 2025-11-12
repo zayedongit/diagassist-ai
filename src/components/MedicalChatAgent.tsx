@@ -13,6 +13,7 @@ import { ClinicalReport } from '@/components/ClinicalReport';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useVoiceInput } from '@/hooks/useVoiceInput';
 import { VoiceInputButton } from '@/components/VoiceInputButton';
+import { AudioLevelVisualizer } from '@/components/AudioLevelVisualizer';
 import { toast } from 'sonner';
 
 interface Message {
@@ -71,7 +72,7 @@ export const MedicalChatAgent = ({
   const shouldAutoSubmitRef = useRef(false);
 
   // Voice input hook
-  const { isListening, isSupported, isSpeaking, startListening, stopListening } = useVoiceInput({
+  const { isListening, isSupported, isSpeaking, audioLevel, isAboveThreshold, startListening, stopListening } = useVoiceInput({
     onTranscript: (transcript) => {
       setInput(prev => prev + (prev ? ' ' : '') + transcript);
       
@@ -759,19 +760,25 @@ export const MedicalChatAgent = ({
               )}
             </div>
             
-            {/* Voice input status */}
-            {isSupported && (
-              <>
+            {/* Audio Level Visualizer */}
+            {isSupported && (continuousVoiceMode || isListening) && (
+              <div className="mt-3 flex flex-col items-center gap-2">
+                <AudioLevelVisualizer
+                  audioLevel={audioLevel}
+                  isAboveThreshold={isAboveThreshold}
+                  isActive={continuousVoiceMode || isListening}
+                  className="w-full max-w-md"
+                />
                 {continuousVoiceMode ? (
-                  <p className="text-xs text-primary font-medium text-center mt-2 animate-pulse">
+                  <p className="text-xs text-primary font-medium text-center">
                     🎤 Continuous voice mode active - speak naturally and I'll respond automatically
                   </p>
                 ) : isListening ? (
-                  <p className="text-xs text-red-500 font-medium text-center mt-2 animate-pulse">
+                  <p className="text-xs text-red-500 font-medium text-center">
                     🎤 Listening... Speak your question
                   </p>
                 ) : null}
-              </>
+              </div>
             )}
             
             {/* Disclaimer */}

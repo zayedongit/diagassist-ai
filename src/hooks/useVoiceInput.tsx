@@ -12,13 +12,99 @@ export const useVoiceInput = ({ onTranscript, onError, continuousMode = false, o
   const [isListening, setIsListening] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [audioLevel, setAudioLevel] = useState(0);
+  const [isAboveThreshold, setIsAboveThreshold] = useState(false);
   const recognitionRef = useRef<any>(null);
   const continuousModeRef = useRef(continuousMode);
   const restartTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const micStreamRef = useRef<MediaStream | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
+  
+  const NOISE_THRESHOLD = 0.02; // Adjust this value (0-1) for noise sensitivity
 
   useEffect(() => {
     continuousModeRef.current = continuousMode;
   }, [continuousMode]);
+
+  // Setup audio level monitoring
+  const setupAudioMonitoring = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        }
+      });
+      
+      micStreamRef.current = stream;
+      audioContextRef.current = new AudioContext();
+      analyserRef.current = audioContextRef.current.createAnalyser();
+      
+      const source = audioContextRef.current.createMediaStreamSource(stream);
+      source.connect(analyserRef.current);
+      
+      analyserRef.current.fftSize = 512;
+      analyserRef.current.smoothingTimeConstant = 0.8;
+      
+      monitorAudioLevel();
+    } catch (error) {
+      console.error('Error setting up audio monitoring:', error);
+    }
+  };
+
+  const monitorAudioLevel = () => {
+    if (!analyserRef.current) return;
+
+    const bufferLength = analyserRef.current.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    const checkLevel = () => {
+      if (!analyserRef.current) return;
+
+      analyserRef.current.getByteFrequencyData(dataArray);
+      
+      // Calculate average volume
+      let sum = 0;
+      for (let i = 0; i < bufferLength; i++) {
+        sum += dataArray[i];
+      }
+      const average = sum / bufferLength / 255; // Normalize to 0-1
+      
+      setAudioLevel(average);
+      
+      // Detect if above noise threshold
+      const aboveThreshold = average > NOISE_THRESHOLD;
+      setIsAboveThreshold(aboveThreshold);
+      
+      animationFrameRef.current = requestAnimationFrame(checkLevel);
+    };
+
+    checkLevel();
+  };
+
+  const stopAudioMonitoring = () => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+    
+    if (micStreamRef.current) {
+      micStreamRef.current.getTracks().forEach(track => track.stop());
+      micStreamRef.current = null;
+    }
+    
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    }
+    
+    analyserRef.current = null;
+    setAudioLevel(0);
+    setIsAboveThreshold(false);
+  };
 
   useEffect(() => {
     // Check if browser supports Web Speech API
@@ -127,7 +213,7 @@ export const useVoiceInput = ({ onTranscript, onError, continuousMode = false, o
     };
   }, [onTranscript, onError, onSpeechEnd]);
 
-  const startListening = () => {
+  const startListening = async () => {
     if (!isSupported) {
       const message = 'Voice input is not supported in your browser. Please use Chrome, Edge, or Safari.';
       if (onError) {
@@ -143,6 +229,9 @@ export const useVoiceInput = ({ onTranscript, onError, continuousMode = false, o
     }
 
     try {
+      // Setup audio monitoring first
+      await setupAudioMonitoring();
+      
       recognitionRef.current?.start();
       toast.success('Listening... Speak now');
     } catch (error) {
@@ -158,12 +247,15 @@ export const useVoiceInput = ({ onTranscript, onError, continuousMode = false, o
     if (recognitionRef.current && isListening) {
       recognitionRef.current.stop();
     }
+    stopAudioMonitoring();
   };
 
   return {
     isListening,
     isSupported,
     isSpeaking,
+    audioLevel,
+    isAboveThreshold,
     startListening,
     stopListening,
   };
