@@ -32,6 +32,27 @@ import { CompressionProgress } from '@/components/CompressionProgress';
 import type { ProgressUpdate } from '@/utils/pdfToImages';
 import { StageProgress, Stage } from '@/components/StageProgress';
 import { extractPdfText } from '@/utils/extractPdfText';
+import { useAdminCheck } from '@/hooks/useAdminCheck';
+
+// Admin Link Component
+const AdminLink = () => {
+  const { isAdmin, isLoading } = useAdminCheck();
+  const navigate = useNavigate();
+
+  if (isLoading || !isAdmin) return null;
+
+  return (
+    <Button
+      onClick={() => navigate('/admin')}
+      variant="outline"
+      size="sm"
+      className="bg-purple-500/10 border-purple-500/30 text-purple-300 hover:bg-purple-500/20 hover:text-purple-200"
+    >
+      <Shield className="w-4 h-4 mr-2" />
+      Admin
+    </Button>
+  );
+};
 
 
 const Index = () => {
@@ -954,6 +975,9 @@ RAW DATA: ${baseContext}`;
                 <p className="text-[10px] sm:text-xs text-coolGray">AI-Powered Lab Analysis</p>
               </div>
             </div>
+
+            {/* Admin Link */}
+            <AdminLink />
           </div>
         </div>
       </header>
