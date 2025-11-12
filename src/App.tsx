@@ -8,6 +8,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import PhoneAuthPage from "./pages/PhoneAuthPage";
 import AdminDashboard from "./pages/AdminDashboard";
+import DemoPage from "./pages/DemoPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<PhoneAuthPage />} />
+            <Route path="/demo/:token" element={<DemoPage />} />
             <Route
               path="/admin/*"
               element={
