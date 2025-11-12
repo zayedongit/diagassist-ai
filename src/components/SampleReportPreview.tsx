@@ -3,70 +3,82 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { FileText, TrendingUp, TrendingDown, AlertTriangle, Activity, Heart, Droplet, Brain } from "lucide-react";
+import { FileText, Calendar, Target, Activity, Utensils, FlaskConical, Stethoscope, CheckCircle2 } from "lucide-react";
 
 export const SampleReportPreview = () => {
-  const sampleData = {
-    abnormalPanels: [
-      "Lipid Profile",
-      "Blood Sugar & HbA1c", 
-      "Kidney Function",
-      "Thyroid Function"
+  const samplePlan = {
+    focusAreas: ["Kidney Function", "Blood Health"],
+    overallGoal: "Improve targeted body systems through lifestyle modifications, dietary changes, and medical monitoring over the next 30 days",
+    dailyActivities: [
+      { activity: "30-minute brisk walk", frequency: "Daily" },
+      { activity: "Blood pressure monitoring", frequency: "Twice daily" },
+      { activity: "Hydration tracking", frequency: "3 times daily" },
+      { activity: "Quality sleep routine", frequency: "7-8 hours nightly" },
+      { activity: "Stress reduction practice", frequency: "Daily (meditation/yoga)" }
     ],
-    abnormalValues: [
-      { name: "HbA1c", value: "6.41", unit: "%", status: "HIGH", range: "4.0-5.6", icon: TrendingUp },
-      { name: "Fasting Glucose", value: "107.67", unit: "mg/dl", status: "HIGH", range: "70-100", icon: TrendingUp },
-      { name: "Triglycerides", value: "339.73", unit: "mg/dl", status: "HIGH", range: "<150", icon: TrendingUp },
-      { name: "Platelet Count", value: "135", unit: "10^3/uL", status: "LOW", range: "150-400", icon: TrendingDown },
-      { name: "Total Cholesterol", value: "212.8", unit: "mg/dl", status: "HIGH", range: "<200", icon: TrendingUp },
-      { name: "VLDL Cholesterol", value: "67.95", unit: "mg/dl", status: "HIGH", range: "<30", icon: TrendingUp },
-      { name: "TSH", value: "6.15", unit: "μIU/mL", status: "HIGH", range: "0.4-4.0", icon: TrendingUp }
+    testsRequired: [
+      { test: "Serum Creatinine & eGFR", timing: "Week 4", urgency: "High Priority" },
+      { test: "Urine Microalbumin", timing: "Week 3", urgency: "High Priority" },
+      { test: "Complete Blood Count", timing: "Week 4", urgency: "High Priority" },
+      { test: "Iron Studies", timing: "Week 2", urgency: "High Priority" },
+      { test: "Electrolytes", timing: "Week 2", urgency: "Routine" },
+      { test: "Vitamin B12 & Folate", timing: "Week 3", urgency: "Routine" }
     ],
-    metabolicCriteria: [
-      { name: "Triglycerides", status: "Criterion Exceeded", met: true },
-      { name: "HDL Cholesterol", status: "Within Normal Range", met: false },
-      { name: "Blood Pressure", status: "Within Normal Range", met: false },
-      { name: "Fasting Glucose", status: "Criterion Exceeded", met: true }
+    specialistReferrals: [
+      { specialty: "Nephrologist", priority: "MEDIUM", timeframe: "Within 2 weeks" },
+      { specialty: "Hematologist", priority: "MEDIUM", timeframe: "Within 2 weeks" }
     ],
-    clinicalHighlights: [
-      { title: "Prediabetes", description: "HbA1c 6.41% indicates increased risk for type 2 diabetes", icon: Droplet },
-      { title: "Dyslipidemia", description: "Elevated triglycerides and cholesterol levels", icon: Heart },
-      { title: "Subclinical Hypothyroidism", description: "Elevated TSH levels requiring monitoring", icon: Activity },
-      { title: "Cardiovascular Risk", description: "Multiple risk factors present", icon: Heart }
+    weeklyBreakdown: [
+      {
+        week: 1,
+        title: "Assessment & Foundation",
+        goals: ["Get baseline tests done", "Start daily activity routine", "Begin dietary changes", "Establish monitoring habits"]
+      },
+      {
+        week: 2,
+        title: "Implementation & Consistency",
+        goals: ["Maintain daily exercise routine", "Full dietary compliance", "Establish sleep schedule", "Monitor key metrics daily"]
+      },
+      {
+        week: 3,
+        title: "Optimization & Intensification",
+        goals: ["Increase exercise intensity", "Refine dietary choices", "Optimize supplement timing", "Advanced monitoring"]
+      },
+      {
+        week: 4,
+        title: "Consolidation & Review",
+        goals: ["Comprehensive testing", "Review progress with specialists", "Refine ongoing plan", "Celebrate achievements"]
+      }
     ],
-    immediateActions: [
-      "Schedule follow-up with endocrinologist for diabetes management",
-      "Consult dietitian for dietary modifications to lower triglycerides",
-      "Thyroid function monitoring and potential treatment evaluation",
-      "Cardiovascular risk assessment and management plan"
-    ],
-    dietaryChanges: {
+    dietaryPlan: {
       add: [
-        "Fiber-rich foods (fruits, vegetables, whole grains)",
-        "Lean proteins (fish, chicken, legumes)",
-        "Omega-3 rich foods (salmon, walnuts)",
-        "Low-glycemic index foods"
+        "Leafy greens (spinach, kale)",
+        "Lean proteins (fish, chicken)",
+        "Whole grains (brown rice, quinoa)",
+        "Fresh fruits and berries",
+        "Nuts and seeds"
       ],
       limit: [
-        "Sugary foods and beverages",
-        "High-fat foods and fried items",
-        "Processed foods and refined carbohydrates",
-        "Excessive alcohol consumption"
+        "Processed foods and snacks",
+        "High-sodium foods",
+        "Refined sugars",
+        "Red meat and fatty foods",
+        "Alcohol"
+      ],
+      sampleMeals: [
+        "Oatmeal with berries and nuts",
+        "Grilled chicken salad with olive oil",
+        "Baked salmon with steamed vegetables",
+        "Greek yogurt with fruit"
       ]
     },
-    lifestyle: [
-      "Regular physical activity - 150 minutes/week of moderate exercise",
-      "Maintain healthy weight (BMI 18.5-24.9)",
-      "Stress management techniques (meditation, yoga)",
-      "Adequate sleep (7-9 hours per night)",
-      "Regular health monitoring and check-ups"
-    ],
-    followUp: [
-      "Repeat HbA1c and lipid panel in 3 months",
-      "Thyroid function tests in 6-8 weeks",
-      "Blood pressure monitoring if elevated"
+    trackingMetrics: [
+      "Daily blood pressure readings",
+      "Daily water intake (8+ glasses)",
+      "Exercise duration and intensity",
+      "Sleep quality and duration",
+      "Medication compliance"
     ]
   };
 
@@ -85,237 +97,228 @@ export const SampleReportPreview = () => {
         <ScrollArea className="h-full">
           <div className="p-6 space-y-6">
             {/* Header */}
-            <div className="text-center space-y-2 pb-4 border-b">
+            <div className="text-center space-y-2 pb-4 border-b bg-gradient-to-r from-blue-50 to-cyan-50 rounded-t-lg p-6">
+              <Calendar className="w-12 h-12 mx-auto text-primary mb-2" />
               <h2 className="text-2xl md:text-3xl font-poppins font-bold text-navy">
-                Sample Report Preview
+                30-Day Health Improvement Plan
               </h2>
               <p className="text-sm text-muted-foreground">
-                See the comprehensive analysis you'll receive
+                Personalized Action Plan for Better Health
               </p>
             </div>
 
-            {/* Abnormal Panels Summary */}
-            <Card className="border-orange-200 bg-gradient-to-br from-orange-50/50 to-orange-100/30 animate-fade-in">
+            {/* Focus Areas */}
+            <Card className="border-primary/20 bg-gradient-to-br from-blue-50/50 to-cyan-50/30 animate-fade-in">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center animate-scale-in">
-                    <AlertTriangle className="w-5 h-5 text-orange-600" />
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center animate-scale-in">
+                    <Target className="w-5 h-5 text-primary" />
                   </div>
                   <CardTitle className="text-xl font-poppins text-navy">
-                    I found abnormalities in {sampleData.abnormalPanels.length} panels
+                    Focus Areas
                   </CardTitle>
                 </div>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-3 stagger-fade-in">
-                  {sampleData.abnormalPanels.map((panel, index) => (
-                    <li key={index} className="flex items-start gap-3 text-slate">
-                      <span className="w-2 h-2 rounded-full bg-orange-500 mt-2 flex-shrink-0"></span>
-                      <span className="font-inter text-base">{panel}</span>
-                    </li>
+                <div className="space-y-2">
+                  {samplePlan.focusAreas.map((area, index) => (
+                    <Badge key={index} variant="secondary" className="mr-2 px-4 py-2 text-sm">
+                      {area}
+                    </Badge>
                   ))}
-                </ul>
+                </div>
+                <p className="mt-4 text-sm text-muted-foreground">
+                  {samplePlan.overallGoal}
+                </p>
               </CardContent>
             </Card>
 
-            {/* Values Needing Attention */}
-            <Card className="border-red-200 bg-gradient-to-br from-red-50/50 to-pink-50/50 animate-fade-in">
+            {/* Daily Activities */}
+            <Card className="border-green-200 bg-gradient-to-br from-green-50/50 to-emerald-50/30 animate-fade-in">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <Badge variant="destructive" className="text-base px-4 py-2">
-                    {sampleData.abnormalValues.length} Values Need Attention
-                  </Badge>
+                  <Activity className="w-5 h-5 text-green-600" />
+                  <CardTitle className="text-lg font-poppins text-navy">
+                    Daily Activities Overview
+                  </CardTitle>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3 stagger-fade-in">
-                  {sampleData.abnormalValues.map((value, idx) => {
-                    const Icon = value.icon;
-                    const isHigh = value.status === "HIGH";
-                    return (
-                      <div 
-                        key={idx} 
-                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-white/70 p-3 rounded-lg border border-slate/10"
-                      >
-                        <div className="flex items-center gap-3">
-                          <Icon className={`w-4 h-4 ${isHigh ? 'text-red-500' : 'text-blue-500'}`} />
-                          <span className="font-semibold text-navy">{value.name}</span>
-                        </div>
-                        <div className="flex items-center gap-3 text-sm">
-                          <span className="text-slate">
-                            <span className="font-semibold">{value.value}</span> {value.unit}
-                          </span>
-                          <Badge 
-                            variant={isHigh ? "destructive" : "secondary"}
-                            className="text-xs"
-                          >
-                            {value.status}
-                          </Badge>
-                          <span className="text-xs text-muted-foreground">
-                            Normal: {value.range}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Health Risk Assessment */}
-            <Card className="animate-fade-in">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-xl">
-                  <Heart className="w-5 h-5 text-red-500" />
-                  Metabolic Syndrome Assessment
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
                 <div className="space-y-3">
-                  {sampleData.metabolicCriteria.map((criterion, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-                      <span className="font-medium text-sm">{criterion.name}</span>
-                      <Badge 
-                        variant={criterion.met ? "destructive" : "secondary"}
-                        className="text-xs"
-                      >
-                        {criterion.status}
+                  {samplePlan.dailyActivities.map((activity, idx) => (
+                    <div 
+                      key={idx} 
+                      className="flex items-center justify-between p-3 bg-white/70 rounded-lg border border-green-100"
+                    >
+                      <div className="flex items-center gap-3">
+                        <CheckCircle2 className="w-4 h-4 text-green-600" />
+                        <span className="font-medium text-sm">{activity.activity}</span>
+                      </div>
+                      <Badge variant="secondary" className="text-xs">
+                        {activity.frequency}
                       </Badge>
                     </div>
                   ))}
                 </div>
-                <div className="pt-2">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">Risk Score</span>
-                    <span className="text-sm text-muted-foreground">2 of 5 criteria met</span>
-                  </div>
-                  <Progress value={40} className="h-2" />
-                </div>
               </CardContent>
             </Card>
 
-            {/* Clinical Highlights */}
+            {/* Tests Required */}
+            <Card className="animate-fade-in border-red-200 bg-gradient-to-br from-red-50/30 to-pink-50/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <FlaskConical className="w-5 h-5 text-red-600" />
+                  Tests Required
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {samplePlan.testsRequired.slice(0, 4).map((test, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-2 bg-white/70 rounded-lg">
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">{test.test}</p>
+                      <p className="text-xs text-muted-foreground">{test.timing}</p>
+                    </div>
+                    <Badge 
+                      variant={test.urgency === "High Priority" ? "destructive" : "secondary"}
+                      className="text-xs"
+                    >
+                      {test.urgency}
+                    </Badge>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Specialist Referrals */}
+            <Card className="animate-fade-in border-orange-200 bg-gradient-to-br from-orange-50/30 to-amber-50/20">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Stethoscope className="w-5 h-5 text-orange-600" />
+                  Specialist Referrals
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {samplePlan.specialistReferrals.map((referral, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-3 bg-white/70 rounded-lg">
+                    <div>
+                      <p className="font-medium text-sm">{referral.specialty}</p>
+                      <p className="text-xs text-muted-foreground">{referral.timeframe}</p>
+                    </div>
+                    <Badge variant="secondary" className="text-xs">
+                      {referral.priority}
+                    </Badge>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Separator />
+
+            {/* 4-Week Action Plan */}
             <Card className="animate-fade-in">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-xl">
-                  <Brain className="w-5 h-5 text-primary" />
-                  Clinical Highlights
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Calendar className="w-5 h-5 text-primary" />
+                  4-Week Action Plan
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid gap-4 md:grid-cols-2">
-                  {sampleData.clinicalHighlights.map((highlight, idx) => {
-                    const Icon = highlight.icon;
-                    return (
-                      <div key={idx} className="flex gap-3 p-3 bg-muted/30 rounded-lg">
-                        <Icon className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                        <div>
-                          <h4 className="font-semibold text-sm mb-1">{highlight.title}</h4>
-                          <p className="text-xs text-muted-foreground">{highlight.description}</p>
-                        </div>
-                      </div>
-                    );
-                  })}
+                <div className="space-y-4">
+                  {samplePlan.weeklyBreakdown.map((week, idx) => (
+                    <div key={idx} className="border-l-4 border-primary/30 pl-4 py-2">
+                      <h4 className="font-semibold text-sm text-primary mb-2">
+                        Week {week.week}: {week.title}
+                      </h4>
+                      <ul className="space-y-1">
+                        {week.goals.map((goal, gIdx) => (
+                          <li key={gIdx} className="text-xs text-muted-foreground flex items-start gap-2">
+                            <span className="text-primary mt-0.5">•</span>
+                            <span>{goal}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
 
             <Separator />
 
-            {/* Immediate Actions */}
+            {/* Dietary Plan */}
             <Card className="animate-fade-in">
               <CardHeader>
-                <CardTitle className="text-lg">Immediate Action Items</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ol className="space-y-2">
-                  {sampleData.immediateActions.map((action, idx) => (
-                    <li key={idx} className="flex items-start gap-3">
-                      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-sm font-semibold">
-                        {idx + 1}
-                      </span>
-                      <span className="text-sm text-slate pt-0.5">{action}</span>
-                    </li>
-                  ))}
-                </ol>
-              </CardContent>
-            </Card>
-
-            {/* Dietary Changes */}
-            <Card className="animate-fade-in">
-              <CardHeader>
-                <CardTitle className="text-lg">Dietary Changes</CardTitle>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Utensils className="w-5 h-5 text-green-600" />
+                  Dietary Plan
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <h4 className="font-semibold text-green-700 mb-2 flex items-center gap-2">
-                    <span className="text-lg">+</span> Foods to Add
-                  </h4>
-                  <ul className="space-y-1.5">
-                    {sampleData.dietaryChanges.add.map((item, idx) => (
-                      <li key={idx} className="flex items-start gap-2 text-sm">
-                        <span className="text-green-500 mt-1">•</span>
-                        <span className="text-slate">{item}</span>
-                      </li>
+                  <h4 className="font-semibold text-green-700 mb-2 text-sm">Foods to Add</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {samplePlan.dietaryPlan.add.map((food, idx) => (
+                      <div key={idx} className="flex items-center gap-2 text-xs bg-green-50/50 p-2 rounded">
+                        <span className="text-green-600">•</span>
+                        <span>{food}</span>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-red-700 mb-2 flex items-center gap-2">
-                    <span className="text-lg">−</span> Foods to Limit
-                  </h4>
-                  <ul className="space-y-1.5">
-                    {sampleData.dietaryChanges.limit.map((item, idx) => (
-                      <li key={idx} className="flex items-start gap-2 text-sm">
-                        <span className="text-red-500 mt-1">•</span>
-                        <span className="text-slate">{item}</span>
-                      </li>
+                  <h4 className="font-semibold text-red-700 mb-2 text-sm">Foods to Limit</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {samplePlan.dietaryPlan.limit.map((food, idx) => (
+                      <div key={idx} className="flex items-center gap-2 text-xs bg-red-50/50 p-2 rounded">
+                        <span className="text-red-600">•</span>
+                        <span>{food}</span>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-primary mb-2 text-sm">Sample Meals</h4>
+                  <div className="space-y-1">
+                    {samplePlan.dietaryPlan.sampleMeals.map((meal, idx) => (
+                      <div key={idx} className="text-xs bg-blue-50/50 p-2 rounded">
+                        {meal}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Lifestyle Modifications */}
-            <Card className="animate-fade-in">
+            {/* Progress Tracking */}
+            <Card className="animate-fade-in border-purple-200 bg-gradient-to-br from-purple-50/30 to-pink-50/20">
               <CardHeader>
-                <CardTitle className="text-lg">Lifestyle Modifications</CardTitle>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Activity className="w-5 h-5 text-purple-600" />
+                  Progress Tracking
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-2">
-                  {sampleData.lifestyle.map((item, idx) => (
-                    <li key={idx} className="flex items-start gap-3">
-                      <span className="text-primary text-lg mt-0.5">▶</span>
-                      <span className="text-sm text-slate">{item}</span>
-                    </li>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Daily/Weekly Metrics to Monitor:
+                </p>
+                <div className="space-y-2">
+                  {samplePlan.trackingMetrics.map((metric, idx) => (
+                    <div key={idx} className="flex items-center gap-2 p-2 bg-white/70 rounded">
+                      <CheckCircle2 className="w-4 h-4 text-purple-600" />
+                      <span className="text-xs">{metric}</span>
+                    </div>
                   ))}
-                </ul>
-              </CardContent>
-            </Card>
-
-            {/* Follow-up Guidance */}
-            <Card className="animate-fade-in">
-              <CardHeader>
-                <CardTitle className="text-lg">Follow-up Guidance</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {sampleData.followUp.map((item, idx) => (
-                    <li key={idx} className="flex items-start gap-3">
-                      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-semibold">
-                        {idx + 1}
-                      </span>
-                      <span className="text-sm text-slate pt-0.5">{item}</span>
-                    </li>
-                  ))}
-                </ul>
+                </div>
               </CardContent>
             </Card>
 
             {/* Footer Note */}
-            <div className="text-center pt-4 pb-2">
+            <div className="text-center pt-4 pb-2 border-t">
               <p className="text-xs text-muted-foreground italic">
-                This is a sample report demonstrating the comprehensive analysis you'll receive. Your actual report will be personalized based on your specific lab results.
+                This is a sample 30-day improvement plan. Your actual plan will be personalized based on your specific health score results and target body systems requiring attention.
+              </p>
+              <p className="text-xs text-muted-foreground italic mt-2">
+                Disclaimer: This plan is for informational purposes only and does not replace professional medical advice. Always consult your healthcare provider before making significant health changes.
               </p>
             </div>
           </div>
