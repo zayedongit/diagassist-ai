@@ -33,6 +33,8 @@ import type { ProgressUpdate } from '@/utils/pdfToImages';
 import { StageProgress, Stage } from '@/components/StageProgress';
 import { extractPdfText } from '@/utils/extractPdfText';
 import { ReportPreviewModal } from '@/components/ReportPreviewModal';
+import { MobileResultsView } from '@/components/MobileResultsView';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 // Header Navigation Component - Hidden for free tool promotion
 const HeaderNav = () => {
@@ -42,6 +44,7 @@ const HeaderNav = () => {
 
 const Index = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [capturedImages, setCapturedImages] = useState<string[]>([]);
   
@@ -1434,9 +1437,22 @@ RAW DATA: ${baseContext}`;
         {/* 5. CLINICAL CHAT SECTION + 6. INTERPRETATION SECTION */}
         {showResults && !isAnalyzing && analysisData && (
           <>
-            {/* Non-Medical Report Alert */}
-            {isNonMedicalReport(analysisData) && (
-              <section className="py-8 bg-yellow-50">
+            {/* Mobile Swipeable Results View */}
+            {isMobile ? (
+              <MobileResultsView
+                analysisData={analysisData}
+                enhancedData={enhancedData}
+                clinicalAssessmentData={clinicalAssessmentData}
+                onClinicalAssessmentComplete={handleClinicalAssessmentComplete}
+                onDownloadReport={handleDownloadEssentialReport}
+                onPreviewReport={handlePreviewReport}
+              />
+            ) : (
+              <>
+                {/* Desktop View - Keep all existing functionality */}
+                {/* Non-Medical Report Alert */}
+                {isNonMedicalReport(analysisData) && (
+                  <section className="py-8 bg-yellow-50">
                 <div className="container mx-auto px-4 sm:px-6">
                   <Alert className="max-w-3xl mx-auto border-yellow-400 bg-white shadow-lg">
                     <AlertCircle className="h-5 w-5 text-yellow-600" />
@@ -1679,6 +1695,8 @@ RAW DATA: ${baseContext}`;
                   )}
                 </div>
               </ErrorBoundary>
+              </>
+            )}
           </>
         )}
 
