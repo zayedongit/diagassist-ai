@@ -3,6 +3,9 @@ import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import Overview from './admin/Overview';
 import Users from './admin/Users';
+import DemoLinks from './admin/DemoLinks';
+import LabConfigs from './admin/LabConfigs';
+import PaymentSettings from './admin/PaymentSettings';
 
 export default function AdminDashboard() {
   return (
@@ -24,9 +27,9 @@ export default function AdminDashboard() {
             <Routes>
               <Route path="/" element={<Overview />} />
               <Route path="/users" element={<Users />} />
-              <Route path="/demo-links" element={<div className="text-center py-20 text-muted-foreground">Demo Links coming soon...</div>} />
-              <Route path="/labs" element={<div className="text-center py-20 text-muted-foreground">Lab Configs coming soon...</div>} />
-              <Route path="/payments" element={<div className="text-center py-20 text-muted-foreground">Payments coming soon...</div>} />
+              <Route path="/demo-links" element={<DemoLinks />} />
+              <Route path="/labs" element={<LabConfigs />} />
+              <Route path="/payments" element={<PaymentSettings />} />
               <Route path="/settings" element={<div className="text-center py-20 text-muted-foreground">Settings coming soon...</div>} />
             </Routes>
           </main>
