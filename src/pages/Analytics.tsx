@@ -43,10 +43,20 @@ const Analytics = () => {
   const [timeframe, setTimeframe] = useState<Timeframe>('week');
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<AnalyticsData | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const { toast } = useToast();
 
   useEffect(() => {
     fetchAnalytics();
+  }, [timeframe]);
+
+  // Auto-refresh every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchAnalytics();
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
   }, [timeframe]);
 
   const fetchAnalytics = async () => {
@@ -59,6 +69,7 @@ const Analytics = () => {
       if (error) throw error;
 
       setData(result);
+      setLastUpdated(new Date());
     } catch (error) {
       console.error('Error fetching analytics:', error);
       toast({
@@ -125,7 +136,12 @@ const Analytics = () => {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Usage Analytics</h1>
-            <p className="text-muted-foreground mt-1">Monitor your medical report analysis tool usage</p>
+            <p className="text-muted-foreground mt-1">
+              Monitor your medical report analysis tool usage
+              <span className="ml-2 text-xs">
+                • Last updated: {lastUpdated.toLocaleTimeString()} • Auto-refresh: 30s
+              </span>
+            </p>
           </div>
           
           <Tabs value={timeframe} onValueChange={(v) => setTimeframe(v as Timeframe)}>
