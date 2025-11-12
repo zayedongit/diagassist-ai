@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Analytics from "./pages/Analytics";
+import MyHealthJourney from "./pages/MyHealthJourney";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,6 +22,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/analytics" element={<Analytics />} />
+            <Route path="/my-health-journey" element={<MyHealthJourney />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

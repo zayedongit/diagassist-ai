@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Download, Calendar, FileText, Utensils, Activity, AlertCircle, Stethoscope } from 'lucide-react';
+import { Download, Calendar, FileText, Utensils, Activity, AlertCircle, Stethoscope, CalendarDays } from 'lucide-react';
 import { HealthImprovementPlan } from '@/utils/generate30DayPlan';
 import { generate30DayPlanPdf } from '@/utils/generate30DayPlanPdf';
+import { HealthPlanCalendar } from './HealthPlanCalendar';
+import { useHealthJourney } from '@/hooks/useHealthJourney';
 
 interface HealthImprovementPlanModalProps {
   isOpen: boolean;
@@ -46,6 +48,26 @@ export const HealthImprovementPlanModal = ({
   patientName 
 }: HealthImprovementPlanModalProps) => {
   const [isDownloading, setIsDownloading] = useState(false);
+  const [planStartDate, setPlanStartDate] = useState<string>('');
+
+  useEffect(() => {
+    // Get or set plan start date
+    const savedStartDate = localStorage.getItem('planStartDate');
+    if (savedStartDate) {
+      setPlanStartDate(savedStartDate);
+    } else {
+      const today = new Date().toISOString().split('T')[0];
+      setPlanStartDate(today);
+      localStorage.setItem('planStartDate', today);
+    }
+    
+    // Save plan to localStorage for MyHealthJourney page
+    if (plan) {
+      localStorage.setItem('healthImprovementPlan', JSON.stringify(plan));
+    }
+  }, [plan]);
+
+  const { completions, loading, toggleActivity, addNote } = useHealthJourney(plan, planStartDate);
 
   const handleDownloadPDF = async () => {
     setIsDownloading(true);
@@ -67,9 +89,13 @@ export const HealthImprovementPlanModal = ({
         </DialogHeader>
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid grid-cols-5 w-full">
+          <TabsList className="grid grid-cols-6 w-full">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="weekly">Weekly Plan</TabsTrigger>
+            <TabsTrigger value="calendar">
+              <CalendarDays className="w-4 h-4 mr-1" />
+              Calendar
+            </TabsTrigger>
+            <TabsTrigger value="weekly">Weekly</TabsTrigger>
             <TabsTrigger value="tests">Tests</TabsTrigger>
             <TabsTrigger value="diet">Diet</TabsTrigger>
             <TabsTrigger value="activities">Activities</TabsTrigger>
@@ -116,6 +142,25 @@ export const HealthImprovementPlanModal = ({
                     ))}
                   </ul>
                 </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Calendar Tab */}
+          <TabsContent value="calendar" className="space-y-4">
+            <Card>
+              <CardContent className="pt-6">
+                {loading ? (
+                  <div className="text-center py-8 text-muted-foreground">Loading calendar...</div>
+                ) : (
+                  <HealthPlanCalendar
+                    plan={plan}
+                    planStartDate={planStartDate}
+                    completions={completions}
+                    onToggleActivity={toggleActivity}
+                    onAddNote={addNote}
+                  />
+                )}
               </CardContent>
             </Card>
           </TabsContent>

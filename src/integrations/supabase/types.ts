@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_completions: {
+        Row: {
+          activity_name: string
+          activity_type: string
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          day_number: number
+          id: string
+          notes: string | null
+          plan_start_date: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          activity_name: string
+          activity_type: string
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          day_number: number
+          id?: string
+          notes?: string | null
+          plan_start_date: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          activity_name?: string
+          activity_type?: string
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          day_number?: number
+          id?: string
+          notes?: string | null
+          plan_start_date?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       demo_links: {
         Row: {
           active: boolean
@@ -59,6 +101,105 @@ export type Database = {
           payment_enabled?: boolean | null
           reports_used?: number
           token?: string
+        }
+        Relationships: []
+      }
+      health_plan_notifications: {
+        Row: {
+          activity_reminders: boolean | null
+          afternoon_time: string | null
+          created_at: string | null
+          evening_time: string | null
+          id: string
+          milestone_celebrations: boolean | null
+          morning_time: string | null
+          notifications_enabled: boolean | null
+          plan_start_date: string
+          push_subscription: Json | null
+          test_reminders: boolean | null
+          timezone: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          activity_reminders?: boolean | null
+          afternoon_time?: string | null
+          created_at?: string | null
+          evening_time?: string | null
+          id?: string
+          milestone_celebrations?: boolean | null
+          morning_time?: string | null
+          notifications_enabled?: boolean | null
+          plan_start_date: string
+          push_subscription?: Json | null
+          test_reminders?: boolean | null
+          timezone?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          activity_reminders?: boolean | null
+          afternoon_time?: string | null
+          created_at?: string | null
+          evening_time?: string | null
+          id?: string
+          milestone_celebrations?: boolean | null
+          morning_time?: string | null
+          notifications_enabled?: boolean | null
+          plan_start_date?: string
+          push_subscription?: Json | null
+          test_reminders?: boolean | null
+          timezone?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      health_score_history: {
+        Row: {
+          analysis_id: string | null
+          cardiovascular_score: number | null
+          created_at: string | null
+          endocrine_score: number | null
+          hematologic_score: number | null
+          id: string
+          kidney_score: number | null
+          liver_score: number | null
+          metabolic_score: number | null
+          notes: string | null
+          overall_score: number
+          recorded_at: string | null
+          user_id: string
+        }
+        Insert: {
+          analysis_id?: string | null
+          cardiovascular_score?: number | null
+          created_at?: string | null
+          endocrine_score?: number | null
+          hematologic_score?: number | null
+          id?: string
+          kidney_score?: number | null
+          liver_score?: number | null
+          metabolic_score?: number | null
+          notes?: string | null
+          overall_score: number
+          recorded_at?: string | null
+          user_id: string
+        }
+        Update: {
+          analysis_id?: string | null
+          cardiovascular_score?: number | null
+          created_at?: string | null
+          endocrine_score?: number | null
+          hematologic_score?: number | null
+          id?: string
+          kidney_score?: number | null
+          liver_score?: number | null
+          metabolic_score?: number | null
+          notes?: string | null
+          overall_score?: number
+          recorded_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
