@@ -19,6 +19,8 @@ import { HealthScoreBreakdown, SystemScore } from "@/utils/healthScoreCalculator
 import { SystemScoreBreakdown } from "./SystemScoreBreakdown";
 import { HealthImprovementPlanModal } from "./HealthImprovementPlanModal";
 import { generate30DayPlan } from "@/utils/generate30DayPlan";
+import { AuthPrompt } from "./AuthPrompt";
+import { useAuth } from "@/hooks/useAuth";
 
 interface HealthScoreCardProps {
   breakdown: HealthScoreBreakdown;
@@ -72,9 +74,11 @@ const getSystemLabel = (systemName: string): string => {
 };
 
 export const HealthScoreCard = ({ breakdown }: HealthScoreCardProps) => {
+  const { user } = useAuth();
   const [isExpanded, setIsExpanded] = useState(false);
   const [displayScore, setDisplayScore] = useState(0);
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const { overallScore, category, categoryLabel, categoryColor, systemScores, modifiers, recommendations, comparisonToPopulation } = breakdown;
 
   // Animate score counter
@@ -103,6 +107,18 @@ export const HealthScoreCard = ({ breakdown }: HealthScoreCardProps) => {
   );
 
   const handleGeneratePlan = () => {
+    if (!user) {
+      // Show authentication prompt if user is not logged in
+      setShowAuthPrompt(true);
+    } else {
+      // User is authenticated, show the plan modal
+      setIsPlanModalOpen(true);
+    }
+  };
+
+  const handleAuthSuccess = () => {
+    // After successful authentication, open the plan modal
+    setShowAuthPrompt(false);
     setIsPlanModalOpen(true);
   };
 
@@ -294,6 +310,13 @@ export const HealthScoreCard = ({ breakdown }: HealthScoreCardProps) => {
         onClose={() => setIsPlanModalOpen(false)}
         plan={improvementPlan}
         patientName={undefined}
+      />
+
+      {/* Authentication Prompt for 30-Day Plan */}
+      <AuthPrompt 
+        open={showAuthPrompt} 
+        onOpenChange={setShowAuthPrompt}
+        onAuthSuccess={handleAuthSuccess}
       />
     </Card>
   );

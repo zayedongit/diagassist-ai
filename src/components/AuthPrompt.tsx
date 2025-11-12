@@ -14,15 +14,22 @@ import { Calendar, TrendingUp, Bell, FileText, X } from 'lucide-react';
 interface AuthPromptProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onAuthSuccess?: () => void; // Optional callback after successful authentication
 }
 
-export const AuthPrompt = ({ open, onOpenChange }: AuthPromptProps) => {
+export const AuthPrompt = ({ open, onOpenChange, onAuthSuccess }: AuthPromptProps) => {
   const navigate = useNavigate();
   const [showAuth, setShowAuth] = useState(false);
 
   const handleAuthSuccess = (user: any, session: any) => {
     onOpenChange(false);
-    navigate('/my-reports');
+    if (onAuthSuccess) {
+      // Custom callback provided, execute it
+      onAuthSuccess();
+    } else {
+      // Default behavior: navigate to reports
+      navigate('/my-reports');
+    }
   };
 
   const handleSkip = () => {

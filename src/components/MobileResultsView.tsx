@@ -14,6 +14,8 @@ import { HealthScoreCard } from "@/components/HealthScoreCard";
 import { calculateHealthScore } from "@/utils/healthScoreCalculator";
 import { HealthImprovementPlanModal } from "@/components/HealthImprovementPlanModal";
 import { generate30DayPlan } from "@/utils/generate30DayPlan";
+import { AuthPrompt } from "@/components/AuthPrompt";
+import { useAuth } from "@/hooks/useAuth";
 
 interface MobileResultsViewProps {
   analysisData: any;
@@ -34,10 +36,12 @@ export const MobileResultsView = ({
   onPreviewReport,
   onDismiss
 }: MobileResultsViewProps) => {
+  const { user } = useAuth();
   const [currentCard, setCurrentCard] = useState(0);
   const [swipeOffset, setSwipeOffset] = useState(0);
   const [isDismissing, setIsDismissing] = useState(false);
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
 
   const cards = [
     {
@@ -251,7 +255,13 @@ export const MobileResultsView = ({
                 </div>
 
                 <Button 
-                  onClick={() => setIsPlanModalOpen(true)}
+                  onClick={() => {
+                    if (!user) {
+                      setShowAuthPrompt(true);
+                    } else {
+                      setIsPlanModalOpen(true);
+                    }
+                  }}
                   className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
                 >
                   <FileText className="w-4 h-4 mr-2" />
@@ -505,6 +515,16 @@ export const MobileResultsView = ({
           patientName={analysisData.demographics?.name || analysisData.patientName}
         />
       )}
+
+      {/* Authentication Prompt for 30-Day Plan */}
+      <AuthPrompt 
+        open={showAuthPrompt} 
+        onOpenChange={setShowAuthPrompt}
+        onAuthSuccess={() => {
+          setShowAuthPrompt(false);
+          setIsPlanModalOpen(true);
+        }}
+      />
     </div>
   );
 };
