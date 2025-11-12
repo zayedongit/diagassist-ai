@@ -488,6 +488,24 @@ RAW DATA: ${baseContext}`;
     setShowPostChatSections(true); // Enable detailed analysis sections
     toast.success('Clinical assessment complete! Loading personalized analysis...');
     
+    // Auto-scroll to summary section after completion
+    setTimeout(() => {
+      const summarySection = document.getElementById('summary-section');
+      if (summarySection) {
+        summarySection.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+        
+        // Add highlight animation
+        summarySection.style.transition = 'box-shadow 0.5s ease-out';
+        summarySection.style.boxShadow = '0 0 30px rgba(59, 130, 246, 0.5)';
+        setTimeout(() => {
+          summarySection.style.boxShadow = 'none';
+        }, 2000);
+      }
+    }, 500);
+    
     // Show auth prompt after 3 seconds if user is not logged in
     setTimeout(() => {
       if (!user) {
@@ -1821,10 +1839,10 @@ RAW DATA: ${baseContext}`;
                   {!isNonMedicalReport(analysisData) && enhancedData && showPostChatSections && (
                     <>
                       {/* Report Summary in Layman's Language */}
-                      <section className="py-6 sm:py-8 bg-white transition-all duration-500">
+                      <section id="summary-section" className="py-6 sm:py-8 bg-white transition-all duration-500">
                         <div className="container mx-auto px-4 sm:px-6 animate-fade-in">
                           <div className="max-w-4xl mx-auto animate-scale-in">
-                            <SummaryCard 
+                            <SummaryCard
                               summary={analysisData.summary}
                               overallStatus={analysisData.overallStatus}
                               abnormalCount={analysisData.abnormalCount || 0}
