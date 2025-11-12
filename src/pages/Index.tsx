@@ -1337,16 +1337,19 @@ RAW DATA: ${baseContext}`;
                   muted
                   playsInline
                   className="absolute top-0 left-0 w-full h-full object-cover transform scale-105 transition-transform duration-[10000ms] ease-out"
-                  style={{ willChange: 'transform' }}
+                  style={{ 
+                    willChange: 'transform',
+                    filter: 'brightness(1.2) contrast(1.1)'
+                  }}
                 >
                   <source src="/hero-video.mp4" type="video/mp4" />
                 </video>
                 
-                {/* Semi-transparent Dark Gradient Overlay (navy → deep blue, 60% opacity) */}
+                {/* Lighter Semi-transparent Dark Gradient Overlay for better video visibility */}
                 <div 
                   className="absolute inset-0 z-10"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(14, 27, 44, 0.85) 0%, rgba(10, 31, 61, 0.75) 50%, rgba(6, 15, 30, 0.85) 100%)'
+                    background: 'linear-gradient(135deg, rgba(14, 27, 44, 0.45) 0%, rgba(10, 31, 61, 0.35) 50%, rgba(6, 15, 30, 0.45) 100%)'
                   }}
                 />
               </div>
