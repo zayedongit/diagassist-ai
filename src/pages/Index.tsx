@@ -1135,10 +1135,10 @@ RAW DATA: ${baseContext}`;
           <div className="flex items-center justify-between h-14 sm:h-16">
             {/* Logo */}
             <div 
-              className="flex items-center space-x-2 sm:space-x-3 cursor-pointer hover:opacity-80 transition-opacity"
+              className="flex items-center space-x-2 sm:space-x-3 cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95"
               onClick={() => navigate('/')}
             >
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-accentCyan to-primary rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-accentCyan to-primary rounded-lg flex items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
                 <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
               <div>

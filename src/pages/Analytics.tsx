@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -40,6 +41,7 @@ interface AnalyticsData {
 }
 
 const Analytics = () => {
+  const navigate = useNavigate();
   const [timeframe, setTimeframe] = useState<Timeframe>('week');
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<AnalyticsData | null>(null);
@@ -136,8 +138,11 @@ const Analytics = () => {
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-14 sm:h-16">
-            <div className="flex items-center space-x-2 sm:space-x-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-accentCyan to-primary rounded-lg flex items-center justify-center">
+            <div 
+              className="flex items-center space-x-2 sm:space-x-3 cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95"
+              onClick={() => navigate('/')}
+            >
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-accentCyan to-primary rounded-lg flex items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
                 <Activity className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
               <div>
