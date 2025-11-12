@@ -60,23 +60,25 @@ export const ValuesNeedingAttention = ({ analysisData }: ValuesNeedingAttentionP
               key={index}
               className={`flex items-start justify-between gap-4 p-3 rounded-lg border ${getStatusColor(lab.status)}`}
             >
-              <div className="flex items-start gap-3 flex-1">
+              <div className="flex items-start gap-3 flex-1 min-w-0">
                 {getStatusIcon(lab.status)}
-                <div className="space-y-1">
+                <div className="space-y-1 flex-1 min-w-0">
                   <p className="font-inter font-semibold text-navy">{lab.name}</p>
-                  <p className="text-sm text-slate">
-                    <span className="font-medium">{lab.value} {lab.unit}</span>
+                  <div className="text-sm text-slate space-y-1">
+                    <div className="font-medium">{lab.value} {lab.unit}</div>
                     {lab.referenceRange && (
-                      <span className="text-slate/70"> • Normal: {lab.referenceRange}</span>
+                      <div className="text-slate/70 text-xs break-words">
+                        Normal: {lab.referenceRange}
+                      </div>
                     )}
-                  </p>
+                  </div>
                 </div>
               </div>
               <Badge 
                 variant={lab.status.toLowerCase().includes('high') ? 'destructive' : 'secondary'}
-                className="shrink-0"
+                className="shrink-0 whitespace-nowrap"
               >
-                {lab.status}
+                {lab.status.replace(/[^\w\s\-]/g, '').trim()}
               </Badge>
             </div>
           ))}

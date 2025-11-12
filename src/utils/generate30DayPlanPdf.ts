@@ -115,7 +115,7 @@ export async function generate30DayPlanPdf(plan: HealthImprovementPlan, patientN
     pdf.setFont(undefined, 'normal');
     plan.dailyActivities.slice(0, 5).forEach(activity => {
       addPageIfNeeded(8);
-      pdf.text(`▶ ${activity.activity}`, margin + 2, yPosition);
+      pdf.text(`• ${activity.activity}`, margin + 2, yPosition);
       yPosition += 4;
       pdf.setFontSize(8);
       pdf.setTextColor(107, 114, 128);
@@ -261,7 +261,7 @@ export async function generate30DayPlanPdf(plan: HealthImprovementPlan, patientN
       pdf.setFont(undefined, 'normal');
       pdf.setFontSize(8);
       week.goals.forEach(goal => {
-        pdf.text(`▶ ${goal}`, margin + 4, yPosition);
+        pdf.text(`• ${goal}`, margin + 4, yPosition);
         yPosition += 3.5;
       });
       yPosition += 3;

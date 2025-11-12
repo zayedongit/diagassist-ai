@@ -320,11 +320,11 @@ export const generateComprehensiveReportPdf = async ({
           
           checkPageBreak(40);
           
-          pdf.setTextColor(211, 47, 47); // Red for attention-needed items
-          pdf.setFontSize(13);
-          pdf.setFont(undefined, 'bold');
-          pdf.text('⚠ Key Laboratory Results Requiring Attention', 25, yPosition + 2);
-          yPosition += 12;
+        pdf.setTextColor(211, 47, 47); // Red for attention-needed items
+        pdf.setFontSize(13);
+        pdf.setFont(undefined, 'bold');
+        pdf.text('Key Laboratory Results Requiring Attention', 25, yPosition + 2);
+        yPosition += 12;
           
           abnormalLabs.forEach((lab) => {
             const statusColor: [number, number, number] = lab.status === 'critical' ? [220, 38, 127] : 
@@ -362,7 +362,7 @@ export const generateComprehensiveReportPdf = async ({
           pdf.setTextColor(76, 175, 80); // Professional green for success
           pdf.setFontSize(13);
           pdf.setFont(undefined, 'bold');
-          pdf.text(`✓ Normal Parameters (${normalLabs.length})`, 25, yPosition + 2);
+          pdf.text(`Normal Parameters (${normalLabs.length})`, 25, yPosition + 2);
           yPosition += 12;
           
           pdf.setTextColor(55, 71, 79); // Dark grey for content
@@ -394,7 +394,7 @@ export const generateComprehensiveReportPdf = async ({
         pdf.setTextColor(183, 28, 28); // Strong red for red flags
         pdf.setFontSize(13);
         pdf.setFont(undefined, 'bold');
-        pdf.text('🚨 RED FLAGS - Seek Immediate Medical Attention', 25, yPosition + 2);
+        pdf.text('RED FLAGS - Seek Immediate Medical Attention', 25, yPosition + 2);
         yPosition += 14;
         
         pdf.setTextColor(211, 47, 47); // Red for flag content
