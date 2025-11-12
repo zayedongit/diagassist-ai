@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Activity, AlertTriangle, Utensils, Heart, MessageCircle, FileText, Download } from "lucide-react";
+import { ChevronLeft, ChevronRight, Activity, AlertTriangle, Utensils, Heart, MessageCircle, FileText, Download, Calendar } from "lucide-react";
 import { useSwipe } from "@/hooks/useSwipe";
 import { SummaryCard } from "@/components/SummaryCard";
 import { HealthRiskDashboardWithTimeline } from "@/components/HealthRiskDashboard";
@@ -12,6 +12,8 @@ import { EnhancedAnalysisResult, extractAbnormalPanels } from "@/types/medicalAn
 import { parseClinicalContext } from "@/utils/parseClinicalContext";
 import { HealthScoreCard } from "@/components/HealthScoreCard";
 import { calculateHealthScore } from "@/utils/healthScoreCalculator";
+import { HealthImprovementPlanModal } from "@/components/HealthImprovementPlanModal";
+import { generate30DayPlan } from "@/utils/generate30DayPlan";
 
 interface MobileResultsViewProps {
   analysisData: any;
@@ -35,6 +37,7 @@ export const MobileResultsView = ({
   const [currentCard, setCurrentCard] = useState(0);
   const [swipeOffset, setSwipeOffset] = useState(0);
   const [isDismissing, setIsDismissing] = useState(false);
+  const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
 
   const cards = [
     {
@@ -43,6 +46,13 @@ export const MobileResultsView = ({
       icon: Activity,
       color: 'text-primary',
       bgColor: 'bg-primary/10'
+    },
+    {
+      id: 'plan',
+      title: '30-Day Plan',
+      icon: Calendar,
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50'
     },
     {
       id: 'chat',
@@ -146,6 +156,114 @@ export const MobileResultsView = ({
           </div>
         ) : (
           <p className="text-slate text-center py-8">No health data available for scoring</p>
+        );
+      
+      case 'plan':
+        if (!enhancedData) {
+          return <p className="text-slate text-center py-8">Complete health score analysis to view your 30-day plan</p>;
+        }
+
+        const healthScoreBreakdown = calculateHealthScore(
+          enhancedData,
+          analysisData.demographics,
+          parseClinicalContext(clinicalAssessmentData)
+        );
+        const improvementPlan = generate30DayPlan(healthScoreBreakdown);
+
+        return (
+          <div className="space-y-4 pb-4">
+            <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-white">
+              <CardContent className="pt-6 space-y-4">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-3 bg-blue-100 rounded-full">
+                    <Calendar className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg text-navy">Your 30-Day Plan</h3>
+                    <p className="text-sm text-muted-foreground">Personalized improvement strategy</p>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg p-4 border border-blue-100">
+                  <h4 className="font-medium text-sm text-navy mb-2">Focus Areas</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {improvementPlan.targetSystems.map(system => (
+                      <Badge key={system} variant="default" className="text-xs">
+                        {system.charAt(0).toUpperCase() + system.slice(1)}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg p-4 border border-blue-100">
+                  <h4 className="font-medium text-sm text-navy mb-2">Your Goal</h4>
+                  <p className="text-xs text-slate leading-relaxed">
+                    {improvementPlan.overallGoal}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="bg-red-50 rounded-lg p-3 border border-red-100">
+                    <p className="text-2xl font-bold text-red-600 mb-1">
+                      {improvementPlan.testsRequired.length}
+                    </p>
+                    <p className="text-xs text-red-700">Tests</p>
+                  </div>
+                  <div className="bg-orange-50 rounded-lg p-3 border border-orange-100">
+                    <p className="text-2xl font-bold text-orange-600 mb-1">
+                      {improvementPlan.specialistReferrals.length}
+                    </p>
+                    <p className="text-xs text-orange-700">Referrals</p>
+                  </div>
+                  <div className="bg-green-50 rounded-lg p-3 border border-green-100">
+                    <p className="text-2xl font-bold text-green-600 mb-1">
+                      {improvementPlan.dailyActivities.length}
+                    </p>
+                    <p className="text-xs text-green-700">Activities</p>
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                  <h4 className="font-medium text-sm text-navy mb-3">4-Week Overview</h4>
+                  <div className="space-y-2">
+                    {improvementPlan.weeklyBreakdown.map((week) => (
+                      <div key={week.week} className="bg-white rounded p-2 border border-blue-100">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-semibold text-blue-700">Week {week.week}</span>
+                          <Badge variant="outline" className="text-xs">{week.focus}</Badge>
+                        </div>
+                        <ul className="space-y-0.5">
+                          {week.goals.slice(0, 2).map((goal, idx) => (
+                            <li key={idx} className="text-xs text-slate flex items-start">
+                              <span className="text-green-600 mr-1">✓</span>
+                              <span>{goal}</span>
+                            </li>
+                          ))}
+                          {week.goals.length > 2 && (
+                            <li className="text-xs text-muted-foreground italic">
+                              +{week.goals.length - 2} more goals
+                            </li>
+                          )}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <Button 
+                  onClick={() => setIsPlanModalOpen(true)}
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  View Full Plan & Download PDF
+                </Button>
+
+                <p className="text-xs text-muted-foreground text-center">
+                  Comprehensive 4-week action plan with tests, referrals, activities, and dietary guidance
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         );
       
       case 'chat':
@@ -382,6 +500,20 @@ export const MobileResultsView = ({
           <ChevronRight className="w-4 h-4" />
         </Button>
       </div>
+
+      {/* 30-Day Improvement Plan Modal */}
+      {enhancedData && (
+        <HealthImprovementPlanModal
+          isOpen={isPlanModalOpen}
+          onClose={() => setIsPlanModalOpen(false)}
+          plan={generate30DayPlan(calculateHealthScore(
+            enhancedData,
+            analysisData.demographics,
+            parseClinicalContext(clinicalAssessmentData)
+          ))}
+          patientName={analysisData.demographics?.name || analysisData.patientName}
+        />
+      )}
     </div>
   );
 };
