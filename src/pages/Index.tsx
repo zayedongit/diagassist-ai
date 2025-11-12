@@ -26,6 +26,7 @@ import { parseClinicalContext } from "@/utils/parseClinicalContext";
 import heroBackground from "@/assets/hero-background.jpg";
 import readyBackground from "@/assets/ready-background.jpg";
 import daigassistLogo from "@/assets/daigasst-logo.png";
+import medicalReportIcon from "@/assets/medical-report-icon.png";
 import { fetchUserAnalysisHistory } from '@/utils/fetchUserAnalysisHistory';
 import { PhoneAuth } from '@/components/PhoneAuth';
 import { useAuth } from '@/hooks/useAuth';
@@ -60,7 +61,7 @@ const HeaderNav = () => {
             className="flex items-center gap-2 hover:opacity-80 transition-opacity"
           >
             <img 
-              src={daigassistLogo} 
+              src={medicalReportIcon} 
               alt="Daigassist" 
               className="h-6 sm:h-8 md:h-10 w-auto"
             />
