@@ -34,7 +34,6 @@ import { StageProgress, Stage } from '@/components/StageProgress';
 import { extractPdfText } from '@/utils/extractPdfText';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
 import { ReportPreviewModal } from '@/components/ReportPreviewModal';
-import { TierSelection } from '@/components/TierSelection';
 
 // Header Navigation Component
 const HeaderNav = () => {
@@ -89,7 +88,6 @@ const HeaderNav = () => {
 const Index = () => {
   const navigate = useNavigate();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [selectedTier, setSelectedTier] = useState<'basic' | 'enhanced' | 'premium'>('enhanced');
   
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisData, setAnalysisData] = useState<any>(null);
@@ -1259,29 +1257,18 @@ RAW DATA: ${baseContext}`;
             {/* 3. UPLOAD SECTION */}
             <section id="upload-section" className="py-12 sm:py-16 md:py-24 bg-coolGray relative">
               <div className="container mx-auto px-4 sm:px-6">
-                <div className="max-w-6xl mx-auto space-y-8 sm:space-y-12">
-                  {/* Tier Selection */}
-                  <div className="bg-white rounded-xl sm:rounded-2xl shadow-premium p-6 sm:p-8 md:p-10">
-                    <TierSelection 
-                      selectedTier={selectedTier}
-                      onTierSelect={setSelectedTier}
-                    />
+                <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
+                  <div className="text-center space-y-3 sm:space-y-4">
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-semibold text-navy px-4">
+                      Upload Your Test Report
+                    </h2>
+                    <p className="text-slate text-sm sm:text-base md:text-lg px-4">
+                      Supported formats: PDF, JPG, PNG. Get instant AI-powered analysis.
+                    </p>
                   </div>
-
-                  {/* Upload Zone */}
-                  <div className="space-y-4">
-                    <div className="text-center space-y-3 sm:space-y-4">
-                      <h2 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-semibold text-navy px-4">
-                        Upload Your Test Report
-                      </h2>
-                      <p className="text-slate text-sm sm:text-base md:text-lg px-4">
-                        Supported formats: PDF, JPG, PNG. Get instant AI-powered analysis.
-                      </p>
-                    </div>
-                    
-                    <div className="bg-white rounded-xl sm:rounded-2xl shadow-premium p-4 sm:p-8 md:p-12">
-                      <UploadZone onFileSelect={handleFileSelect} />
-                    </div>
+                  
+                  <div className="bg-white rounded-xl sm:rounded-2xl shadow-premium p-4 sm:p-8 md:p-12">
+                    <UploadZone onFileSelect={handleFileSelect} />
                   </div>
                   
                   {/* Privacy Notice */}
@@ -1439,8 +1426,8 @@ RAW DATA: ${baseContext}`;
                     </div>
                   </section>
 
-                  {/* Clinical Chat - Conditional based on tier */}
-                  {!isNonMedicalReport(analysisData) && selectedTier !== 'basic' && (
+                  {/* Clinical Chat - Moved before detailed analysis */}
+                  {!isNonMedicalReport(analysisData) && (
                     <section id="chat-section" className="py-8 sm:py-12 md:py-16 bg-white">
                       <div className="container mx-auto px-4 sm:px-6">
                         <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
@@ -1449,9 +1436,7 @@ RAW DATA: ${baseContext}`;
                               Clinical Chat on Your Report
                             </h2>
                             <p className="text-xs sm:text-sm text-slate">
-                              {selectedTier === 'premium' 
-                                ? 'Complete the mandatory clinical assessment to unlock full analysis.' 
-                                : 'Optional clinical chat - complete for enhanced insights (Enhanced tier).'}
+                              This chat is strictly about your uploaded test report. It does not replace medical diagnosis.
                             </p>
                           </div>
                           
@@ -1470,8 +1455,8 @@ RAW DATA: ${baseContext}`;
                     </section>
                   )}
 
-                  {/* Health Risk Calculator with Prediction Timeline - Premium tier only */}
-                  {!isNonMedicalReport(analysisData) && enhancedData && showPostChatSections && selectedTier === 'premium' && (
+                  {/* Health Risk Calculator with Prediction Timeline - After Clinical Chat */}
+                  {!isNonMedicalReport(analysisData) && enhancedData && showPostChatSections && (
                     <section className="py-6 sm:py-8 bg-white">
                       <div className="container mx-auto px-4 sm:px-6">
                         <div className="max-w-6xl mx-auto">
@@ -1485,20 +1470,17 @@ RAW DATA: ${baseContext}`;
                     </section>
                   )}
 
-                  {/* Placeholder when clinical chat not complete (Enhanced/Premium only) */}
-                  {!isNonMedicalReport(analysisData) && enhancedData && !showPostChatSections && selectedTier !== 'basic' && (
+                  {/* Placeholder when clinical chat not complete */}
+                  {!isNonMedicalReport(analysisData) && enhancedData && !showPostChatSections && (
                     <section className="py-6 sm:py-8 bg-coolGray">
                       <div className="container mx-auto px-4 sm:px-6">
                         <div className="max-w-4xl mx-auto">
                           <Alert className="bg-blue-50 border-blue-200">
                             <AlertCircle className="h-5 w-5 text-blue-600" />
-                            <AlertTitle className="text-blue-900 font-semibold">
-                              {selectedTier === 'premium' ? 'Complete Clinical Assessment' : 'Optional Clinical Assessment'}
-                            </AlertTitle>
+                            <AlertTitle className="text-blue-900 font-semibold">Complete Clinical Assessment Above</AlertTitle>
                             <AlertDescription className="text-blue-800">
-                              {selectedTier === 'premium' 
-                                ? 'Complete the mandatory clinical chat assessment above to unlock personalized health risk predictions, 10-year risk projections, and tailored recommendations.'
-                                : 'Complete the clinical chat assessment above to unlock additional insights and recommendations.'}
+                              Complete the clinical chat assessment above to unlock personalized health risk predictions, 
+                              10-year risk projections, and tailored recommendations based on both your lab values and clinical context.
                             </AlertDescription>
                           </Alert>
                         </div>
@@ -1506,8 +1488,8 @@ RAW DATA: ${baseContext}`;
                     </section>
                   )}
 
-                  {/* Final Interpretation - Show for all tiers, content varies */}
-                  {!isNonMedicalReport(analysisData) && (selectedTier === 'basic' || showPostChatSections) && (
+                  {/* Final Interpretation */}
+                  {!isNonMedicalReport(analysisData) && showPostChatSections && (
                     <section id="interpretation-section" className="py-8 sm:py-12 md:py-16 bg-coolGray">
                       <div className="container mx-auto px-4 sm:px-6">
                         <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8">
@@ -1518,20 +1500,9 @@ RAW DATA: ${baseContext}`;
                           </div>
 
                           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-                            {/* Left Column - Clinical Assessment or Basic Summary */}
+                            {/* Left Column - Clinical Assessment */}
                             <div className="lg:col-span-2 space-y-6">
-                              {clinicalAssessmentData ? (
-                                <ClinicalAssessmentHighlights clinicalData={clinicalAssessmentData} />
-                              ) : (
-                                <Card>
-                                  <CardHeader>
-                                    <CardTitle>Lab Analysis Summary</CardTitle>
-                                  </CardHeader>
-                                  <CardContent>
-                                    <p className="text-slate">{analysisData?.summary}</p>
-                                  </CardContent>
-                                </Card>
-                              )}
+                              <ClinicalAssessmentHighlights clinicalData={clinicalAssessmentData} />
                             </div>
 
                             {/* Right Column - Charts */}
@@ -1541,7 +1512,7 @@ RAW DATA: ${baseContext}`;
                           </div>
 
                           {/* Preview and Download Buttons */}
-                          {(clinicalAssessmentData || selectedTier === 'basic') && (
+                          {clinicalAssessmentData && (
                             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-6 sm:pt-8">
                               <Button 
                                 onClick={handlePreviewReport}
