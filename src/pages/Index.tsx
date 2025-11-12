@@ -1325,93 +1325,105 @@ RAW DATA: ${baseContext}`;
       </header>
 
       <main className="w-full">
-        {/* 2. HERO SECTION - Premium PredLabs Style */}
+        {/* 2. HERO SECTION - Premium Futuristic with Video Background */}
         {!selectedFile && !showResults && !error && (
           <>
-            <section className="relative min-h-screen flex items-center justify-center overflow-hidden" style={{ background: 'radial-gradient(ellipse at top, hsl(210, 60%, 10%) 0%, hsl(210, 60%, 8%) 50%, hsl(210, 60%, 6%) 100%)' }}>
-              {/* Subtle animated gradient background */}
-              <div className="absolute inset-0 z-0">
-                <div className="absolute inset-0 bg-gradient-to-br from-navy/90 via-navy to-[#0a1f3d]/90" />
-                <div className="absolute top-0 left-0 w-full h-full opacity-30">
-                  <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-breathe" />
-                  <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#44FFE8]/10 rounded-full blur-3xl animate-breathe" style={{ animationDelay: '1.5s' }} />
-                </div>
+            <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+              {/* Full-width Background Video with Parallax */}
+              <div className="absolute inset-0 z-0 overflow-hidden">
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="absolute top-0 left-0 w-full h-full object-cover transform scale-105 transition-transform duration-[10000ms] ease-out"
+                  style={{ willChange: 'transform' }}
+                >
+                  <source src="/hero-video.mp4" type="video/mp4" />
+                </video>
+                
+                {/* Semi-transparent Dark Gradient Overlay (navy → deep blue, 60% opacity) */}
+                <div 
+                  className="absolute inset-0 z-10"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(14, 27, 44, 0.85) 0%, rgba(10, 31, 61, 0.75) 50%, rgba(6, 15, 30, 0.85) 100%)'
+                  }}
+                />
               </div>
               
-              {/* Floating orb particles */}
-              <div className="absolute inset-0 z-10 opacity-20 pointer-events-none overflow-hidden">
-                <div className="absolute top-1/4 left-1/4 w-32 h-32 border border-primary/40 rounded-full animate-float glow-border" />
-                <div className="absolute top-1/3 right-1/4 w-24 h-24 border border-[#44FFE8]/30 rounded-full animate-float glow-border" style={{ animationDelay: '1s', animationDuration: '8s' }} />
-                <div className="absolute bottom-1/4 left-1/3 w-20 h-20 border border-[#7CFFCB]/30 rounded-full animate-float glow-border" style={{ animationDelay: '2s', animationDuration: '7s' }} />
-                <div className="absolute top-1/2 right-1/3 w-16 h-16 border border-primary/30 rounded-full animate-float glow-border" style={{ animationDelay: '1.5s', animationDuration: '9s' }} />
-              </div>
-              
-              {/* Hero Content */}
+              {/* Hero Content - Centered */}
               <div className="relative z-20 container mx-auto px-4 sm:px-6 text-center">
-                <div className="max-w-5xl mx-auto space-y-8 sm:space-y-12 animate-fade-up">
-                  {/* Medical Validation Badge */}
-                  <div className="flex justify-center mb-6">
-                    <Badge className="px-4 py-2 text-sm sm:text-base font-semibold bg-white/10 backdrop-blur-sm border-2 border-primary/50 text-white hover:bg-white/20 transition-all duration-300 shadow-lg hover:shadow-glow">
-                      <ShieldCheck className="w-5 h-5 mr-2 text-primary" />
-                      Physician Approved & Medically Validated
-                    </Badge>
-                  </div>
+                <div className="max-w-5xl mx-auto space-y-8 sm:space-y-10 animate-fade-up">
                   
-                  {/* Main Headline */}
-                  <div className="space-y-4 sm:space-y-6">
-                    <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-poppins font-bold text-white leading-tight px-4">
-                      AI-Powered Medical <br className="hidden sm:block" />
-                      Report Analysis
-                    </h1>
-                    <p className="text-lg sm:text-xl md:text-2xl gradient-text font-medium">
-                      Personalized, Clear & Clinically Relevant Insights
-                    </p>
-                    <p className="text-sm sm:text-base text-white/70 font-inter">
-                      Created by Physician and Pathologist
-                    </p>
-                  </div>
+                  {/* Headline - Large, Bold, White */}
+                  <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-poppins font-bold text-white leading-tight px-4 opacity-0 animate-fade-in" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
+                    Revolutionizing Health <br className="hidden sm:block" />
+                    with AI and Heart
+                  </h1>
                   
-                  {/* Primary CTAs with Premium Styling */}
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 pt-6 sm:pt-8">
+                  {/* Subtext - Medium, Light Cyan */}
+                  <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-cyan-300 font-inter font-normal leading-relaxed max-w-4xl mx-auto px-4 opacity-0 animate-fade-in" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
+                    Your medical data deserves more than numbers — it deserves understanding.<br className="hidden md:block" />
+                    Our intelligent system analyzes your reports, interprets results, and builds a personalized 30-day roadmap toward better health and lasting wellness.
+                  </p>
+                  
+                  {/* Tagline - Smaller, Silver/Soft White */}
+                  <p className="text-sm sm:text-base md:text-lg text-gray-300 font-inter font-light tracking-wide opacity-0 animate-fade-in" style={{ animationDelay: '0.6s', animationFillMode: 'forwards' }}>
+                    Guided by Science. Driven by Compassion. Powered by MomentumHealth.
+                  </p>
+                  
+                  {/* CTA Buttons */}
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 pt-8 sm:pt-10 opacity-0 animate-fade-in" style={{ animationDelay: '0.8s', animationFillMode: 'forwards' }}>
+                    {/* Primary CTA - Glowing Cyan Gradient */}
                     <button
                       onClick={() => {
                         const uploadSection = document.getElementById('upload-section');
                         uploadSection?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                       }}
-                      className="group px-10 py-5 rounded-full font-poppins font-semibold text-base sm:text-lg text-white transition-all duration-400 hover:scale-105 active:scale-95 w-full sm:w-auto shadow-elegant hover:shadow-glow"
-                      style={{ background: 'linear-gradient(135deg, #00C6FF 0%, #44FFE8 50%, #7CFFCB 100%)' }}
+                      className="group relative px-10 py-5 rounded-full font-poppins font-semibold text-base sm:text-lg text-white transition-all duration-400 hover:scale-105 active:scale-95 w-full sm:w-auto overflow-hidden"
+                      style={{ 
+                        background: 'linear-gradient(135deg, #00d1d1 0%, #0099ff 100%)',
+                        boxShadow: '0 0 30px rgba(0, 209, 209, 0.5), 0 10px 30px rgba(0, 153, 255, 0.3)'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.boxShadow = '0 0 40px rgba(0, 209, 209, 0.7), 0 15px 40px rgba(0, 153, 255, 0.5)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.boxShadow = '0 0 30px rgba(0, 209, 209, 0.5), 0 10px 30px rgba(0, 153, 255, 0.3)';
+                      }}
                     >
-                      <span className="flex items-center justify-center gap-2">
-                        Upload Your Report
+                      <span className="flex items-center justify-center gap-2 relative z-10">
+                        Start Your Health Analysis
                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                       </span>
                     </button>
                     
+                    {/* Secondary CTA - Transparent Outline */}
                     <button
                       onClick={() => {
                         const howItWorks = document.getElementById('how-it-works');
                         howItWorks?.scrollIntoView({ behavior: 'smooth' });
                       }}
-                      className="px-10 py-5 rounded-full font-poppins font-semibold text-base sm:text-lg glass-dark text-white border border-primary/30 transition-all duration-400 hover:shadow-glow hover:border-primary/60 hover:scale-105 active:scale-95 w-full sm:w-auto backdrop-blur-md"
+                      className="group px-10 py-5 rounded-full font-poppins font-semibold text-base sm:text-lg text-white border-2 border-white/40 backdrop-blur-sm transition-all duration-400 hover:border-white/70 hover:bg-white/10 hover:scale-105 active:scale-95 w-full sm:w-auto"
                     >
-                      How It Works
+                      Learn How It Works
                     </button>
                   </div>
                   
                   {/* Sample Report Preview */}
-                  <div className="flex justify-center pt-4">
-              <div className="flex flex-col items-center gap-2">
-                <SampleReportPreview />
-                <p className="text-xs text-muted-foreground">See the full analysis you'll get</p>
-              </div>
+                  <div className="flex justify-center pt-6 opacity-0 animate-fade-in" style={{ animationDelay: '1s', animationFillMode: 'forwards' }}>
+                    <div className="flex flex-col items-center gap-2">
+                      <SampleReportPreview />
+                      <p className="text-xs text-gray-400">See the full analysis you'll get</p>
+                    </div>
                   </div>
                 </div>
               </div>
               
               {/* Scroll indicator with glow */}
               <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 animate-bounce opacity-60">
-                <div className="w-6 h-10 border-2 border-primary/60 rounded-full flex items-start justify-center p-2 glow-border">
-                  <div className="w-1 h-2 bg-primary rounded-full animate-pulse" />
+                <div className="w-6 h-10 border-2 border-cyan-400/60 rounded-full flex items-start justify-center p-2" style={{ boxShadow: '0 0 20px rgba(0, 209, 209, 0.4)' }}>
+                  <div className="w-1 h-2 bg-cyan-400 rounded-full animate-pulse" />
                 </div>
               </div>
             </section>
