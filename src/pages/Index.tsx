@@ -986,7 +986,7 @@ RAW DATA: ${baseContext}`;
   return (
     <div className="min-h-screen bg-coolGray font-inter">
       {/* 1. Sticky Top Navigation Bar */}
-      <header className="sticky top-0 z-50 bg-navy/90 backdrop-blur-lg border-b border-slate/20">
+      <header className="sticky top-0 z-50 bg-white backdrop-blur-lg border-b border-border">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-14 sm:h-16">
             {/* Logo */}
@@ -998,10 +998,10 @@ RAW DATA: ${baseContext}`;
                 <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-base sm:text-xl font-poppins font-semibold text-white">
+                <h1 className="text-base sm:text-xl font-poppins font-semibold text-foreground">
                   daigassist-health-ai
                 </h1>
-                <p className="text-[10px] sm:text-xs text-coolGray">AI-Powered Lab Analysis</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">AI-Powered Lab Analysis</p>
               </div>
             </div>
 
