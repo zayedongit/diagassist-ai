@@ -1285,7 +1285,10 @@ RAW DATA: ${baseContext}`;
                   
                   {/* Sample Report Preview */}
                   <div className="flex justify-center pt-4">
-                    <SampleReportPreview />
+              <div className="flex flex-col items-center gap-2">
+                <SampleReportPreview />
+                <p className="text-xs text-muted-foreground">See the full analysis you'll get</p>
+              </div>
                   </div>
                 </div>
               </div>
