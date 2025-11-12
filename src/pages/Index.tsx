@@ -33,6 +33,7 @@ import type { ProgressUpdate } from '@/utils/pdfToImages';
 import { StageProgress, Stage } from '@/components/StageProgress';
 import { extractPdfText } from '@/utils/extractPdfText';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
+import { ReportPreviewModal } from '@/components/ReportPreviewModal';
 
 // Header Navigation Component
 const HeaderNav = () => {
@@ -107,6 +108,8 @@ const Index = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDriveSync, setIsDriveSync] = useState(false);
   const [usedTextExtraction, setUsedTextExtraction] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [previewReportData, setPreviewReportData] = useState<any>(null);
   
   // Polling cancellation refs to prevent cross-contamination
   const pollingActiveRef = useRef(false);
@@ -300,6 +303,61 @@ RAW DATA: ${baseContext}`;
       });
     } catch (error) {
       toast.error(`Failed to download report: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
+  // Prepare report data for preview/download
+  const prepareReportData = () => {
+    if (!analysisData) return null;
+
+    const allAbnormalLabs = analysisData.medicalPanels?.flatMap((panel: any) => 
+      panel.abnormalLabs.map((lab: any) => ({
+        parameter: lab.name,
+        value: lab.value,
+        unit: lab.unit || '',
+        normalRange: lab.referenceRange || '',
+        status: lab.status
+      }))
+    ) || [];
+
+    return {
+      patientInfo: {
+        name: analysisData.patientName || analysisData.profileName,
+        age: analysisData.demographics?.age,
+        gender: analysisData.demographics?.gender,
+        testDate: analysisData.testDate
+      },
+      overallStatus: analysisData.overallStatus,
+      summary: analysisData.summary,
+      abnormalLabs: allAbnormalLabs,
+      actionItems: analysisData.nextSteps,
+      dietaryRecommendations: {
+        toAdd: analysisData.diet?.increase,
+        toLimitOrAvoid: analysisData.diet?.avoid
+      },
+      lifestyleModifications: analysisData.lifestyle?.recommendations,
+      followUpGuidance: analysisData.specialist ? 
+        `Consult ${analysisData.specialist}. Retest recommended in 3-6 months.` : 
+        'Retest recommended in 3-6 months. Consult your healthcare provider if symptoms worsen.'
+    };
+  };
+
+  // Handle preview modal
+  const handlePreviewReport = () => {
+    const reportData = prepareReportData();
+    if (reportData) {
+      setPreviewReportData(reportData);
+      setShowPreviewModal(true);
+    } else {
+      toast.error('No analysis data available for preview');
+    }
+  };
+
+  // Handle download from preview modal
+  const handleDownloadFromPreview = async () => {
+    if (previewReportData) {
+      await generateEssentialReportPdf(previewReportData);
+      setShowPreviewModal(false);
     }
   };
 
@@ -1453,16 +1511,25 @@ RAW DATA: ${baseContext}`;
                             </div>
                           </div>
 
-                          {/* Download Button */}
+                          {/* Preview and Download Buttons */}
                           {clinicalAssessmentData && (
-                            <div className="text-center pt-6 sm:pt-8">
+                            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-6 sm:pt-8">
+                              <Button 
+                                onClick={handlePreviewReport}
+                                size="lg"
+                                variant="outline"
+                                className="font-poppins font-semibold px-6 sm:px-8 py-4 sm:py-6 text-sm sm:text-base rounded-xl hover-scale-102 w-full sm:w-auto gap-2"
+                              >
+                                <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
+                                Preview Report
+                              </Button>
                               <Button 
                                 onClick={handleDownloadEssentialReport}
                                 size="lg"
-                                className="bg-accentCyan text-navy hover:bg-accentCyan/90 font-poppins font-semibold px-6 sm:px-8 py-4 sm:py-6 text-sm sm:text-base rounded-xl hover-scale-102 shadow-premium w-full sm:w-auto"
+                                className="bg-accentCyan text-navy hover:bg-accentCyan/90 font-poppins font-semibold px-6 sm:px-8 py-4 sm:py-6 text-sm sm:text-base rounded-xl hover-scale-102 shadow-premium w-full sm:w-auto gap-2"
                               >
-                                <Download className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                                Download Essential Report
+                                <Download className="w-4 h-4 sm:w-5 sm:h-5" />
+                                Download PDF
                               </Button>
                             </div>
                           )}
@@ -1615,6 +1682,16 @@ RAW DATA: ${baseContext}`;
         )}
 
       </main>
+
+      {/* Report Preview Modal */}
+      {previewReportData && (
+        <ReportPreviewModal
+          open={showPreviewModal}
+          onOpenChange={setShowPreviewModal}
+          reportData={previewReportData}
+          onDownload={handleDownloadFromPreview}
+        />
+      )}
     </div>
   );
 };
