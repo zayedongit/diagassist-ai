@@ -1446,6 +1446,7 @@ RAW DATA: ${baseContext}`;
                 onClinicalAssessmentComplete={handleClinicalAssessmentComplete}
                 onDownloadReport={handleDownloadEssentialReport}
                 onPreviewReport={handlePreviewReport}
+                onDismiss={handleReset}
               />
             ) : (
               <>
