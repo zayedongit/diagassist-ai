@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { AlertCircle, Activity, Heart, FileText, Download, RefreshCw, Brain, Eye, EyeOff, Lock, BarChart3, Stethoscope, CloudDownload, Shield, ArrowRight, ShieldCheck, FileCheck2 } from "lucide-react";
+import { AlertCircle, Activity, Heart, FileText, Download, RefreshCw, Brain, Eye, EyeOff, Lock, BarChart3, Stethoscope, CloudDownload, Shield, ArrowRight, ShieldCheck, FileCheck2, MessageCircle, TrendingUp, Calendar, Target } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
 import jsPDF from 'jspdf';
@@ -1370,7 +1370,7 @@ RAW DATA: ${baseContext}`;
                     How It Works
                   </h2>
                   <p className="text-slate text-base sm:text-lg md:text-xl max-w-2xl mx-auto leading-relaxed px-4">
-                    Simple, secure, and comprehensive medical report analysis in 5 easy steps
+                    Simple, secure, and comprehensive medical report analysis in 4 easy steps
                   </p>
                 </div>
                 
@@ -1407,7 +1407,23 @@ RAW DATA: ${baseContext}`;
                     <ArrowRight className="w-8 h-8 text-primary/40" />
                   </div>
 
-                  {/* Step 3: Interpretation */}
+                  {/* Step 3: Clinical Chat (moved before Interpretation) */}
+                  <div className="text-center space-y-4 sm:space-y-6 glass-card p-8 sm:p-10 rounded-3xl transition-all hover:shadow-float hover:-translate-y-2 duration-400 w-full lg:flex-1">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-2xl flex items-center justify-center glow-ring" style={{ background: 'linear-gradient(135deg, #00C6FF 0%, #44FFE8 100%)' }}>
+                      <MessageCircle className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                    </div>
+                    <h3 className="text-lg sm:text-xl font-poppins font-bold text-navy">Clinical Chat</h3>
+                    <p className="text-slate text-sm sm:text-base leading-relaxed">
+                      Ask questions about your results
+                    </p>
+                  </div>
+
+                  {/* Arrow 3 */}
+                  <div className="hidden lg:block">
+                    <ArrowRight className="w-8 h-8 text-primary/40" />
+                  </div>
+
+                  {/* Step 4: Interpretation */}
                   <div className="text-center space-y-4 sm:space-y-6 glass-card p-8 sm:p-10 rounded-3xl transition-all hover:shadow-float hover:-translate-y-2 duration-400 w-full lg:flex-1">
                     <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-2xl flex items-center justify-center glow-ring" style={{ background: 'linear-gradient(135deg, #00C6FF 0%, #44FFE8 100%)' }}>
                       <FileText className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
@@ -1417,21 +1433,71 @@ RAW DATA: ${baseContext}`;
                       Get clear, personalized health insights
                     </p>
                   </div>
+                </div>
 
-                  {/* Arrow 3 */}
-                  <div className="hidden lg:block">
-                    <ArrowRight className="w-8 h-8 text-primary/40" />
+                {/* New Features Showcase Section */}
+                <div className="mt-20 sm:mt-24 md:mt-28">
+                  <div className="text-center mb-10 sm:mb-12 space-y-3">
+                    <h3 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-bold text-navy">
+                      Comprehensive Health Features
+                    </h3>
+                    <p className="text-slate text-sm sm:text-base md:text-lg max-w-3xl mx-auto px-4">
+                      Beyond basic analysis - get personalized insights, predictions, and actionable improvement plans
+                    </p>
                   </div>
 
-                  {/* Step 4: Chat */}
-                  <div className="text-center space-y-4 sm:space-y-6 glass-card p-8 sm:p-10 rounded-3xl transition-all hover:shadow-float hover:-translate-y-2 duration-400 w-full lg:flex-1">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-2xl flex items-center justify-center glow-ring" style={{ background: 'linear-gradient(135deg, #00C6FF 0%, #44FFE8 100%)' }}>
-                      <Brain className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 max-w-7xl mx-auto">
+                    {/* Feature 1: Health Score Calculator */}
+                    <div className="glass-card p-6 sm:p-8 rounded-2xl transition-all hover:shadow-float hover:-translate-y-1 duration-300">
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-4 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+                        <Target className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+                      </div>
+                      <h4 className="text-base sm:text-lg font-poppins font-bold text-navy mb-2 text-center">
+                        Health Score Calculator
+                      </h4>
+                      <p className="text-slate text-xs sm:text-sm text-center leading-relaxed">
+                        Comprehensive 0-100 score across 6 body systems with medical validation
+                      </p>
                     </div>
-                    <h3 className="text-lg sm:text-xl font-poppins font-bold text-navy">Chat</h3>
-                    <p className="text-slate text-sm sm:text-base leading-relaxed">
-                      Ask questions about your results
-                    </p>
+
+                    {/* Feature 2: Health Prediction */}
+                    <div className="glass-card p-6 sm:p-8 rounded-2xl transition-all hover:shadow-float hover:-translate-y-1 duration-300">
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-4 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' }}>
+                        <TrendingUp className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+                      </div>
+                      <h4 className="text-base sm:text-lg font-poppins font-bold text-navy mb-2 text-center">
+                        Health Prediction
+                      </h4>
+                      <p className="text-slate text-xs sm:text-sm text-center leading-relaxed">
+                        AI-powered predictive insights for future health trends and risks
+                      </p>
+                    </div>
+
+                    {/* Feature 3: 30-Day Improvement Plan */}
+                    <div className="glass-card p-6 sm:p-8 rounded-2xl transition-all hover:shadow-float hover:-translate-y-1 duration-300">
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-4 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' }}>
+                        <Calendar className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+                      </div>
+                      <h4 className="text-base sm:text-lg font-poppins font-bold text-navy mb-2 text-center">
+                        30-Day Plan
+                      </h4>
+                      <p className="text-slate text-xs sm:text-sm text-center leading-relaxed">
+                        Personalized targeted improvement plan with daily activities and milestones
+                      </p>
+                    </div>
+
+                    {/* Feature 4: Health Journey */}
+                    <div className="glass-card p-6 sm:p-8 rounded-2xl transition-all hover:shadow-float hover:-translate-y-1 duration-300">
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-4 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)' }}>
+                        <Activity className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+                      </div>
+                      <h4 className="text-base sm:text-lg font-poppins font-bold text-navy mb-2 text-center">
+                        Health Journey
+                      </h4>
+                      <p className="text-slate text-xs sm:text-sm text-center leading-relaxed">
+                        Interactive calendar, progress tracker, and smart notification reminders
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
