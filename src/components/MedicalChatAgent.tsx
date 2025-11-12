@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Bot, User, Send, Stethoscope, ArrowDown, Mic, MicOff } from 'lucide-react';
+import { Bot, User, Send, Stethoscope, ArrowDown, Mic, MicOff, Info, X, HelpCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { ClinicalReport } from '@/components/ClinicalReport';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -15,6 +15,8 @@ import { useVoiceInput } from '@/hooks/useVoiceInput';
 import { VoiceInputButton } from '@/components/VoiceInputButton';
 import { AudioLevelVisualizer } from '@/components/AudioLevelVisualizer';
 import { toast } from 'sonner';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface Message {
   id: string;
@@ -67,6 +69,8 @@ export const MedicalChatAgent = ({
   const [showJumpButton, setShowJumpButton] = useState(false);
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
   const [continuousVoiceMode, setContinuousVoiceMode] = useState(false);
+  const [showVoiceGuide, setShowVoiceGuide] = useState(true);
+  const [showHelpSection, setShowHelpSection] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const shouldAutoSubmitRef = useRef(false);
@@ -471,23 +475,105 @@ export const MedicalChatAgent = ({
 
   return (
     <Card className={`border-primary/20 bg-gradient-to-r from-primary/5 to-blue-50 ${className}`}>
-      <CardHeader className="pb-3">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-            <Stethoscope className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <CardTitle className="text-lg text-primary">
-              Clinical Assessment Chat Bot
-            </CardTitle>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="text-xs bg-yellow-100 text-yellow-800 border-yellow-200">
-                AI-Powered
-              </Badge>
-              <p className="text-xs text-muted-foreground">Get personalized health insights</p>
+      <CardHeader className="pb-3 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <Stethoscope className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <CardTitle className="text-lg text-primary">
+                Clinical Assessment Chat Bot
+              </CardTitle>
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary" className="text-xs bg-yellow-100 text-yellow-800 border-yellow-200">
+                  AI-Powered
+                </Badge>
+                <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                  🎤 Voice Enabled
+                </Badge>
+              </div>
             </div>
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowHelpSection(!showHelpSection)}
+            className="h-8 w-8 p-0"
+          >
+            <HelpCircle className="w-5 h-5 text-primary" />
+          </Button>
         </div>
+
+        {/* Voice Feature Guide Banner */}
+        {showVoiceGuide && (
+          <Alert className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+            <div className="flex items-start gap-2">
+              <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <AlertDescription className="text-xs text-blue-900">
+                  <strong>Voice Features Available:</strong> Use the <Mic className="w-3 h-3 inline mx-0.5" /> button for single voice input, or enable <strong>Continuous Voice Mode</strong> for hands-free conversation!
+                </AlertDescription>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowVoiceGuide(false)}
+                className="h-5 w-5 p-0 hover:bg-blue-100"
+              >
+                <X className="w-3 h-3" />
+              </Button>
+            </div>
+          </Alert>
+        )}
+
+        {/* Expandable Help Section */}
+        <Collapsible open={showHelpSection} onOpenChange={setShowHelpSection}>
+          <CollapsibleContent className="space-y-2">
+            <div className="bg-white rounded-lg border border-primary/20 p-4 space-y-3">
+              <h4 className="font-semibold text-sm text-navy flex items-center gap-2">
+                <Info className="w-4 h-4 text-primary" />
+                How to Use Voice Features
+              </h4>
+              
+              <div className="space-y-3 text-xs text-slate">
+                <div className="flex items-start gap-2">
+                  <div className="bg-blue-100 rounded p-1.5 mt-0.5">
+                    <Mic className="w-3 h-3 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-navy">Single Voice Input</p>
+                    <p className="text-muted-foreground">Click the microphone button once to speak your question. The recording stops automatically when you finish speaking.</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2">
+                  <div className="bg-indigo-100 rounded p-1.5 mt-0.5 animate-pulse">
+                    <MicOff className="w-3 h-3 text-indigo-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-navy">Continuous Voice Mode (Recommended)</p>
+                    <p className="text-muted-foreground">Click the pulsing microphone button to enable hands-free conversation. Speak naturally and the AI will respond automatically - no need to click buttons between exchanges!</p>
+                  </div>
+                </div>
+
+                <div className="bg-green-50 rounded-lg p-2 border border-green-200">
+                  <p className="font-medium text-green-800">💡 Pro Tip:</p>
+                  <p className="text-green-700">Continuous mode uses voice activity detection - speak naturally with pauses, and the AI will know when you're done talking.</p>
+                </div>
+              </div>
+
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowHelpSection(false)}
+                className="w-full text-xs"
+              >
+                Got it!
+              </Button>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
       </CardHeader>
       <CardContent className="p-0 relative">
         <ScrollArea 
@@ -720,21 +806,33 @@ export const MedicalChatAgent = ({
                 />
               </div>
               
-              {/* Continuous Voice Mode Toggle */}
-              <Button
-                type="button"
-                variant={continuousVoiceMode ? "default" : "outline"}
-                size="icon"
-                onClick={toggleContinuousMode}
-                className={`h-11 w-11 ${continuousVoiceMode ? "bg-primary animate-pulse" : ""}`}
-                title={continuousVoiceMode ? "Stop continuous conversation" : "Start continuous conversation"}
-              >
-                {continuousVoiceMode ? (
-                  <MicOff className="w-4 h-4" />
-                ) : (
-                  <Mic className="w-4 h-4" />
+              {/* Continuous Voice Mode Toggle - More Prominent */}
+              <div className="relative">
+                <Button
+                  type="button"
+                  variant={continuousVoiceMode ? "default" : "outline"}
+                  size="icon"
+                  onClick={toggleContinuousMode}
+                  className={`h-11 w-11 relative ${
+                    continuousVoiceMode 
+                      ? "bg-primary animate-pulse shadow-lg ring-2 ring-primary/50" 
+                      : "border-2 border-primary/30 hover:border-primary hover:bg-primary/10"
+                  }`}
+                  title={continuousVoiceMode ? "Stop continuous conversation mode" : "Enable continuous hands-free conversation"}
+                >
+                  {continuousVoiceMode ? (
+                    <MicOff className="w-4 h-4" />
+                  ) : (
+                    <Mic className="w-4 h-4" />
+                  )}
+                </Button>
+                {!continuousVoiceMode && (
+                  <span className="absolute -top-2 -right-2 flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+                  </span>
                 )}
-              </Button>
+              </div>
               
               {/* Single Voice Input Button (only show if not in continuous mode) */}
               {!continuousVoiceMode && (
@@ -760,7 +858,7 @@ export const MedicalChatAgent = ({
               )}
             </div>
             
-            {/* Audio Level Visualizer */}
+            {/* Audio Level Visualizer with Enhanced Status */}
             {isSupported && (continuousVoiceMode || isListening) && (
               <div className="mt-3 flex flex-col items-center gap-2">
                 <AudioLevelVisualizer
@@ -770,13 +868,23 @@ export const MedicalChatAgent = ({
                   className="w-full max-w-md"
                 />
                 {continuousVoiceMode ? (
-                  <p className="text-xs text-primary font-medium text-center">
-                    🎤 Continuous voice mode active - speak naturally and I'll respond automatically
-                  </p>
+                  <div className="bg-primary/10 rounded-lg px-4 py-2 border border-primary/30">
+                    <p className="text-xs text-primary font-semibold text-center flex items-center gap-2 justify-center">
+                      <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
+                      Continuous Voice Active - Speak naturally for hands-free conversation
+                      <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
+                    </p>
+                    <p className="text-xs text-muted-foreground text-center mt-1">
+                      The AI will automatically respond when you finish speaking
+                    </p>
+                  </div>
                 ) : isListening ? (
-                  <p className="text-xs text-red-500 font-medium text-center">
-                    🎤 Listening... Speak your question
-                  </p>
+                  <div className="bg-red-50 rounded-lg px-4 py-2 border border-red-200">
+                    <p className="text-xs text-red-600 font-semibold text-center flex items-center gap-2 justify-center">
+                      <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                      Recording - Speak your question now
+                    </p>
+                  </div>
                 ) : null}
               </div>
             )}
