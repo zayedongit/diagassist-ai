@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { PhoneAuth } from "@/components/PhoneAuth";
 import { CameraCapture } from "@/components/CameraCapture";
+import { toast } from "sonner";
 
 interface UploadZoneProps {
   onFileSelect: (file: File) => void;
@@ -24,6 +25,7 @@ export const UploadZone = ({ onFileSelect, onImagesCapture }: UploadZoneProps) =
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     if (effectiveAuth) {
       setIsDragOver(true);
     }
@@ -31,19 +33,48 @@ export const UploadZone = ({ onFileSelect, onImagesCapture }: UploadZoneProps) =
 
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
-    setIsDragOver(false);
+    e.stopPropagation();
+    // Only reset if leaving the container itself, not child elements
+    if (e.currentTarget === e.target) {
+      setIsDragOver(false);
+    }
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setIsDragOver(false);
-    if (!effectiveAuth) return;
+    
+    if (!effectiveAuth) {
+      toast.error("Please login to upload files");
+      return;
+    }
     
     const files = e.dataTransfer.files;
-    if (files.length > 0 && files[0].type === 'application/pdf') {
-      setSelectedFile(files[0]);
-      onFileSelect(files[0]);
+    
+    if (files.length === 0) {
+      toast.error("No files detected");
+      return;
     }
+    
+    const file = files[0];
+    
+    // Validate file type
+    if (file.type !== 'application/pdf') {
+      toast.error("Only PDF files are supported. Please upload a PDF file.");
+      return;
+    }
+    
+    // Validate file size (max 20MB)
+    const maxSize = 20 * 1024 * 1024; // 20MB
+    if (file.size > maxSize) {
+      toast.error("File is too large. Maximum size is 20MB.");
+      return;
+    }
+    
+    setSelectedFile(file);
+    onFileSelect(file);
+    toast.success(`${file.name} loaded successfully`);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,8 +82,26 @@ export const UploadZone = ({ onFileSelect, onImagesCapture }: UploadZoneProps) =
     
     const files = e.target.files;
     if (files && files.length > 0) {
-      setSelectedFile(files[0]);
-      onFileSelect(files[0]);
+      const file = files[0];
+      
+      // Validate file type
+      if (file.type !== 'application/pdf') {
+        toast.error("Only PDF files are supported. Please upload a PDF file.");
+        e.target.value = ''; // Reset input
+        return;
+      }
+      
+      // Validate file size (max 20MB)
+      const maxSize = 20 * 1024 * 1024; // 20MB
+      if (file.size > maxSize) {
+        toast.error("File is too large. Maximum size is 20MB.");
+        e.target.value = ''; // Reset input
+        return;
+      }
+      
+      setSelectedFile(file);
+      onFileSelect(file);
+      toast.success(`${file.name} loaded successfully`);
     }
   };
 
@@ -123,7 +172,12 @@ export const UploadZone = ({ onFileSelect, onImagesCapture }: UploadZoneProps) =
           </Button>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div 
+          className="space-y-6"
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
           {selectedFile || capturedImagesCount > 0 ? (
             <div className="space-y-4 text-center">
               <CheckCircle className="w-12 h-12 sm:w-16 sm:h-16 text-green-400 mx-auto drop-shadow-lg" />
@@ -143,14 +197,21 @@ export const UploadZone = ({ onFileSelect, onImagesCapture }: UploadZoneProps) =
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center space-y-3 text-center">
-              <Camera className="w-12 h-12 sm:w-16 sm:h-16 drop-shadow-lg" style={{color: 'hsl(220, 74%, 42%)'}} />
+            <div 
+              className={`flex flex-col items-center space-y-3 text-center transition-all duration-300 rounded-xl p-6 ${
+                isDragOver 
+                  ? 'bg-white/30 border-4 border-dashed scale-105' 
+                  : 'border-2 border-transparent'
+              }`}
+              style={{ borderColor: isDragOver ? 'hsl(220, 74%, 42%)' : 'transparent' }}
+            >
+              <Camera className="w-12 h-12 sm:w-16 sm:h-16 drop-shadow-lg transition-transform" style={{color: 'hsl(220, 74%, 42%)'}} />
               <div className="space-y-2 text-center px-4">
                 <h3 className="text-lg sm:text-xl font-semibold drop-shadow-lg" style={{color: 'hsl(220, 74%, 42%)'}}>
-                  Upload Your Medical Report
+                  {isDragOver ? 'Drop PDF here' : 'Upload Your Medical Report'}
                 </h3>
                 <p className="drop-shadow-md text-sm sm:text-base" style={{color: 'hsl(220, 74%, 42%, 0.9)'}}>
-                  Take photos or upload PDF of your lab report
+                  {isDragOver ? 'Release to upload' : 'Drag & drop PDF, take photos, or click to browse'}
                 </p>
               </div>
             </div>
@@ -191,9 +252,14 @@ export const UploadZone = ({ onFileSelect, onImagesCapture }: UploadZoneProps) =
             </Button>
           </div>
           
-          <p className="text-xs text-center px-4" style={{color: 'hsl(220, 74%, 42%, 0.7)'}}>
-            📸 For best results, take clear photos of each page of your medical report
-          </p>
+          <div className={`text-xs text-center px-4 space-y-1 transition-opacity ${isDragOver ? 'opacity-0' : 'opacity-100'}`}>
+            <p style={{color: 'hsl(220, 74%, 42%, 0.7)'}}>
+              📄 Drag & drop PDF files here or use the buttons above
+            </p>
+            <p style={{color: 'hsl(220, 74%, 42%, 0.6)'}}>
+              📸 For best results with photos, ensure good lighting and clear text
+            </p>
+          </div>
         </div>
       )}
     </div>
