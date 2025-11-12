@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { AlertCircle, Activity, Heart, FileText, Download, RefreshCw, Brain, Eye, EyeOff, Lock, BarChart3, Stethoscope, CloudDownload, Shield, ArrowRight, ShieldCheck } from "lucide-react";
+import { AlertCircle, Activity, Heart, FileText, Download, RefreshCw, Brain, Eye, EyeOff, Lock, BarChart3, Stethoscope, CloudDownload, Shield, ArrowRight, ShieldCheck, FileCheck2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
 import jsPDF from 'jspdf';
@@ -35,6 +35,7 @@ import { extractPdfText } from '@/utils/extractPdfText';
 import { ReportPreviewModal } from '@/components/ReportPreviewModal';
 import { MobileResultsView } from '@/components/MobileResultsView';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 
 // Header Navigation Component - Hidden for free tool promotion
 const HeaderNav = () => {
@@ -1227,6 +1228,70 @@ RAW DATA: ${baseContext}`;
                     >
                       How It Works
                     </button>
+                  </div>
+                  
+                  {/* Sample Report Hover Card */}
+                  <div className="flex justify-center pt-4">
+                    <HoverCard openDelay={200}>
+                      <HoverCardTrigger asChild>
+                        <button className="group flex items-center gap-2 px-6 py-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-primary/30 transition-all duration-300 backdrop-blur-sm">
+                          <FileCheck2 className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
+                          <span className="text-sm font-medium text-white/90 group-hover:text-white">View Sample Report</span>
+                        </button>
+                      </HoverCardTrigger>
+                      <HoverCardContent 
+                        className="w-96 p-6 bg-background/95 backdrop-blur-lg border-primary/20 shadow-2xl z-50" 
+                        side="bottom"
+                        align="center"
+                      >
+                        <div className="space-y-4">
+                          <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-accentCyan to-primary flex items-center justify-center shrink-0">
+                              <FileText className="w-5 h-5 text-white" />
+                            </div>
+                            <div>
+                              <h4 className="font-poppins font-semibold text-foreground text-base mb-1">
+                                Sample Report Preview
+                              </h4>
+                              <p className="text-sm text-muted-foreground">
+                                See what your analysis report will look like
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <Separator />
+                          
+                          <div className="space-y-3">
+                            <div className="p-3 rounded-lg bg-muted/50 border border-border">
+                              <p className="text-xs font-semibold text-foreground mb-1">📊 Key Features:</p>
+                              <ul className="text-xs text-muted-foreground space-y-1 ml-4">
+                                <li>• Abnormal lab values highlighted</li>
+                                <li>• Simple language explanations</li>
+                                <li>• Personalized dietary advice</li>
+                                <li>• Lifestyle recommendations</li>
+                              </ul>
+                            </div>
+                            
+                            <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
+                              <p className="text-xs font-semibold text-foreground mb-1">📋 Report Includes:</p>
+                              <ul className="text-xs text-muted-foreground space-y-1 ml-4">
+                                <li>• Overall health summary</li>
+                                <li>• Risk assessment timeline</li>
+                                <li>• Action items & next steps</li>
+                                <li>• Follow-up guidance</li>
+                              </ul>
+                            </div>
+                            
+                            <div className="flex items-center gap-2 p-3 rounded-lg bg-accent/10 border border-accent/20">
+                              <Shield className="w-4 h-4 text-accentCyan shrink-0" />
+                              <p className="text-xs text-muted-foreground">
+                                <span className="font-semibold text-foreground">2-page format</span> - Easy to read & download
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </HoverCardContent>
+                    </HoverCard>
                   </div>
                 </div>
               </div>
