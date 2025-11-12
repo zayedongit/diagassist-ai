@@ -158,19 +158,7 @@ export const UploadZone = ({ onFileSelect, onImagesCapture }: UploadZoneProps) =
 
           {/* Mobile-First Action Buttons */}
           <div className="flex flex-col gap-3 px-4">
-            {/* Camera Button - Primary */}
-            <Button 
-              variant="default" 
-              size="lg" 
-              className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm border-white/30 flex items-center justify-center gap-3 h-14 text-base"
-              style={{color: 'hsl(220, 74%, 42%)'}}
-              onClick={() => setShowCamera(true)}
-            >
-              <Camera className="w-5 h-5" />
-              {capturedImagesCount > 0 ? 'Take More Photos' : 'Take Photos'}
-            </Button>
-
-            {/* PDF Upload Button - Secondary */}
+            {/* PDF Upload Button - Primary */}
             <input
               type="file"
               accept=".pdf"
@@ -180,14 +168,26 @@ export const UploadZone = ({ onFileSelect, onImagesCapture }: UploadZoneProps) =
             />
             
             <Button 
-              variant="outline" 
+              variant="default" 
               size="lg" 
-              className="w-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border-white/30 flex items-center justify-center gap-3 h-14 text-base"
+              className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm border-white/30 flex items-center justify-center gap-3 h-14 text-base"
               style={{color: 'hsl(220, 74%, 42%)'}}
               onClick={() => document.getElementById('file-upload')?.click()}
             >
               <FileText className="w-5 h-5" />
               {selectedFile ? 'Choose Different PDF' : 'Upload PDF'}
+            </Button>
+
+            {/* Camera Button - Secondary */}
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="w-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border-white/30 flex items-center justify-center gap-3 h-14 text-base"
+              style={{color: 'hsl(220, 74%, 42%)'}}
+              onClick={() => setShowCamera(true)}
+            >
+              <Camera className="w-5 h-5" />
+              {capturedImagesCount > 0 ? 'Take More Photos' : 'Take Photos'}
             </Button>
           </div>
           
