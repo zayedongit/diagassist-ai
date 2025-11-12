@@ -83,39 +83,48 @@ const Index = () => {
   const chatRef = useRef<HTMLElement | null>(null);
   const abnormalPanelsRef = useRef<HTMLElement | null>(null);
 
+  // Helper function to scroll with animation
+  const scrollToSection = (sectionId: string, delay: number = 300) => {
+    setTimeout(() => {
+      const section = document.getElementById(sectionId);
+      if (section) {
+        // Add entrance animation class before scrolling
+        section.classList.add('animate-fade-in', 'animate-scale-in');
+        
+        // Add highlight effect
+        section.style.transition = 'all 0.5s ease-out';
+        section.style.boxShadow = '0 0 0 4px rgba(0, 198, 255, 0.3)';
+        
+        // Scroll into view
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
+        // Remove highlight after animation
+        setTimeout(() => {
+          section.style.boxShadow = 'none';
+          section.classList.remove('animate-scale-in');
+        }, 1000);
+      }
+    }, delay);
+  };
+
   // Auto-scroll: When analysis starts, scroll to analysis section
   useEffect(() => {
     if (isAnalyzing && !isMobile) {
-      const section = document.getElementById('analysis-section');
-      if (section) {
-        setTimeout(() => {
-          section.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 300);
-      }
+      scrollToSection('analysis-section', 300);
     }
   }, [isAnalyzing, isMobile]);
 
   // Auto-scroll: When analysis completes, skip summary and scroll to clinical chat
   useEffect(() => {
     if (showResults && !isAnalyzing && !isMobile) {
-      const chatSection = document.getElementById('chat-section');
-      if (chatSection) {
-        setTimeout(() => {
-          chatSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 500);
-      }
+      scrollToSection('chat-section', 500);
     }
   }, [showResults, isAnalyzing, isMobile]);
 
   // Auto-scroll: When clinical chat completes, scroll to abnormal panels section
   useEffect(() => {
     if (showPostChatSections && !isMobile) {
-      const abnormalSection = document.getElementById('abnormal-panels-section');
-      if (abnormalSection) {
-        setTimeout(() => {
-          abnormalSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 500);
-      }
+      scrollToSection('abnormal-panels-section', 500);
     }
   }, [showPostChatSections, isMobile]);
 
@@ -1411,8 +1420,8 @@ RAW DATA: ${baseContext}`;
 
         {/* 4. AI ANALYSIS SECTION */}
         {isAnalyzing && (
-          <section id="analysis-section" className="py-12 sm:py-16 md:py-24 bg-white min-h-screen flex items-center justify-center">
-            <div className="container mx-auto px-4 sm:px-6">
+          <section id="analysis-section" className="py-12 sm:py-16 md:py-24 bg-white min-h-screen flex items-center justify-center transition-all duration-500">
+            <div className="container mx-auto px-4 sm:px-6 animate-fade-in">
               <div className="max-w-4xl mx-auto text-center space-y-6 sm:space-y-8">
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-semibold text-navy px-4">
                   AI Analysis in Progress
@@ -1582,10 +1591,10 @@ RAW DATA: ${baseContext}`;
 
                   {/* Clinical Chat - Moved before detailed analysis */}
                   {!isNonMedicalReport(analysisData) && (
-                    <section id="chat-section" className="py-8 sm:py-12 md:py-16 bg-white">
+                    <section id="chat-section" className="py-8 sm:py-12 md:py-16 bg-white transition-all duration-500 rounded-lg">
                       <div className="container mx-auto px-4 sm:px-6">
                         <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
-                          <div className="text-center space-y-2 sm:space-y-3 px-4">
+                          <div className="text-center space-y-2 sm:space-y-3 px-4 animate-fade-in">
                             <h2 className="text-2xl sm:text-3xl font-poppins font-semibold text-navy">
                               Clinical Chat on Your Report
                             </h2>
@@ -1594,7 +1603,7 @@ RAW DATA: ${baseContext}`;
                             </p>
                           </div>
                           
-                          <div className="bg-coolGray rounded-xl sm:rounded-2xl shadow-premium p-4 sm:p-6">
+                          <div className="bg-coolGray rounded-xl sm:rounded-2xl shadow-premium p-4 sm:p-6 animate-slide-in">
                             <MedicalChatAgent
                               className="w-full"
                               analysisContext={createEnhancedAnalysisContext(analysisData)}
@@ -1613,18 +1622,18 @@ RAW DATA: ${baseContext}`;
                   {!isNonMedicalReport(analysisData) && enhancedData && showPostChatSections && (
                     <>
                       {/* Abnormal Panels Summary */}
-                      <section className="py-6 sm:py-8 bg-coolGray">
-                        <div className="container mx-auto px-4 sm:px-6">
-                          <div className="max-w-4xl mx-auto">
+                      <section className="py-6 sm:py-8 bg-coolGray transition-all duration-500">
+                        <div className="container mx-auto px-4 sm:px-6 animate-fade-in">
+                          <div className="max-w-4xl mx-auto animate-scale-in">
                             <AbnormalPanelsSummary analysisData={enhancedData} />
                           </div>
                         </div>
                       </section>
 
                       {/* Values Needing Attention */}
-                      <section className="py-6 sm:py-8 bg-white">
-                        <div className="container mx-auto px-4 sm:px-6">
-                          <div className="max-w-4xl mx-auto">
+                      <section className="py-6 sm:py-8 bg-white transition-all duration-500">
+                        <div className="container mx-auto px-4 sm:px-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                          <div className="max-w-4xl mx-auto animate-scale-in" style={{ animationDelay: '0.2s' }}>
                             <ValuesNeedingAttention analysisData={enhancedData} />
                           </div>
                         </div>

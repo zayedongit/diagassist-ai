@@ -42,9 +42,9 @@ export const ValuesNeedingAttention = ({ analysisData }: ValuesNeedingAttentionP
   };
 
   return (
-    <Card className="border-red-200 bg-gradient-to-br from-red-50/50 to-pink-50/30">
+    <Card className="border-red-200 bg-gradient-to-br from-red-50/50 to-pink-50/30 animate-fade-in">
       <CardHeader>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 animate-scale-in">
           <Badge 
             variant="destructive" 
             className="px-4 py-2 text-base font-poppins font-semibold"
@@ -54,7 +54,7 @@ export const ValuesNeedingAttention = ({ analysisData }: ValuesNeedingAttentionP
         </div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3">
+        <div className="space-y-3 stagger-fade-in">
           {allAbnormalValues.map((lab, index) => (
             <div 
               key={index}
