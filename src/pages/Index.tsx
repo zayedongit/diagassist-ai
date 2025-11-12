@@ -488,7 +488,7 @@ RAW DATA: ${baseContext}`;
     setShowPostChatSections(true); // Enable detailed analysis sections
     toast.success('Clinical assessment complete! Loading personalized analysis...');
     
-    // Auto-scroll to summary section after completion
+    // Auto-scroll to summary section after completion - increased delay for DOM rendering
     setTimeout(() => {
       const summarySection = document.getElementById('summary-section');
       if (summarySection) {
@@ -503,8 +503,19 @@ RAW DATA: ${baseContext}`;
         setTimeout(() => {
           summarySection.style.boxShadow = 'none';
         }, 2000);
+      } else {
+        // Retry after additional delay if element not found
+        setTimeout(() => {
+          const retrySection = document.getElementById('summary-section');
+          if (retrySection) {
+            retrySection.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'start' 
+            });
+          }
+        }, 500);
       }
-    }, 500);
+    }, 1000);
     
     // Show auth prompt after 3 seconds if user is not logged in
     setTimeout(() => {
