@@ -134,14 +134,14 @@ const Analytics = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header with Logo */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto">
-          <div className="flex h-16 items-center justify-between px-4">
-            <div className="flex items-center gap-4">
+          <div className="flex h-20 items-center justify-between px-6">
+            <div className="flex items-center">
               <img 
                 src={daigassistLogo} 
                 alt="Daigassist Logo" 
-                className="h-8 sm:h-10 w-auto object-contain"
+                className="h-10 sm:h-12 md:h-14 w-auto object-contain transition-all duration-300 hover:scale-105 cursor-pointer"
               />
             </div>
           </div>

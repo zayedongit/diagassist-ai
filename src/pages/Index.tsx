@@ -40,11 +40,11 @@ import { useIsMobile } from '@/hooks/use-mobile';
 // Header Navigation Component
 const HeaderNav = () => {
   return (
-    <nav className="flex items-center gap-6">
+    <nav className="flex items-center">
       <img 
         src={daigassistLogo} 
         alt="Daigassist Logo" 
-        className="h-8 sm:h-10 md:h-12 w-auto object-contain"
+        className="h-10 sm:h-12 md:h-14 w-auto object-contain transition-all duration-300 hover:scale-105 cursor-pointer"
       />
     </nav>
   );
