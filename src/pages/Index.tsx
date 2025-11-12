@@ -1387,7 +1387,7 @@ RAW DATA: ${baseContext}`;
                   {/* Headline - Large, Bold, White */}
                   <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-poppins font-bold text-white leading-tight px-4 opacity-0 animate-fade-in" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
                     Revolutionizing Health <br className="hidden sm:block" />
-                    with AI and Heart
+                    with AI
                   </h1>
                   
                   {/* Subtext - Medium, Light Cyan */}
