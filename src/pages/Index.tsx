@@ -34,23 +34,52 @@ import { StageProgress, Stage } from '@/components/StageProgress';
 import { extractPdfText } from '@/utils/extractPdfText';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
 
-// Admin Link Component
-const AdminLink = () => {
-  const { isAdmin, isLoading } = useAdminCheck();
+// Header Navigation Component
+const HeaderNav = () => {
+  const { user, signOut } = useAuth();
+  const { isAdmin } = useAdminCheck();
   const navigate = useNavigate();
 
-  if (isLoading || !isAdmin) return null;
+  const handleSignOut = async () => {
+    await signOut();
+    toast.success('Signed out successfully');
+  };
+
+  if (!user) {
+    return (
+      <Button
+        onClick={() => navigate('/auth')}
+        variant="default"
+        size="sm"
+        className="gap-2"
+      >
+        Sign In
+      </Button>
+    );
+  }
 
   return (
-    <Button
-      onClick={() => navigate('/admin')}
-      variant="outline"
-      size="sm"
-      className="bg-purple-500/10 border-purple-500/30 text-purple-300 hover:bg-purple-500/20 hover:text-purple-200"
-    >
-      <Shield className="w-4 h-4 mr-2" />
-      Admin
-    </Button>
+    <div className="flex items-center gap-2">
+      {isAdmin && (
+        <Button
+          onClick={() => navigate('/admin')}
+          variant="outline"
+          size="sm"
+          className="gap-2"
+        >
+          <Shield className="w-4 h-4" />
+          Admin
+        </Button>
+      )}
+      <Button
+        onClick={handleSignOut}
+        variant="ghost"
+        size="sm"
+        className="gap-2"
+      >
+        Sign Out
+      </Button>
+    </div>
   );
 };
 
@@ -976,8 +1005,8 @@ RAW DATA: ${baseContext}`;
               </div>
             </div>
 
-            {/* Admin Link */}
-            <AdminLink />
+            {/* Header Navigation */}
+            <HeaderNav />
           </div>
         </div>
       </header>
