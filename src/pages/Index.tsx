@@ -368,6 +368,65 @@ RAW DATA: ${baseContext}`;
     }
   };
 
+  // Handle download comprehensive report
+  const handleDownloadComprehensiveReport = async () => {
+    if (!analysisData || !enhancedData || !clinicalAssessmentData) {
+      toast.error('Complete analysis data required for comprehensive report');
+      return;
+    }
+
+    const { generateFullComprehensiveReport } = await import('@/utils/generateFullComprehensiveReport');
+    const { calculateHealthScore } = await import('@/utils/healthScoreCalculator');
+    const { extractAbnormalPanels } = await import('@/types/medicalAnalysis');
+    const { parseClinicalContext } = await import('@/utils/parseClinicalContext');
+
+    const healthScoreBreakdown = calculateHealthScore(
+      enhancedData,
+      analysisData.demographics,
+      parseClinicalContext(clinicalAssessmentData)
+    );
+
+    const abnormalPanels = extractAbnormalPanels(enhancedData).map(panel => ({
+      panelName: panel.name || 'Unknown Panel',
+      abnormalLabs: (panel.tests || []).filter(t => t.status !== 'normal').map(lab => ({
+        parameter: lab.name,
+        value: lab.value,
+        unit: lab.unit,
+        normalRange: lab.referenceRange || 'N/A',
+        status: lab.status as 'high' | 'low' | 'normal'
+      }))
+    }));
+
+    const valuesNeedingAttention = enhancedData.medicalPanels
+      .flatMap(p => (p.tests || []).filter(t => t.status !== 'normal'))
+      .map(lab => ({
+        parameter: lab.name,
+        value: lab.value,
+        unit: lab.unit,
+        normalRange: lab.referenceRange || 'N/A',
+        status: lab.status as 'high' | 'low' | 'normal'
+      }));
+
+    await generateFullComprehensiveReport({
+      patientInfo: analysisData.demographics,
+      summary: analysisData.summary,
+      overallStatus: analysisData.overallStatus,
+      healthScoreBreakdown,
+      abnormalPanels,
+      valuesNeedingAttention,
+      clinicalAssessment: clinicalAssessmentData,
+      recommendations: {
+        immediate: clinicalAssessmentData.management?.generalRx || [],
+        dietary: {
+          toAdd: clinicalAssessmentData.management?.dietaryAdvice || [],
+          toLimitOrAvoid: []
+        },
+        lifestyle: clinicalAssessmentData.management?.lifestyle || [],
+        followUp: clinicalAssessmentData.followUp || ''
+      }
+    });
+  };
+
   // Handle download from preview modal
   const handleDownloadFromPreview = async () => {
     if (previewReportData) {
@@ -1740,12 +1799,12 @@ RAW DATA: ${baseContext}`;
                                 Preview Report
                               </Button>
                               <Button 
-                                onClick={handleDownloadEssentialReport}
+                                onClick={handleDownloadComprehensiveReport}
                                 size="lg"
                                 className="bg-accentCyan text-navy hover:bg-accentCyan/90 font-poppins font-semibold px-6 sm:px-8 py-4 sm:py-6 text-sm sm:text-base rounded-xl hover-scale-102 shadow-premium w-full sm:w-auto gap-2"
                               >
                                 <Download className="w-4 h-4 sm:w-5 sm:h-5" />
-                                Download PDF
+                                Download Comprehensive Report
                               </Button>
                             </div>
                           )}

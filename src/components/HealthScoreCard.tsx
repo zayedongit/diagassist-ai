@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -12,10 +12,13 @@ import {
   TrendingUp,
   ChevronDown,
   ChevronUp,
-  Info
+  Info,
+  Calendar
 } from "lucide-react";
 import { HealthScoreBreakdown, SystemScore } from "@/utils/healthScoreCalculator";
 import { SystemScoreBreakdown } from "./SystemScoreBreakdown";
+import { HealthImprovementPlanModal } from "./HealthImprovementPlanModal";
+import { generate30DayPlan } from "@/utils/generate30DayPlan";
 
 interface HealthScoreCardProps {
   breakdown: HealthScoreBreakdown;
@@ -70,7 +73,40 @@ const getSystemLabel = (systemName: string): string => {
 
 export const HealthScoreCard = ({ breakdown }: HealthScoreCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [displayScore, setDisplayScore] = useState(0);
+  const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
   const { overallScore, category, categoryLabel, categoryColor, systemScores, modifiers, recommendations, comparisonToPopulation } = breakdown;
+
+  // Animate score counter
+  useEffect(() => {
+    const duration = 2000; // 2 seconds
+    const steps = 60; // 60 frames
+    const increment = overallScore / steps;
+    let currentStep = 0;
+    
+    const timer = setInterval(() => {
+      currentStep++;
+      if (currentStep <= steps) {
+        setDisplayScore(Math.round(increment * currentStep));
+      } else {
+        setDisplayScore(overallScore);
+        clearInterval(timer);
+      }
+    }, duration / steps);
+    
+    return () => clearInterval(timer);
+  }, [overallScore]);
+
+  // Check if any system needs improvement
+  const needsImprovement = Object.values(systemScores).some(
+    (system: SystemScore) => system.score < 70
+  );
+
+  const handleGeneratePlan = () => {
+    setIsPlanModalOpen(true);
+  };
+
+  const improvementPlan = generate30DayPlan(breakdown);
 
   return (
     <Card className="border-2 border-primary/20 bg-gradient-to-br from-white to-primary/5 overflow-hidden">
@@ -118,8 +154,8 @@ export const HealthScoreCard = ({ breakdown }: HealthScoreCardProps) => {
             
             {/* Score number */}
             <div className="text-center z-10">
-              <div className={`text-6xl font-bold ${getScoreColor(overallScore)} animate-scale-in`}>
-                {overallScore}
+              <div className={`text-6xl font-bold ${getScoreColor(overallScore)} transition-all duration-200`}>
+                {displayScore}
               </div>
               <div className="text-sm text-muted-foreground font-medium">out of 100</div>
             </div>
@@ -206,24 +242,35 @@ export const HealthScoreCard = ({ breakdown }: HealthScoreCardProps) => {
           </div>
         )}
 
-        {/* Expand Button */}
-        <Button
-          variant="outline"
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full"
-        >
-          {isExpanded ? (
-            <>
-              <ChevronUp className="w-4 h-4 mr-2" />
-              Hide Detailed Breakdown
-            </>
-          ) : (
-            <>
-              <ChevronDown className="w-4 h-4 mr-2" />
-              View Detailed Breakdown
-            </>
-          )}
-        </Button>
+        {/* Action Buttons */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <Button
+            variant="outline"
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="w-full"
+          >
+            {isExpanded ? (
+              <>
+                <ChevronUp className="w-4 h-4 mr-2" />
+                Hide Detailed Breakdown
+              </>
+            ) : (
+              <>
+                <ChevronDown className="w-4 h-4 mr-2" />
+                View Detailed Breakdown
+              </>
+            )}
+          </Button>
+
+          <Button
+            onClick={handleGeneratePlan}
+            variant="default"
+            className="w-full bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-600/90"
+          >
+            <Calendar className="w-4 h-4 mr-2" />
+            Generate 30-Day Plan
+          </Button>
+        </div>
 
         {/* Detailed Breakdown */}
         {isExpanded && (
@@ -240,6 +287,14 @@ export const HealthScoreCard = ({ breakdown }: HealthScoreCardProps) => {
           </p>
         </div>
       </CardContent>
+
+      {/* 30-Day Improvement Plan Modal */}
+      <HealthImprovementPlanModal
+        isOpen={isPlanModalOpen}
+        onClose={() => setIsPlanModalOpen(false)}
+        plan={improvementPlan}
+        patientName={undefined}
+      />
     </Card>
   );
 };
