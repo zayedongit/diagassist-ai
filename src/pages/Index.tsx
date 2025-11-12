@@ -1344,22 +1344,8 @@ RAW DATA: ${baseContext}`;
     <div className="min-h-screen bg-coolGray font-inter">
       {/* 1. Sticky Top Navigation Bar - Simplified */}
       <header className="sticky top-0 z-50 bg-white backdrop-blur-lg border-b border-border">
-        <div className="container mx-auto px-3 sm:px-6">
-          <div className="flex items-center justify-between h-12 sm:h-14">
-            {/* Minimal Logo - Mobile Optimized */}
-            <div 
-              className="flex items-center space-x-2 cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95"
-              onClick={() => navigate('/')}
-            >
-              <div className="w-7 h-7 sm:w-9 sm:h-9 bg-gradient-to-br from-accentCyan to-primary rounded-lg flex items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
-                <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-              </div>
-            </div>
-
-            {/* Header Navigation */}
-            <HeaderNav />
-          </div>
-        </div>
+        {/* Header Navigation */}
+        <HeaderNav />
       </header>
 
       <main className="w-full">
@@ -1417,7 +1403,7 @@ RAW DATA: ${baseContext}`;
                   </p>
                   
                   {/* Tagline - Mobile Optimized */}
-                  <p className="text-xs sm:text-sm md:text-base text-gray-300 font-inter font-light tracking-wide opacity-0 animate-fade-in px-2" style={{ animationDelay: '0.6s', animationFillMode: 'forwards' }}>
+                  <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-100 font-inter font-bold tracking-wide opacity-0 animate-fade-in px-2" style={{ animationDelay: '0.6s', animationFillMode: 'forwards' }}>
                     Guided by Science. Driven by Compassion. Powered by MomentumHealth.
                   </p>
                   
