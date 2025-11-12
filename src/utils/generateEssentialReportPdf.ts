@@ -225,7 +225,7 @@ export async function generateEssentialReportPdf(data: ReportData) {
       pdf.setFont(undefined, 'bold');
       pdf.setFontSize(10);
       pdf.setTextColor(185, 28, 28);
-      pdf.text('🎯 IMMEDIATE ACTION ITEMS', margin + 2, yPosition + 4);
+      pdf.text('IMMEDIATE ACTION ITEMS', margin + 2, yPosition + 4);
       pdf.setTextColor(0, 0, 0);
       yPosition += 8;
 
@@ -250,7 +250,7 @@ export async function generateEssentialReportPdf(data: ReportData) {
       pdf.setFont(undefined, 'bold');
       pdf.setFontSize(10);
       pdf.setTextColor(21, 128, 61);
-      pdf.text('🥗 DIETARY CHANGES', margin + 2, yPosition + 4);
+      pdf.text('DIETARY CHANGES', margin + 2, yPosition + 4);
       pdf.setTextColor(0, 0, 0);
       yPosition += 8;
 
@@ -297,7 +297,7 @@ export async function generateEssentialReportPdf(data: ReportData) {
       pdf.setFont(undefined, 'bold');
       pdf.setFontSize(10);
       pdf.setTextColor(30, 64, 175);
-      pdf.text('🏃 LIFESTYLE MODIFICATIONS', margin + 2, yPosition + 4);
+      pdf.text('LIFESTYLE MODIFICATIONS', margin + 2, yPosition + 4);
       pdf.setTextColor(0, 0, 0);
       yPosition += 8;
 
@@ -320,7 +320,7 @@ export async function generateEssentialReportPdf(data: ReportData) {
     pdf.setFont(undefined, 'bold');
     pdf.setFontSize(10);
     pdf.setTextColor(161, 98, 7);
-    pdf.text('📅 FOLLOW-UP', margin + 2, yPosition + 4);
+    pdf.text('FOLLOW-UP', margin + 2, yPosition + 4);
     pdf.setTextColor(0, 0, 0);
     yPosition += 8;
 

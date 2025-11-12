@@ -35,11 +35,11 @@ export const MobileResultsView = ({
 
   const cards = [
     {
-      id: 'summary',
-      title: 'Summary',
-      icon: Activity,
-      color: 'text-blue-500',
-      bgColor: 'bg-blue-50'
+      id: 'chat',
+      title: 'Clinical Chat',
+      icon: MessageCircle,
+      color: 'text-cyan-500',
+      bgColor: 'bg-cyan-50'
     },
     {
       id: 'risks',
@@ -61,13 +61,6 @@ export const MobileResultsView = ({
       icon: Heart,
       color: 'text-green-500',
       bgColor: 'bg-green-50'
-    },
-    {
-      id: 'chat',
-      title: 'Ask Questions',
-      icon: MessageCircle,
-      color: 'text-cyan-500',
-      bgColor: 'bg-cyan-50'
     }
   ];
 
@@ -130,27 +123,25 @@ export const MobileResultsView = ({
     const card = cards[currentCard];
 
     switch (card.id) {
-      case 'summary':
+      case 'chat':
+        const createEnhancedAnalysisContext = (data: any) => {
+          return JSON.stringify({
+            summary: data.summary,
+            overallStatus: data.overallStatus,
+            medicalPanels: data.medicalPanels || [],
+            demographics: data.demographics
+          });
+        };
+
         return (
-          <div className="space-y-4">
-            <SummaryCard analysisData={analysisData} />
-            <div className="flex gap-2">
-              <Button 
-                onClick={onPreviewReport}
-                variant="outline"
-                className="flex-1"
-              >
-                <FileText className="w-4 h-4 mr-2" />
-                Preview
-              </Button>
-              <Button 
-                onClick={onDownloadReport}
-                className="flex-1"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Download
-              </Button>
-            </div>
+          <div className="h-[calc(100vh-300px)] min-h-[400px]">
+            <MedicalChatAgent
+              analysisContext={createEnhancedAnalysisContext(analysisData)}
+              demographics={analysisData.demographics}
+              abnormalPanels={enhancedData?.medicalPanels || []}
+              mode="clinical-triage"
+              onClinicalAssessmentComplete={onClinicalAssessmentComplete}
+            />
           </div>
         );
       
@@ -252,28 +243,6 @@ export const MobileResultsView = ({
                 </CardContent>
               </Card>
             )}
-          </div>
-        );
-      
-      case 'chat':
-        const createEnhancedAnalysisContext = (data: any) => {
-          return JSON.stringify({
-            summary: data.summary,
-            overallStatus: data.overallStatus,
-            medicalPanels: data.medicalPanels || [],
-            demographics: data.demographics
-          });
-        };
-
-        return (
-          <div className="h-[calc(100vh-300px)] min-h-[400px]">
-            <MedicalChatAgent
-              analysisContext={createEnhancedAnalysisContext(analysisData)}
-              demographics={analysisData.demographics}
-              abnormalPanels={enhancedData?.medicalPanels || []}
-              mode="clinical-triage"
-              onClinicalAssessmentComplete={onClinicalAssessmentComplete}
-            />
           </div>
         );
       

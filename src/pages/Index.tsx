@@ -36,6 +36,9 @@ import { ReportPreviewModal } from '@/components/ReportPreviewModal';
 import { MobileResultsView } from '@/components/MobileResultsView';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { SampleReportPreview } from '@/components/SampleReportPreview';
+import { AbnormalPanelsSummary } from '@/components/AbnormalPanelsSummary';
+import { ValuesNeedingAttention } from '@/components/ValuesNeedingAttention';
 
 // Header Navigation Component - Hidden for free tool promotion
 const HeaderNav = () => {
@@ -74,6 +77,47 @@ const Index = () => {
   // Polling cancellation refs to prevent cross-contamination
   const pollingActiveRef = useRef(false);
   const currentPollingIdRef = useRef<string | null>(null);
+
+  // Auto-scroll refs for smooth navigation
+  const analysisRef = useRef<HTMLElement | null>(null);
+  const chatRef = useRef<HTMLElement | null>(null);
+  const abnormalPanelsRef = useRef<HTMLElement | null>(null);
+
+  // Auto-scroll: When analysis starts, scroll to analysis section
+  useEffect(() => {
+    if (isAnalyzing && !isMobile) {
+      const section = document.getElementById('analysis-section');
+      if (section) {
+        setTimeout(() => {
+          section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+      }
+    }
+  }, [isAnalyzing, isMobile]);
+
+  // Auto-scroll: When analysis completes, skip summary and scroll to clinical chat
+  useEffect(() => {
+    if (showResults && !isAnalyzing && !isMobile) {
+      const chatSection = document.getElementById('chat-section');
+      if (chatSection) {
+        setTimeout(() => {
+          chatSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 500);
+      }
+    }
+  }, [showResults, isAnalyzing, isMobile]);
+
+  // Auto-scroll: When clinical chat completes, scroll to abnormal panels section
+  useEffect(() => {
+    if (showPostChatSections && !isMobile) {
+      const abnormalSection = document.getElementById('abnormal-panels-section');
+      if (abnormalSection) {
+        setTimeout(() => {
+          abnormalSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 500);
+      }
+    }
+  }, [showPostChatSections, isMobile]);
 
   // Handle single report processing
   const handleDriveSync = async () => {
@@ -1230,68 +1274,9 @@ RAW DATA: ${baseContext}`;
                     </button>
                   </div>
                   
-                  {/* Sample Report Hover Card */}
+                  {/* Sample Report Preview */}
                   <div className="flex justify-center pt-4">
-                    <HoverCard openDelay={200}>
-                      <HoverCardTrigger asChild>
-                        <button className="group flex items-center gap-2 px-6 py-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-primary/30 transition-all duration-300 backdrop-blur-sm">
-                          <FileCheck2 className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
-                          <span className="text-sm font-medium text-white/90 group-hover:text-white">View Sample Report</span>
-                        </button>
-                      </HoverCardTrigger>
-                      <HoverCardContent 
-                        className="w-96 p-6 bg-background/95 backdrop-blur-lg border-primary/20 shadow-2xl z-50" 
-                        side="bottom"
-                        align="center"
-                      >
-                        <div className="space-y-4">
-                          <div className="flex items-start gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-accentCyan to-primary flex items-center justify-center shrink-0">
-                              <FileText className="w-5 h-5 text-white" />
-                            </div>
-                            <div>
-                              <h4 className="font-poppins font-semibold text-foreground text-base mb-1">
-                                Sample Report Preview
-                              </h4>
-                              <p className="text-sm text-muted-foreground">
-                                See what your analysis report will look like
-                              </p>
-                            </div>
-                          </div>
-                          
-                          <Separator />
-                          
-                          <div className="space-y-3">
-                            <div className="p-3 rounded-lg bg-muted/50 border border-border">
-                              <p className="text-xs font-semibold text-foreground mb-1">📊 Key Features:</p>
-                              <ul className="text-xs text-muted-foreground space-y-1 ml-4">
-                                <li>• Abnormal lab values highlighted</li>
-                                <li>• Simple language explanations</li>
-                                <li>• Personalized dietary advice</li>
-                                <li>• Lifestyle recommendations</li>
-                              </ul>
-                            </div>
-                            
-                            <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
-                              <p className="text-xs font-semibold text-foreground mb-1">📋 Report Includes:</p>
-                              <ul className="text-xs text-muted-foreground space-y-1 ml-4">
-                                <li>• Overall health summary</li>
-                                <li>• Risk assessment timeline</li>
-                                <li>• Action items & next steps</li>
-                                <li>• Follow-up guidance</li>
-                              </ul>
-                            </div>
-                            
-                            <div className="flex items-center gap-2 p-3 rounded-lg bg-accent/10 border border-accent/20">
-                              <Shield className="w-4 h-4 text-accentCyan shrink-0" />
-                              <p className="text-xs text-muted-foreground">
-                                <span className="font-semibold text-foreground">2-page format</span> - Easy to read & download
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </HoverCardContent>
-                    </HoverCard>
+                    <SampleReportPreview />
                   </div>
                 </div>
               </div>
@@ -1582,7 +1567,7 @@ RAW DATA: ${baseContext}`;
 
             <ErrorBoundary>
               <div className="w-full">
-                {/* Patient Details & Summary */}
+                {/* Patient Details */}
                 <section className="py-6 sm:py-8 bg-coolGray">
                     <div className="container mx-auto px-4 sm:px-6">
                       <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
@@ -1590,13 +1575,6 @@ RAW DATA: ${baseContext}`;
                           patientName={analysisData?.patientName}
                           demographics={analysisData?.demographics}
                           overallStatus={analysisData?.overallStatus}
-                        />
-
-                        <SummaryCard 
-                          summary={analysisData?.summary}
-                          overallStatus={analysisData?.overallStatus}
-                          abnormalCount={enhancedData ? extractAbnormalPanels(enhancedData).reduce((acc, panel) => acc + (panel.abnormalLabs?.length || 0), 0) : 0}
-                          analysisData={analysisData}
                         />
                       </div>
                     </div>
@@ -1629,6 +1607,29 @@ RAW DATA: ${baseContext}`;
                         </div>
                       </div>
                     </section>
+                  )}
+
+                  {/* New Sections After Clinical Chat Completion */}
+                  {!isNonMedicalReport(analysisData) && enhancedData && showPostChatSections && (
+                    <>
+                      {/* Abnormal Panels Summary */}
+                      <section className="py-6 sm:py-8 bg-coolGray">
+                        <div className="container mx-auto px-4 sm:px-6">
+                          <div className="max-w-4xl mx-auto">
+                            <AbnormalPanelsSummary analysisData={enhancedData} />
+                          </div>
+                        </div>
+                      </section>
+
+                      {/* Values Needing Attention */}
+                      <section className="py-6 sm:py-8 bg-white">
+                        <div className="container mx-auto px-4 sm:px-6">
+                          <div className="max-w-4xl mx-auto">
+                            <ValuesNeedingAttention analysisData={enhancedData} />
+                          </div>
+                        </div>
+                      </section>
+                    </>
                   )}
 
                   {/* Health Risk Calculator with Prediction Timeline - After Clinical Chat */}
