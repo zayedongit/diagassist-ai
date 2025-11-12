@@ -6,7 +6,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Activity, Users, CheckCircle, XCircle, TrendingUp, Clock } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import daigassistLogo from '@/assets/daigassist-logo-main.png';
 
 type Timeframe = 'today' | 'week' | 'month' | 'all-time';
 
@@ -132,24 +131,8 @@ const Analytics = () => {
   }));
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header with Logo */}
-      <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto">
-          <div className="flex h-20 items-center justify-between px-6">
-            <div className="flex items-center">
-              <img 
-                src={daigassistLogo} 
-                alt="Daigassist Logo" 
-                className="h-10 sm:h-12 md:h-14 w-auto object-contain transition-all duration-300 hover:scale-105 cursor-pointer"
-              />
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="p-4 md:p-8">
-        <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-background p-4 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Usage Analytics</h1>
@@ -366,7 +349,6 @@ const Analytics = () => {
               </ResponsiveContainer>
             </CardContent>
           </Card>
-        </div>
         </div>
       </div>
     </div>
