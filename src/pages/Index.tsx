@@ -1656,6 +1656,15 @@ RAW DATA: ${baseContext}`;
                         </div>
                       </section>
 
+                      {/* Medical Validation Disclaimer */}
+                      <div className="container mx-auto px-4 sm:px-6 py-3">
+                        <div className="max-w-4xl mx-auto">
+                          <p className="text-xs sm:text-sm text-muted-foreground text-center leading-relaxed">
+                            Comprehensive health score calculator with 6 body systems (Metabolic 25%, Cardiovascular 25%, Kidney 15%, Liver 15%, Blood Health 10%, Endocrine 10%), medically validated scoring based on ADA/AHA/KDIGO/WHO guidelines
+                          </p>
+                        </div>
+                      </div>
+
                       {/* Abnormal Panels Summary */}
                       <section className="py-6 sm:py-8 bg-coolGray transition-all duration-500">
                         <div className="container mx-auto px-4 sm:px-6 animate-fade-in">
@@ -1676,20 +1685,6 @@ RAW DATA: ${baseContext}`;
                     </>
                   )}
 
-                  {/* Health Risk Calculator with Prediction Timeline - After Clinical Chat */}
-                  {!isNonMedicalReport(analysisData) && enhancedData && showPostChatSections && (
-                    <section className="py-6 sm:py-8 bg-white">
-                      <div className="container mx-auto px-4 sm:px-6">
-                        <div className="max-w-6xl mx-auto">
-                          <HealthRiskDashboardWithTimeline 
-                            analysisData={enhancedData}
-                            demographics={analysisData?.demographics}
-                            clinicalContext={parseClinicalContext(clinicalAssessmentData)}
-                          />
-                        </div>
-                      </div>
-                    </section>
-                  )}
 
                   {/* Placeholder when clinical chat not complete */}
                   {!isNonMedicalReport(analysisData) && enhancedData && !showPostChatSections && (
