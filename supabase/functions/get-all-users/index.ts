@@ -45,12 +45,12 @@ Deno.serve(async (req) => {
     const search = url.searchParams.get('search') || '';
     const offset = (page - 1) * limit;
 
-    // Get profiles with roles
+    // Get profiles with roles (using left join to include users without roles)
     let query = supabase
       .from('profiles')
       .select(`
         *,
-        user_roles!inner(role)
+        user_roles(role)
       `, { count: 'exact' });
 
     if (search) {
@@ -62,8 +62,11 @@ Deno.serve(async (req) => {
       .range(offset, offset + limit - 1);
 
     if (profilesError) {
+      console.error('Profiles query error:', profilesError);
       throw profilesError;
     }
+
+    console.log('Fetched profiles:', profiles?.length);
 
     // Get analysis counts for each user
     const userIds = profiles?.map(p => p.user_id) || [];
