@@ -25,6 +25,7 @@ import { EnhancedAnalysisResult, extractAbnormalPanels } from "@/types/medicalAn
 import { parseClinicalContext } from "@/utils/parseClinicalContext";
 import heroBackground from "@/assets/hero-background.jpg";
 import readyBackground from "@/assets/ready-background.jpg";
+import daigassistLogo from "@/assets/daigasst-logo.png";
 import { fetchUserAnalysisHistory } from '@/utils/fetchUserAnalysisHistory';
 import { PhoneAuth } from '@/components/PhoneAuth';
 import { useAuth } from '@/hooks/useAuth';
@@ -52,7 +53,23 @@ const HeaderNav = () => {
   return (
     <div className="bg-white border-b border-border sticky top-0 z-50 shadow-sm">
       <div className="container mx-auto px-3 sm:px-4 py-2 sm:py-3">
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-between">
+          {/* Logo Section */}
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          >
+            <img 
+              src={daigassistLogo} 
+              alt="Daigassist" 
+              className="h-8 sm:h-10 w-auto"
+            />
+            <span className="text-base sm:text-lg font-bold text-navy hidden xs:block">
+              Daigassist
+            </span>
+          </button>
+          
+          {/* User Actions */}
           <div className="flex items-center gap-2 sm:gap-3">
             {user ? (
               <Button
