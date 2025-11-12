@@ -8,6 +8,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Analytics from "./pages/Analytics";
 import MyHealthJourney from "./pages/MyHealthJourney";
+import MyReports from "./pages/MyReports";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,14 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/my-health-journey" element={<MyHealthJourney />} />
+            <Route 
+              path="/my-reports" 
+              element={
+                <ProtectedRoute>
+                  <MyReports />
+                </ProtectedRoute>
+              } 
+            />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

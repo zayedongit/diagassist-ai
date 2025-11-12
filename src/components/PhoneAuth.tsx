@@ -1,47 +1,73 @@
 import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Phone, Shield, CheckCircle } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { Loader2, Phone, Lock, CheckCircle, Shield } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 
 interface PhoneAuthProps {
   onAuthSuccess: (user: any, session: any) => void;
 }
 
+const COUNTRY_CODES = [
+  { code: '+91', country: 'India', flag: '🇮🇳' },
+  { code: '+1', country: 'USA/Canada', flag: '🇺🇸' },
+  { code: '+44', country: 'UK', flag: '🇬🇧' },
+  { code: '+61', country: 'Australia', flag: '🇦🇺' },
+  { code: '+971', country: 'UAE', flag: '🇦🇪' },
+  { code: '+65', country: 'Singapore', flag: '🇸🇬' },
+  { code: '+60', country: 'Malaysia', flag: '🇲🇾' },
+  { code: '+81', country: 'Japan', flag: '🇯🇵' },
+  { code: '+86', country: 'China', flag: '🇨🇳' },
+  { code: '+82', country: 'South Korea', flag: '🇰🇷' },
+];
+
 export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
-  const [step, setStep] = useState<'phone' | 'otp'>('phone');
+  const [countryCode, setCountryCode] = useState('+91');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [step, setStep] = useState<'phone' | 'otp'>('phone');
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resendTimer, setResendTimer] = useState(0);
 
   const formatPhoneNumber = (phone: string): string => {
-    // Remove all non-digits
-    const digits = phone.replace(/\D/g, '');
-    // Add +91 prefix if not present and format
-    if (!digits.startsWith('91') && digits.length === 10) {
-      return `+91${digits}`;
+    // Remove any existing country code and non-digits
+    let cleanPhone = phone.replace(/\D/g, '');
+    
+    // Remove country code if already present
+    if (cleanPhone.startsWith(countryCode.replace('+', ''))) {
+      cleanPhone = cleanPhone.slice(countryCode.replace('+', '').length);
     }
-    return `+${digits}`;
+    
+    // Add selected country code
+    return `${countryCode}${cleanPhone}`;
   };
 
   const validatePhoneNumber = (phone: string): boolean => {
-    const formatted = formatPhoneNumber(phone);
-    return /^\+91[6-9]\d{9}$/.test(formatted);
+    // Remove country code and non-digits
+    const cleanPhone = phone.replace(/\D/g, '');
+    
+    // Remove country code prefix if present
+    const phoneWithoutCode = cleanPhone.startsWith(countryCode.replace('+', '')) 
+      ? cleanPhone.slice(countryCode.replace('+', '').length)
+      : cleanPhone;
+    
+    // Basic validation - at least 7 digits, max 15 digits
+    return phoneWithoutCode.length >= 7 && phoneWithoutCode.length <= 15;
   };
 
   const sendOTP = async () => {
     setError(null);
     
     if (!validatePhoneNumber(phoneNumber)) {
-      setError('Please enter a valid Indian mobile number');
+      setError('Please enter a valid mobile number');
       return;
     }
 
@@ -50,7 +76,7 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
       return;
     }
 
-    setIsLoading(true);
+    setLoading(true);
 
     try {
       const formattedPhone = formatPhoneNumber(phoneNumber);
@@ -66,9 +92,8 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
       }
 
       setStep('otp');
-      setResendTimer(60); // 60 seconds countdown
+      setResendTimer(60);
       
-      // Start countdown
       const interval = setInterval(() => {
         setResendTimer((prev) => {
           if (prev <= 1) {
@@ -84,7 +109,7 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
       console.error('Send OTP error:', err);
       setError(err.message || 'Failed to send OTP. Please try again.');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -96,7 +121,7 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
       return;
     }
 
-    setIsLoading(true);
+    setLoading(true);
 
     try {
       const formattedPhone = formatPhoneNumber(phoneNumber);
@@ -117,7 +142,6 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
         throw new Error(data.error || 'Invalid OTP');
       }
 
-      // Set the session in Supabase
       if (data.access_token && data.refresh_token) {
         const { error: sessionError } = await supabase.auth.setSession({
           access_token: data.access_token,
@@ -135,7 +159,7 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
       console.error('Verify OTP error:', err);
       setError(err.message || 'Invalid OTP. Please try again.');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -146,7 +170,7 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, '');
-    if (value.length <= 10) {
+    if (value.length <= 15) {
       setPhoneNumber(value);
     }
   };
@@ -180,149 +204,153 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
               : `Enter the 6-digit code sent to ${formatPhoneNumber(phoneNumber)}`
             }
           </p>
-          {step === 'phone' && (
-            <div className="mt-3 p-3 bg-primary/5 border border-primary/20 rounded-lg">
-              <p className="text-xs text-primary font-medium">
-                🧪 Test Credentials: Phone: <span className="font-mono">9999999999</span> | OTP: <span className="font-mono">123456</span>
-              </p>
-            </div>
-          )}
         </div>
       </div>
 
       <div className="space-y-4">
-          {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+        {error && (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
-          {step === 'phone' ? (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">First Name</Label>
-                <Input
-                  id="firstName"
-                  type="text"
-                  placeholder="Enter your first name"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  disabled={isLoading}
-                  className="bg-background border-2 border-border rounded-lg focus:border-primary"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name (Optional)</Label>
-                <Input
-                  id="lastName"
-                  type="text"
-                  placeholder="Enter your last name"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  disabled={isLoading}
-                  className="bg-background border-2 border-border rounded-lg focus:border-primary"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phone">Mobile Number</Label>
-                <div className="flex gap-2">
-                  <div className="flex items-center px-3 bg-background border-2 border-border rounded-lg">
-                    <span className="text-sm font-medium">+91</span>
-                  </div>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    placeholder="Enter 10-digit mobile number"
-                    value={phoneNumber}
-                    onChange={handlePhoneChange}
-                    disabled={isLoading}
-                    className="flex-1 bg-background border-2 border-border rounded-lg focus:border-primary"
-                    maxLength={10}
-                  />
-                </div>
-              </div>
-
-              <Button 
-                onClick={sendOTP} 
-                disabled={isLoading || !phoneNumber || !firstName.trim()}
-                className="w-full"
-                size="lg"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Sending OTP...
-                  </>
-                ) : (
-                  'Send OTP'
-                )}
-              </Button>
+        {step === 'phone' ? (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="firstName">First Name</Label>
+              <Input
+                id="firstName"
+                type="text"
+                placeholder="Enter your first name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                disabled={loading}
+                className="bg-background border-2 border-border rounded-lg focus:border-primary"
+              />
             </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="otp">Verification Code</Label>
+
+            <div className="space-y-2">
+              <Label htmlFor="lastName">Last Name (Optional)</Label>
+              <Input
+                id="lastName"
+                type="text"
+                placeholder="Enter your last name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                disabled={loading}
+                className="bg-background border-2 border-border rounded-lg focus:border-primary"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phone">Mobile Number</Label>
+              <div className="flex gap-2">
+                <Select value={countryCode} onValueChange={setCountryCode}>
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {COUNTRY_CODES.map((country) => (
+                      <SelectItem key={country.code} value={country.code}>
+                        <span className="flex items-center gap-2">
+                          <span>{country.flag}</span>
+                          <span>{country.code}</span>
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <Input
-                  id="otp"
-                  type="text"
-                  placeholder="Enter 6-digit OTP"
-                  value={otp}
-                  onChange={handleOtpChange}
-                  disabled={isLoading}
-                  maxLength={6}
-                  className="text-center text-lg sm:text-xl md:text-2xl tracking-wider sm:tracking-widest"
+                  id="phone"
+                  type="tel"
+                  placeholder="Mobile number"
+                  value={phoneNumber}
+                  onChange={handlePhoneChange}
+                  disabled={loading}
+                  className="text-base flex-1"
                 />
               </div>
+            </div>
 
-              <Button 
-                onClick={verifyOTP} 
-                disabled={isLoading || otp.length !== 6}
-                className="w-full"
-                size="lg"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Verifying...
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    Verify OTP
-                  </>
-                )}
-              </Button>
+            <Button 
+              onClick={sendOTP} 
+              disabled={loading || !phoneNumber || !firstName.trim()}
+              className="w-full"
+              size="lg"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Sending OTP...
+                </>
+              ) : (
+                'Send OTP'
+              )}
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="otp">Verification Code</Label>
+              <Input
+                id="otp"
+                type="text"
+                placeholder="Enter 6-digit OTP"
+                value={otp}
+                onChange={handleOtpChange}
+                disabled={loading}
+                maxLength={6}
+                className="text-center text-lg sm:text-xl md:text-2xl tracking-wider sm:tracking-widest"
+              />
+            </div>
 
-              <div className="text-center">
-                <Button
-                  variant="ghost"
-                  onClick={resendOTP}
-                  disabled={resendTimer > 0 || isLoading}
-                  className="text-sm"
-                >
-                  {resendTimer > 0 
-                    ? `Resend OTP in ${resendTimer}s`
-                    : 'Resend OTP'
-                  }
-                </Button>
-              </div>
+            <Button 
+              onClick={verifyOTP} 
+              disabled={loading || otp.length !== 6}
+              className="w-full"
+              size="lg"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Verifying...
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Verify OTP
+                </>
+              )}
+            </Button>
 
+            <div className="text-center">
               <Button
-                variant="outline"
-                onClick={() => {
-                  setStep('phone');
-                  setOtp('');
-                  setError(null);
-                }}
-                className="w-full"
-                disabled={isLoading}
+                variant="ghost"
+                onClick={resendOTP}
+                disabled={resendTimer > 0 || loading}
+                className="text-sm"
               >
-                Change Number
+                {resendTimer > 0 
+                  ? `Resend OTP in ${resendTimer}s`
+                  : 'Resend OTP'
+                }
               </Button>
             </div>
-          )}
+
+            <Button
+              variant="outline"
+              onClick={() => {
+                setStep('phone');
+                setOtp('');
+                setError(null);
+              }}
+              className="w-full"
+              disabled={loading}
+            >
+              Change Number
+            </Button>
+          </div>
+        )}
 
         <div className="text-xs text-center text-muted-foreground">
           By continuing, you agree to receive SMS messages for verification.

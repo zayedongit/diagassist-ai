@@ -42,14 +42,53 @@ import { ValuesNeedingAttention } from '@/components/ValuesNeedingAttention';
 import { HealthScoreCard } from '@/components/HealthScoreCard';
 import { calculateHealthScore } from '@/utils/healthScoreCalculator';
 
+import { AuthPrompt } from '@/components/AuthPrompt';
+
 // Header Navigation Component - Hidden for free tool promotion
 const HeaderNav = () => {
-  return null;
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  
+  return (
+    <div className="bg-white border-b border-border sticky top-0 z-50 shadow-sm">
+      <div className="container mx-auto px-4 py-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Activity className="w-6 h-6 text-primary" />
+            <span className="font-semibold text-lg text-navy">Daigassist</span>
+          </div>
+          <div className="flex items-center gap-3">
+            {user ? (
+              <Button
+                onClick={() => navigate('/my-reports')}
+                variant="default"
+                size="sm"
+              >
+                My Reports
+              </Button>
+            ) : (
+              <Button
+                onClick={() => {
+                  const event = new CustomEvent('open-auth-dialog');
+                  window.dispatchEvent(event);
+                }}
+                variant="outline"
+                size="sm"
+              >
+                Sign In
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 
 const Index = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const isMobile = useIsMobile();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [capturedImages, setCapturedImages] = useState<string[]>([]);
@@ -75,6 +114,7 @@ const Index = () => {
   const [usedTextExtraction, setUsedTextExtraction] = useState(false);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [previewReportData, setPreviewReportData] = useState<any>(null);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   
   // Polling cancellation refs to prevent cross-contamination
   const pollingActiveRef = useRef(false);
@@ -84,6 +124,13 @@ const Index = () => {
   const analysisRef = useRef<HTMLElement | null>(null);
   const chatRef = useRef<HTMLElement | null>(null);
   const abnormalPanelsRef = useRef<HTMLElement | null>(null);
+
+  // Listen for auth dialog open events
+  useEffect(() => {
+    const handleOpenAuth = () => setShowAuthPrompt(true);
+    window.addEventListener('open-auth-dialog', handleOpenAuth);
+    return () => window.removeEventListener('open-auth-dialog', handleOpenAuth);
+  }, []);
 
   // Helper function to scroll with animation
   const scrollToSection = (sectionId: string, delay: number = 300) => {
@@ -440,6 +487,13 @@ RAW DATA: ${baseContext}`;
     setClinicalAssessmentData(reportData);
     setShowPostChatSections(true); // Enable detailed analysis sections
     toast.success('Clinical assessment complete! Loading personalized analysis...');
+    
+    // Show auth prompt after 3 seconds if user is not logged in
+    setTimeout(() => {
+      if (!user) {
+        setShowAuthPrompt(true);
+      }
+    }, 3000);
   };
 
   // Helper function to detect non-medical reports
@@ -2035,6 +2089,12 @@ RAW DATA: ${baseContext}`;
           onDownload={handleDownloadFromPreview}
         />
       )}
+
+      {/* Auth Prompt Dialog */}
+      <AuthPrompt 
+        open={showAuthPrompt} 
+        onOpenChange={setShowAuthPrompt}
+      />
     </div>
   );
 };
