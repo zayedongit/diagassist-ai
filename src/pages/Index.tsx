@@ -44,25 +44,22 @@ import { calculateHealthScore } from '@/utils/healthScoreCalculator';
 
 import { AuthPrompt } from '@/components/AuthPrompt';
 
-// Header Navigation Component - Hidden for free tool promotion
+// Header Navigation Component - Simplified for mobile
 const HeaderNav = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   
   return (
     <div className="bg-white border-b border-border sticky top-0 z-50 shadow-sm">
-      <div className="container mx-auto px-4 py-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Activity className="w-6 h-6 text-primary" />
-            <span className="font-semibold text-lg text-navy">Daigassist</span>
-          </div>
-          <div className="flex items-center gap-3">
+      <div className="container mx-auto px-3 sm:px-4 py-2 sm:py-3">
+        <div className="flex items-center justify-end">
+          <div className="flex items-center gap-2 sm:gap-3">
             {user ? (
               <Button
                 onClick={() => navigate('/my-reports')}
                 variant="default"
                 size="sm"
+                className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-4"
               >
                 My Reports
               </Button>
@@ -74,6 +71,7 @@ const HeaderNav = () => {
                 }}
                 variant="outline"
                 size="sm"
+                className="text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-4"
               >
                 Sign In
               </Button>
@@ -1327,23 +1325,17 @@ RAW DATA: ${baseContext}`;
 
   return (
     <div className="min-h-screen bg-coolGray font-inter">
-      {/* 1. Sticky Top Navigation Bar */}
+      {/* 1. Sticky Top Navigation Bar - Simplified */}
       <header className="sticky top-0 z-50 bg-white backdrop-blur-lg border-b border-border">
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between h-14 sm:h-16">
-            {/* Logo */}
+        <div className="container mx-auto px-3 sm:px-6">
+          <div className="flex items-center justify-between h-12 sm:h-14">
+            {/* Minimal Logo - Mobile Optimized */}
             <div 
-              className="flex items-center space-x-2 sm:space-x-3 cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95"
+              className="flex items-center space-x-2 cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95"
               onClick={() => navigate('/')}
             >
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-accentCyan to-primary rounded-lg flex items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
-                <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-base sm:text-xl font-poppins font-semibold text-foreground">
-                  Daigassist
-                </h1>
-                <p className="text-[10px] sm:text-xs text-muted-foreground">AI-Powered Lab Analysis</p>
+              <div className="w-7 h-7 sm:w-9 sm:h-9 bg-gradient-to-br from-accentCyan to-primary rounded-lg flex items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
+                <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
             </div>
 
@@ -1391,36 +1383,36 @@ RAW DATA: ${baseContext}`;
                 />
               </div>
               
-              {/* Hero Content - Centered */}
+              {/* Hero Content - Centered and Mobile Optimized */}
               <div className="relative z-20 container mx-auto px-4 sm:px-6 text-center">
-                <div className="max-w-5xl mx-auto space-y-8 sm:space-y-10 animate-fade-up">
+                <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8 md:space-y-10 animate-fade-up">
                   
-                  {/* Headline - Large, Bold, White */}
-                  <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-poppins font-bold text-white leading-tight px-4 opacity-0 animate-fade-in" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
+                  {/* Headline - Mobile Optimized */}
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-poppins font-bold text-white leading-tight px-2 sm:px-4 opacity-0 animate-fade-in" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
                     Revolutionizing Health <br className="hidden sm:block" />
                     with AI
                   </h1>
                   
-                  {/* Subtext - Medium, Light Cyan */}
-                  <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-cyan-300 font-inter font-normal leading-relaxed max-w-4xl mx-auto px-4 opacity-0 animate-fade-in" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
+                  {/* Subtext - Mobile Optimized */}
+                  <p className="text-sm sm:text-base md:text-lg lg:text-xl text-cyan-300 font-inter font-normal leading-relaxed max-w-4xl mx-auto px-2 sm:px-4 opacity-0 animate-fade-in" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
                     Your medical data deserves more than numbers — it deserves understanding.<br className="hidden md:block" />
                     Our intelligent system analyzes your reports, interprets results, and builds a personalized 30-day roadmap toward better health and lasting wellness.
                   </p>
                   
-                  {/* Tagline - Smaller, Silver/Soft White */}
-                  <p className="text-sm sm:text-base md:text-lg text-gray-300 font-inter font-light tracking-wide opacity-0 animate-fade-in" style={{ animationDelay: '0.6s', animationFillMode: 'forwards' }}>
+                  {/* Tagline - Mobile Optimized */}
+                  <p className="text-xs sm:text-sm md:text-base text-gray-300 font-inter font-light tracking-wide opacity-0 animate-fade-in px-2" style={{ animationDelay: '0.6s', animationFillMode: 'forwards' }}>
                     Guided by Science. Driven by Compassion. Powered by MomentumHealth.
                   </p>
                   
-                  {/* CTA Buttons */}
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 pt-8 sm:pt-10 opacity-0 animate-fade-in" style={{ animationDelay: '0.8s', animationFillMode: 'forwards' }}>
-                    {/* Primary CTA - Glowing Cyan Gradient */}
+                  {/* CTA Buttons - Mobile Optimized */}
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 md:gap-6 pt-6 sm:pt-8 md:pt-10 opacity-0 animate-fade-in px-2" style={{ animationDelay: '0.8s', animationFillMode: 'forwards' }}>
+                    {/* Primary CTA - Mobile Friendly */}
                     <button
                       onClick={() => {
                         const uploadSection = document.getElementById('upload-section');
                         uploadSection?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                       }}
-                      className="group relative px-10 py-5 rounded-full font-poppins font-semibold text-base sm:text-lg text-white transition-all duration-400 hover:scale-105 active:scale-95 w-full sm:w-auto overflow-hidden"
+                      className="group relative px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 rounded-full font-poppins font-semibold text-sm sm:text-base md:text-lg text-white transition-all duration-400 hover:scale-105 active:scale-95 w-full sm:w-auto overflow-hidden"
                       style={{ 
                         background: 'linear-gradient(135deg, #00d1d1 0%, #0099ff 100%)',
                         boxShadow: '0 0 30px rgba(0, 209, 209, 0.5), 0 10px 30px rgba(0, 153, 255, 0.3)'
@@ -1434,17 +1426,17 @@ RAW DATA: ${baseContext}`;
                     >
                       <span className="flex items-center justify-center gap-2 relative z-10">
                         Start Your Health Analysis
-                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
                       </span>
                     </button>
                     
-                    {/* Secondary CTA - Transparent Outline */}
+                    {/* Secondary CTA - Mobile Friendly */}
                     <button
                       onClick={() => {
                         const howItWorks = document.getElementById('how-it-works');
                         howItWorks?.scrollIntoView({ behavior: 'smooth' });
                       }}
-                      className="group px-10 py-5 rounded-full font-poppins font-semibold text-base sm:text-lg text-white border-2 border-white/40 backdrop-blur-sm transition-all duration-400 hover:border-white/70 hover:bg-white/10 hover:scale-105 active:scale-95 w-full sm:w-auto"
+                      className="group px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 rounded-full font-poppins font-semibold text-sm sm:text-base md:text-lg text-white border-2 border-white/40 backdrop-blur-sm transition-all duration-400 hover:border-white/70 hover:bg-white/10 hover:scale-105 active:scale-95 w-full sm:w-auto"
                     >
                       Learn How It Works
                     </button>
@@ -1468,14 +1460,14 @@ RAW DATA: ${baseContext}`;
               </div>
             </section>
 
-            {/* Process Flow Section - Premium Spacing */}
-            <section id="how-it-works" className="py-20 sm:py-28 md:py-32 bg-white relative z-10">
-              <div className="container mx-auto px-4 sm:px-6">
-                <div className="text-center mb-12 sm:mb-16 md:mb-20 space-y-4">
-                  <h2 className="text-3xl sm:text-4xl md:text-5xl font-poppins font-bold text-navy">
+            {/* Process Flow Section - Mobile Optimized */}
+            <section id="how-it-works" className="py-16 sm:py-20 md:py-28 bg-white relative z-10">
+              <div className="container mx-auto px-3 sm:px-4 md:px-6">
+                <div className="text-center mb-10 sm:mb-14 md:mb-18 space-y-3 sm:space-y-4">
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-poppins font-bold text-navy px-2">
                     How It Works
                   </h2>
-                  <p className="text-slate text-base sm:text-lg md:text-xl max-w-2xl mx-auto leading-relaxed px-4">
+                  <p className="text-slate text-sm sm:text-base md:text-lg lg:text-xl max-w-2xl mx-auto leading-relaxed px-3 sm:px-4">
                     Simple, secure, and comprehensive medical report analysis in 4 easy steps
                   </p>
                 </div>
@@ -1541,13 +1533,13 @@ RAW DATA: ${baseContext}`;
                   </div>
                 </div>
 
-                {/* New Features Showcase Section */}
-                <div className="mt-20 sm:mt-24 md:mt-28">
-                  <div className="text-center mb-10 sm:mb-12 space-y-3">
-                    <h3 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-bold text-navy">
+                {/* New Features Showcase Section - Mobile Optimized */}
+                <div className="mt-16 sm:mt-20 md:mt-24">
+                  <div className="text-center mb-8 sm:mb-10 md:mb-12 space-y-2 sm:space-y-3">
+                    <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-poppins font-bold text-navy px-2">
                       Comprehensive Health Features
                     </h3>
-                    <p className="text-slate text-sm sm:text-base md:text-lg max-w-3xl mx-auto px-4">
+                    <p className="text-slate text-xs sm:text-sm md:text-base lg:text-lg max-w-3xl mx-auto px-3 sm:px-4">
                       Beyond basic analysis - get personalized insights, predictions, and actionable improvement plans
                     </p>
                   </div>
@@ -2037,26 +2029,26 @@ RAW DATA: ${baseContext}`;
           </>
         )}
 
-        {/* 7. FAQ SECTION - Only show when no results */}
+        {/* 7. FAQ SECTION - Mobile Optimized */}
         {!showResults && (
-        <section id="faq-section" className="py-12 sm:py-16 md:py-24 bg-white">
-          <div className="container mx-auto px-4 sm:px-6">
+        <section id="faq-section" className="py-10 sm:py-14 md:py-20 bg-white">
+          <div className="container mx-auto px-3 sm:px-4 md:px-6">
             <div className="max-w-3xl mx-auto">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-semibold text-navy text-center mb-8 sm:mb-12 px-4">
+              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-poppins font-semibold text-navy text-center mb-6 sm:mb-8 md:mb-10 px-2 sm:px-4">
                 Frequently Asked Questions
               </h2>
               
-              <div className="bg-coolGray rounded-xl sm:rounded-2xl shadow-card p-4 sm:p-6 md:p-8 space-y-3 sm:space-y-4">
+              <div className="bg-coolGray rounded-lg sm:rounded-xl md:rounded-2xl shadow-card p-3 sm:p-5 md:p-7 space-y-2 sm:space-y-3">
                 <details className="group">
-                  <summary className="flex items-center justify-between cursor-pointer py-4 font-inter font-medium text-navy">
+                  <summary className="flex items-center justify-between cursor-pointer py-3 sm:py-4 font-inter font-medium text-navy text-sm sm:text-base">
                     What file formats are supported?
-                    <span className="transition group-open:rotate-180">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <span className="transition group-open:rotate-180 flex-shrink-0 ml-2">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </span>
                   </summary>
-                  <p className="pb-4 text-slate text-sm">
+                  <p className="pb-3 sm:pb-4 text-slate text-xs sm:text-sm leading-relaxed">
                     We support PDF, JPG, and PNG file formats for your medical reports. Files are processed securely and deleted after analysis.
                   </p>
                 </details>
@@ -2064,15 +2056,15 @@ RAW DATA: ${baseContext}`;
                 <Separator />
 
                 <details className="group">
-                  <summary className="flex items-center justify-between cursor-pointer py-4 font-inter font-medium text-navy">
+                  <summary className="flex items-center justify-between cursor-pointer py-3 sm:py-4 font-inter font-medium text-navy text-sm sm:text-base">
                     How long does analysis take?
-                    <span className="transition group-open:rotate-180">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <span className="transition group-open:rotate-180 flex-shrink-0 ml-2">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </span>
                   </summary>
-                  <p className="pb-4 text-slate text-sm">
+                  <p className="pb-3 sm:pb-4 text-slate text-xs sm:text-sm leading-relaxed">
                     Most analyses complete in 30-60 seconds. Complex reports may take slightly longer. You'll see real-time progress updates.
                   </p>
                 </details>
@@ -2080,15 +2072,15 @@ RAW DATA: ${baseContext}`;
                 <Separator />
 
                 <details className="group">
-                  <summary className="flex items-center justify-between cursor-pointer py-4 font-inter font-medium text-navy">
+                  <summary className="flex items-center justify-between cursor-pointer py-3 sm:py-4 font-inter font-medium text-navy text-sm sm:text-base">
                     Is my data secure?
-                    <span className="transition group-open:rotate-180">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <span className="transition group-open:rotate-180 flex-shrink-0 ml-2">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </span>
                   </summary>
-                  <p className="pb-4 text-slate text-sm">
+                  <p className="pb-3 sm:pb-4 text-slate text-xs sm:text-sm leading-relaxed">
                     Yes. All data is encrypted during transmission and automatically deleted after your session. We comply with healthcare data protection standards.
                   </p>
                 </details>
@@ -2096,15 +2088,15 @@ RAW DATA: ${baseContext}`;
                 <Separator />
 
                 <details className="group">
-                  <summary className="flex items-center justify-between cursor-pointer py-4 font-inter font-medium text-navy">
+                  <summary className="flex items-center justify-between cursor-pointer py-3 sm:py-4 font-inter font-medium text-navy text-sm sm:text-base">
                     Can I save my results?
-                    <span className="transition group-open:rotate-180">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <span className="transition group-open:rotate-180 flex-shrink-0 ml-2">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </span>
                   </summary>
-                  <p className="pb-4 text-slate text-sm">
+                  <p className="pb-3 sm:pb-4 text-slate text-xs sm:text-sm leading-relaxed">
                     Yes! After completing your clinical assessment, you can download a comprehensive PDF report with all findings and recommendations.
                   </p>
                 </details>
