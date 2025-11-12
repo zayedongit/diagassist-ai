@@ -223,7 +223,7 @@ export const HealthRiskDashboard = ({ analysisData, demographics, clinicalContex
                     </p>
                   </div>
                   <Badge variant={criterion.met ? 'destructive' : 'outline'} className="text-xs">
-                    {criterion.met ? 'MET' : 'NOT MET'}
+                    {criterion.met ? 'Criterion Exceeded' : 'Within Normal Range'}
                   </Badge>
                 </div>
               ))}
