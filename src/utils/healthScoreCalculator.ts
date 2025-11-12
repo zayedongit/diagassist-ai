@@ -576,7 +576,10 @@ const applyRiskModifiers = (
   }
   
   // Sedentary lifestyle
-  if (clinicalContext?.lifestyle?.includes('sedentary') || clinicalContext?.exerciseFrequency === 'none') {
+  const isLifestyleString = typeof clinicalContext?.lifestyle === 'string';
+  const lifestyleIncludesSedentary = isLifestyleString && clinicalContext.lifestyle.toLowerCase().includes('sedentary');
+  
+  if (lifestyleIncludesSedentary || clinicalContext?.exerciseFrequency === 'none') {
     finalScore -= 5;
     modifiers.push({
       factor: 'Sedentary Lifestyle',
