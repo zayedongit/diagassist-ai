@@ -11,6 +11,9 @@ import { Bot, User, Send, Stethoscope, ArrowDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { ClinicalReport } from '@/components/ClinicalReport';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useVoiceInput } from '@/hooks/useVoiceInput';
+import { VoiceInputButton } from '@/components/VoiceInputButton';
+import { toast } from 'sonner';
 
 interface Message {
   id: string;
@@ -64,6 +67,17 @@ export const MedicalChatAgent = ({
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+
+  // Voice input hook
+  const { isListening, isSupported, startListening, stopListening } = useVoiceInput({
+    onTranscript: (transcript) => {
+      setInput(transcript);
+      toast.success('Voice input captured: ' + transcript.substring(0, 30) + '...');
+    },
+    onError: (error) => {
+      console.error('Voice input error:', error);
+    },
+  });
 
   // Generate session ID
   const generateSessionId = () => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -654,21 +668,35 @@ export const MedicalChatAgent = ({
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder={mode === 'clinical-triage' ? "Ask any follow-up questions..." : "Ask a question about your health analysis..."}
+                  placeholder={isListening ? "Listening..." : (mode === 'clinical-triage' ? "Ask any follow-up questions or use voice input..." : "Ask a question about your health analysis...")}
                   className="w-full p-3 text-sm border border-border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary min-h-[44px] max-h-32"
                   rows={1}
-                  disabled={isTyping}
+                  disabled={isTyping || isListening}
                 />
               </div>
+              <VoiceInputButton
+                isListening={isListening}
+                isSupported={isSupported}
+                onClick={isListening ? stopListening : startListening}
+                size="icon"
+                className="h-11 w-11"
+              />
               <Button 
                 onClick={handleSendMessage}
-                disabled={!input.trim() || isTyping}
+                disabled={!input.trim() || isTyping || isListening}
                 size="sm"
                 className="h-11 px-4"
               >
                 <Send className="w-4 h-4" />
               </Button>
             </div>
+            
+            {/* Voice input status */}
+            {isSupported && isListening && (
+              <p className="text-xs text-red-500 font-medium text-center mt-2 animate-pulse">
+                🎤 Listening... Speak your question
+              </p>
+            )}
             
             {/* Disclaimer */}
             <p className="text-xs text-muted-foreground mt-3 text-center">
