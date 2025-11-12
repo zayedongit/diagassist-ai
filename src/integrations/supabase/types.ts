@@ -14,12 +14,216 @@ export type Database = {
   }
   public: {
     Tables: {
+      demo_links: {
+        Row: {
+          active: boolean
+          client_name: string
+          created_at: string | null
+          created_by: string | null
+          expires_at: string | null
+          feature_tier: string
+          id: string
+          last_used_at: string | null
+          max_reports: number
+          notes: string | null
+          payment_enabled: boolean | null
+          reports_used: number
+          token: string
+        }
+        Insert: {
+          active?: boolean
+          client_name: string
+          created_at?: string | null
+          created_by?: string | null
+          expires_at?: string | null
+          feature_tier: string
+          id?: string
+          last_used_at?: string | null
+          max_reports?: number
+          notes?: string | null
+          payment_enabled?: boolean | null
+          reports_used?: number
+          token: string
+        }
+        Update: {
+          active?: boolean
+          client_name?: string
+          created_at?: string | null
+          created_by?: string | null
+          expires_at?: string | null
+          feature_tier?: string
+          id?: string
+          last_used_at?: string | null
+          max_reports?: number
+          notes?: string | null
+          payment_enabled?: boolean | null
+          reports_used?: number
+          token?: string
+        }
+        Relationships: []
+      }
+      lab_configurations: {
+        Row: {
+          active: boolean | null
+          allowed_domains: string[] | null
+          api_key: string
+          created_at: string | null
+          created_by: string | null
+          feature_tier: string
+          id: string
+          lab_name: string
+          payment_enabled: boolean | null
+          rate_limit_per_minute: number | null
+          updated_at: string | null
+          webhook_url: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          allowed_domains?: string[] | null
+          api_key: string
+          created_at?: string | null
+          created_by?: string | null
+          feature_tier: string
+          id?: string
+          lab_name: string
+          payment_enabled?: boolean | null
+          rate_limit_per_minute?: number | null
+          updated_at?: string | null
+          webhook_url?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          allowed_domains?: string[] | null
+          api_key?: string
+          created_at?: string | null
+          created_by?: string | null
+          feature_tier?: string
+          id?: string
+          lab_name?: string
+          payment_enabled?: boolean | null
+          rate_limit_per_minute?: number | null
+          updated_at?: string | null
+          webhook_url?: string | null
+        }
+        Relationships: []
+      }
+      payment_settings: {
+        Row: {
+          basic_tier_price_inr: number
+          id: string
+          payment_required: boolean
+          premium_tier_price_inr: number
+          razorpay_enabled: boolean
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          basic_tier_price_inr?: number
+          id?: string
+          payment_required?: boolean
+          premium_tier_price_inr?: number
+          razorpay_enabled?: boolean
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          basic_tier_price_inr?: number
+          id?: string
+          payment_required?: boolean
+          premium_tier_price_inr?: number
+          razorpay_enabled?: boolean
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      payment_transactions: {
+        Row: {
+          amount_inr: number
+          created_at: string | null
+          currency: string
+          demo_link_id: string | null
+          error_code: string | null
+          error_description: string | null
+          feature_tier: string
+          id: string
+          metadata: Json | null
+          paid_at: string | null
+          payment_method: string | null
+          pdf_analysis_id: string | null
+          razorpay_order_id: string | null
+          razorpay_payment_id: string | null
+          razorpay_signature: string | null
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          amount_inr: number
+          created_at?: string | null
+          currency?: string
+          demo_link_id?: string | null
+          error_code?: string | null
+          error_description?: string | null
+          feature_tier: string
+          id?: string
+          metadata?: Json | null
+          paid_at?: string | null
+          payment_method?: string | null
+          pdf_analysis_id?: string | null
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
+          razorpay_signature?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount_inr?: number
+          created_at?: string | null
+          currency?: string
+          demo_link_id?: string | null
+          error_code?: string | null
+          error_description?: string | null
+          feature_tier?: string
+          id?: string
+          metadata?: Json | null
+          paid_at?: string | null
+          payment_method?: string | null
+          pdf_analysis_id?: string | null
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
+          razorpay_signature?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_transactions_demo_link_id_fkey"
+            columns: ["demo_link_id"]
+            isOneToOne: false
+            referencedRelation: "demo_links"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_transactions_pdf_analysis_id_fkey"
+            columns: ["pdf_analysis_id"]
+            isOneToOne: false
+            referencedRelation: "pdf_analyses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pdf_analyses: {
         Row: {
           created_at: string | null
+          demo_link_id: string | null
+          demo_session_id: string | null
           error_message: string | null
+          feature_tier: string | null
           filename: string | null
           id: string
+          lab_config_id: string | null
+          payment_transaction_id: string | null
+          payment_verified: boolean | null
           pdf_path: string | null
           result: Json | null
           status: string
@@ -28,9 +232,15 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          demo_link_id?: string | null
+          demo_session_id?: string | null
           error_message?: string | null
+          feature_tier?: string | null
           filename?: string | null
           id: string
+          lab_config_id?: string | null
+          payment_transaction_id?: string | null
+          payment_verified?: boolean | null
           pdf_path?: string | null
           result?: Json | null
           status?: string
@@ -39,14 +249,81 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          demo_link_id?: string | null
+          demo_session_id?: string | null
           error_message?: string | null
+          feature_tier?: string | null
           filename?: string | null
           id?: string
+          lab_config_id?: string | null
+          payment_transaction_id?: string | null
+          payment_verified?: boolean | null
           pdf_path?: string | null
           result?: Json | null
           status?: string
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pdf_analyses_demo_link_id_fkey"
+            columns: ["demo_link_id"]
+            isOneToOne: false
+            referencedRelation: "demo_links"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pdf_analyses_lab_config_id_fkey"
+            columns: ["lab_config_id"]
+            isOneToOne: false
+            referencedRelation: "lab_configurations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pdf_analyses_payment_transaction_id_fkey"
+            columns: ["payment_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "payment_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          first_name: string
+          id: string
+          last_name: string | null
+          phone_number: string
+          phone_verified: boolean | null
+          updated_at: string | null
+          user_id: string
+          user_type: string
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          first_name: string
+          id?: string
+          last_name?: string | null
+          phone_number: string
+          phone_verified?: boolean | null
+          updated_at?: string | null
+          user_id: string
+          user_type?: string
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          first_name?: string
+          id?: string
+          last_name?: string | null
+          phone_number?: string
+          phone_verified?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+          user_type?: string
+          verified_at?: string | null
         }
         Relationships: []
       }
@@ -80,15 +357,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -215,6 +522,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
