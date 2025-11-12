@@ -4,12 +4,21 @@ import { toast } from 'sonner';
 interface UseVoiceInputProps {
   onTranscript: (text: string) => void;
   onError?: (error: string) => void;
+  continuousMode?: boolean;
+  onSpeechEnd?: () => void;
 }
 
-export const useVoiceInput = ({ onTranscript, onError }: UseVoiceInputProps) => {
+export const useVoiceInput = ({ onTranscript, onError, continuousMode = false, onSpeechEnd }: UseVoiceInputProps) => {
   const [isListening, setIsListening] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const recognitionRef = useRef<any>(null);
+  const continuousModeRef = useRef(continuousMode);
+  const restartTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    continuousModeRef.current = continuousMode;
+  }, [continuousMode]);
 
   useEffect(() => {
     // Check if browser supports Web Speech API
@@ -24,20 +33,39 @@ export const useVoiceInput = ({ onTranscript, onError }: UseVoiceInputProps) => 
 
     // Initialize speech recognition
     const recognition = new SpeechRecognition();
-    recognition.continuous = false; // Stop after single phrase
-    recognition.interimResults = false;
+    recognition.continuous = true; // Keep listening continuously
+    recognition.interimResults = true; // Get interim results for better UX
     recognition.lang = 'en-US';
     recognition.maxAlternatives = 1;
 
     recognition.onstart = () => {
       console.log('Voice recognition started');
       setIsListening(true);
+      setIsSpeaking(false);
     };
 
     recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      console.log('Voice transcript:', transcript);
-      onTranscript(transcript);
+      const last = event.results.length - 1;
+      const transcript = event.results[last][0].transcript;
+      const isFinal = event.results[last].isFinal;
+      
+      console.log('Voice transcript:', transcript, 'Final:', isFinal);
+      
+      // Detect speech activity
+      if (transcript.trim().length > 0) {
+        setIsSpeaking(true);
+      }
+      
+      // Only send final transcripts
+      if (isFinal) {
+        onTranscript(transcript);
+        setIsSpeaking(false);
+        
+        // In continuous mode, trigger speech end callback
+        if (continuousModeRef.current && onSpeechEnd) {
+          onSpeechEnd();
+        }
+      }
     };
 
     recognition.onerror = (event: any) => {
@@ -72,16 +100,32 @@ export const useVoiceInput = ({ onTranscript, onError }: UseVoiceInputProps) => 
     recognition.onend = () => {
       console.log('Voice recognition ended');
       setIsListening(false);
+      setIsSpeaking(false);
+      
+      // Auto-restart in continuous mode
+      if (continuousModeRef.current) {
+        console.log('Restarting in continuous mode...');
+        restartTimeoutRef.current = setTimeout(() => {
+          try {
+            recognitionRef.current?.start();
+          } catch (error) {
+            console.log('Recognition already started or error:', error);
+          }
+        }, 300); // Small delay before restart
+      }
     };
 
     recognitionRef.current = recognition;
 
     return () => {
+      if (restartTimeoutRef.current) {
+        clearTimeout(restartTimeoutRef.current);
+      }
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
     };
-  }, [onTranscript, onError]);
+  }, [onTranscript, onError, onSpeechEnd]);
 
   const startListening = () => {
     if (!isSupported) {
@@ -108,6 +152,9 @@ export const useVoiceInput = ({ onTranscript, onError }: UseVoiceInputProps) => 
   };
 
   const stopListening = () => {
+    if (restartTimeoutRef.current) {
+      clearTimeout(restartTimeoutRef.current);
+    }
     if (recognitionRef.current && isListening) {
       recognitionRef.current.stop();
     }
@@ -116,6 +163,7 @@ export const useVoiceInput = ({ onTranscript, onError }: UseVoiceInputProps) => 
   return {
     isListening,
     isSupported,
+    isSpeaking,
     startListening,
     stopListening,
   };

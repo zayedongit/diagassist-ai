@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Bot, User, Send, Stethoscope, ArrowDown } from 'lucide-react';
+import { Bot, User, Send, Stethoscope, ArrowDown, Mic, MicOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { ClinicalReport } from '@/components/ClinicalReport';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -65,19 +65,59 @@ export const MedicalChatAgent = ({
   const [textInput, setTextInput] = useState<string>('');
   const [showJumpButton, setShowJumpButton] = useState(false);
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
+  const [continuousVoiceMode, setContinuousVoiceMode] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+  const shouldAutoSubmitRef = useRef(false);
 
   // Voice input hook
-  const { isListening, isSupported, startListening, stopListening } = useVoiceInput({
+  const { isListening, isSupported, isSpeaking, startListening, stopListening } = useVoiceInput({
     onTranscript: (transcript) => {
-      setInput(transcript);
-      toast.success('Voice input captured: ' + transcript.substring(0, 30) + '...');
+      setInput(prev => prev + (prev ? ' ' : '') + transcript);
+      
+      // Auto-submit in continuous mode
+      if (continuousVoiceMode) {
+        shouldAutoSubmitRef.current = true;
+      }
     },
+    onSpeechEnd: () => {
+      // Auto-submit after speech ends in continuous mode
+      if (continuousVoiceMode && shouldAutoSubmitRef.current && input.trim()) {
+        setTimeout(() => {
+          handleSendMessage();
+          shouldAutoSubmitRef.current = false;
+        }, 500);
+      }
+    },
+    continuousMode: continuousVoiceMode,
     onError: (error) => {
       console.error('Voice input error:', error);
     },
   });
+
+  const toggleContinuousMode = () => {
+    if (continuousVoiceMode) {
+      stopListening();
+      setContinuousVoiceMode(false);
+      toast.info('Continuous voice mode disabled');
+    } else {
+      setContinuousVoiceMode(true);
+      startListening();
+      toast.success('Continuous voice mode enabled - speak naturally!');
+    }
+  };
+
+  const handleVoiceClick = () => {
+    if (continuousVoiceMode) {
+      toggleContinuousMode();
+    } else {
+      if (isListening) {
+        stopListening();
+      } else {
+        startListening();
+      }
+    }
+  };
 
   // Generate session ID
   const generateSessionId = () => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -668,34 +708,70 @@ export const MedicalChatAgent = ({
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder={isListening ? "Listening..." : (mode === 'clinical-triage' ? "Ask any follow-up questions or use voice input..." : "Ask a question about your health analysis...")}
+                  placeholder={
+                    continuousVoiceMode 
+                      ? (isSpeaking ? "🎤 Listening to you..." : "🎤 Continuous mode - speak anytime") 
+                      : (isListening ? "Listening..." : (mode === 'clinical-triage' ? "Ask any follow-up questions or use voice input..." : "Ask a question about your health analysis..."))
+                  }
                   className="w-full p-3 text-sm border border-border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary min-h-[44px] max-h-32"
                   rows={1}
-                  disabled={isTyping || isListening}
+                  disabled={isTyping || continuousVoiceMode}
                 />
               </div>
-              <VoiceInputButton
-                isListening={isListening}
-                isSupported={isSupported}
-                onClick={isListening ? stopListening : startListening}
+              
+              {/* Continuous Voice Mode Toggle */}
+              <Button
+                type="button"
+                variant={continuousVoiceMode ? "default" : "outline"}
                 size="icon"
-                className="h-11 w-11"
-              />
-              <Button 
-                onClick={handleSendMessage}
-                disabled={!input.trim() || isTyping || isListening}
-                size="sm"
-                className="h-11 px-4"
+                onClick={toggleContinuousMode}
+                className={`h-11 w-11 ${continuousVoiceMode ? "bg-primary animate-pulse" : ""}`}
+                title={continuousVoiceMode ? "Stop continuous conversation" : "Start continuous conversation"}
               >
-                <Send className="w-4 h-4" />
+                {continuousVoiceMode ? (
+                  <MicOff className="w-4 h-4" />
+                ) : (
+                  <Mic className="w-4 h-4" />
+                )}
               </Button>
+              
+              {/* Single Voice Input Button (only show if not in continuous mode) */}
+              {!continuousVoiceMode && (
+                <VoiceInputButton
+                  isListening={isListening}
+                  isSupported={isSupported}
+                  onClick={handleVoiceClick}
+                  size="icon"
+                  className="h-11 w-11"
+                />
+              )}
+              
+              {/* Send Button (only show if not in continuous mode) */}
+              {!continuousVoiceMode && (
+                <Button 
+                  onClick={handleSendMessage}
+                  disabled={!input.trim() || isTyping || isListening}
+                  size="sm"
+                  className="h-11 px-4"
+                >
+                  <Send className="w-4 h-4" />
+                </Button>
+              )}
             </div>
             
             {/* Voice input status */}
-            {isSupported && isListening && (
-              <p className="text-xs text-red-500 font-medium text-center mt-2 animate-pulse">
-                🎤 Listening... Speak your question
-              </p>
+            {isSupported && (
+              <>
+                {continuousVoiceMode ? (
+                  <p className="text-xs text-primary font-medium text-center mt-2 animate-pulse">
+                    🎤 Continuous voice mode active - speak naturally and I'll respond automatically
+                  </p>
+                ) : isListening ? (
+                  <p className="text-xs text-red-500 font-medium text-center mt-2 animate-pulse">
+                    🎤 Listening... Speak your question
+                  </p>
+                ) : null}
+              </>
             )}
             
             {/* Disclaimer */}
