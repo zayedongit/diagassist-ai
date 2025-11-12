@@ -31,7 +31,7 @@ export const MedicalAiAssistant = () => {
               Have questions about your report? Our AI assistant is here to help explain your results in simple terms.
             </p>
             <div className="bg-white rounded-lg p-4 border border-border">
-              <elevenlabs-convai agent-id="agent_7601k9wd9yfje8ta73nd9apejndt"></elevenlabs-convai>
+              <elevenlabs-convai agent-id="agent_7101k4sw7k0tfmpb2cxkrem0kna2"></elevenlabs-convai>
             </div>
             <p className="text-xs text-muted-foreground mt-3 italic">
               💡 This AI assistant is for educational purposes only. Always consult your doctor for medical decisions.
