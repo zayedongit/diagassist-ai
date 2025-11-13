@@ -54,10 +54,11 @@ serve(async (req) => {
   }
 
   // Declare variables outside try block for error handling
-  let sessionId, isInitialization, analysisContext, demographics, abnormalPanels, state, selections, message, forceReport;
+  let sessionId, isInitialization, analysisContext, demographics, abnormalPanels, state, selections, message, forceReport, maxQuestions;
   
   try {
-    ({ sessionId, isInitialization, analysisContext, demographics, abnormalPanels, state, selections, message, forceReport } = await req.json());
+    const requestBody = await req.json();
+    ({ sessionId, isInitialization, analysisContext, demographics, abnormalPanels, state, selections, message, forceReport, maxQuestions } = requestBody);
 
     const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openaiApiKey) {
@@ -66,9 +67,9 @@ serve(async (req) => {
 
     console.log('Clinical triage request:', { sessionId, isInitialization, hasAnalysis: !!analysisContext, demographics, abnormalPanelsCount: abnormalPanels?.length || 0 });
 
-    // Get maxQuestions from request or default to 6
-    const maxQuestionsFromBody = typeof (await req.json()).maxQuestions === 'number' 
-      ? Math.min(Math.max((await req.json()).maxQuestions, 5), 7) 
+    // Get maxQuestions from request or default to 6 (enforce limits 5-7)
+    const maxQuestionsFromBody = typeof maxQuestions === 'number' 
+      ? Math.min(Math.max(maxQuestions, 5), 7) 
       : 6;
 
     let triageState: TriageState = state || {
