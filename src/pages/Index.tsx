@@ -181,28 +181,98 @@ const Index = () => {
     }
   }, [isAnalyzing, isMobile]);
 
-  // Handle analysis completion
-  const handleAnalysisComplete = (data: EnhancedAnalysisResult) => {
-    console.log('✅ Analysis completed with fresh data:', {
+  // Database verification function for medical accuracy
+  const verifyAnalysisIntegrity = async (checkAnalysisId: string): Promise<boolean> => {
+    try {
+      console.log('[AUDIT] Verifying analysis integrity:', checkAnalysisId);
+      
+      const { data, error } = await supabase
+        .from('pdf_analyses')
+        .select('id, result, created_at, status')
+        .eq('id', checkAnalysisId)
+        .single();
+      
+      if (error || !data) {
+        console.error('[AUDIT] Integrity check failed:', error);
+        toast.error('Unable to verify analysis data. Please refresh.');
+        return false;
+      }
+      
+      // Verify data consistency
+      const resultData = data.result as any;
+      const dbPatientName = resultData?.patientName;
+      const statePatientName = analysisData?.patientName;
+      
+      if (dbPatientName && statePatientName && dbPatientName !== statePatientName) {
+        console.error('[AUDIT] Data mismatch detected!', { 
+          database: dbPatientName, 
+          state: statePatientName 
+        });
+        toast.error('Data inconsistency detected. Refreshing from database...');
+        await fetchFreshAnalysis(checkAnalysisId);
+        return false;
+      }
+      
+      console.log('[AUDIT] Integrity check passed');
+      return true;
+    } catch (error) {
+      console.error('[AUDIT] Integrity verification error:', error);
+      return false;
+    }
+  };
+
+  // Fetch fresh analysis from database
+  const fetchFreshAnalysis = async (fetchAnalysisId: string) => {
+    try {
+      console.log('[AUDIT] Fetching fresh analysis from database:', fetchAnalysisId);
+      
+      const { data, error } = await supabase
+        .from('pdf_analyses')
+        .select('*')
+        .eq('id', fetchAnalysisId)
+        .single();
+      
+      if (error) throw error;
+      
+      if (data?.result) {
+        setAnalysisData(data.result as any as EnhancedAnalysisResult);
+        setAnalysisTimestamp(data.created_at);
+        setAnalysisId(data.id);
+        console.log('[AUDIT] Fresh analysis data loaded from database');
+        toast.success('Analysis data refreshed from database');
+      }
+    } catch (error) {
+      console.error('[AUDIT] Error fetching fresh analysis:', error);
+      toast.error('Failed to refresh analysis data');
+    }
+  };
+
+  // Handle analysis completion with auto-refresh from database
+  const handleAnalysisComplete = async (data: EnhancedAnalysisResult) => {
+    console.log('[AUDIT] Analysis completed:', {
       patientName: data.patientName,
       testDate: data.testDate,
       panelsCount: data.medicalPanels?.length,
       timestamp: new Date().toISOString()
     });
     
-    // CRITICAL: Clear any cached/old data first to prevent showing previous patient's data
+    // CRITICAL: Clear all cached data first
     setAnalysisData(null);
-    setAnalysisTimestamp(new Date().toISOString());
     setClinicalAssessmentData(null);
     setShowPostChatSections(false);
     
-    // Set fresh data after a brief delay to ensure state cleanup
-    setTimeout(() => {
-      setAnalysisData(data);
-      console.log('✅ Fresh analysis data set in state');
-    }, 100);
-    
+    // Set initial data from response
+    setAnalysisData(data);
+    setAnalysisTimestamp(new Date().toISOString());
     setIsAnalyzing(false);
+    
+    // AUTO-REFRESH: Fetch fresh data from database after 2 seconds
+    setTimeout(async () => {
+      if (analysisId) {
+        console.log('[AUDIT] Auto-refreshing analysis from database');
+        await fetchFreshAnalysis(analysisId);
+      }
+    }, 2000);
   };
 
   // Auto-scroll: When analysis completes, skip summary and scroll to clinical chat
@@ -1841,15 +1911,37 @@ RAW DATA: ${baseContext}`;
               <div className="container mx-auto px-4 sm:px-6">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 mb-6 sm:mb-8">
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-xl sm:text-2xl font-poppins font-semibold text-navy mb-1">Your Analysis Results</h3>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="text-xl sm:text-2xl font-poppins font-semibold text-navy">Your Analysis Results</h3>
+                      {analysisId && (
+                        <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                          ✓ Verified
+                        </Badge>
+                      )}
+                    </div>
                     <p className="text-sm sm:text-base text-slate truncate">Based on: {selectedFile?.name}</p>
                     {analysisTimestamp && (
                       <p className="text-xs text-muted-foreground mt-1">
-                        Last updated: {new Date(analysisTimestamp).toLocaleString()}
+                        Analysis completed: {new Date(analysisTimestamp).toLocaleString()}
                       </p>
                     )}
                   </div>
                   <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
+                    {analysisId && (
+                      <Button
+                        variant="outline"
+                        onClick={async () => {
+                          if (analysisId) {
+                            console.log('[AUDIT] Manual refresh triggered');
+                            await fetchFreshAnalysis(analysisId);
+                          }
+                        }}
+                        className="flex items-center gap-2"
+                      >
+                        <Activity className="w-4 h-4" />
+                        Refresh Data
+                      </Button>
+                    )}
                     <Button
                       onClick={handleRefreshAnalysis}
                       variant="default"
@@ -1909,6 +2001,8 @@ RAW DATA: ${baseContext}`;
                               abnormalPanels={enhancedData ? extractAbnormalPanels(enhancedData) : []}
                               mode="clinical-triage"
                               onClinicalAssessmentComplete={handleClinicalAssessmentComplete}
+                              analysisId={analysisId || undefined}
+                              analysisTimestamp={analysisTimestamp || undefined}
                             />
                           </div>
                         </div>

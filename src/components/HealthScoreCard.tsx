@@ -76,6 +76,22 @@ export const HealthScoreCard = ({ breakdown }: HealthScoreCardProps) => {
   const [displayScore, setDisplayScore] = useState(0);
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
   const { overallScore, category, categoryLabel, categoryColor, systemScores, modifiers, recommendations, comparisonToPopulation } = breakdown;
+  
+  // Log health score calculation for audit
+  useEffect(() => {
+    const systemScoresArray = Object.entries(systemScores).map(([name, score]) => ({
+      name,
+      score: score.score,
+      status: score.status
+    }));
+    
+    console.log('[AUDIT] Health score calculated:', {
+      overallScore,
+      category,
+      systemScores: systemScoresArray,
+      timestamp: new Date().toISOString()
+    });
+  }, [overallScore]);
 
   // Animate score counter
   useEffect(() => {
