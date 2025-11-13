@@ -69,12 +69,12 @@ export const MedicalChatAgent = ({
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    if (mode === 'clinical-triage' && !sessionId && analysisContext) {
+    if (mode === 'clinical-triage' && !sessionId && (abnormalPanels || demographics)) {
       initializeChat();
     } else if (mode === 'voiceflow' && !sessionId) {
       initializeChat();
     }
-  }, [analysisContext, mode]);
+  }, [mode, abnormalPanels, demographics]);
 
   const initializeChat = async () => {
     setIsTyping(true);

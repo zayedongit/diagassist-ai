@@ -256,7 +256,7 @@ export const MobileResultsView = ({
       
       case 'chat':
         const createEnhancedAnalysisContext = (data: any) => {
-          if (!data) return '';
+          if (!data) return 'No analysis data available';
           return JSON.stringify({
             summary: data.summary,
             overallStatus: data.overallStatus,
