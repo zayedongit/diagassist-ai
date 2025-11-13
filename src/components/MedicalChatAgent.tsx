@@ -581,7 +581,7 @@ export const MedicalChatAgent = ({
           ref={scrollAreaRef}
           onScrollCapture={handleScroll}
         >
-          <div className="space-y-4 py-4">
+          <div className={`space-y-4 py-4 ${isMobile ? 'pb-24' : ''}`}>
             {messages.map((message) => (
               <div key={message.id} className="space-y-4">
                 <div className={`flex items-start gap-3 ${message.type === 'user' ? 'justify-end' : ''}`}>
@@ -714,7 +714,7 @@ export const MedicalChatAgent = ({
                       </div>
                     )}
 
-                    <div className="flex gap-2 mt-4">
+                    <div className={`flex gap-2 mt-4 ${isMobile ? 'mb-8' : ''}`}>
                       <Button 
                         onClick={handleQuestionSubmit}
                         disabled={
