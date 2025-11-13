@@ -42,6 +42,8 @@ interface MedicalChatAgentProps {
   abnormalPanels?: any[];
   mode?: 'voiceflow' | 'clinical-triage';
   onClinicalAssessmentComplete?: (reportData: any) => void;
+  analysisId?: string;
+  analysisTimestamp?: string;
 }
 
 export const MedicalChatAgent = ({ 
@@ -50,7 +52,9 @@ export const MedicalChatAgent = ({
   demographics,
   abnormalPanels,
   mode = 'clinical-triage',
-  onClinicalAssessmentComplete 
+  onClinicalAssessmentComplete,
+  analysisId,
+  analysisTimestamp
 }: MedicalChatAgentProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -69,12 +73,25 @@ export const MedicalChatAgent = ({
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    if (mode === 'clinical-triage' && !sessionId && analysisContext) {
+    // Only initialize with fresh, verified analysis data
+    if (mode === 'clinical-triage' && !sessionId && analysisContext && analysisId) {
+      // Validate data freshness
+      if (analysisTimestamp) {
+        const analysisAge = Date.now() - new Date(analysisTimestamp).getTime();
+        const MAX_AGE = 10 * 60 * 1000; // 10 minutes
+        
+        if (analysisAge > MAX_AGE) {
+          console.warn('[AUDIT] Analysis data is stale, age:', analysisAge);
+          toast.warning('Analysis data may be outdated. Please refresh.');
+        }
+      }
+      
+      console.log('[AUDIT] Initializing clinical chat with analysis:', analysisId);
       initializeChat();
     } else if (mode === 'voiceflow' && !sessionId) {
       initializeChat();
     }
-  }, [analysisContext, mode]);
+  }, [analysisContext, mode, analysisId]);
 
   const initializeChat = async () => {
     setIsTyping(true);
@@ -83,13 +100,21 @@ export const MedicalChatAgent = ({
 
     try {
       if (mode === 'clinical-triage') {
+        console.log('[AUDIT] Sending analysis context to clinical triage:', {
+          analysisId,
+          analysisTimestamp,
+          sessionId: newSessionId
+        });
+        
         const response = await supabase.functions.invoke('clinical-triage-chat', {
           body: {
             isInitialization: true,
             analysisContext,
             demographics,
             abnormalPanels,
-            sessionId: newSessionId
+            sessionId: newSessionId,
+            analysisId,  // Add analysis ID for verification
+            analysisTimestamp  // Add timestamp for freshness check
           }
         });
 
