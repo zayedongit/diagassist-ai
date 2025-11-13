@@ -427,39 +427,52 @@ export const MobileResultsView = ({
       )}
       
       {/* Header */}
-      <div className="bg-gradient-to-br from-primary/10 to-primary/5 px-4 py-4 border-b border-border">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg ${currentCardData.bgColor}`}>
-              <Icon className={`w-5 h-5 ${currentCardData.color}`} />
+      <div className="bg-gradient-to-br from-primary/10 to-primary/5 px-4 py-3 border-b border-border">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <div className={`p-1.5 rounded-lg ${currentCardData.bgColor}`}>
+              <Icon className={`w-4 h-4 ${currentCardData.color}`} />
             </div>
-            <h2 className="text-lg font-semibold text-navy">{currentCardData.title}</h2>
+            <h2 className="text-base font-semibold text-navy">{currentCardData.title}</h2>
           </div>
-          <Badge variant="secondary" className="text-xs">
+          <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5">
             {currentCard + 1} / {cards.length}
           </Badge>
         </div>
 
-        {/* Progress Dots - Reduced size */}
-        <div className="flex items-center justify-center gap-1.5">
+        {/* Progress Dots with Labels - Smaller size */}
+        <div className="flex items-center justify-center gap-3">
           {cards.map((card, idx) => (
             <button
               key={card.id}
               onClick={() => setCurrentCard(idx)}
-              className={`h-1.5 rounded-full transition-all duration-300 ${
-                idx === currentCard 
-                  ? 'w-5 bg-primary' 
-                  : 'w-1.5 bg-primary/30'
-              }`}
+              className="flex flex-col items-center gap-0.5 transition-all"
               aria-label={`Go to ${card.title}`}
-            />
+            >
+              <div className={`rounded-full transition-all duration-300 ${
+                idx === currentCard 
+                  ? 'w-2 h-2 bg-primary' 
+                  : 'w-1.5 h-1.5 bg-primary/30'
+              }`} />
+              <span className={`text-[9px] font-medium transition-colors ${
+                idx === currentCard 
+                  ? 'text-primary' 
+                  : 'text-muted-foreground'
+              }`}>
+                {card.title === 'Clinical Chat' ? 'Chat' : 
+                 card.title === 'Health Score' ? 'Score' :
+                 card.title === '30-Day Plan' ? 'Plan' :
+                 card.title === 'Health Risks' ? 'Risks' :
+                 card.title === 'Your Numbers' ? 'Numbers' : 'Recs'}
+              </span>
+            </button>
           ))}
         </div>
       </div>
 
-      {/* Swipeable Content */}
+      {/* Content - No swipe handlers for navigation */}
       <div
-        className="h-[calc(100vh-180px)] overflow-y-auto px-4 py-6"
+        className="h-[calc(100vh-200px)] overflow-y-auto px-4 py-6"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
