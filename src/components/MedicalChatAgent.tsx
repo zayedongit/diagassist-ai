@@ -236,6 +236,18 @@ export const MedicalChatAgent = ({
   };
 
   const handleQuestionSubmit = async (questionId: string, answer: any, questionType: string) => {
+    if (!answer) {
+      console.error('handleQuestionSubmit called with empty answer');
+      toast.error('Please select an answer before submitting');
+      return;
+    }
+    
+    console.log('=== SUBMITTING ANSWER ===');
+    console.log('Question ID:', questionId);
+    console.log('Answer:', answer);
+    console.log('Question Type:', questionType);
+    console.log('Session ID:', sessionId);
+    
     setIsTyping(true);
     
     try {
@@ -249,6 +261,8 @@ export const MedicalChatAgent = ({
         }
       });
 
+      console.log('Backend response:', response);
+
       if (response.error) {
         console.error('Error submitting answer:', response.error);
         toast.error('Error submitting your answer. Please try again.');
@@ -256,6 +270,7 @@ export const MedicalChatAgent = ({
       }
 
       const data = response.data;
+      console.log('Response data:', data);
       
       const answerText = typeof answer === 'string' ? answer : JSON.stringify(answer);
       addMessage('user', answerText);
@@ -263,6 +278,8 @@ export const MedicalChatAgent = ({
       setCurrentQuestion(null);
       setSelectedAnswers({});
       setTextInput('');
+      
+      console.log('Answer submitted successfully, cleared state');
 
       await handleTriageResponse(data);
     } catch (error) {
@@ -426,8 +443,14 @@ export const MedicalChatAgent = ({
         </CardHeader>
 
         <CardContent className="flex-1 p-0 flex flex-col relative">
-          <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
-            <div className={`space-y-4 py-4 ${isMobile ? 'pb-24' : ''}`}>
+          <ScrollArea 
+            ref={scrollAreaRef} 
+            className="flex-1 p-4"
+            onTouchStart={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => e.stopPropagation()}
+          >
+            <div className={`space-y-4 py-4 ${isMobile ? 'pb-32' : ''}`}>
               {messages.map((message) => (
                 <div 
                   key={message.id}
@@ -466,14 +489,12 @@ export const MedicalChatAgent = ({
                               className="space-y-2"
                             >
                               {message.question.options.map((option) => (
-                                <div key={option.id} className="flex items-center space-x-2 bg-white rounded-md p-1.5 border border-cyan-100 hover:border-cyan-300 transition-colors">
+                                <div key={option.id} className={`flex items-center space-x-2 bg-white rounded-md border border-cyan-100 hover:border-cyan-300 transition-colors ${isMobile ? 'p-1' : 'p-1.5'}`}>
                                   <RadioGroupItem 
                                     value={option.value} 
                                     id={`${message.question.id}-${option.id}`}
-                                    className="w-3.5 h-3.5"
-                                  >
-                                    <div className="w-1.5 h-1.5 rounded-full bg-current" />
-                                  </RadioGroupItem>
+                                    className={isMobile ? 'w-3 h-3' : 'w-4 h-4'}
+                                  />
                                   <Label 
                                     htmlFor={`${message.question.id}-${option.id}`}
                                     className="text-sm cursor-pointer flex-1 py-1"
@@ -530,7 +551,7 @@ export const MedicalChatAgent = ({
                             />
                           )}
 
-                          <div className={`flex gap-2 mt-4 ${isMobile ? 'mb-8' : ''}`}>
+                          <div className={`flex gap-2 mt-4 ${isMobile ? 'mb-12' : ''}`}>
                             <Button
                               size="sm"
                               onClick={() => {
@@ -538,12 +559,19 @@ export const MedicalChatAgent = ({
                                   ? textInput 
                                   : selectedAnswers[message.question.id];
                                 
+                                console.log('Submit clicked - Question ID:', message.question.id);
+                                console.log('Selected answer:', answer);
+                                console.log('Current selectedAnswers state:', selectedAnswers);
+                                
                                 if (answer && (
                                   (typeof answer === 'string' && answer.trim()) || 
                                   (Array.isArray(answer) && answer.length > 0) ||
                                   (!Array.isArray(answer) && typeof answer !== 'string')
                                 )) {
                                   handleQuestionSubmit(message.question.id, answer, message.question.type);
+                                } else {
+                                  console.error('Invalid answer - not submitting');
+                                  toast.error('Please select an answer before submitting');
                                 }
                               }}
                               disabled={
