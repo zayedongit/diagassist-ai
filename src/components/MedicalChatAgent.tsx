@@ -7,13 +7,9 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Bot, User, Send, Stethoscope, ArrowDown, Mic, MicOff, Info, X, HelpCircle } from 'lucide-react';
+import { Bot, User, Send, Activity, ArrowDown, ArrowRight, HelpCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { ClinicalReport } from '@/components/ClinicalReport';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useVoiceInput } from '@/hooks/useVoiceInput';
-import { VoiceInputButton } from '@/components/VoiceInputButton';
-import { AudioLevelVisualizer } from '@/components/AudioLevelVisualizer';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -68,162 +64,81 @@ export const MedicalChatAgent = ({
   const [textInput, setTextInput] = useState<string>('');
   const [showJumpButton, setShowJumpButton] = useState(false);
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
-  const [continuousVoiceMode, setContinuousVoiceMode] = useState(false);
-  const [showVoiceGuide, setShowVoiceGuide] = useState(true);
   const [showHelpSection, setShowHelpSection] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
-  const shouldAutoSubmitRef = useRef(false);
 
-  // Voice input hook
-  const { isListening, isSupported, isSpeaking, audioLevel, isAboveThreshold, startListening, stopListening } = useVoiceInput({
-    onTranscript: (transcript) => {
-      setInput(prev => prev + (prev ? ' ' : '') + transcript);
-      
-      // Auto-submit in continuous mode
-      if (continuousVoiceMode) {
-        shouldAutoSubmitRef.current = true;
-      }
-    },
-    onSpeechEnd: () => {
-      // Auto-submit after speech ends in continuous mode
-      if (continuousVoiceMode && shouldAutoSubmitRef.current && input.trim()) {
-        setTimeout(() => {
-          handleSendMessage();
-          shouldAutoSubmitRef.current = false;
-        }, 500);
-      }
-    },
-    continuousMode: continuousVoiceMode,
-    onError: (error) => {
-      console.error('Voice input error:', error);
-    },
-  });
-
-  const toggleContinuousMode = () => {
-    if (continuousVoiceMode) {
-      stopListening();
-      setContinuousVoiceMode(false);
-      toast.info('Continuous voice mode disabled');
-    } else {
-      setContinuousVoiceMode(true);
-      startListening();
-      toast.success('Continuous voice mode enabled - speak naturally!');
-    }
-  };
-
-  const handleVoiceClick = () => {
-    if (continuousVoiceMode) {
-      toggleContinuousMode();
-    } else {
-      if (isListening) {
-        stopListening();
-      } else {
-        startListening();
-      }
-    }
-  };
-
-  // Generate session ID
-  const generateSessionId = () => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-
-  // Initialize chat with analysis context
   useEffect(() => {
-    if (analysisContext) {
+    if (mode === 'clinical-triage' && !sessionId && analysisContext) {
+      initializeChat();
+    } else if (mode === 'voiceflow' && !sessionId) {
       initializeChat();
     }
-  }, [analysisContext]);
+  }, [analysisContext, mode]);
 
   const initializeChat = async () => {
     setIsTyping(true);
+    const newSessionId = Math.random().toString(36).substring(7);
+    setSessionId(newSessionId);
+
     try {
       if (mode === 'clinical-triage') {
         const response = await supabase.functions.invoke('clinical-triage-chat', {
           body: {
             isInitialization: true,
-            analysisContext: analysisContext,
-            demographics: demographics,
-            abnormalPanels: abnormalPanels,
-            sessionId: sessionId || generateSessionId()
+            demographics,
+            abnormalPanels,
+            sessionId: newSessionId
           }
         });
 
         if (response.error) {
-          console.error('Error initializing triage:', response.error);
-          addMessage('agent', 'Sorry, there was an error starting the clinical assessment. Please try again.');
+          console.error('Error initializing clinical triage:', response.error);
+          addMessage('agent', 'Hello! I\'m here to help you understand your health results. Please feel free to ask any questions.');
           return;
         }
 
         const data = response.data;
-        if (data.sessionId) {
-          setSessionId(data.sessionId);
-        }
-        if (data.state) {
-          setTriageState(data.state);
-        }
-
-        if (data.type === 'question') {
-          // Add report summary before first question
-          if (analysisContext && abnormalPanels && abnormalPanels.length > 0) {
-            const summaryText = `Based on your medical report analysis, I found abnormalities in ${abnormalPanels.length} panel(s). Let me ask some targeted questions to provide you with a comprehensive clinical assessment.`;
-            addMessage('agent', summaryText);
-          }
-          setCurrentQuestion(data.question);
-          addMessage('question', `${data.question.text}`, data.question);
-        } else if (data.type === 'report') {
-          setFinalReport(data.report);
-          addMessage('report', 'Clinical assessment complete. Here is your detailed report:', null, data.report);
-          // Call the callback to pass clinical assessment data back to parent
-          if (onClinicalAssessmentComplete) {
-            onClinicalAssessmentComplete(data.report);
-          }
-        }
+        handleTriageResponse(data);
       } else {
-        // Original voiceflow mode
+        const analysisSnippet = analysisContext?.slice(0, 300) || 'general health report';
+        
         const response = await supabase.functions.invoke('voiceflow-chat', {
           body: {
-            isInitialization: true,
-            analysisContext: analysisContext,
-            sessionId: sessionId || generateSessionId()
+            message: '',
+            sessionId: newSessionId,
+            analysisContext: analysisSnippet,
+            isInitialization: true
           }
         });
 
         if (response.error) {
-          console.error('Error initializing chat:', response.error);
-          addMessage('agent', 'Sorry, there was an error starting the chat. Please try again.');
+          console.error('Error initializing Voiceflow:', response.error);
+          addMessage('agent', 'Hello! I\'ve reviewed your health analysis and I\'m here to answer any questions you might have.');
           return;
         }
 
-        const data = response.data;
-        if (data.sessionId) {
-          setSessionId(data.sessionId);
-        }
-        
-        if (data.botResponse) {
-          addMessage('agent', data.botResponse);
-        }
+        const botResponse = response.data?.response || 'Hello! How can I help you understand your health report?';
+        addMessage('agent', botResponse);
       }
     } catch (error) {
       console.error('Error initializing chat:', error);
-      addMessage('agent', 'Hello! I\'m your AI medical assistant. I\'m here to help answer questions about your health analysis. How can I assist you today?');
+      addMessage('agent', 'Hello! I\'m here to help you understand your health results. What would you like to know?');
     } finally {
       setIsTyping(false);
     }
   };
 
   const handleSendMessage = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || isTyping) return;
 
     const userMessage = input.trim();
     setInput('');
-    
-    // Add user message
     addMessage('user', userMessage);
     setIsTyping(true);
 
     try {
       if (mode === 'clinical-triage') {
-        // For triage mode, send as text input (not common, mostly used for follow-up questions)
         const response = await supabase.functions.invoke('clinical-triage-chat', {
           body: {
             message: userMessage,
@@ -233,23 +148,18 @@ export const MedicalChatAgent = ({
         });
 
         if (response.error) {
-          console.error('Error sending triage message:', response.error);
-          console.error('Full response:', response);
-          addMessage('agent', `Sorry, I encountered an error: ${response.error.message || 'Unknown error'}. Please try again.`);
-          return;
-        }
-
-        // Check if the response data contains an error
-        if (response.data?.type === 'error') {
-          console.error('Edge function error:', response.data);
-          addMessage('agent', `Sorry, I encountered an error: ${response.data.error || 'Edge Function returned a non-2xx status code'}. Please try again.`);
+          console.error('Error sending message:', response.error);
+          addMessage('agent', 'I apologize, but I encountered an error. Please try asking your question again.');
           return;
         }
 
         const data = response.data;
+        if (data.response) {
+          addMessage('agent', data.response);
+        }
+        
         handleTriageResponse(data);
       } else {
-        // Original voiceflow mode
         const response = await supabase.functions.invoke('voiceflow-chat', {
           body: {
             message: userMessage,
@@ -259,18 +169,16 @@ export const MedicalChatAgent = ({
 
         if (response.error) {
           console.error('Error sending message:', response.error);
-          addMessage('agent', 'Sorry, I encountered an error. Please try again.');
+          addMessage('agent', 'I apologize, but I encountered an error. Please try again.');
           return;
         }
 
-        const data = response.data;
-        if (data.botResponse) {
-          addMessage('agent', data.botResponse);
-        }
+        const botResponse = response.data?.response || 'I understand your question. Could you provide more details?';
+        addMessage('agent', botResponse);
       }
     } catch (error) {
-      console.error('Error sending message:', error);
-      addMessage('agent', 'Sorry, I encountered an error. Please try again.');
+      console.error('Error in chat:', error);
+      addMessage('agent', 'I\'m having trouble processing your request. Please try again.');
     } finally {
       setIsTyping(false);
     }
@@ -281,76 +189,78 @@ export const MedicalChatAgent = ({
       setTriageState(data.state);
     }
 
-    if (data.type === 'question') {
-      // Check if this question has already been asked
-      if (!askedQuestions.has(data.question.id)) {
-        setCurrentQuestion(data.question);
+    if (data.finalReport) {
+      setFinalReport(data.finalReport);
+      addMessage('report', 'Your clinical assessment is complete! Here\'s your personalized health report.', undefined, data.finalReport);
+      
+      if (onClinicalAssessmentComplete) {
+        onClinicalAssessmentComplete(data.finalReport);
+      }
+      
+      setCurrentQuestion(null);
+      return;
+    }
+
+    if (data.nextQuestion) {
+      const questionId = data.nextQuestion.id;
+      
+      if (!askedQuestions.has(questionId)) {
+        setAskedQuestions(prev => new Set([...prev, questionId]));
+        
+        const triageQuestion: TriageQuestion = {
+          id: data.nextQuestion.id,
+          text: data.nextQuestion.text,
+          type: data.nextQuestion.type || 'text',
+          options: data.nextQuestion.options,
+          allowMultiple: data.nextQuestion.allowMultiple
+        };
+        
+        setCurrentQuestion(triageQuestion);
+        addMessage('question', data.nextQuestion.text, triageQuestion);
         setSelectedAnswers({});
         setTextInput('');
-        setAskedQuestions(prev => new Set(prev).add(data.question.id));
-        addMessage('question', `${data.question.text}`, data.question);
-      }
-    } else if (data.type === 'report') {
-      setFinalReport(data.report);
-      setCurrentQuestion(null);
-      addMessage('report', 'Clinical assessment complete. Here is your detailed report:', null, data.report);
-      // Call the callback to pass clinical assessment data back to parent
-      if (onClinicalAssessmentComplete) {
-        onClinicalAssessmentComplete(data.report);
       }
     }
   };
 
   const handleQuestionSubmit = async () => {
     if (!currentQuestion) return;
-    
-    let submissionData;
-    let displayText;
-    
+
+    let answer;
     if (currentQuestion.type === 'text') {
       if (!textInput.trim()) return;
-      submissionData = { [currentQuestion.id]: textInput.trim() };
-      displayText = textInput.trim();
+      answer = textInput.trim();
     } else {
-      if (Object.keys(selectedAnswers).length === 0) return;
-      submissionData = selectedAnswers;
-      displayText = currentQuestion.type === 'checkbox' 
-        ? Object.values(selectedAnswers).filter(Boolean).join(', ')
-        : selectedAnswers[Object.keys(selectedAnswers)[0]];
+      const selectedValues = Object.values(selectedAnswers).filter(Boolean);
+      if (selectedValues.length === 0) return;
+      answer = currentQuestion.allowMultiple ? selectedValues : selectedValues[0];
     }
 
-    setIsTyping(true);
+    const answerText = currentQuestion.type === 'text' ? answer : 
+                      Array.isArray(answer) ? answer.join(', ') : answer;
     
-    // Add user's selection as a message
-    addMessage('user', displayText);
+    addMessage('user', answerText);
+    setIsTyping(true);
 
     try {
       const response = await supabase.functions.invoke('clinical-triage-chat', {
         body: {
-          selections: submissionData,
+          selections: { [currentQuestion.id]: answer },
           sessionId: sessionId,
           state: triageState
         }
       });
 
       if (response.error) {
-        console.error('Error submitting question response:', response.error);
-        console.error('Full error details:', JSON.stringify(response.error, null, 2));
-        addMessage('agent', `Sorry, I encountered an error: ${response.error.message || 'Unknown error'}. Please try again.`);
-        return;
-      }
-
-      // Check if the response data contains an error
-      if (response.data?.type === 'error') {
-        console.error('Edge function error:', response.data);
-        addMessage('agent', `Sorry, I encountered an error: ${response.data.error || 'Edge Function returned a non-2xx status code'}. Please try again.`);
+        console.error('Error submitting answer:', response.error);
+        addMessage('agent', 'Sorry, I encountered an error processing your answer. Please try again.');
         return;
       }
 
       const data = response.data;
       handleTriageResponse(data);
     } catch (error) {
-      console.error('Error submitting question response:', error);
+      console.error('Error submitting answer:', error);
       addMessage('agent', 'Sorry, I encountered an error. Please try again.');
     } finally {
       setIsTyping(false);
@@ -358,10 +268,13 @@ export const MedicalChatAgent = ({
   };
 
   const handleForceReport = async () => {
-    if (!sessionId || !triageState) return;
+    if (!triageState || triageState.questionCount < 3) {
+      toast.error('Please answer at least 3 questions before generating the report.');
+      return;
+    }
 
     setIsTyping(true);
-    addMessage('user', 'Generate my clinical report now');
+    addMessage('user', 'Generate my report now');
 
     try {
       const response = await supabase.functions.invoke('clinical-triage-chat', {
@@ -373,22 +286,15 @@ export const MedicalChatAgent = ({
       });
 
       if (response.error) {
-        console.error('Error forcing report:', response.error);
-        addMessage('agent', 'Sorry, I encountered an error generating the report. Please try again.');
-        return;
-      }
-
-      // Check if the response data contains an error
-      if (response.data?.type === 'error') {
-        console.error('Edge function error:', response.data);
-        addMessage('agent', `Sorry, I encountered an error: ${response.data.error || 'Edge Function returned a non-2xx status code'}. Please try again.`);
+        console.error('Error generating report:', response.error);
+        addMessage('agent', 'Sorry, I encountered an error generating your report. Please try again.');
         return;
       }
 
       const data = response.data;
       handleTriageResponse(data);
     } catch (error) {
-      console.error('Error forcing report:', error);
+      console.error('Error generating report:', error);
       addMessage('agent', 'Sorry, I encountered an error. Please try again.');
     } finally {
       setIsTyping(false);
@@ -449,14 +355,12 @@ export const MedicalChatAgent = ({
     }
   };
 
-  // Auto-scroll to bottom when new messages arrive (only if enabled)
   useEffect(() => {
     if (isAutoScrollEnabled && scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
   }, [messages, isTyping, isAutoScrollEnabled]);
 
-  // Handle scroll to detect if user is at bottom
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const element = e.currentTarget;
     const isAtBottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 50;
@@ -464,7 +368,6 @@ export const MedicalChatAgent = ({
     setIsAutoScrollEnabled(isAtBottom);
   };
 
-  // Jump to latest message
   const jumpToLatest = () => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
@@ -475,24 +378,19 @@ export const MedicalChatAgent = ({
 
   return (
     <Card className={`border-primary/20 bg-gradient-to-r from-primary/5 to-blue-50 ${className}`}>
-      <CardHeader className="pb-3 space-y-3">
+      <CardHeader className="px-3 py-4 sm:px-6 sm:py-5 space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-              <Stethoscope className="w-5 h-5 text-primary" />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Activity className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
             </div>
             <div>
-              <CardTitle className="text-lg text-primary">
-                Clinical Assessment Chat Bot
+              <CardTitle className="text-base sm:text-lg text-primary">
+                Clinical Assessment
               </CardTitle>
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary" className="text-xs bg-yellow-100 text-yellow-800 border-yellow-200">
-                  AI-Powered
-                </Badge>
-                <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
-                  🎤 Voice Enabled
-                </Badge>
-              </div>
+              <p className="text-xs text-muted-foreground">
+                AI Medical Assistant
+              </p>
             </div>
           </div>
           <Button
@@ -505,197 +403,108 @@ export const MedicalChatAgent = ({
           </Button>
         </div>
 
-        {/* Voice Feature Guide Banner */}
-        {showVoiceGuide && (
-          <Alert className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-            <div className="flex items-start gap-2">
-              <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-              <div className="flex-1">
-                <AlertDescription className="text-xs text-blue-900">
-                  <strong>Voice Features Available:</strong> Use the <Mic className="w-3 h-3 inline mx-0.5" /> button for single voice input, or enable <strong>Continuous Voice Mode</strong> for hands-free conversation!
+        {showHelpSection && (
+          <Collapsible open={showHelpSection} onOpenChange={setShowHelpSection}>
+            <CollapsibleContent>
+              <Alert className="bg-blue-50 border-blue-200">
+                <AlertDescription className="text-xs sm:text-sm space-y-2">
+                  <p className="font-medium text-blue-900">How to use:</p>
+                  <ul className="list-disc list-inside space-y-1 text-blue-800">
+                    <li>Answer questions about your health and symptoms</li>
+                    <li>Be as detailed as possible for better assessment</li>
+                    <li>You can skip questions if not applicable</li>
+                    <li>Request your report after answering at least 3 questions</li>
+                  </ul>
                 </AlertDescription>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowVoiceGuide(false)}
-                className="h-5 w-5 p-0 hover:bg-blue-100"
-              >
-                <X className="w-3 h-3" />
-              </Button>
-            </div>
-          </Alert>
+              </Alert>
+            </CollapsibleContent>
+          </Collapsible>
         )}
-
-        {/* Expandable Help Section */}
-        <Collapsible open={showHelpSection} onOpenChange={setShowHelpSection}>
-          <CollapsibleContent className="space-y-2">
-            <div className="bg-white rounded-lg border border-primary/20 p-4 space-y-3">
-              <h4 className="font-semibold text-sm text-navy flex items-center gap-2">
-                <Info className="w-4 h-4 text-primary" />
-                How to Use Voice Features
-              </h4>
-              
-              <div className="space-y-3 text-xs text-slate">
-                <div className="flex items-start gap-2">
-                  <div className="bg-blue-100 rounded p-1.5 mt-0.5">
-                    <Mic className="w-3 h-3 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-navy">Single Voice Input</p>
-                    <p className="text-muted-foreground">Click the microphone button once to speak your question. The recording stops automatically when you finish speaking.</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-2">
-                  <div className="bg-indigo-100 rounded p-1.5 mt-0.5 animate-pulse">
-                    <MicOff className="w-3 h-3 text-indigo-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-navy">Continuous Voice Mode (Recommended)</p>
-                    <p className="text-muted-foreground">Click the pulsing microphone button to enable hands-free conversation. Speak naturally and the AI will respond automatically - no need to click buttons between exchanges!</p>
-                  </div>
-                </div>
-
-                <div className="bg-green-50 rounded-lg p-2 border border-green-200">
-                  <p className="font-medium text-green-800">💡 Pro Tip:</p>
-                  <p className="text-green-700">Continuous mode uses voice activity detection - speak naturally with pauses, and the AI will know when you're done talking.</p>
-                </div>
-              </div>
-
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setShowHelpSection(false)}
-                className="w-full text-xs"
-              >
-                Got it!
-              </Button>
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
       </CardHeader>
-      <CardContent className="p-0 relative">
+
+      <CardContent className="relative p-0">
         <ScrollArea 
-          className={`${isMobile ? 'h-[60vh]' : 'h-96'} px-6`} 
-          ref={scrollAreaRef}
+          className="h-[400px] sm:h-[500px] px-3 sm:px-4"
           onScrollCapture={handleScroll}
+          ref={scrollAreaRef}
         >
           <div className="space-y-4 py-4">
             {messages.map((message) => (
-              <div key={message.id} className="space-y-4">
-                <div className={`flex items-start gap-3 ${message.type === 'user' ? 'justify-end' : ''}`}>
-                  {message.type !== 'user' && (
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Bot className="w-4 h-4 text-primary" />
+              <div key={message.id}>
+                {message.type === 'user' && (
+                  <div className="flex items-start gap-2 sm:gap-3 justify-end">
+                    <div className="bg-primary text-primary-foreground rounded-lg p-2 sm:p-3 max-w-[85%] sm:max-w-[80%]">
+                      <p className="text-xs sm:text-sm whitespace-pre-wrap break-words">{message.content}</p>
                     </div>
-                  )}
-                  <div className={`max-w-[80%] rounded-lg p-3 shadow-sm ${
-                    message.type === 'user' 
-                      ? 'bg-gradient-to-r from-primary/10 to-primary/20 text-gray-900 border border-primary/30 ml-auto' 
-                      : 'bg-white text-gray-900 border border-gray-200'
-                  }`}>
-                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {message.timestamp.toLocaleTimeString()}
-                    </p>
+                    <div className="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                      <User className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
+                    </div>
                   </div>
-                  {message.type === 'user' && (
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center">
-                      <User className="w-4 h-4 text-secondary-foreground" />
+                )}
+
+                {(message.type === 'agent' || message.type === 'question') && (
+                  <div className="flex items-start gap-2 sm:gap-3">
+                    <div className="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Bot className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
                     </div>
-                  )}
-                </div>
+                    <div className="bg-muted rounded-lg p-2 sm:p-3 max-w-[85%] sm:max-w-[80%]">
+                      <p className="text-xs sm:text-sm whitespace-pre-wrap break-words">{message.content}</p>
+                    </div>
+                  </div>
+                )}
 
-                {/* Render question options */}
-                {message.type === 'question' && message.question && message.id === messages[messages.length - 1]?.id && (
-                  <div className="ml-11 space-y-3">
+                {message.type === 'report' && (
+                  <div className="flex items-start gap-2 sm:gap-3">
+                    <div className="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-green-100 flex items-center justify-center">
+                      <Bot className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
+                    </div>
+                    <div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-lg p-2 sm:p-3 border-2 border-green-200 max-w-[85%] sm:max-w-[80%]">
+                      <p className="text-xs sm:text-sm font-medium text-green-800">{message.content}</p>
+                    </div>
+                  </div>
+                )}
+
+                {message.type === 'question' && message.question && currentQuestion?.id === message.question.id && (
+                  <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-white rounded-lg border-2 border-primary/20">
                     {message.question.type === 'text' && (
-                      <div className="space-y-3">
-                        <Textarea
-                          value={textInput}
-                          onChange={(e) => setTextInput(e.target.value)}
-                          onKeyPress={(e) => {
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                              e.preventDefault();
-                              handleQuestionSubmit();
-                            }
-                          }}
-                          placeholder="Please provide your detailed response..."
-                          className="min-h-[80px] resize-none"
-                        />
-                        <div className="flex gap-2">
-                          <Button 
-                            onClick={handleQuestionSubmit}
-                            disabled={!textInput.trim() || isTyping}
-                            size="sm"
-                          >
-                            Submit Answer
-                          </Button>
-                          <Button 
-                            onClick={handleSkipQuestion}
-                            variant="outline"
-                            size="sm"
-                            disabled={isTyping}
-                          >
-                            Skip Question
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-
-                    {message.question.type === 'radio' && (
-                      <RadioGroup
-                        value={selectedAnswers[message.question.id] || ''}
-                        onValueChange={(value) => {
-                          if (value === "none_of_the_above") {
-                            setSelectedAnswers({ [message.question!.id]: "None of the above" });
-                          } else {
-                            const option = message.question!.options?.find(opt => opt.value === value);
-                            setSelectedAnswers({ [message.question!.id]: option?.text || value });
+                      <Textarea
+                        value={textInput}
+                        onChange={(e) => setTextInput(e.target.value)}
+                        placeholder="Type your answer here..."
+                        className="mb-3 text-sm min-h-[80px]"
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleQuestionSubmit();
                           }
                         }}
+                      />
+                    )}
+
+                    {message.question.type === 'radio' && message.question.options && (
+                      <RadioGroup
+                        value={Object.keys(selectedAnswers)[0] || ''}
+                        onValueChange={(value) => {
+                          const option = message.question.options?.find(opt => opt.id === value);
+                          setSelectedAnswers({ [value]: option?.text });
+                        }}
+                        className="space-y-2 mb-3"
                       >
-                        {message.question.options?.map((option) => (
-                          <div key={option.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
-                            <div className="relative">
-                              <RadioGroupItem 
-                                value={option.value} 
-                                id={option.id}
-                                className="border-2 border-muted-foreground data-[state=checked]:border-blue-500 data-[state=checked]:bg-blue-500 w-4 h-4"
-                              />
-                              {selectedAnswers[message.question.id] === (option?.text || option.value) && (
-                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-blue-500 rounded-full" />
-                              )}
-                            </div>
-                            <Label htmlFor={option.id} className="text-sm cursor-pointer flex-1">
+                        {message.question.options.map((option) => (
+                          <div key={option.id} className="flex items-center space-x-2 min-h-[44px]">
+                            <RadioGroupItem value={option.id} id={option.id} />
+                            <Label htmlFor={option.id} className="text-xs sm:text-sm cursor-pointer flex-1">
                               {option.text}
                             </Label>
                           </div>
                         ))}
-                        {/* Always add "None of the above" option */}
-                        <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
-                          <div className="relative">
-                            <RadioGroupItem 
-                              value="none_of_the_above" 
-                              id="none_of_the_above"
-                              className="border-2 border-muted-foreground data-[state=checked]:border-blue-500 data-[state=checked]:bg-blue-500 w-4 h-4"
-                            />
-                            {selectedAnswers[message.question.id] === "None of the above" && (
-                              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-blue-500 rounded-full" />
-                            )}
-                          </div>
-                          <Label htmlFor="none_of_the_above" className="text-sm cursor-pointer flex-1">
-                            None of the above
-                          </Label>
-                        </div>
                       </RadioGroup>
                     )}
 
-                    {message.question.type === 'checkbox' && (
-                      <div className="space-y-2">
-                        {message.question.options?.map((option) => (
-                          <div key={option.id} className="flex items-center space-x-2">
+                    {message.question.type === 'checkbox' && message.question.options && (
+                      <div className="space-y-2 mb-3">
+                        {message.question.options.map((option) => (
+                          <div key={option.id} className="flex items-center space-x-2 min-h-[44px]">
                             <Checkbox
                               id={option.id}
                               checked={selectedAnswers[option.id] || false}
@@ -706,7 +515,7 @@ export const MedicalChatAgent = ({
                                 }));
                               }}
                             />
-                            <Label htmlFor={option.id} className="text-sm cursor-pointer">
+                            <Label htmlFor={option.id} className="text-xs sm:text-sm cursor-pointer flex-1">
                               {option.text}
                             </Label>
                           </div>
@@ -714,7 +523,7 @@ export const MedicalChatAgent = ({
                       </div>
                     )}
 
-                    <div className="flex gap-2 mt-4">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                       <Button 
                         onClick={handleQuestionSubmit}
                         disabled={
@@ -722,7 +531,7 @@ export const MedicalChatAgent = ({
                           Object.keys(selectedAnswers).length === 0
                         }
                         size="sm"
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                        className="w-full sm:w-auto min-h-[48px] bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-colors text-base sm:text-sm"
                       >
                         Submit Answer
                       </Button>
@@ -731,7 +540,7 @@ export const MedicalChatAgent = ({
                         onClick={handleSkipQuestion}
                         variant="outline"
                         size="sm"
-                        className="px-4 py-2"
+                        className="w-full sm:w-auto min-h-[48px] px-4 py-2"
                       >
                         Skip
                       </Button>
@@ -741,7 +550,7 @@ export const MedicalChatAgent = ({
                           onClick={handleForceReport}
                           variant="secondary"
                           size="sm"
-                          className="px-4 py-2"
+                          className="w-full sm:w-auto min-h-[48px] px-4 py-2"
                         >
                           Generate Report Now
                         </Button>
@@ -749,16 +558,13 @@ export const MedicalChatAgent = ({
                     </div>
                   </div>
                 )}
-
-                {/* Clinical report is now displayed in dedicated sections below the chat */}
               </div>
             ))}
 
-            {/* Typing indicator */}
             {isTyping && (
-              <div className="flex items-start gap-3">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Bot className="w-4 h-4 text-primary" />
+              <div className="flex items-start gap-2 sm:gap-3">
+                <div className="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Bot className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
                 </div>
                 <div className="bg-muted rounded-lg p-3">
                   <div className="flex space-x-1">
@@ -772,7 +578,6 @@ export const MedicalChatAgent = ({
           </div>
         </ScrollArea>
 
-        {/* Jump to Latest Button */}
         {showJumpButton && (
           <div className="absolute bottom-20 right-4 z-10">
             <Button
@@ -786,113 +591,55 @@ export const MedicalChatAgent = ({
           </div>
         )}
 
-        {/* Sticky Input Area - Only show if not in question mode or if final report is not shown */}
+        {finalReport && (
+          <div className="p-4 border-t bg-gradient-to-r from-green-50 to-blue-50">
+            <div className="text-center space-y-3">
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <p className="text-sm font-semibold text-green-800">Assessment Complete!</p>
+              </div>
+              <p className="text-xs text-muted-foreground">Your detailed health analysis is ready.</p>
+              <Button 
+                onClick={() => onClinicalAssessmentComplete?.(finalReport)}
+                size="lg"
+                className="w-full sm:w-auto min-h-[52px] bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-base font-semibold rounded-lg shadow-lg"
+              >
+                Continue to Your Results
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </div>
+          </div>
+        )}
+
         {(!currentQuestion && !finalReport) && (
-          <div className={`p-4 border-t bg-background/95 backdrop-blur-sm ${isMobile ? 'sticky bottom-0' : ''}`}>
-            <div className="flex gap-2 items-end">
-              <div className="flex-1">
+          <div className="p-3 sm:p-4 border-t bg-background/95 backdrop-blur-sm">
+            <div className="flex flex-col sm:flex-row gap-2 items-end">
+              <div className="flex-1 w-full">
                 <textarea
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder={
-                    continuousVoiceMode 
-                      ? (isSpeaking ? "🎤 Listening to you..." : "🎤 Continuous mode - speak anytime") 
-                      : (isListening ? "Listening..." : (mode === 'clinical-triage' ? "Ask any follow-up questions or use voice input..." : "Ask a question about your health analysis..."))
-                  }
-                  className="w-full p-3 text-sm border border-border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary min-h-[44px] max-h-32"
+                  placeholder={mode === 'clinical-triage' ? "Ask any follow-up questions..." : "Ask a question about your health analysis..."}
+                  className="w-full p-3 text-sm border border-border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary min-h-[48px] max-h-32"
                   rows={1}
-                  disabled={isTyping || continuousVoiceMode}
+                  disabled={isTyping}
                 />
               </div>
               
-              {/* Continuous Voice Mode Toggle - More Prominent */}
-              <div className="relative">
-                <Button
-                  type="button"
-                  variant={continuousVoiceMode ? "default" : "outline"}
-                  size="icon"
-                  onClick={toggleContinuousMode}
-                  className={`h-11 w-11 relative ${
-                    continuousVoiceMode 
-                      ? "bg-primary animate-pulse shadow-lg ring-2 ring-primary/50" 
-                      : "border-2 border-primary/30 hover:border-primary hover:bg-primary/10"
-                  }`}
-                  title={continuousVoiceMode ? "Stop continuous conversation mode" : "Enable continuous hands-free conversation"}
-                >
-                  {continuousVoiceMode ? (
-                    <MicOff className="w-4 h-4" />
-                  ) : (
-                    <Mic className="w-4 h-4" />
-                  )}
-                </Button>
-                {!continuousVoiceMode && (
-                  <span className="absolute -top-2 -right-2 flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
-                  </span>
-                )}
-              </div>
-              
-              {/* Single Voice Input Button (only show if not in continuous mode) */}
-              {!continuousVoiceMode && (
-                <VoiceInputButton
-                  isListening={isListening}
-                  isSupported={isSupported}
-                  onClick={handleVoiceClick}
-                  size="icon"
-                  className="h-11 w-11"
-                />
-              )}
-              
-              {/* Send Button (only show if not in continuous mode) */}
-              {!continuousVoiceMode && (
-                <Button 
-                  onClick={handleSendMessage}
-                  disabled={!input.trim() || isTyping || isListening}
-                  size="sm"
-                  className="h-11 px-4"
-                >
-                  <Send className="w-4 h-4" />
-                </Button>
-              )}
+              <Button 
+                onClick={handleSendMessage}
+                disabled={!input.trim() || isTyping}
+                size="sm"
+                className="w-full sm:w-auto min-h-[48px] px-6 text-base sm:text-sm"
+              >
+                <Send className="w-4 h-4 sm:mr-2" />
+                <span className="sm:inline hidden">Send</span>
+              </Button>
             </div>
-            
-            {/* Audio Level Visualizer with Enhanced Status */}
-            {isSupported && (continuousVoiceMode || isListening) && (
-              <div className="mt-3 flex flex-col items-center gap-2">
-                <AudioLevelVisualizer
-                  audioLevel={audioLevel}
-                  isAboveThreshold={isAboveThreshold}
-                  isActive={continuousVoiceMode || isListening}
-                  className="w-full max-w-md"
-                />
-                {continuousVoiceMode ? (
-                  <div className="bg-primary/10 rounded-lg px-4 py-2 border border-primary/30">
-                    <p className="text-xs text-primary font-semibold text-center flex items-center gap-2 justify-center">
-                      <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
-                      Continuous Voice Active - Speak naturally for hands-free conversation
-                      <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
-                    </p>
-                    <p className="text-xs text-muted-foreground text-center mt-1">
-                      The AI will automatically respond when you finish speaking
-                    </p>
-                  </div>
-                ) : isListening ? (
-                  <div className="bg-red-50 rounded-lg px-4 py-2 border border-red-200">
-                    <p className="text-xs text-red-600 font-semibold text-center flex items-center gap-2 justify-center">
-                      <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-                      Recording - Speak your question now
-                    </p>
-                  </div>
-                ) : null}
-              </div>
-            )}
-            
-            {/* Disclaimer */}
-            <p className="text-xs text-muted-foreground mt-3 text-center">
-              This AI assistant provides general health information only. Always consult healthcare professionals for medical advice.
-            </p>
           </div>
         )}
       </CardContent>
