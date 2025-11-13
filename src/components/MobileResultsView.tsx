@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -107,11 +107,21 @@ export const MobileResultsView = ({
   // Custom touch handlers for dismiss gesture with visual feedback
   const [touchStartY, setTouchStartY] = useState<number | null>(null);
   const [isSwiping, setIsSwiping] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     const touch = e.touches[0];
-    setTouchStartY(touch.clientY);
-    setIsSwiping(false);
+    const touchY = touch.clientY;
+    
+    // Only allow dismiss gesture if:
+    // 1. Touch starts in top 50px of the screen
+    // 2. Content is scrolled to the top
+    const scrollTop = contentRef.current?.scrollTop || 0;
+    
+    if (touchY < 50 && scrollTop === 0) {
+      setTouchStartY(touchY);
+      setIsSwiping(false);
+    }
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -426,8 +436,14 @@ export const MobileResultsView = ({
         </div>
       )}
       
-      {/* Header */}
-      <div className="bg-gradient-to-br from-primary/10 to-primary/5 px-4 py-3 border-b border-border">
+      
+      {/* Header with touch handlers for dismiss gesture */}
+      <div 
+        className="bg-gradient-to-br from-primary/10 to-primary/5 px-4 py-3 border-b border-border"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <div className={`p-1.5 rounded-lg ${currentCardData.bgColor}`}>
@@ -470,12 +486,10 @@ export const MobileResultsView = ({
         </div>
       </div>
 
-      {/* Content - No swipe handlers for navigation */}
+      {/* Content - No touch handlers, allows free scrolling */}
       <div
+        ref={contentRef}
         className="h-[calc(100vh-200px)] overflow-y-auto px-4 py-6"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
       >
         <div className="animate-fade-in">
           {renderCardContent()}
