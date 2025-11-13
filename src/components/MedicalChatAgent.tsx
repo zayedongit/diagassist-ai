@@ -138,6 +138,7 @@ export const MedicalChatAgent = ({
     setIsTyping(true);
     try {
       if (mode === 'clinical-triage') {
+        console.log('🔄 Initializing clinical triage chat...');
         const response = await supabase.functions.invoke('clinical-triage-chat', {
           body: {
             isInitialization: true,
@@ -149,9 +150,13 @@ export const MedicalChatAgent = ({
           }
         });
 
+        console.log('📡 Clinical triage response:', response);
+
         if (response.error) {
-          console.error('Error initializing triage:', response.error);
+          console.error('❌ Error initializing triage:', response.error);
           addMessage('agent', 'Sorry, there was an error starting the clinical assessment. Please try again.');
+          toast.error('Failed to start clinical chat. Please refresh and try again.');
+          setIsTyping(false);
           return;
         }
 
@@ -742,7 +747,8 @@ export const MedicalChatAgent = ({
             </Button>
           )}
 
-          {!currentQuestion && !finalReport && (
+          {/* Hide text input during clinical triage mode */}
+          {mode !== 'clinical-triage' && !currentQuestion && !finalReport && (
             <form 
               onSubmit={(e) => {
                 e.preventDefault();
