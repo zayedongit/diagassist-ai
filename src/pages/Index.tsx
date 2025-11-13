@@ -469,7 +469,12 @@ RAW DATA: ${baseContext}`;
       }));
 
     await generateFullComprehensiveReport({
-      patientInfo: analysisData.demographics,
+      patientInfo: {
+        name: analysisData.patientName || 'N/A',
+        age: analysisData.demographics?.age,
+        gender: analysisData.demographics?.gender,
+        testDate: analysisData.testDate || 'N/A'
+      },
       summary: analysisData.summary,
       overallStatus: analysisData.overallStatus,
       healthScoreBreakdown,
@@ -494,6 +499,28 @@ RAW DATA: ${baseContext}`;
       await generateEssentialReportPdf(previewReportData);
       setShowPreviewModal(false);
     }
+  };
+
+  // Handle download 30-day plan
+  const handleDownload30DayPlan = async () => {
+    if (!analysisData || !enhancedData || !clinicalAssessmentData) {
+      toast.error('Complete analysis data required for 30-day plan');
+      return;
+    }
+
+    const { generate30DayPlan } = await import('@/utils/generate30DayPlan');
+    const { generate30DayPlanPdf } = await import('@/utils/generate30DayPlanPdf');
+    const { calculateHealthScore } = await import('@/utils/healthScoreCalculator');
+    const { parseClinicalContext } = await import('@/utils/parseClinicalContext');
+
+    const healthScoreBreakdown = calculateHealthScore(
+      enhancedData,
+      analysisData.demographics,
+      parseClinicalContext(clinicalAssessmentData)
+    );
+
+    const plan = generate30DayPlan(healthScoreBreakdown);
+    await generate30DayPlanPdf(plan, analysisData.patientName || 'Patient');
   };
 
   // Handle clinical assessment completion
@@ -1959,7 +1986,7 @@ RAW DATA: ${baseContext}`;
                                 onClick={handlePreviewReport}
                                 size="lg"
                                 variant="outline"
-                                className="font-poppins font-semibold px-6 sm:px-8 py-4 sm:py-6 text-sm sm:text-base rounded-xl hover-scale-102 w-full sm:w-auto gap-2"
+                                className="font-poppins font-semibold px-4 sm:px-6 py-4 sm:py-6 text-sm sm:text-base rounded-xl hover-scale-102 w-full sm:w-auto gap-2"
                               >
                                 <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
                                 Preview Report
@@ -1967,10 +1994,19 @@ RAW DATA: ${baseContext}`;
                               <Button 
                                 onClick={handleDownloadComprehensiveReport}
                                 size="lg"
-                                className="bg-accentCyan text-navy hover:bg-accentCyan/90 font-poppins font-semibold px-6 sm:px-8 py-4 sm:py-6 text-sm sm:text-base rounded-xl hover-scale-102 shadow-premium w-full sm:w-auto gap-2"
+                                className="bg-accentCyan text-navy hover:bg-accentCyan/90 font-poppins font-semibold px-4 sm:px-6 py-4 sm:py-6 text-sm sm:text-base rounded-xl hover-scale-102 shadow-premium w-full sm:w-auto gap-2"
                               >
                                 <Download className="w-4 h-4 sm:w-5 sm:h-5" />
-                                Download Comprehensive Report
+                                Download Report
+                              </Button>
+                              <Button 
+                                onClick={handleDownload30DayPlan}
+                                size="lg"
+                                variant="secondary"
+                                className="font-poppins font-semibold px-4 sm:px-6 py-4 sm:py-6 text-sm sm:text-base rounded-xl hover-scale-102 w-full sm:w-auto gap-2"
+                              >
+                                <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
+                                Download 30-Day Plan
                               </Button>
                             </div>
                           )}

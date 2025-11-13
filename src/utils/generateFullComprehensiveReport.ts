@@ -1,6 +1,8 @@
 import jsPDF from 'jspdf';
 import { toast } from 'sonner';
 import { HealthScoreBreakdown } from './healthScoreCalculator';
+import { generateRiskTimeline } from './riskProjection';
+import { RiskScore } from './healthRiskCalculator';
 
 interface PatientInfo {
   name?: string;
@@ -305,6 +307,85 @@ export async function generateFullComprehensiveReport(data: ComprehensiveReportD
         yPosition += 4;
       });
       yPosition += 2;
+    }
+
+    // ====== RISK PREDICTION TIMELINE ======
+    if (data.clinicalAssessment?.riskFactors) {
+      const cvRisk = data.clinicalAssessment.riskFactors.cardiovascular;
+      const diabetesRisk = data.clinicalAssessment.riskFactors.diabetes;
+
+      if (cvRisk && diabetesRisk) {
+        addPageIfNeeded(70);
+
+        pdf.setFillColor(239, 246, 255);
+        pdf.roundedRect(margin, yPosition, contentWidth, 6, 1, 1, 'F');
+        pdf.setFont(undefined, 'bold');
+        pdf.setFontSize(12);
+        pdf.setTextColor(30, 64, 175);
+        pdf.text('10-YEAR HEALTH RISK PROJECTION', margin + 2, yPosition + 4.5);
+        pdf.setTextColor(0, 0, 0);
+        yPosition += 10;
+
+        const timeline = generateRiskTimeline(cvRisk, diabetesRisk);
+
+        // Cardiovascular Risk
+        pdf.setFont(undefined, 'bold');
+        pdf.setFontSize(10);
+        pdf.text('Cardiovascular Disease Risk', margin, yPosition);
+        yPosition += 5;
+
+        pdf.setFont(undefined, 'normal');
+        pdf.setFontSize(8);
+        timeline.cardiovascular.forEach((projection) => {
+          pdf.setFont(undefined, 'bold');
+          pdf.text(`${projection.year}:`, margin + 2, yPosition);
+          pdf.setFont(undefined, 'normal');
+          pdf.text(`Current Habits: ${projection.noChangesRisk.toFixed(1)}% | Lifestyle Changes: ${projection.withInterventionRisk.toFixed(1)}%`, margin + 20, yPosition);
+          yPosition += 4;
+        });
+        yPosition += 3;
+
+        // Diabetes Risk
+        pdf.setFont(undefined, 'bold');
+        pdf.setFontSize(10);
+        pdf.text('Type 2 Diabetes Risk', margin, yPosition);
+        yPosition += 5;
+
+        pdf.setFont(undefined, 'normal');
+        pdf.setFontSize(8);
+        timeline.diabetes.forEach((projection) => {
+          pdf.setFont(undefined, 'bold');
+          pdf.text(`${projection.year}:`, margin + 2, yPosition);
+          pdf.setFont(undefined, 'normal');
+          pdf.text(`Current Habits: ${projection.noChangesRisk.toFixed(1)}% | Lifestyle Changes: ${projection.withInterventionRisk.toFixed(1)}%`, margin + 20, yPosition);
+          yPosition += 4;
+        });
+        yPosition += 3;
+
+        // Potential Benefits
+        if (timeline.potentialBenefits && timeline.potentialBenefits.length > 0) {
+          pdf.setFillColor(220, 252, 231);
+          pdf.roundedRect(margin, yPosition, contentWidth, 6, 1, 1, 'F');
+          pdf.setFont(undefined, 'bold');
+          pdf.setFontSize(9);
+          pdf.setTextColor(22, 101, 52);
+          pdf.text('POTENTIAL BENEFITS OF TAKING ACTION', margin + 2, yPosition + 4);
+          pdf.setTextColor(0, 0, 0);
+          yPosition += 9;
+
+          pdf.setFont(undefined, 'normal');
+          pdf.setFontSize(8);
+          timeline.potentialBenefits.forEach((benefit) => {
+            const benefitLines = pdf.splitTextToSize(`• ${benefit}`, contentWidth - 4);
+            benefitLines.forEach((line: string) => {
+              addPageIfNeeded(4);
+              pdf.text(line, margin + 2, yPosition);
+              yPosition += 3.5;
+            });
+          });
+          yPosition += 3;
+        }
+      }
     }
 
     // ====== PAGE 3: ABNORMAL FINDINGS ======
