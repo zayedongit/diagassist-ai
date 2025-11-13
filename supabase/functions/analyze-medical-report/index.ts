@@ -72,7 +72,7 @@ function validateClinicalData(analysisResult: any): any {
 
   let totalValidAbnormalities = 0;
 
-  // Minimal validation - only remove obviously invalid data
+  // STRICT validation - verify AI only flagged true abnormalities
   analysisResult.medicalPanels = analysisResult.medicalPanels.filter((panel: any) => {
     // Remove any "Additional Findings" panels
     if (panel.name === 'Additional Findings' || panel.name.toLowerCase().includes('additional')) {
@@ -80,7 +80,7 @@ function validateClinicalData(analysisResult: any): any {
       return false;
     }
     
-    // Basic validation of abnormal labs - only remove obviously invalid entries
+    // STRICT validation of abnormal labs - verify against reference ranges
     if (panel.abnormalLabs) {
       panel.abnormalLabs = panel.abnormalLabs.filter((lab: any) => {
         // Must have numeric value
@@ -96,22 +96,24 @@ function validateClinicalData(analysisResult: any): any {
           return false;
         }
 
-        // REDUCED VALIDATION - Trust AI analysis more
-        // Only filter out obviously impossible values or clear normal values
-        const labName = lab.name.toLowerCase();
-        
-        // Only filter out clearly normal HbA1c (very conservative)
-        if (labName.includes('hba1c') || labName.includes('a1c')) {
-          const a1cValue = numericValue;
-          if (a1cValue <= 5.6) {  // Only remove clearly normal values
-            console.log('✅ HbA1c is clearly normal, removing from abnormal:', a1cValue);
-            if (!panel.normalParameters) panel.normalParameters = [];
-            panel.normalParameters.push(`${lab.name}: ${lab.value} ${lab.unit || ''}`);
-            return false;
+        // STRICT VALIDATION - Verify value is actually outside reference range
+        if (lab.referenceRange) {
+          const rangeMatch = lab.referenceRange.match(/(\d+\.?\d*)\s*-\s*(\d+\.?\d*)/);
+          if (rangeMatch) {
+            const minValue = parseFloat(rangeMatch[1]);
+            const maxValue = parseFloat(rangeMatch[2]);
+            
+            // If value is WITHIN range, it's NOT abnormal
+            if (numericValue >= minValue && numericValue <= maxValue) {
+              console.log(`✅ Value within range, removing from abnormal: ${lab.name}: ${numericValue} (${minValue}-${maxValue})`);
+              if (!panel.normalParameters) panel.normalParameters = [];
+              panel.normalParameters.push(`${lab.name}: ${lab.value} ${lab.unit || ''} (Normal: ${lab.referenceRange})`);
+              return false;
+            }
           }
         }
 
-        // Trust AI for all other parameters - preserve abnormal findings
+        // Keep only truly abnormal values
         console.log('✅ Preserving abnormal parameter (AI determined):', lab.name, lab.value);
         totalValidAbnormalities++;
         return true;
@@ -814,19 +816,59 @@ Extract EVERY parameter from ALL sections:
 2. **BORDERLINE ABNORMALITIES**:
    - Values 5-15% outside normal range
 
-=== SUMMARY GENERATION - MEDICAL-GRADE BUT PATIENT-FRIENDLY ===
+=== CRITICAL: ABNORMALITY DETECTION RULES ===
 
-**TONE RULES** (CRITICAL):
-- Be accurate but reassuring
-- Use medical precision WITHOUT medical jargon
-- Start with the most serious finding
-- Explain clinical significance in layman terms
-- End with hope and actionable steps
+**ONLY FLAG VALUES OUTSIDE REFERENCE RANGES** (MEDICAL-GRADE ACCURACY):
 
-**LANGUAGE GUIDELINES**:
-- For ACUTE LIVER DAMAGE: "Your liver enzyme levels are significantly elevated, indicating active liver inflammation that needs prompt medical evaluation"
-- For IRON DEFICIENCY: "Your iron stores are lower than optimal, causing your hemoglobin to drop. This is common and treatable with iron supplements and dietary changes"
-- For SEVERE DIABETES: "Your blood sugar has been running quite high over recent months. With proper medication, diet, and monitoring, many people successfully bring these levels down"
+1. **Parse Each Lab Result Systematically**:
+   - Extract: Parameter name, Numeric value, Unit, Reference range
+   - Parse reference range to get min and max values
+   - Compare: Is value < min OR value > max?
+   - If YES → status = 'low' or 'high', ADD to abnormalLabs
+   - If NO → status = 'normal', ADD to normalParameters, DO NOT include in abnormalLabs
+
+2. **Reference Range Validation**:
+   - If report provides reference range → Use that EXACT range
+   - If no range provided → Use standard clinical ranges (ADA/AHA/KDIGO/WHO guidelines)
+   - NEVER flag a value as abnormal if it's within the provided or standard range
+
+3. **Examples of CORRECT Flagging**:
+   ✅ SGOT: 45 U/L (Reference: 0-40 U/L) → Status: "Slightly High" → Include in abnormalLabs
+   ✅ Glucose Fasting: 120 mg/dL (Reference: 70-99 mg/dL) → Status: "Elevated" → Include in abnormalLabs
+   ❌ SGOT: 35 U/L (Reference: 0-40 U/L) → Status: "Normal" → ADD to normalParameters, NOT abnormalLabs
+   ❌ Glucose Fasting: 95 mg/dL (Reference: 70-99 mg/dL) → Status: "Normal" → ADD to normalParameters, NOT abnormalLabs
+
+4. **Mandatory Double-Check**:
+   - Before finalizing each panel, review ALL values again
+   - Remove any "abnormal" values that are actually within normal range
+   - Create normalParameters array listing all normal values with their values
+   - Only create medicalPanels entries for panels with TRUE abnormalities
+
+=== SUMMARY GENERATION - REASSURING & PATIENT-FRIENDLY ===
+
+**TONE RULES** (CRITICAL - NEVER FRIGHTEN PATIENTS):
+- Be ACCURATE but GENTLE and REASSURING
+- Emphasize manageability and early detection benefits
+- Use "could be optimized" instead of "is concerning"
+- Use "would benefit from attention" instead of "requires immediate action"
+- Frame findings as opportunities for improvement, not disasters
+- End with HOPE and specific, actionable guidance
+
+**LANGUAGE TRANSFORMATIONS** (Use These Patterns):
+- ❌ "Liver enzyme elevation detected" 
+- ✅ "Some liver values could be optimized through lifestyle changes"
+
+- ❌ "Critical condition requiring immediate attention"
+- ✅ "This finding would benefit from medical follow-up to help you stay healthy"
+
+- ❌ "High risk of cardiovascular disease"
+- ✅ "Working with your doctor can help maintain heart health and prevent future concerns"
+
+- ❌ "Severe anemia detected"
+- ✅ "Your iron levels are lower than optimal, which is common and very treatable"
+
+- ❌ "Dangerous blood sugar levels"
+- ✅ "Your blood sugar has been running higher than ideal. Many people successfully bring these levels down with guidance"
 
 **SPECIALIST RECOMMENDATION** (Based on PRIMARY concern):
 - Acute Liver Damage (ALT/AST >200) → Hepatologist/Gastroenterologist
