@@ -621,15 +621,15 @@ export const MedicalChatAgent = ({
                             className="space-y-1.5"
                           >
                             {currentQuestion.options.map((option) => (
-                              <div key={option.id} className={`flex items-center space-x-2 bg-white rounded-md border border-cyan-100 hover:border-cyan-300 transition-colors ${isMobile ? 'p-0.5' : 'p-1'}`}>
+                              <div key={option.id} className={`flex items-center space-x-2 bg-white rounded-md border border-cyan-100 hover:border-cyan-300 transition-colors min-h-[44px] ${isMobile ? 'p-1' : 'p-2'}`}>
                                 <RadioGroupItem 
                                   value={option.value} 
                                   id={`${currentQuestion.id}-${option.id}`}
-                                  className={isMobile ? 'w-3 h-3' : 'w-4 h-4'}
+                                  className={isMobile ? 'w-2.5 h-2.5' : 'w-3 h-3'}
                                 />
                                 <Label 
                                   htmlFor={`${currentQuestion.id}-${option.id}`}
-                                  className={`cursor-pointer flex-1 ${isMobile ? 'text-[13px] leading-tight py-0.5' : 'text-sm py-1'}`}
+                                  className={`cursor-pointer flex-1 ${isMobile ? 'text-[12px] leading-tight py-0.5' : 'text-sm py-1'}`}
                                 >
                                   {option.text}
                                 </Label>
