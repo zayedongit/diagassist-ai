@@ -39,28 +39,28 @@ export const RiskPredictionTimeline = ({ cardiovascularRisk, diabetesRisk, clini
   
   return (
     <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-blue-50">
-      <CardHeader>
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-            <Calendar className="w-5 h-5 text-primary" />
+      <CardHeader className="p-3 sm:p-4 lg:p-6">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+            <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
           </div>
           <div>
-            <CardTitle className="text-lg text-primary flex items-center gap-2">
+            <CardTitle className="text-base sm:text-lg lg:text-xl text-primary flex items-center gap-2">
               Risk Prediction Timeline
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-xs sm:text-sm">
               How your health risks may evolve over the next 10 years
             </CardDescription>
           </div>
         </div>
       </CardHeader>
       
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4 sm:space-y-6 p-3 sm:p-4 lg:p-6 pt-0">
         {/* Comparison Alert */}
-        <Alert className="bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-200">
-          <TrendingDown className="h-5 w-5 text-green-600" />
-          <AlertTitle className="text-green-900 font-semibold">Take Action Now</AlertTitle>
-          <AlertDescription className="text-gray-800">
+        <Alert className="bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-200 p-3 sm:p-4">
+          <TrendingDown className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
+          <AlertTitle className="text-green-900 font-semibold text-sm sm:text-base">Take Action Now</AlertTitle>
+          <AlertDescription className="text-gray-800 text-xs sm:text-sm">
             The charts below compare two scenarios: continuing current habits vs making recommended lifestyle changes. 
             Small changes today can significantly reduce your health risks over time.
           </AlertDescription>
@@ -68,25 +68,26 @@ export const RiskPredictionTimeline = ({ cardiovascularRisk, diabetesRisk, clini
         
         {/* Timeline Charts */}
         <Tabs defaultValue="cardiovascular" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="cardiovascular" className="flex items-center gap-2">
-              <Heart className="w-4 h-4" />
-              Cardiovascular
+          <TabsList className="grid w-full grid-cols-2 h-auto">
+            <TabsTrigger value="cardiovascular" className="flex items-center gap-1.5 sm:gap-2 px-3 py-2.5 sm:px-4 sm:py-3 text-xs sm:text-sm min-h-[44px]">
+              <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden xs:inline">Cardiovascular</span>
+              <span className="xs:hidden">Cardio</span>
             </TabsTrigger>
-            <TabsTrigger value="diabetes" className="flex items-center gap-2">
-              <Activity className="w-4 h-4" />
+            <TabsTrigger value="diabetes" className="flex items-center gap-1.5 sm:gap-2 px-3 py-2.5 sm:px-4 sm:py-3 text-xs sm:text-sm min-h-[44px]">
+              <Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               Diabetes
             </TabsTrigger>
           </TabsList>
           
-          <TabsContent value="cardiovascular" className="space-y-4">
-            <div className="bg-white/60 rounded-lg p-4 border border-primary/20">
-              <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Heart className="w-5 h-5 text-red-500" />
+          <TabsContent value="cardiovascular" className="space-y-3 sm:space-y-4">
+            <div className="bg-white/60 rounded-lg p-3 sm:p-4 border border-primary/20">
+              <h3 className="font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base">
+                <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
                 Cardiovascular Disease Risk Trajectory
               </h3>
               
-              <div className="h-80">
+              <div className="h-64 sm:h-72 lg:h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={timeline.cardiovascular}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />

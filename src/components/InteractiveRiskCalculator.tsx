@@ -97,43 +97,44 @@ export const InteractiveRiskCalculator = ({
   };
 
   return (
-    <Card className="p-6 bg-gradient-to-br from-background to-muted/20 border-primary/20">
-      <div className="space-y-6">
+    <Card className="p-4 sm:p-5 lg:p-6 bg-gradient-to-br from-background to-muted/20 border-primary/20">
+      <div className="space-y-4 sm:space-y-6">
         <div>
-          <h3 className="text-xl font-semibold mb-2 flex items-center gap-2">
-            <Activity className="h-5 w-5 text-primary" />
+          <h3 className="text-base sm:text-lg lg:text-xl font-semibold mb-2 flex items-center gap-2">
+            <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
             Interactive Risk Calculator
           </h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             Adjust lifestyle factors below to see how changes could impact your 10-year health risks
           </p>
         </div>
 
         {/* Lifestyle Controls */}
-        <div className="space-y-6 bg-card p-4 rounded-lg border">
+        <div className="space-y-4 sm:space-y-6 bg-card p-3 sm:p-4 rounded-lg border">
           {/* Smoking */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Cigarette className="h-5 w-5 text-muted-foreground" />
+          <div className="flex items-center justify-between min-h-[44px]">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Cigarette className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
               <div>
-                <Label htmlFor="smoking" className="text-base font-medium">Smoking Status</Label>
-                <p className="text-xs text-muted-foreground">Currently {smoking ? 'smoker' : 'non-smoker'}</p>
+                <Label htmlFor="smoking" className="text-sm sm:text-base font-medium">Smoking Status</Label>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">Currently {smoking ? 'smoker' : 'non-smoker'}</p>
               </div>
             </div>
             <Switch
               id="smoking"
               checked={smoking}
               onCheckedChange={setSmoking}
+              className="scale-110 sm:scale-100"
             />
           </div>
 
           {/* Exercise */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <Activity className="h-5 w-5 text-muted-foreground" />
+          <div className="space-y-2.5 sm:space-y-3">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Activity className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
               <div className="flex-1">
-                <Label htmlFor="exercise" className="text-base font-medium">Physical Activity</Label>
-                <p className="text-xs text-muted-foreground">{getExerciseLabel(exercise)}</p>
+                <Label htmlFor="exercise" className="text-sm sm:text-base font-medium">Physical Activity</Label>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">{getExerciseLabel(exercise)}</p>
               </div>
             </div>
             <Slider
@@ -143,17 +144,17 @@ export const InteractiveRiskCalculator = ({
               min={0}
               max={100}
               step={25}
-              className="w-full"
+              className="w-full touch-none"
             />
           </div>
 
           {/* Diet */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <Apple className="h-5 w-5 text-muted-foreground" />
+          <div className="space-y-2.5 sm:space-y-3">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Apple className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
               <div className="flex-1">
-                <Label htmlFor="diet" className="text-base font-medium">Diet Quality</Label>
-                <p className="text-xs text-muted-foreground">{getDietLabel(diet)}</p>
+                <Label htmlFor="diet" className="text-sm sm:text-base font-medium">Diet Quality</Label>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">{getDietLabel(diet)}</p>
               </div>
             </div>
             <Slider
@@ -163,28 +164,28 @@ export const InteractiveRiskCalculator = ({
               min={0}
               max={100}
               step={25}
-              className="w-full"
+              className="w-full touch-none"
             />
           </div>
         </div>
 
         {/* Risk Predictions */}
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           {/* Cardiovascular Risk */}
-          <div className="bg-card p-4 rounded-lg border space-y-3">
-            <h4 className="font-semibold text-sm flex items-center justify-between">
+          <div className="bg-card p-3 sm:p-4 rounded-lg border space-y-2 sm:space-y-3">
+            <h4 className="font-semibold text-xs sm:text-sm flex items-center justify-between">
               <span>10-Year Cardiovascular Risk</span>
               {cvAdjusted.change !== 0 && (
-                <Badge variant={cvAdjusted.change < 0 ? 'default' : 'destructive'} className="gap-1">
-                  {cvAdjusted.change < 0 ? <TrendingDown className="h-3 w-3" /> : <TrendingUp className="h-3 w-3" />}
+                <Badge variant={cvAdjusted.change < 0 ? 'default' : 'destructive'} className="gap-1 text-[10px] sm:text-xs">
+                  {cvAdjusted.change < 0 ? <TrendingDown className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> : <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3" />}
                   {Math.abs(cvAdjusted.percentChange).toFixed(0)}%
                 </Badge>
               )}
             </h4>
-            <div className="flex items-baseline gap-3">
+            <div className="flex items-baseline gap-2 sm:gap-3">
               <div className="flex-1">
-                <p className="text-3xl font-bold">{cvAdjusted.score.toFixed(1)}%</p>
-                <p className={`text-sm font-medium ${getRiskColor(getRiskLevel(cvAdjusted.score))}`}>
+                <p className="text-2xl sm:text-3xl font-bold">{cvAdjusted.score.toFixed(1)}%</p>
+                <p className={`text-xs sm:text-sm font-medium ${getRiskColor(getRiskLevel(cvAdjusted.score))}`}>
                   {getRiskLevel(cvAdjusted.score).replace('-', ' ').toUpperCase()} RISK
                 </p>
               </div>

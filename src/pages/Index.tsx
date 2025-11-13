@@ -1992,61 +1992,96 @@ RAW DATA: ${baseContext}`;
 
                   {/* Final Interpretation */}
                   {!isNonMedicalReport(analysisData) && showPostChatSections && (
-                    <section id="interpretation-section" className="py-8 sm:py-12 md:py-16 bg-coolGray">
-                      <div className="container mx-auto px-4 sm:px-6">
-                        <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8">
-                          <div className="text-center px-4">
-                            <h2 className="text-2xl sm:text-3xl font-poppins font-semibold text-navy mb-2 sm:mb-3">
+                    <section id="interpretation-section" className="py-6 sm:py-10 md:py-16 bg-coolGray">
+                      <div className="container mx-auto px-3 sm:px-4 lg:px-6">
+                        <div className="max-w-full lg:max-w-6xl mx-auto space-y-4 sm:space-y-6 lg:space-y-8">
+                          <div className="text-center px-2">
+                            <h2 className="text-xl sm:text-2xl lg:text-3xl font-poppins font-semibold text-navy mb-3 sm:mb-4">
                               Final Interpretation
                             </h2>
                           </div>
 
-                          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-                            {/* Left Column - Clinical Assessment */}
-                            <div className="lg:col-span-2 space-y-6">
-                              <ClinicalAssessmentHighlights clinicalData={clinicalAssessmentData} />
-                            </div>
-
-                            {/* Right Column - Charts */}
-                            <div className="space-y-6">
-                              <UnderstandingYourNumbers analysisData={analysisData} />
-                            </div>
+                          {/* Mobile: Stack in priority order */}
+                          <div className="block lg:hidden space-y-4">
+                            <ClinicalAssessmentHighlights clinicalData={clinicalAssessmentData} />
+                            
+                            {enhancedData && clinicalAssessmentData && (() => {
+                              const clinicalContext = parseClinicalContext(clinicalAssessmentData);
+                              const healthRisks = calculateHealthRisks(
+                                enhancedData,
+                                analysisData.demographics,
+                                clinicalContext
+                              );
+                              
+                              return (
+                                <>
+                                  <RiskPredictionTimeline
+                                    cardiovascularRisk={healthRisks.cardiovascularRisk}
+                                    diabetesRisk={healthRisks.diabetesRisk}
+                                    clinicalContext={clinicalContext}
+                                  />
+                                  
+                                  <InteractiveRiskCalculator
+                                    cardiovascularRisk={healthRisks.cardiovascularRisk}
+                                    diabetesRisk={healthRisks.diabetesRisk}
+                                    clinicalContext={clinicalContext}
+                                  />
+                                </>
+                              );
+                            })()}
+                            
+                            <UnderstandingYourNumbers analysisData={analysisData} />
                           </div>
 
-                          {/* Risk Prediction Timeline */}
-                          {enhancedData && clinicalAssessmentData && (() => {
-                            const clinicalContext = parseClinicalContext(clinicalAssessmentData);
-                            const healthRisks = calculateHealthRisks(
-                              enhancedData,
-                              analysisData.demographics,
-                              clinicalContext
-                            );
-                            
-                            return (
-                              <div className="mt-6 space-y-6 animate-fade-in">
-                                <RiskPredictionTimeline
-                                  cardiovascularRisk={healthRisks.cardiovascularRisk}
-                                  diabetesRisk={healthRisks.diabetesRisk}
-                                  clinicalContext={clinicalContext}
-                                />
-                                
-                                <InteractiveRiskCalculator
-                                  cardiovascularRisk={healthRisks.cardiovascularRisk}
-                                  diabetesRisk={healthRisks.diabetesRisk}
-                                  clinicalContext={clinicalContext}
-                                />
+                          {/* Desktop: Grid layout */}
+                          <div className="hidden lg:block">
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                              {/* Left Column - Clinical Assessment */}
+                              <div className="lg:col-span-2 space-y-6">
+                                <ClinicalAssessmentHighlights clinicalData={clinicalAssessmentData} />
                               </div>
-                            );
-                          })()}
+
+                              {/* Right Column - Charts */}
+                              <div className="space-y-6">
+                                <UnderstandingYourNumbers analysisData={analysisData} />
+                              </div>
+                            </div>
+
+                            {/* Risk Prediction Timeline */}
+                            {enhancedData && clinicalAssessmentData && (() => {
+                              const clinicalContext = parseClinicalContext(clinicalAssessmentData);
+                              const healthRisks = calculateHealthRisks(
+                                enhancedData,
+                                analysisData.demographics,
+                                clinicalContext
+                              );
+                              
+                              return (
+                                <div className="mt-6 space-y-6 animate-fade-in">
+                                  <RiskPredictionTimeline
+                                    cardiovascularRisk={healthRisks.cardiovascularRisk}
+                                    diabetesRisk={healthRisks.diabetesRisk}
+                                    clinicalContext={clinicalContext}
+                                  />
+                                  
+                                  <InteractiveRiskCalculator
+                                    cardiovascularRisk={healthRisks.cardiovascularRisk}
+                                    diabetesRisk={healthRisks.diabetesRisk}
+                                    clinicalContext={clinicalContext}
+                                  />
+                                </div>
+                              );
+                            })()}
+                          </div>
 
                           {/* Preview and Download Buttons */}
                           {clinicalAssessmentData && (
-                            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-6 sm:pt-8">
+                            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center pt-4 sm:pt-6 lg:pt-8">
                               <Button 
                                 onClick={handlePreviewReport}
                                 size="lg"
                                 variant="outline"
-                                className="font-poppins font-semibold px-4 sm:px-6 py-4 sm:py-6 text-sm sm:text-base rounded-xl hover-scale-102 w-full sm:w-auto gap-2"
+                                className="font-poppins font-semibold px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-6 text-sm sm:text-base rounded-xl hover-scale-102 w-full sm:w-auto gap-2 min-h-[44px]"
                               >
                                 <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
                                 Preview Report
@@ -2054,7 +2089,7 @@ RAW DATA: ${baseContext}`;
                               <Button 
                                 onClick={handleDownloadComprehensiveReport}
                                 size="lg"
-                                className="bg-accentCyan text-navy hover:bg-accentCyan/90 font-poppins font-semibold px-4 sm:px-6 py-4 sm:py-6 text-sm sm:text-base rounded-xl hover-scale-102 shadow-premium w-full sm:w-auto gap-2"
+                                className="bg-accentCyan text-navy hover:bg-accentCyan/90 font-poppins font-semibold px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-6 text-sm sm:text-base rounded-xl hover-scale-102 shadow-premium w-full sm:w-auto gap-2 min-h-[44px]"
                               >
                                 <Download className="w-4 h-4 sm:w-5 sm:h-5" />
                                 Download Report

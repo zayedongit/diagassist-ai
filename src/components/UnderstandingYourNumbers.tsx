@@ -81,16 +81,16 @@ export const UnderstandingYourNumbers = ({ analysisData }: UnderstandingYourNumb
 
   return (
     <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-blue-50">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-persian-blue">
-          <BarChart3 className="w-5 h-5" />
+      <CardHeader className="p-3 sm:p-4 lg:p-6">
+        <CardTitle className="flex items-center gap-2 text-persian-blue text-base sm:text-lg lg:text-xl">
+          <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5" />
           Understanding Your Numbers
         </CardTitle>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs sm:text-sm text-muted-foreground">
           Detailed explanations of your abnormal test results
         </p>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-4 lg:p-6 pt-0">
         {uniqueAbnormalLabs.map((lab, index) => {
           const context = getParameterContext(lab);
           const statusIcon = getStatusIcon(lab.status);
@@ -118,36 +118,36 @@ export const UnderstandingYourNumbers = ({ analysisData }: UnderstandingYourNumb
               </CollapsibleTrigger>
               
               <CollapsibleContent>
-                 <div className="mt-2 p-4 bg-white/40 rounded-lg border border-primary/10 space-y-4">
-                    {/* Lab Range Bar with Dynamic Positioning */}
-                    {!isNaN(parseFloat(lab.value)) && parseFloat(lab.value) > 0 && (
-                      <LabRangeBar
-                        labName={lab.name}
-                        value={lab.value}
-                        unit={lab.unit}
-                        referenceRange={lab.referenceRange}
-                        status={lab.status || 'normal'}
-                      />
-                    )}
-                  
-                  {/* What It Means */}
-                  <div>
-                    <h5 className="font-medium text-gray-900 mb-2">What It Means</h5>
-                    <p className="text-sm text-gray-800 bg-blue-50 p-3 rounded border border-blue-200 leading-relaxed">
-                      {context.whatItMeans}
-                    </p>
-                  </div>
-                  
-                  {/* Body Connection */}
-                  <div>
-                    <h5 className="font-medium text-gray-900 mb-2">Body Connection</h5>
-                    <p className="text-sm text-gray-800 bg-green-50 p-3 rounded border border-green-200 leading-relaxed">
-                      {context.bodyConnection}
-                    </p>
-                  </div>
-                  
-                  {/* Possible Contributing Factors */}
-                  <div>
+                <div className="mt-2 p-3 sm:p-4 bg-white/40 rounded-lg border border-primary/10 space-y-3 sm:space-y-4">
+                  {/* Lab Range Bar with Dynamic Positioning */}
+                  {!isNaN(parseFloat(lab.value)) && parseFloat(lab.value) > 0 && (
+                    <LabRangeBar
+                      labName={lab.name}
+                      value={lab.value}
+                      unit={lab.unit}
+                      referenceRange={lab.referenceRange}
+                      status={lab.status || 'normal'}
+                    />
+                  )}
+                
+                {/* What It Means */}
+                <div>
+                  <h5 className="font-medium text-gray-900 mb-1.5 sm:mb-2 text-sm sm:text-base">What It Means</h5>
+                  <p className="text-xs sm:text-sm text-gray-800 bg-blue-50 p-2.5 sm:p-3 rounded border border-blue-200 leading-relaxed">
+                    {context.whatItMeans}
+                  </p>
+                </div>
+                
+                {/* Body Connection */}
+                <div>
+                  <h5 className="font-medium text-gray-900 mb-1.5 sm:mb-2 text-sm sm:text-base">Body Connection</h5>
+                  <p className="text-xs sm:text-sm text-gray-800 bg-green-50 p-2.5 sm:p-3 rounded border border-green-200 leading-relaxed">
+                    {context.bodyConnection}
+                  </p>
+                </div>
+                
+                {/* Possible Contributing Factors */}
+                <div>
                     <h5 className="font-medium text-gray-900 mb-2">Possible Contributing Factors</h5>
                     <div className="bg-yellow-50 p-3 rounded border border-yellow-200">
                       <ul className="space-y-1">
