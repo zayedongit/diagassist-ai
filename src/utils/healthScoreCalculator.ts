@@ -121,7 +121,8 @@ const calculateMetabolicScore = (analysisData: EnhancedAnalysisResult): SystemSc
     } else scores.push(80);
   }
   
-  const avgScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 85;
+  // If no metabolic parameters found in abnormal range, assume healthy metabolism
+  const avgScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 100;
   
   return {
     score: Math.round(avgScore),
@@ -202,7 +203,8 @@ const calculateCardiovascularScore = (analysisData: EnhancedAnalysisResult): Sys
     if (tchol_hdl_ratio >= 5.0) issues.push('High cholesterol ratio');
   }
   
-  const avgScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 85;
+  // If no cardiovascular parameters found in abnormal range, assume healthy cardiovascular system
+  const avgScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 100;
   
   return {
     score: Math.round(avgScore),
@@ -283,7 +285,8 @@ const calculateKidneyScore = (analysisData: EnhancedAnalysisResult): SystemScore
     }
   }
   
-  const avgScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 90;
+  // If no kidney parameters found in abnormal range, assume healthy kidney function
+  const avgScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 100;
   
   return {
     score: Math.round(avgScore),
@@ -365,14 +368,15 @@ const calculateLiverScore = (analysisData: EnhancedAnalysisResult): SystemScore 
     else scores.push(60);
   }
   
-  const avgScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 90;
+  // If no liver parameters found, assume healthy liver function
+  const avgScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 100;
   
   return {
     score: Math.round(avgScore),
     weight: 15,
     parametersEvaluated: parameters,
     status: avgScore >= 85 ? 'optimal' : avgScore >= 70 ? 'good' : avgScore >= 55 ? 'borderline' : avgScore >= 40 ? 'abnormal' : 'critical',
-    keyIssues: issues
+    keyIssues: issues.length === 0 && scores.length === 0 ? [] : issues
   };
 };
 
@@ -460,7 +464,8 @@ const calculateHematologicScore = (analysisData: EnhancedAnalysisResult): System
     }
   }
   
-  const avgScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 85;
+  // If no hematologic parameters found in abnormal range, assume healthy blood
+  const avgScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 100;
   
   return {
     score: Math.round(avgScore),
@@ -525,7 +530,8 @@ const calculateEndocrineScore = (analysisData: EnhancedAnalysisResult): SystemSc
     }
   }
   
-  const avgScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 85;
+  // If no endocrine parameters found in abnormal range, assume healthy endocrine system
+  const avgScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 100;
   
   return {
     score: Math.round(avgScore),

@@ -119,6 +119,7 @@ const Index = () => {
   const [extractionStep, setExtractionStep] = useState("");
   const [progressUpdate, setProgressUpdate] = useState<ProgressUpdate | null>(null);
   const [analysisId, setAnalysisId] = useState<string | null>(null);
+  const [analysisTimestamp, setAnalysisTimestamp] = useState<string | null>(null);
   const [processingStatus, setProcessingStatus] = useState<string>('idle');
   const [showExtraction, setShowExtraction] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string>('');
@@ -191,6 +192,7 @@ const Index = () => {
     
     // CRITICAL: Clear any cached/old data first to prevent showing previous patient's data
     setAnalysisData(null);
+    setAnalysisTimestamp(new Date().toISOString());
     setClinicalAssessmentData(null);
     setShowPostChatSections(false);
     
@@ -1841,6 +1843,11 @@ RAW DATA: ${baseContext}`;
                   <div className="flex-1 min-w-0">
                     <h3 className="text-xl sm:text-2xl font-poppins font-semibold text-navy mb-1">Your Analysis Results</h3>
                     <p className="text-sm sm:text-base text-slate truncate">Based on: {selectedFile?.name}</p>
+                    {analysisTimestamp && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Last updated: {new Date(analysisTimestamp).toLocaleString()}
+                      </p>
+                    )}
                   </div>
                   <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
                     <Button
