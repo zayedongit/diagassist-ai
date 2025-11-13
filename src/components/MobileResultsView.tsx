@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Activity, AlertTriangle, Utensils, Heart, MessageCircle, FileText, Download, Calendar } from "lucide-react";
+import { useSwipe } from "@/hooks/useSwipe";
 import { SummaryCard } from "@/components/SummaryCard";
 import { HealthRiskDashboardWithTimeline } from "@/components/HealthRiskDashboard";
 import { UnderstandingYourNumbers } from "@/components/UnderstandingYourNumbers";
@@ -102,38 +103,22 @@ export const MobileResultsView = ({
     }, 300);
   };
 
-  // Auto-advance to next card (Health Score) after clinical chat completes
-  useEffect(() => {
-    if (clinicalAssessmentData && currentCard === 0) {
-      // Wait 1.5 seconds after chat completion, then auto-advance to Health Score
-      const timer = setTimeout(() => {
-        setCurrentCard(1); // Move to Health Score card
-      }, 1500);
-
-      return () => clearTimeout(timer);
-    }
-  }, [clinicalAssessmentData, currentCard]);
-
-  // Swipe disabled per user request - only dismiss gesture remains
+  const swipeHandlers = useSwipe({
+    onSwipeLeft: goToNext,
+    onSwipeRight: goToPrevious,
+    onSwipeDown: handleDismiss,
+    minSwipeDistance: 50
+  });
 
   // Custom touch handlers for dismiss gesture with visual feedback
   const [touchStartY, setTouchStartY] = useState<number | null>(null);
   const [isSwiping, setIsSwiping] = useState(false);
-  const contentRef = useRef<HTMLDivElement>(null);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     const touch = e.touches[0];
-    const touchY = touch.clientY;
-    
-    // Only allow dismiss gesture if:
-    // 1. Touch starts in top 50px of the screen
-    // 2. Content is scrolled to the top
-    const scrollTop = contentRef.current?.scrollTop || 0;
-    
-    if (touchY < 50 && scrollTop === 0) {
-      setTouchStartY(touchY);
-      setIsSwiping(false);
-    }
+    setTouchStartY(touch.clientY);
+    setIsSwiping(false);
+    swipeHandlers.onTouchStart(e);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -147,22 +132,15 @@ export const MobileResultsView = ({
       setIsSwiping(true);
       setSwipeOffset(Math.min(deltaY, 200)); // Cap at 200px
     }
+    
+    swipeHandlers.onTouchMove(e);
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartY === null) return;
-    
-    const touch = e.changedTouches[0];
-    const deltaY = touch.clientY - touchStartY;
-    
-    // Trigger dismiss if swiped down more than 100px
-    if (deltaY > 100) {
-      handleDismiss();
-    }
-    
     setIsSwiping(false);
     setSwipeOffset(0);
     setTouchStartY(null);
+    swipeHandlers.onTouchEnd();
   };
 
   const renderCardContent = () => {
@@ -448,100 +426,81 @@ export const MobileResultsView = ({
         </div>
       )}
       
-      
-      {/* Header with touch handlers for dismiss gesture */}
-      <div 
-        className="bg-gradient-to-br from-primary/10 to-primary/5 px-4 py-3 border-b border-border"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <div className={`p-1.5 rounded-lg ${currentCardData.bgColor}`}>
-              <Icon className={`w-4 h-4 ${currentCardData.color}`} />
+      {/* Header */}
+      <div className="bg-gradient-to-br from-primary/10 to-primary/5 px-4 py-4 border-b border-border">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-lg ${currentCardData.bgColor}`}>
+              <Icon className={`w-5 h-5 ${currentCardData.color}`} />
             </div>
-            <h2 className="text-base font-semibold text-navy">{currentCardData.title}</h2>
+            <h2 className="text-lg font-semibold text-navy">{currentCardData.title}</h2>
           </div>
-          <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5">
+          <Badge variant="secondary" className="text-xs">
             {currentCard + 1} / {cards.length}
           </Badge>
         </div>
 
-        {/* Progress Dots with Labels - Smaller size */}
-        <div className="flex items-center justify-center gap-3">
+        {/* Progress Dots */}
+        <div className="flex items-center justify-center gap-2">
           {cards.map((card, idx) => (
             <button
               key={card.id}
               onClick={() => setCurrentCard(idx)}
-              className="flex flex-col items-center gap-0.5 transition-all"
+              className={`h-2 rounded-full transition-all duration-300 ${
+                idx === currentCard 
+                  ? 'w-8 bg-primary' 
+                  : 'w-2 bg-primary/30'
+              }`}
               aria-label={`Go to ${card.title}`}
-            >
-              <div className={`rounded-full transition-all duration-300 ${
-                idx === currentCard 
-                  ? 'w-2 h-2 bg-primary' 
-                  : 'w-1.5 h-1.5 bg-primary/30'
-              }`} />
-              <span className={`text-[9px] font-medium transition-colors ${
-                idx === currentCard 
-                  ? 'text-primary' 
-                  : 'text-muted-foreground'
-              }`}>
-                {card.title === 'Clinical Chat' ? 'Chat' : 
-                 card.title === 'Health Score' ? 'Score' :
-                 card.title === '30-Day Plan' ? 'Plan' :
-                 card.title === 'Health Risks' ? 'Risks' :
-                 card.title === 'Your Numbers' ? 'Numbers' : 'Recs'}
-              </span>
-            </button>
+            />
           ))}
         </div>
       </div>
 
-      {/* Content - No touch handlers, allows free scrolling */}
+      {/* Swipeable Content */}
       <div
-        ref={contentRef}
-        className="h-[calc(100vh-200px)] overflow-y-auto px-4 py-6"
+        className="h-[calc(100vh-180px)] overflow-y-auto px-4 py-6"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
         <div className="animate-fade-in">
           {renderCardContent()}
         </div>
       </div>
 
-      {/* Navigation Footer - Only show after clinical chat is complete */}
-      {clinicalAssessmentData && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-border shadow-lg" 
-             style={{ paddingBottom: 'env(safe-area-inset-bottom, 12px)' }}>
-          <div className="px-4 py-3 flex items-center justify-between gap-4">
-            <Button
-              onClick={goToPrevious}
-              disabled={currentCard === 0}
-              variant="outline"
-              size="lg"
-              className="rounded-xl min-h-[48px] min-w-[48px] flex-col gap-1"
-            >
-              <ChevronLeft className="w-5 h-5" />
-              <span className="text-[10px]">Prev</span>
-            </Button>
+      {/* Navigation Footer - Mobile Optimized */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-border shadow-lg" 
+           style={{ paddingBottom: 'env(safe-area-inset-bottom, 12px)' }}>
+        <div className="px-4 py-3 flex items-center justify-between gap-4">
+          <Button
+            onClick={goToPrevious}
+            disabled={currentCard === 0}
+            variant="outline"
+            size="lg"
+            className="rounded-xl min-h-[48px] min-w-[48px] flex-col gap-1"
+          >
+            <ChevronLeft className="w-5 h-5" />
+            <span className="text-[10px]">Prev</span>
+          </Button>
 
-            <div className="flex-1 flex flex-col items-center justify-center gap-1 min-h-[48px]">
-              <span className="text-xs font-medium text-foreground">{currentCardData.title}</span>
-              <span className="text-[10px] text-muted-foreground">Tap arrows</span>
-            </div>
-
-            <Button
-              onClick={goToNext}
-              disabled={currentCard === cards.length - 1}
-              variant="outline"
-              size="lg"
-              className="rounded-xl min-h-[48px] min-w-[48px] flex-col gap-1"
-            >
-              <ChevronRight className="w-5 h-5" />
-              <span className="text-[10px]">Next</span>
-            </Button>
+          <div className="flex-1 flex flex-col items-center justify-center gap-1 min-h-[48px]">
+            <span className="text-xs font-medium text-foreground">{currentCardData.title}</span>
+            <span className="text-[10px] text-muted-foreground">Swipe or tap arrows</span>
           </div>
+
+          <Button
+            onClick={goToNext}
+            disabled={currentCard === cards.length - 1}
+            variant="outline"
+            size="lg"
+            className="rounded-xl min-h-[48px] min-w-[48px] flex-col gap-1"
+          >
+            <ChevronRight className="w-5 h-5" />
+            <span className="text-[10px]">Next</span>
+          </Button>
         </div>
-      )}
+      </div>
 
       {/* 30-Day Improvement Plan Modal */}
       {enhancedData && (

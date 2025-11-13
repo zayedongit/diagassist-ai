@@ -913,13 +913,6 @@ RAW DATA: ${baseContext}`;
       description: "Clearing previous data and processing your new report...",
     });
 
-    // Auto-scroll to top on mobile to show analysis progress
-    if (isMobile) {
-      setTimeout(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 300);
-    }
-
     try {
       // Process PDF on client side only
       const response = await processClientSide(file);
@@ -992,13 +985,6 @@ RAW DATA: ${baseContext}`;
     toast.info("Starting New Analysis", {
       description: `Processing ${images.length} captured photos...`,
     });
-
-    // Auto-scroll to top on mobile to show analysis progress
-    if (isMobile) {
-      setTimeout(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 300);
-    }
 
     try {
       setExtractedText(`Processing ${images.length} images from camera...`);
@@ -1865,25 +1851,7 @@ RAW DATA: ${baseContext}`;
                   {/* New Sections After Clinical Chat Completion */}
                   {!isNonMedicalReport(analysisData) && enhancedData && showPostChatSections && (
                     <>
-                      {/* Abnormal Panels Summary - MOVED FIRST */}
-                      <section className="py-6 sm:py-8 bg-coolGray transition-all duration-500">
-                        <div className="container mx-auto px-4 sm:px-6 animate-fade-in">
-                          <div className="max-w-4xl mx-auto animate-scale-in">
-                            <AbnormalPanelsSummary analysisData={enhancedData} />
-                          </div>
-                        </div>
-                      </section>
-
-                      {/* Values Needing Attention - MOVED SECOND */}
-                      <section className="py-6 sm:py-8 bg-white transition-all duration-500">
-                        <div className="container mx-auto px-4 sm:px-6 animate-fade-in">
-                          <div className="max-w-4xl mx-auto animate-scale-in">
-                            <ValuesNeedingAttention analysisData={enhancedData} />
-                          </div>
-                        </div>
-                      </section>
-
-                      {/* Report Summary in Layman's Language - MOVED THIRD */}
+                      {/* Report Summary in Layman's Language */}
                       <section id="summary-section" className="py-6 sm:py-8 bg-white transition-all duration-500">
                         <div className="container mx-auto px-4 sm:px-6 animate-fade-in">
                           <div className="max-w-4xl mx-auto animate-scale-in">
@@ -1921,6 +1889,24 @@ RAW DATA: ${baseContext}`;
                           </p>
                         </div>
                       </div>
+
+                      {/* Abnormal Panels Summary */}
+                      <section className="py-6 sm:py-8 bg-coolGray transition-all duration-500">
+                        <div className="container mx-auto px-4 sm:px-6 animate-fade-in">
+                          <div className="max-w-4xl mx-auto animate-scale-in">
+                            <AbnormalPanelsSummary analysisData={enhancedData} />
+                          </div>
+                        </div>
+                      </section>
+
+                      {/* Values Needing Attention */}
+                      <section className="py-6 sm:py-8 bg-white transition-all duration-500">
+                        <div className="container mx-auto px-4 sm:px-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                          <div className="max-w-4xl mx-auto animate-scale-in" style={{ animationDelay: '0.2s' }}>
+                            <ValuesNeedingAttention analysisData={enhancedData} />
+                          </div>
+                        </div>
+                      </section>
                     </>
                   )}
 
