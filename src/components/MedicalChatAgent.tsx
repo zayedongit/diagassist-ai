@@ -445,7 +445,7 @@ export const MedicalChatAgent = ({
                     {message.type === 'report' ? (
                       <div className="space-y-2">
                         <p className="text-sm text-muted-foreground mb-2">{message.content}</p>
-                        <ClinicalReport report={message.report} />
+                        <ClinicalReport reportData={message.report} />
                       </div>
                     ) : message.type === 'question' && message.question ? (
                       <div className="space-y-3">
