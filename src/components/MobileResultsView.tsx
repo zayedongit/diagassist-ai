@@ -3,7 +3,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Activity, AlertTriangle, Utensils, Heart, MessageCircle, FileText, Download, Calendar } from "lucide-react";
-import { useSwipe } from "@/hooks/useSwipe";
 import { SummaryCard } from "@/components/SummaryCard";
 import { HealthRiskDashboardWithTimeline } from "@/components/HealthRiskDashboard";
 import { UnderstandingYourNumbers } from "@/components/UnderstandingYourNumbers";
@@ -103,12 +102,7 @@ export const MobileResultsView = ({
     }, 300);
   };
 
-  const swipeHandlers = useSwipe({
-    onSwipeLeft: goToNext,
-    onSwipeRight: goToPrevious,
-    onSwipeDown: handleDismiss,
-    minSwipeDistance: 50
-  });
+  // Swipe disabled per user request - only dismiss gesture remains
 
   // Custom touch handlers for dismiss gesture with visual feedback
   const [touchStartY, setTouchStartY] = useState<number | null>(null);
@@ -118,7 +112,6 @@ export const MobileResultsView = ({
     const touch = e.touches[0];
     setTouchStartY(touch.clientY);
     setIsSwiping(false);
-    swipeHandlers.onTouchStart(e);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -132,15 +125,22 @@ export const MobileResultsView = ({
       setIsSwiping(true);
       setSwipeOffset(Math.min(deltaY, 200)); // Cap at 200px
     }
-    
-    swipeHandlers.onTouchMove(e);
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartY === null) return;
+    
+    const touch = e.changedTouches[0];
+    const deltaY = touch.clientY - touchStartY;
+    
+    // Trigger dismiss if swiped down more than 100px
+    if (deltaY > 100) {
+      handleDismiss();
+    }
+    
     setIsSwiping(false);
     setSwipeOffset(0);
     setTouchStartY(null);
-    swipeHandlers.onTouchEnd();
   };
 
   const renderCardContent = () => {
@@ -440,16 +440,16 @@ export const MobileResultsView = ({
           </Badge>
         </div>
 
-        {/* Progress Dots */}
-        <div className="flex items-center justify-center gap-2">
+        {/* Progress Dots - Reduced size */}
+        <div className="flex items-center justify-center gap-1.5">
           {cards.map((card, idx) => (
             <button
               key={card.id}
               onClick={() => setCurrentCard(idx)}
-              className={`h-2 rounded-full transition-all duration-300 ${
+              className={`h-1.5 rounded-full transition-all duration-300 ${
                 idx === currentCard 
-                  ? 'w-8 bg-primary' 
-                  : 'w-2 bg-primary/30'
+                  ? 'w-5 bg-primary' 
+                  : 'w-1.5 bg-primary/30'
               }`}
               aria-label={`Go to ${card.title}`}
             />
@@ -469,38 +469,40 @@ export const MobileResultsView = ({
         </div>
       </div>
 
-      {/* Navigation Footer - Mobile Optimized */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-border shadow-lg" 
-           style={{ paddingBottom: 'env(safe-area-inset-bottom, 12px)' }}>
-        <div className="px-4 py-3 flex items-center justify-between gap-4">
-          <Button
-            onClick={goToPrevious}
-            disabled={currentCard === 0}
-            variant="outline"
-            size="lg"
-            className="rounded-xl min-h-[48px] min-w-[48px] flex-col gap-1"
-          >
-            <ChevronLeft className="w-5 h-5" />
-            <span className="text-[10px]">Prev</span>
-          </Button>
+      {/* Navigation Footer - Only show after clinical chat is complete */}
+      {clinicalAssessmentData && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-border shadow-lg" 
+             style={{ paddingBottom: 'env(safe-area-inset-bottom, 12px)' }}>
+          <div className="px-4 py-3 flex items-center justify-between gap-4">
+            <Button
+              onClick={goToPrevious}
+              disabled={currentCard === 0}
+              variant="outline"
+              size="lg"
+              className="rounded-xl min-h-[48px] min-w-[48px] flex-col gap-1"
+            >
+              <ChevronLeft className="w-5 h-5" />
+              <span className="text-[10px]">Prev</span>
+            </Button>
 
-          <div className="flex-1 flex flex-col items-center justify-center gap-1 min-h-[48px]">
-            <span className="text-xs font-medium text-foreground">{currentCardData.title}</span>
-            <span className="text-[10px] text-muted-foreground">Swipe or tap arrows</span>
+            <div className="flex-1 flex flex-col items-center justify-center gap-1 min-h-[48px]">
+              <span className="text-xs font-medium text-foreground">{currentCardData.title}</span>
+              <span className="text-[10px] text-muted-foreground">Tap arrows</span>
+            </div>
+
+            <Button
+              onClick={goToNext}
+              disabled={currentCard === cards.length - 1}
+              variant="outline"
+              size="lg"
+              className="rounded-xl min-h-[48px] min-w-[48px] flex-col gap-1"
+            >
+              <ChevronRight className="w-5 h-5" />
+              <span className="text-[10px]">Next</span>
+            </Button>
           </div>
-
-          <Button
-            onClick={goToNext}
-            disabled={currentCard === cards.length - 1}
-            variant="outline"
-            size="lg"
-            className="rounded-xl min-h-[48px] min-w-[48px] flex-col gap-1"
-          >
-            <ChevronRight className="w-5 h-5" />
-            <span className="text-[10px]">Next</span>
-          </Button>
         </div>
-      </div>
+      )}
 
       {/* 30-Day Improvement Plan Modal */}
       {enhancedData && (

@@ -657,15 +657,15 @@ export const MedicalChatAgent = ({
                         }}
                       >
                         {message.question.options?.map((option) => (
-                          <div key={option.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                          <div key={option.id} className="flex items-center space-x-2 p-1.5 rounded-lg hover:bg-muted/50 transition-colors">
                             <div className="relative">
                               <RadioGroupItem 
                                 value={option.value} 
                                 id={option.id}
-                                className="border-2 border-muted-foreground data-[state=checked]:border-blue-500 data-[state=checked]:bg-blue-500 w-4 h-4"
+                                className="border-2 border-muted-foreground data-[state=checked]:border-blue-500 data-[state=checked]:bg-blue-500 w-3.5 h-3.5"
                               />
                               {selectedAnswers[message.question.id] === (option?.text || option.value) && (
-                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-blue-500 rounded-full" />
+                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-blue-500 rounded-full" />
                               )}
                             </div>
                             <Label htmlFor={option.id} className="text-sm cursor-pointer flex-1">
@@ -674,15 +674,15 @@ export const MedicalChatAgent = ({
                           </div>
                         ))}
                         {/* Always add "None of the above" option */}
-                        <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                        <div className="flex items-center space-x-2 p-1.5 rounded-lg hover:bg-muted/50 transition-colors">
                           <div className="relative">
                             <RadioGroupItem 
                               value="none_of_the_above" 
                               id="none_of_the_above"
-                              className="border-2 border-muted-foreground data-[state=checked]:border-blue-500 data-[state=checked]:bg-blue-500 w-4 h-4"
+                              className="border-2 border-muted-foreground data-[state=checked]:border-blue-500 data-[state=checked]:bg-blue-500 w-3.5 h-3.5"
                             />
                             {selectedAnswers[message.question.id] === "None of the above" && (
-                              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-blue-500 rounded-full" />
+                              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-blue-500 rounded-full" />
                             )}
                           </div>
                           <Label htmlFor="none_of_the_above" className="text-sm cursor-pointer flex-1">
