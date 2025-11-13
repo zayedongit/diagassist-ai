@@ -256,6 +256,7 @@ export const MobileResultsView = ({
       
       case 'chat':
         const createEnhancedAnalysisContext = (data: any) => {
+          if (!data) return '';
           return JSON.stringify({
             summary: data.summary,
             overallStatus: data.overallStatus,
@@ -268,8 +269,8 @@ export const MobileResultsView = ({
           <div className="pb-4">
             <MedicalChatAgent
               analysisContext={createEnhancedAnalysisContext(analysisData)}
-              demographics={analysisData.demographics}
-              abnormalPanels={enhancedData?.medicalPanels || []}
+              demographics={analysisData?.demographics}
+              abnormalPanels={enhancedData ? extractAbnormalPanels(enhancedData) : []}
               mode="clinical-triage"
               onClinicalAssessmentComplete={onClinicalAssessmentComplete}
             />
