@@ -913,6 +913,13 @@ RAW DATA: ${baseContext}`;
       description: "Clearing previous data and processing your new report...",
     });
 
+    // Auto-scroll to top on mobile to show analysis progress
+    if (isMobile) {
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 300);
+    }
+
     try {
       // Process PDF on client side only
       const response = await processClientSide(file);
@@ -985,6 +992,13 @@ RAW DATA: ${baseContext}`;
     toast.info("Starting New Analysis", {
       description: `Processing ${images.length} captured photos...`,
     });
+
+    // Auto-scroll to top on mobile to show analysis progress
+    if (isMobile) {
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 300);
+    }
 
     try {
       setExtractedText(`Processing ${images.length} images from camera...`);
