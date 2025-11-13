@@ -65,7 +65,7 @@ const HeaderNav = () => {
               alt="Daigassist" 
               className="h-6 sm:h-8 md:h-10 w-auto"
             />
-            <span className="text-base sm:text-lg font-bold text-navy hidden sm:block">
+            <span className="text-base sm:text-lg font-bold text-navy">
               Daigassist
             </span>
           </button>
@@ -82,17 +82,15 @@ const HeaderNav = () => {
                 My Reports
               </Button>
             ) : (
-              <Button
+              <button
                 onClick={() => {
                   const event = new CustomEvent('open-auth-dialog');
                   window.dispatchEvent(event);
                 }}
-                variant="outline"
-                size="sm"
-                className="text-[11px] xs:text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3 md:px-4"
+                className="text-[11px] xs:text-xs sm:text-sm text-gray-700 hover:text-primary transition-colors font-medium"
               >
                 Sign In
-              </Button>
+              </button>
             )}
           </div>
         </div>
