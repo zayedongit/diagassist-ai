@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -101,6 +101,18 @@ export const MobileResultsView = ({
       onDismiss();
     }, 300);
   };
+
+  // Auto-advance to next card (Health Score) after clinical chat completes
+  useEffect(() => {
+    if (clinicalAssessmentData && currentCard === 0) {
+      // Wait 1.5 seconds after chat completion, then auto-advance to Health Score
+      const timer = setTimeout(() => {
+        setCurrentCard(1); // Move to Health Score card
+      }, 1500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [clinicalAssessmentData, currentCard]);
 
   // Swipe disabled per user request - only dismiss gesture remains
 
