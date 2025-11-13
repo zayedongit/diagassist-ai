@@ -43,6 +43,8 @@ import { AbnormalPanelsSummary } from '@/components/AbnormalPanelsSummary';
 import { ValuesNeedingAttention } from '@/components/ValuesNeedingAttention';
 import { HealthScoreCard } from '@/components/HealthScoreCard';
 import { calculateHealthScore } from '@/utils/healthScoreCalculator';
+import { calculateHealthRisks } from '@/utils/healthRiskCalculator';
+import { RiskPredictionTimeline } from '@/components/RiskPredictionTimeline';
 
 import { AuthPrompt } from '@/components/AuthPrompt';
 
@@ -2009,6 +2011,26 @@ RAW DATA: ${baseContext}`;
                               <UnderstandingYourNumbers analysisData={analysisData} />
                             </div>
                           </div>
+
+                          {/* Risk Prediction Timeline */}
+                          {enhancedData && clinicalAssessmentData && (() => {
+                            const clinicalContext = parseClinicalContext(clinicalAssessmentData);
+                            const healthRisks = calculateHealthRisks(
+                              enhancedData,
+                              analysisData.demographics,
+                              clinicalContext
+                            );
+                            
+                            return (
+                              <div className="mt-6 animate-fade-in">
+                                <RiskPredictionTimeline
+                                  cardiovascularRisk={healthRisks.cardiovascularRisk}
+                                  diabetesRisk={healthRisks.diabetesRisk}
+                                  clinicalContext={clinicalContext}
+                                />
+                              </div>
+                            );
+                          })()}
 
                           {/* Preview and Download Buttons */}
                           {clinicalAssessmentData && (
