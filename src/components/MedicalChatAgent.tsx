@@ -51,6 +51,8 @@ export const MedicalChatAgent = ({
   mode = 'clinical-triage',
   onClinicalAssessmentComplete 
 }: MedicalChatAgentProps) => {
+  const MAX_QUESTIONS = 6; // Production-level question limit
+  
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -60,6 +62,7 @@ export const MedicalChatAgent = ({
   const [currentQuestion, setCurrentQuestion] = useState<TriageQuestion | null>(null);
   const [finalReport, setFinalReport] = useState<any>(null);
   const [askedQuestions, setAskedQuestions] = useState<Set<string>>(new Set());
+  const [askedCount, setAskedCount] = useState<number>(0);
   const [textInput, setTextInput] = useState<string>('');
   const [showJumpButton, setShowJumpButton] = useState(false);
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
@@ -69,10 +72,65 @@ export const MedicalChatAgent = ({
   // Generate session ID
   const generateSessionId = () => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-  // Initialize chat with analysis context
+  // CRITICAL: Reset session completely when new analysis starts
+  const resetSession = () => {
+    console.log('🔄 Resetting session for new analysis');
+    setMessages([]);
+    setInput('');
+    setIsTyping(false);
+    setTriageState(null);
+    setSelectedAnswers({});
+    setCurrentQuestion(null);
+    setFinalReport(null);
+    setAskedQuestions(new Set());
+    setAskedCount(0);
+    setTextInput('');
+    setShowJumpButton(false);
+    setIsAutoScrollEnabled(true);
+    setSessionId(generateSessionId());
+  };
+
+  // Client-side relevance guard - prevent showing irrelevant questions
+  const isQuestionRelevant = (questionText: string): boolean => {
+    const text = questionText.toLowerCase();
+    const isMale = demographics?.gender?.toLowerCase() === 'male';
+    const isFemale = demographics?.gender?.toLowerCase() === 'female';
+    
+    // Check for CBC abnormalities
+    const hasCBCAbnormal = abnormalPanels?.some(p => 
+      /cbc|complete blood count|hemoglobin|hematology/i.test(p.panel) && 
+      p.abnormal && p.abnormal.length > 0
+    );
+    
+    // Block anemia/blood loss questions if no CBC abnormalities
+    const mentionsAnemia = /anemia|blood loss|heavy period|menstru|fatigue.*blood|low.*hemoglobin/i.test(text);
+    if (mentionsAnemia && !hasCBCAbnormal) {
+      console.log('❌ Blocked irrelevant anemia question (no CBC abnormalities)');
+      return false;
+    }
+    
+    // Block female-specific questions for males
+    const mentionsFemaleHealth = /menstru|period|pregnancy|pregnant|menopaus|ovarian|uterine/i.test(text);
+    if (mentionsFemaleHealth && isMale) {
+      console.log('❌ Blocked female-specific question for male patient');
+      return false;
+    }
+    
+    // Block male-specific questions for females
+    const mentionsMaleHealth = /prostate|testic|erectile/i.test(text);
+    if (mentionsMaleHealth && isFemale) {
+      console.log('❌ Blocked male-specific question for female patient');
+      return false;
+    }
+    
+    return true;
+  };
+
+  // Initialize chat with analysis context - CRITICAL: Reset first!
   useEffect(() => {
     if (analysisContext) {
-      initializeChat();
+      resetSession(); // Always reset before new analysis
+      setTimeout(() => initializeChat(), 100); // Small delay to ensure state cleared
     }
   }, [analysisContext]);
 
@@ -86,7 +144,8 @@ export const MedicalChatAgent = ({
             analysisContext: analysisContext,
             demographics: demographics,
             abnormalPanels: abnormalPanels,
-            sessionId: sessionId || generateSessionId()
+            sessionId: sessionId || generateSessionId(),
+            maxQuestions: MAX_QUESTIONS // Send max questions to backend
           }
         });
 
@@ -213,15 +272,34 @@ export const MedicalChatAgent = ({
     if (data.type === 'question') {
       const questionId = data.question.id;
       
+      // Check if already asked
       if (askedQuestions.has(questionId)) {
         console.log('Question already asked, skipping:', questionId);
         return;
       }
 
+      // Check question count limit
+      if (askedCount >= MAX_QUESTIONS) {
+        console.log('Max questions reached, forcing report');
+        await handleForceReport();
+        return;
+      }
+
+      // Client-side relevance check
+      if (!isQuestionRelevant(data.question.text)) {
+        console.log('Question not relevant, skipping...');
+        await handleSkipQuestion();
+        return;
+      }
+
       setAskedQuestions(prev => new Set(prev).add(questionId));
+      setAskedCount(c => c + 1);
       
+      // CRITICAL: Only set currentQuestion, do NOT add to messages
       setCurrentQuestion(data.question);
-      addMessage('question', data.question.text, data.question);
+      
+      // Auto-scroll to new question after short delay
+      setTimeout(() => scrollToLatest(), 100);
     } else if (data.type === 'message') {
       addMessage('agent', data.message);
     } else if (data.type === 'report') {
@@ -272,8 +350,7 @@ export const MedicalChatAgent = ({
       const data = response.data;
       console.log('Response data:', data);
       
-      const answerText = typeof answer === 'string' ? answer : JSON.stringify(answer);
-      addMessage('user', answerText);
+      // CRITICAL: Do NOT display user answer bubble (removed addMessage('user', ...))
       
       setCurrentQuestion(null);
       setSelectedAnswers({});
@@ -282,6 +359,9 @@ export const MedicalChatAgent = ({
       console.log('Answer submitted successfully, cleared state');
 
       await handleTriageResponse(data);
+      
+      // Auto-scroll to next question
+      setTimeout(() => scrollToLatest(), 50);
     } catch (error) {
       console.error('Error submitting answer:', error);
       toast.error('Error submitting your answer. Please try again.');
@@ -451,7 +531,8 @@ export const MedicalChatAgent = ({
             onTouchEnd={(e) => e.stopPropagation()}
           >
             <div className={`space-y-4 py-4 ${isMobile ? 'pb-32' : ''}`}>
-              {messages.map((message) => (
+              {/* Render only non-question messages (agent messages and reports) */}
+              {messages.filter(m => m.type !== 'question').map((message) => (
                 <div 
                   key={message.id}
                   className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
@@ -470,7 +551,7 @@ export const MedicalChatAgent = ({
                         <p className="text-sm text-muted-foreground mb-2">{message.content}</p>
                         <ClinicalReport reportData={message.report} />
                       </div>
-                    ) : message.type === 'question' && message.question ? (
+                    ) : message.type === 'agent' ? (
                       <div className="space-y-3">
                         <div className="bg-cyan-50 rounded-lg p-4 border border-cyan-200">
                           <p className="text-sm font-medium text-cyan-900 mb-3">

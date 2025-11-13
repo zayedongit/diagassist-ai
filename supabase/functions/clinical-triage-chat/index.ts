@@ -12,8 +12,10 @@ interface TriageState {
   currentQuestionId?: string;
   questionCount: number;
   askedQuestions: string[];
+  askedQuestionKeys: string[]; // Normalized question text for duplicate detection
   askedTopics: string[];
   targetConditions: string[];
+  maxQuestions: number;
 }
 
 interface TriageQuestion {
@@ -64,13 +66,20 @@ serve(async (req) => {
 
     console.log('Clinical triage request:', { sessionId, isInitialization, hasAnalysis: !!analysisContext, demographics, abnormalPanelsCount: abnormalPanels?.length || 0 });
 
+    // Get maxQuestions from request or default to 6
+    const maxQuestionsFromBody = typeof (await req.json()).maxQuestions === 'number' 
+      ? Math.min(Math.max((await req.json()).maxQuestions, 5), 7) 
+      : 6;
+
     let triageState: TriageState = state || {
       stage: 'symptoms',
       answers: {},
       questionCount: 0,
       askedQuestions: [],
+      askedQuestionKeys: [],
       askedTopics: [],
-      targetConditions: []
+      targetConditions: [],
+      maxQuestions: maxQuestionsFromBody
     };
 
     // Update state with new selections
@@ -79,8 +88,9 @@ serve(async (req) => {
       console.log('Updated answers:', triageState.answers);
     }
 
-    // Check if we should generate report - removed artificial limits, let AI decide based on confidence
+    // Check if we should generate report - enforce max questions limit
     const shouldGenerateReport = forceReport || 
+                                 triageState.questionCount >= triageState.maxQuestions ||
                                  (triageState.questionCount >= 5 && Object.keys(triageState.answers).length >= 3);
 
     // Determine next question or generate report
@@ -210,15 +220,22 @@ For comprehensive clinical report (when confident):
 }
 
 CRITICAL OPERATIONAL GUIDELINES:
-- **NO QUESTION LIMITS**: Ask as many questions as needed for comprehensive assessment (15-25 questions is normal for complex cases)
-- **LAB-DRIVEN FOCUS**: Every question must correlate to specific abnormal lab findings and patient demographics
-- **DEMOGRAPHICS AWARENESS**: Always consider patient's gender and age when formulating questions
-- **GENDER-APPROPRIATE QUESTIONING**: Never ask gender-inappropriate questions (e.g., menstrual questions for males)
-- **DEPTH OVER SPEED**: Prioritize thorough symptom exploration over quick completion
+- **STRICT QUESTION LIMIT**: Maximum ${triageState.maxQuestions} focused questions per assessment. Stop earlier if sufficient information gathered.
+- **LAB-DRIVEN RELEVANCE**: Every question MUST directly correlate to specific abnormal lab findings. Never ask about conditions not indicated by abnormal labs.
+  * Only ask anemia/blood loss questions if CBC shows Hb < 12 g/dL (women) or < 13 g/dL (men), OR abnormal MCV/MCH/MCHC
+  * Only ask diabetes questions if HbA1c ≥ 5.7% or fasting glucose ≥ 100 mg/dL
+  * Only ask liver questions if ALT/AST/GGT/Bilirubin elevated
+  * Only ask kidney questions if Creatinine/BUN elevated or eGFR < 60
+  * Only ask lipid questions if Total Cholesterol/LDL/Triglycerides elevated or HDL low
+- **GENDER-APPROPRIATE QUESTIONING**: NEVER ask gender-inappropriate questions
+  * Never ask about menstruation, pregnancy, or female reproductive health for males
+  * Never ask about prostate or male reproductive health for females
+- **NO DUPLICATE QUESTIONS**: Previously asked: ${triageState.askedQuestionKeys.join(' | ')}. Never repeat or rephrase previously covered topics.
+- **AGE-APPROPRIATE**: Consider patient age ${demographics?.age || 'unknown'} when asking about symptoms and lifestyle
 - **NO MEDICATIONS**: Never suggest specific drugs, dosages, or prescription recommendations
 - **MULTIPLE SPECIALISTS**: Refer to multiple specialists when lab findings suggest multi-system involvement
 - **URGENCY PRIORITIZATION**: Flag concerning lab-symptom combinations requiring immediate attention
-- **COMPREHENSIVE REPORTING**: Generate detailed reports only when confident about diagnostic direction
+- **COMPREHENSIVE REPORTING**: Generate detailed reports when max questions reached or sufficient confidence
 - **RED FLAG EMPHASIS**: Always include warning signs based on specific lab-symptom correlations`;
 
     const userPrompt = isInitialization 
@@ -331,7 +348,6 @@ CRITICAL OPERATIONAL GUIDELINES:
         question: parsedResponse.question,
         sessionId: sessionId || crypto.randomUUID(),
       };
-    } else if (parsedResponse.action === 'report') {
       triageState.stage = 'complete';
       
       response = {
