@@ -177,6 +177,29 @@ const Index = () => {
     }
   }, [isAnalyzing, isMobile]);
 
+  // Handle analysis completion
+  const handleAnalysisComplete = (data: EnhancedAnalysisResult) => {
+    console.log('✅ Analysis completed with fresh data:', {
+      patientName: data.patientName,
+      testDate: data.testDate,
+      panelsCount: data.medicalPanels?.length,
+      timestamp: new Date().toISOString()
+    });
+    
+    // CRITICAL: Clear any cached/old data first to prevent showing previous patient's data
+    setAnalysisData(null);
+    setClinicalAssessmentData(null);
+    setShowPostChatSections(false);
+    
+    // Set fresh data after a brief delay to ensure state cleanup
+    setTimeout(() => {
+      setAnalysisData(data);
+      console.log('✅ Fresh analysis data set in state');
+    }, 100);
+    
+    setIsAnalyzing(false);
+  };
+
   // Auto-scroll: When analysis completes, skip summary and scroll to clinical chat
   useEffect(() => {
     if (showResults && !isAnalyzing && !isMobile) {
@@ -193,8 +216,6 @@ const Index = () => {
 
   // Handle single report processing
   const handleDriveSync = async () => {
-
-    setIsDriveSync(true);
     try {
       // Process a sample report URL (replace with actual report URL when available)
       const sampleReportUrl = 'https://example.com/sample-report.pdf';
@@ -436,6 +457,14 @@ RAW DATA: ${baseContext}`;
       return;
     }
 
+    console.log('📄 Preparing comprehensive PDF with CURRENT patient data:', {
+      patientName: analysisData.patientName,
+      age: analysisData.demographics?.age,
+      gender: analysisData.demographics?.gender,
+      testDate: analysisData.testDate,
+      panelsCount: analysisData.medicalPanels?.length
+    });
+
     const { generateFullComprehensiveReport } = await import('@/utils/generateFullComprehensiveReport');
     const { calculateHealthScore } = await import('@/utils/healthScoreCalculator');
     const { extractAbnormalPanels } = await import('@/types/medicalAnalysis');
@@ -470,10 +499,10 @@ RAW DATA: ${baseContext}`;
 
     await generateFullComprehensiveReport({
       patientInfo: {
-        name: analysisData.patientName || 'N/A',
+        name: analysisData.patientName || 'Not Available',
         age: analysisData.demographics?.age,
         gender: analysisData.demographics?.gender,
-        testDate: analysisData.testDate || 'N/A'
+        testDate: analysisData.testDate || 'Not Available'
       },
       summary: analysisData.summary,
       overallStatus: analysisData.overallStatus,
@@ -491,6 +520,8 @@ RAW DATA: ${baseContext}`;
         followUp: clinicalAssessmentData.followUp || ''
       }
     });
+    
+    console.log('✅ PDF generation completed');
   };
 
   // Handle download from preview modal
