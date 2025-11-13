@@ -169,8 +169,10 @@ export const MedicalChatAgent = ({
             const summaryText = `Based on your medical report analysis, I found abnormalities in ${abnormalPanels.length} panel(s). Let me ask some targeted questions to provide you with a comprehensive clinical assessment.`;
             addMessage('agent', summaryText);
           }
+          // CRITICAL: Only set currentQuestion, do NOT add to messages
           setCurrentQuestion(data.question);
-          addMessage('question', `${data.question.text}`, data.question);
+          setAskedQuestions(new Set([data.question.id]));
+          setAskedCount(1);
         } else if (data.type === 'report') {
           setFinalReport(data.report);
           addMessage('report', 'Clinical assessment complete. Here is your detailed report:', null, data.report);
@@ -319,52 +321,59 @@ export const MedicalChatAgent = ({
       toast.error('Please select an answer before submitting');
       return;
     }
-    
-    console.log('=== SUBMITTING ANSWER ===');
-    console.log('Question ID:', questionId);
-    console.log('Answer:', answer);
-    console.log('Question Type:', questionType);
-    console.log('Session ID:', sessionId);
+
+    // Validate answer based on type
+    if (questionType === 'text' && (!answer || !answer.trim())) {
+      console.error('Empty text answer');
+      toast.error('Please enter an answer');
+      return;
+    }
+
+    if (questionType === 'checkbox' && (!Array.isArray(answer) || answer.length === 0)) {
+      console.error('No checkbox options selected');
+      toast.error('Please select at least one option');
+      return;
+    }
     
     setIsTyping(true);
     
     try {
+      // DO NOT SHOW USER ANSWER BUBBLE (Production-level requirement)
+      // User answer echo removed per medical accuracy standards
+
       const response = await supabase.functions.invoke('clinical-triage-chat', {
         body: {
-          questionId: questionId,
-          answer: answer,
-          questionType: questionType,
+          questionId,
+          selections: answer,
           sessionId: sessionId,
-          state: triageState
+          state: triageState,
+          analysisContext,
+          demographics,
+          abnormalPanels,
+          maxQuestions: MAX_QUESTIONS
         }
       });
 
-      console.log('Backend response:', response);
-
       if (response.error) {
         console.error('Error submitting answer:', response.error);
-        toast.error('Error submitting your answer. Please try again.');
+        toast.error('Error submitting answer. Please try again.');
         return;
       }
 
       const data = response.data;
-      console.log('Response data:', data);
       
-      // CRITICAL: Do NOT display user answer bubble (removed addMessage('user', ...))
-      
+      // Clear selections and current question before moving to next
       setCurrentQuestion(null);
       setSelectedAnswers({});
       setTextInput('');
-      
-      console.log('Answer submitted successfully, cleared state');
 
       await handleTriageResponse(data);
       
-      // Auto-scroll to next question
+      // Auto-scroll after short delay
       setTimeout(() => scrollToLatest(), 50);
     } catch (error) {
       console.error('Error submitting answer:', error);
-      toast.error('Error submitting your answer. Please try again.');
+      toast.error('Error submitting answer. Please try again.');
     } finally {
       setIsTyping(false);
     }
@@ -424,7 +433,7 @@ export const MedicalChatAgent = ({
 
       const data = response.data;
       
-      addMessage('user', '[Skipped]');
+      // DO NOT show skipped message (Production requirement)
       
       setCurrentQuestion(null);
       setSelectedAnswers({});
@@ -551,129 +560,6 @@ export const MedicalChatAgent = ({
                         <p className="text-sm text-muted-foreground mb-2">{message.content}</p>
                         <ClinicalReport reportData={message.report} />
                       </div>
-                    ) : message.type === 'agent' ? (
-                      <div className="space-y-3">
-                        <div className="bg-cyan-50 rounded-lg p-4 border border-cyan-200">
-                          <p className="text-sm font-medium text-cyan-900 mb-3">
-                            {message.question.text}
-                          </p>
-                          
-                          {message.question.type === 'radio' && message.question.options && (
-                            <RadioGroup
-                              value={selectedAnswers[message.question.id] || ''}
-                              onValueChange={(value) => {
-                                setSelectedAnswers((prev: any) => ({
-                                  ...prev,
-                                  [message.question.id]: value
-                                }));
-                              }}
-                              className="space-y-2"
-                            >
-                              {message.question.options.map((option) => (
-                                <div key={option.id} className={`flex items-center space-x-2 bg-white rounded-md border border-cyan-100 hover:border-cyan-300 transition-colors ${isMobile ? 'p-1' : 'p-1.5'}`}>
-                                  <RadioGroupItem 
-                                    value={option.value} 
-                                    id={`${message.question.id}-${option.id}`}
-                                    className={isMobile ? 'w-3 h-3' : 'w-4 h-4'}
-                                  />
-                                  <Label 
-                                    htmlFor={`${message.question.id}-${option.id}`}
-                                    className="text-sm cursor-pointer flex-1 py-1"
-                                  >
-                                    {option.text}
-                                  </Label>
-                                </div>
-                              ))}
-                            </RadioGroup>
-                          )}
-
-                          {message.question.type === 'checkbox' && message.question.options && (
-                            <div className="space-y-2">
-                              {message.question.options.map((option) => (
-                                <div key={option.id} className="flex items-center space-x-2 bg-white rounded-md p-2 border border-cyan-100 hover:border-cyan-300 transition-colors">
-                                  <Checkbox 
-                                    id={`${message.question.id}-${option.id}`}
-                                    checked={selectedAnswers[message.question.id]?.includes(option.value) || false}
-                                    onCheckedChange={(checked) => {
-                                      setSelectedAnswers((prev: any) => {
-                                        const current = prev[message.question.id] || [];
-                                        if (checked) {
-                                          return {
-                                            ...prev,
-                                            [message.question.id]: [...current, option.value]
-                                          };
-                                        } else {
-                                          return {
-                                            ...prev,
-                                            [message.question.id]: current.filter((v: any) => v !== option.value)
-                                          };
-                                        }
-                                      });
-                                    }}
-                                  />
-                                  <Label 
-                                    htmlFor={`${message.question.id}-${option.id}`}
-                                    className="text-sm cursor-pointer flex-1"
-                                  >
-                                    {option.text}
-                                  </Label>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-
-                          {message.question.type === 'text' && (
-                            <Textarea
-                              value={textInput}
-                              onChange={(e) => setTextInput(e.target.value)}
-                              onKeyPress={handleKeyPress}
-                              placeholder="Type your answer here..."
-                              className="min-h-[80px] bg-white"
-                            />
-                          )}
-
-                          <div className={`flex gap-2 mt-4 ${isMobile ? 'mb-12' : ''}`}>
-                            <Button
-                              size="sm"
-                              onClick={() => {
-                                const answer = message.question.type === 'text' 
-                                  ? textInput 
-                                  : selectedAnswers[message.question.id];
-                                
-                                console.log('Submit clicked - Question ID:', message.question.id);
-                                console.log('Selected answer:', answer);
-                                console.log('Current selectedAnswers state:', selectedAnswers);
-                                
-                                if (answer && (
-                                  (typeof answer === 'string' && answer.trim()) || 
-                                  (Array.isArray(answer) && answer.length > 0) ||
-                                  (!Array.isArray(answer) && typeof answer !== 'string')
-                                )) {
-                                  handleQuestionSubmit(message.question.id, answer, message.question.type);
-                                } else {
-                                  console.error('Invalid answer - not submitting');
-                                  toast.error('Please select an answer before submitting');
-                                }
-                              }}
-                              disabled={
-                                !selectedAnswers[message.question.id] && 
-                                (message.question.type !== 'text' || !textInput.trim())
-                              }
-                              className="flex-1"
-                            >
-                              Submit Answer
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={handleSkipQuestion}
-                              className="flex-1"
-                            >
-                              Skip
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
                     ) : (
                       <div className={`rounded-lg p-3 ${
                         message.type === 'user' 
@@ -697,6 +583,133 @@ export const MedicalChatAgent = ({
                   )}
                 </div>
               ))}
+
+              {/* Render active question card separately */}
+              {currentQuestion && (
+                <div className="flex gap-3 justify-start">
+                  <div className="flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Bot className="w-5 h-5 text-primary" />
+                    </div>
+                  </div>
+                  <div className="flex-1 max-w-[80%]">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant="outline" className="text-xs">
+                          Question {askedCount} of {MAX_QUESTIONS}
+                        </Badge>
+                      </div>
+                      <div className="bg-cyan-50 rounded-lg p-3 border border-cyan-200">
+                        <p className={`font-medium text-cyan-900 mb-3 ${isMobile ? 'text-[13px] leading-tight' : 'text-sm'}`}>
+                          {currentQuestion.text}
+                        </p>
+                        
+                        {currentQuestion.type === 'radio' && currentQuestion.options && (
+                          <RadioGroup
+                            value={selectedAnswers[currentQuestion.id] || ''}
+                            onValueChange={(value) => {
+                              setSelectedAnswers((prev: any) => ({
+                                ...prev,
+                                [currentQuestion.id]: value
+                              }));
+                            }}
+                            className="space-y-1.5"
+                          >
+                            {currentQuestion.options.map((option) => (
+                              <div key={option.id} className={`flex items-center space-x-2 bg-white rounded-md border border-cyan-100 hover:border-cyan-300 transition-colors ${isMobile ? 'p-0.5' : 'p-1'}`}>
+                                <RadioGroupItem 
+                                  value={option.value} 
+                                  id={`${currentQuestion.id}-${option.id}`}
+                                  className={isMobile ? 'w-3 h-3' : 'w-4 h-4'}
+                                />
+                                <Label 
+                                  htmlFor={`${currentQuestion.id}-${option.id}`}
+                                  className={`cursor-pointer flex-1 ${isMobile ? 'text-[13px] leading-tight py-0.5' : 'text-sm py-1'}`}
+                                >
+                                  {option.text}
+                                </Label>
+                              </div>
+                            ))}
+                          </RadioGroup>
+                        )}
+                        
+                        {currentQuestion.type === 'checkbox' && currentQuestion.options && (
+                          <div className="space-y-1.5">
+                            {currentQuestion.options.map((option) => (
+                              <div key={option.id} className={`flex items-center space-x-2 bg-white rounded-md border border-cyan-100 hover:border-cyan-300 transition-colors ${isMobile ? 'p-0.5' : 'p-1'}`}>
+                                <Checkbox
+                                  id={`${currentQuestion.id}-${option.id}`}
+                                  checked={selectedAnswers[currentQuestion.id]?.includes(option.value) || false}
+                                  onCheckedChange={(checked) => {
+                                    setSelectedAnswers((prev: any) => {
+                                      const currentAnswers = prev[currentQuestion.id] || [];
+                                      if (checked) {
+                                        return {
+                                          ...prev,
+                                          [currentQuestion.id]: [...currentAnswers, option.value]
+                                        };
+                                      } else {
+                                        return {
+                                          ...prev,
+                                          [currentQuestion.id]: currentAnswers.filter((v: any) => v !== option.value)
+                                        };
+                                      }
+                                    });
+                                  }}
+                                  className={isMobile ? 'w-3 h-3' : 'w-4 h-4'}
+                                />
+                                <Label 
+                                  htmlFor={`${currentQuestion.id}-${option.id}`}
+                                  className={`cursor-pointer flex-1 ${isMobile ? 'text-[13px] leading-tight py-0.5' : 'text-sm py-1'}`}
+                                >
+                                  {option.text}
+                                </Label>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        
+                        {currentQuestion.type === 'text' && (
+                          <Textarea
+                            value={textInput}
+                            onChange={(e) => setTextInput(e.target.value)}
+                            placeholder="Type your answer..."
+                            className="min-h-[80px] text-sm"
+                          />
+                        )}
+                        
+                        <div className={`flex gap-2 mt-3 ${isMobile ? 'mb-8' : ''}`}>
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              const answer = currentQuestion.type === 'text' 
+                                ? textInput 
+                                : selectedAnswers[currentQuestion.id];
+                              
+                              if (answer && (
+                                (typeof answer === 'string' && answer.trim()) ||
+                                (Array.isArray(answer) && answer.length > 0) ||
+                                (!Array.isArray(answer) && typeof answer !== 'string')
+                              )) {
+                                handleQuestionSubmit(currentQuestion.id, answer, currentQuestion.type);
+                              } else {
+                                toast.error('Please select an answer before submitting');
+                              }
+                            }}
+                            disabled={
+                              !selectedAnswers[currentQuestion.id] && 
+                              (currentQuestion.type !== 'text' || !textInput.trim())
+                            }
+                            className="flex-1"
+                          >
+                            Submit Answer
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {isTyping && (
                 <div className="flex gap-3 justify-start">
