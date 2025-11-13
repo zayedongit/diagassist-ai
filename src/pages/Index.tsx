@@ -45,6 +45,7 @@ import { HealthScoreCard } from '@/components/HealthScoreCard';
 import { calculateHealthScore } from '@/utils/healthScoreCalculator';
 import { calculateHealthRisks } from '@/utils/healthRiskCalculator';
 import { RiskPredictionTimeline } from '@/components/RiskPredictionTimeline';
+import { InteractiveRiskCalculator } from '@/components/InteractiveRiskCalculator';
 
 import { AuthPrompt } from '@/components/AuthPrompt';
 
@@ -2022,8 +2023,14 @@ RAW DATA: ${baseContext}`;
                             );
                             
                             return (
-                              <div className="mt-6 animate-fade-in">
+                              <div className="mt-6 space-y-6 animate-fade-in">
                                 <RiskPredictionTimeline
+                                  cardiovascularRisk={healthRisks.cardiovascularRisk}
+                                  diabetesRisk={healthRisks.diabetesRisk}
+                                  clinicalContext={clinicalContext}
+                                />
+                                
+                                <InteractiveRiskCalculator
                                   cardiovascularRisk={healthRisks.cardiovascularRisk}
                                   diabetesRisk={healthRisks.diabetesRisk}
                                   clinicalContext={clinicalContext}
