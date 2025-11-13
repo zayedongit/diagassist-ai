@@ -38,7 +38,6 @@ export const MobileResultsView = ({
 }: MobileResultsViewProps) => {
   const { user } = useAuth();
   const [currentCard, setCurrentCard] = useState(0);
-  const [swipeOffset, setSwipeOffset] = useState(0);
   const [isDismissing, setIsDismissing] = useState(false);
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
@@ -106,40 +105,19 @@ export const MobileResultsView = ({
   const swipeHandlers = useSwipe({
     onSwipeLeft: goToNext,
     onSwipeRight: goToPrevious,
-    onSwipeDown: handleDismiss,
     minSwipeDistance: 50
   });
 
-  // Custom touch handlers for dismiss gesture with visual feedback
-  const [touchStartY, setTouchStartY] = useState<number | null>(null);
-  const [isSwiping, setIsSwiping] = useState(false);
-
+  // Custom touch handlers for horizontal swipe only
   const handleTouchStart = (e: React.TouchEvent) => {
-    const touch = e.touches[0];
-    setTouchStartY(touch.clientY);
-    setIsSwiping(false);
     swipeHandlers.onTouchStart(e);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (touchStartY === null) return;
-    
-    const touch = e.touches[0];
-    const deltaY = touch.clientY - touchStartY;
-    
-    // Only show visual feedback for downward swipes
-    if (deltaY > 0) {
-      setIsSwiping(true);
-      setSwipeOffset(Math.min(deltaY, 200)); // Cap at 200px
-    }
-    
     swipeHandlers.onTouchMove(e);
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    setIsSwiping(false);
-    setSwipeOffset(0);
-    setTouchStartY(null);
     swipeHandlers.onTouchEnd();
   };
 
@@ -412,19 +390,7 @@ export const MobileResultsView = ({
       className={`fixed inset-0 bg-white z-40 overflow-hidden pt-16 transition-transform duration-300 ${
         isDismissing ? 'translate-y-full' : ''
       }`}
-      style={{
-        transform: swipeOffset > 0 ? `translateY(${swipeOffset}px)` : undefined,
-        transition: isSwiping ? 'none' : 'transform 0.3s ease-out'
-      }}
     >
-      {/* Dismiss Indicator */}
-      {swipeOffset > 30 && (
-        <div 
-          className="absolute top-2 left-1/2 -translate-x-1/2 z-50 bg-gray-800/80 text-white px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm animate-fade-in"
-        >
-          {swipeOffset > 100 ? '👋 Release to close' : '⬇️ Swipe down to close'}
-        </div>
-      )}
       
       {/* Header */}
       <div className="bg-gradient-to-br from-primary/10 to-primary/5 px-4 py-4 border-b border-border">

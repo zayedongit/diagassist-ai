@@ -38,11 +38,12 @@ export const useSwipe = ({
     const distanceX = touchStartX - touchEndX;
     const distanceY = touchStartY - touchEndY;
     
-    // Determine if horizontal or vertical swipe is dominant
-    const isHorizontalSwipe = Math.abs(distanceX) > Math.abs(distanceY);
+    // Only process horizontal swipes to avoid interfering with scrolling
+    // Require horizontal movement to be significantly larger than vertical
+    const isHorizontalSwipe = Math.abs(distanceX) > Math.abs(distanceY) * 1.5;
     
     if (isHorizontalSwipe) {
-      // Horizontal swipes
+      // Horizontal swipes only
       const isLeftSwipe = distanceX > minSwipeDistance;
       const isRightSwipe = distanceX < -minSwipeDistance;
 
@@ -52,18 +53,8 @@ export const useSwipe = ({
       if (isRightSwipe && onSwipeRight) {
         onSwipeRight();
       }
-    } else {
-      // Vertical swipes
-      const isUpSwipe = distanceY > minSwipeDistance;
-      const isDownSwipe = distanceY < -minSwipeDistance;
-
-      if (isDownSwipe && onSwipeDown) {
-        onSwipeDown();
-      }
-      if (isUpSwipe && onSwipeUp) {
-        onSwipeUp();
-      }
     }
+    // Ignore vertical swipes entirely to prevent scroll conflicts
   };
 
   return {
