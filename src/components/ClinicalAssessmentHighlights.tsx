@@ -73,28 +73,28 @@ export const ClinicalAssessmentHighlights = ({ clinicalData }: ClinicalAssessmen
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Side by side cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
         {/* Warning Signs to Look For */}
         <Card className="border-warning/30 bg-gradient-to-br from-warning/10 to-warning/5">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-gray-900">
-              <AlertTriangle className="w-5 h-5 text-warning-600" />
+          <CardHeader className="p-3 sm:p-4 lg:p-6 pb-2 sm:pb-3">
+            <CardTitle className="flex items-center gap-2 text-gray-900 text-base sm:text-lg lg:text-xl">
+              <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-warning-600" />
               Warning Signs to Look For
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-4 lg:p-6 pt-0">
             {/* Red Flags */}
             {clinicalData.redFlags && clinicalData.redFlags.length > 0 && (
-              <div className="bg-warning/15 rounded-lg p-3 border border-warning/40">
-                <h4 className="font-medium text-gray-900 mb-2 flex items-center gap-1">
-                  <AlertTriangle className="w-4 h-4 text-warning-600" />
+              <div className="bg-warning/15 rounded-lg p-2.5 sm:p-3 border border-warning/40">
+                <h4 className="font-medium text-gray-900 mb-1.5 sm:mb-2 flex items-center gap-1 text-sm sm:text-base">
+                  <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-warning-600" />
                   Immediate Warning Signs
                 </h4>
-                <ul className="space-y-1">
+                <ul className="space-y-1 sm:space-y-1.5">
                   {clinicalData.redFlags.slice(0, 3).map((flag: string, index: number) => (
-                    <li key={index} className="text-sm text-gray-900 flex items-start gap-1">
+                    <li key={index} className="text-xs sm:text-sm text-gray-900 flex items-start gap-1">
                       <span className="w-1 h-1 rounded-full bg-warning-600 mt-2 flex-shrink-0"></span>
                       {flag}
                     </li>
@@ -105,16 +105,16 @@ export const ClinicalAssessmentHighlights = ({ clinicalData }: ClinicalAssessmen
 
             {/* Possible Conditions */}
             {clinicalData.possibleConditions && clinicalData.possibleConditions.length > 0 && (
-              <div className="bg-white rounded-lg p-3 border border-warning/30">
-                <h4 className="font-medium text-gray-900 mb-2 flex items-center gap-1">
-                  <Stethoscope className="w-4 h-4 text-primary" />
+              <div className="bg-white rounded-lg p-2.5 sm:p-3 border border-warning/30">
+                <h4 className="font-medium text-gray-900 mb-1.5 sm:mb-2 flex items-center gap-1 text-sm sm:text-base">
+                  <Stethoscope className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
                   Possible Conditions
                 </h4>
-                <div className="space-y-2">
+                <div className="space-y-1.5 sm:space-y-2">
                   {clinicalData.possibleConditions.slice(0, 2).map((condition: any, index: number) => (
                     <div key={index} className="flex items-center justify-between">
-                      <span className="text-sm text-gray-900 font-medium">{condition.name}</span>
-                      <Badge variant={getProbabilityBadgeVariant(condition.probability)} className="text-xs">
+                      <span className="text-xs sm:text-sm text-gray-900 font-medium">{condition.name}</span>
+                      <Badge variant={getProbabilityBadgeVariant(condition.probability)} className="text-[10px] sm:text-xs">
                         {condition.probability}
                       </Badge>
                     </div>
@@ -127,25 +127,25 @@ export const ClinicalAssessmentHighlights = ({ clinicalData }: ClinicalAssessmen
 
         {/* Investigations & Specialist Referrals */}
         <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-gray-900">
-              <FileText className="w-5 h-5 text-primary" />
+          <CardHeader className="p-3 sm:p-4 lg:p-6 pb-2 sm:pb-3">
+            <CardTitle className="flex items-center gap-2 text-gray-900 text-base sm:text-lg lg:text-xl">
+              <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               Investigations & Specialist Referrals
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-4 lg:p-6 pt-0">
             {/* Investigations */}
             {clinicalData.investigations && clinicalData.investigations.length > 0 && (
-              <div className="bg-white rounded-lg p-3 border border-blue-200">
-                <h4 className="font-medium text-gray-900 mb-2 flex items-center gap-1">
-                  <Activity className="w-4 h-4 text-primary" />
+              <div className="bg-white rounded-lg p-2.5 sm:p-3 border border-blue-200">
+                <h4 className="font-medium text-gray-900 mb-1.5 sm:mb-2 flex items-center gap-1 text-sm sm:text-base">
+                  <Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary" />
                   Recommended Tests
                 </h4>
-                <div className="space-y-2">
+                <div className="space-y-1.5 sm:space-y-2">
                   {clinicalData.investigations.slice(0, 2).map((investigation: any, index: number) => (
                     <div key={index} className="flex items-center justify-between">
-                      <span className="text-sm text-gray-900 font-medium">{investigation.test}</span>
-                      <Badge variant={getUrgencyBadgeVariant(investigation.urgency)} className="text-xs">
+                      <span className="text-xs sm:text-sm text-gray-900 font-medium">{investigation.test}</span>
+                      <Badge variant={getUrgencyBadgeVariant(investigation.urgency)} className="text-[10px] sm:text-xs">
                         {investigation.urgency}
                       </Badge>
                     </div>

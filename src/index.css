@@ -241,6 +241,39 @@ All colors MUST be HSL.
     background-clip: text;
   }
   
+  /* Mobile-specific typography */
+  .text-mobile-xs { 
+    font-size: 11px; 
+    line-height: 1.4; 
+  }
+  .text-mobile-sm { 
+    font-size: 13px; 
+    line-height: 1.5; 
+  }
+  .text-mobile-base { 
+    font-size: 14px; 
+    line-height: 1.6; 
+  }
+  .text-mobile-lg { 
+    font-size: 16px; 
+    line-height: 1.5; 
+  }
+  
+  /* Mobile spacing utilities */
+  .mobile-tight-spacing > * + * { 
+    margin-top: 0.5rem; 
+  }
+  .mobile-card-compact { 
+    padding: 0.75rem; 
+  }
+  
+  @media (min-width: 640px) {
+    .text-mobile-xs { font-size: 12px; }
+    .text-mobile-sm { font-size: 14px; }
+    .text-mobile-base { font-size: 16px; }
+    .text-mobile-lg { font-size: 18px; }
+  }
+  
   /* Floating Animation */
   @keyframes float {
     0%, 100% {
