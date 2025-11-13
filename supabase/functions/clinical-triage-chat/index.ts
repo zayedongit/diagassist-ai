@@ -331,9 +331,17 @@ CRITICAL OPERATIONAL GUIDELINES:
     let response: TriageResponse;
 
     if (parsedResponse.action === 'question') {
-      // Track the new question ID and topic
+      // Normalize question text for duplicate detection
+      const questionKey = parsedResponse.question.text
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, '')
+        .trim();
+      
+      // Track the new question
       triageState.questionCount += 1;
       triageState.askedQuestions.push(parsedResponse.question.id);
+      triageState.askedQuestionKeys.push(questionKey);
+      
       if (parsedResponse.question.topic) {
         triageState.askedTopics.push(parsedResponse.question.topic);
       }
@@ -348,6 +356,7 @@ CRITICAL OPERATIONAL GUIDELINES:
         question: parsedResponse.question,
         sessionId: sessionId || crypto.randomUUID(),
       };
+    } else if (parsedResponse.action === 'report') {
       triageState.stage = 'complete';
       
       response = {
