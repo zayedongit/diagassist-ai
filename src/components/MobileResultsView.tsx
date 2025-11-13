@@ -407,19 +407,21 @@ export const MobileResultsView = ({
           </Badge>
         </div>
 
-        {/* Progress Dots */}
-        <div className="flex items-center justify-center gap-2">
+        {/* Step labels (text chips) */}
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
           {cards.map((card, idx) => (
             <button
               key={card.id}
               onClick={() => setCurrentCard(idx)}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                idx === currentCard 
-                  ? 'w-8 bg-primary' 
-                  : 'w-2 bg-primary/30'
+              className={`px-2.5 py-1 rounded-full text-xs whitespace-nowrap border transition-all duration-200 ${
+                idx === currentCard
+                  ? 'bg-primary text-white border-primary'
+                  : 'bg-white text-navy/70 border-border'
               }`}
               aria-label={`Go to ${card.title}`}
-            />
+            >
+              {card.title}
+            </button>
           ))}
         </div>
       </div>

@@ -86,6 +86,7 @@ export const MedicalChatAgent = ({
         const response = await supabase.functions.invoke('clinical-triage-chat', {
           body: {
             isInitialization: true,
+            analysisContext,
             demographics,
             abnormalPanels,
             sessionId: newSessionId
@@ -189,37 +190,47 @@ export const MedicalChatAgent = ({
       setTriageState(data.state);
     }
 
-    if (data.finalReport) {
-      setFinalReport(data.finalReport);
-      addMessage('report', 'Your clinical assessment is complete! Here\'s your personalized health report.', undefined, data.finalReport);
+    // Report handling
+    if (data.type === 'report' || data.finalReport) {
+      const report = data.report || data.finalReport;
+      setFinalReport(report);
+      addMessage('report', 'Your clinical assessment is complete! Here\'s your personalized health report.', undefined, report);
       
       if (onClinicalAssessmentComplete) {
-        onClinicalAssessmentComplete(data.finalReport);
+        onClinicalAssessmentComplete(report);
       }
       
       setCurrentQuestion(null);
       return;
     }
 
-    if (data.nextQuestion) {
-      const questionId = data.nextQuestion.id;
+    // Question handling: support both data.question and legacy data.nextQuestion
+    const q = data.question || data.nextQuestion;
+    if (q?.id && q?.text) {
+      const questionId = q.id;
       
       if (!askedQuestions.has(questionId)) {
         setAskedQuestions(prev => new Set([...prev, questionId]));
         
         const triageQuestion: TriageQuestion = {
-          id: data.nextQuestion.id,
-          text: data.nextQuestion.text,
-          type: data.nextQuestion.type || 'text',
-          options: data.nextQuestion.options,
-          allowMultiple: data.nextQuestion.allowMultiple
+          id: q.id,
+          text: q.text,
+          type: q.type || 'text',
+          options: q.options,
+          allowMultiple: q.allowMultiple
         };
         
         setCurrentQuestion(triageQuestion);
-        addMessage('question', data.nextQuestion.text, triageQuestion);
+        addMessage('question', q.text, triageQuestion);
         setSelectedAnswers({});
         setTextInput('');
       }
+      return;
+    }
+
+    // Fallback to avoid blank state
+    if (messages.length === 0) {
+      addMessage('agent', "Hello! I'm here to help you understand your results. How are you feeling today?");
     }
   };
 
