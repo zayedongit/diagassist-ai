@@ -130,8 +130,11 @@ ABNORMAL PANELS: ${abnormalPanels ? JSON.stringify(abnormalPanels) : 'No panel-s
 ENHANCED QUESTIONING FRAMEWORK:
 Focus on lab abnormality patterns and their clinical correlations:
 
-🩸 HEMATOLOGICAL ABNORMALITIES:
-• Anemia (Hb <12g/dL women, <13g/dL men): Fatigue patterns, exercise tolerance, palpitations, restless legs, ice cravings, heavy periods, GI bleeding signs
+🩸 HEMATOLOGICAL ABNORMALITIES (GENDER-AWARE):
+• Anemia (Hb <12g/dL women, <13g/dL men): 
+  - Universal symptoms: Fatigue patterns, exercise tolerance, palpitations, restless legs, ice cravings
+  - **For FEMALES with anemia:** Heavy/prolonged periods, menstrual bleeding patterns
+  - **For MALES with anemia:** GI bleeding signs (dark stools, blood in stool), hemorrhoids, NSAID use, stomach ulcers
 • Elevated WBC: Fever patterns, infections, stress levels, medications, recent surgeries, autoimmune symptoms
 • Low platelets: Bleeding tendency, bruising, petechial rashes, dental bleeding
 • High MCV: B12/folate deficiency signs, alcohol consumption, thyroid symptoms
@@ -146,11 +149,13 @@ Focus on lab abnormality patterns and their clinical correlations:
 • HbA1c >5.7%: Weight changes, dietary patterns, exercise habits, stress eating, medication effects
 • Lipid abnormalities: Chest pain patterns, family cardiac events, dietary fats, exercise frequency, smoking history
 
-🔋 ENDOCRINE DYSFUNCTION (Gender-Specific):
+🔋 ENDOCRINE DYSFUNCTION (GENDER-SPECIFIC - CHECK PATIENT GENDER FIRST):
 • TSH abnormalities: Weight changes (amount/timeline), temperature tolerance, heart rate changes, hair/skin changes, mood shifts
-  - For females: menstrual changes, fertility issues, pregnancy history
-  - For males: libido changes, hair loss patterns
+  - **For FEMALES ONLY:** menstrual changes, fertility issues, pregnancy history
+  - **For MALES ONLY:** libido changes, hair loss patterns, erectile function
 • Specific thyroid symptoms: Goiter, voice changes, swallowing difficulty, family thyroid disease
+
+⚠️ **CRITICAL GENDER CHECK:** Before asking ANY question related to menstruation, pregnancy, or female reproductive health, verify patient gender is female. For males, NEVER include these topics.
 
 🫘 RENAL FUNCTION:
 • Creatinine >1.2mg/dL: Urination changes (frequency, color, foam), swelling locations/timing, blood pressure readings, medication history (NSAIDs, ACE inhibitors)
@@ -173,10 +178,30 @@ Current Triage State:
 DYNAMIC QUESTIONING STRATEGY (Demographics-Aware):
 1. **Depth over breadth**: Ask detailed follow-up questions about each abnormal finding
 2. **Symptom correlation**: Connect every question directly to specific lab abnormalities and patient demographics
-3. **Gender-specific considerations**: 
-   - For females: Include menstrual history, pregnancy, hormonal factors when relevant
-   - For males: Consider male-specific conditions and risk factors
-   - Avoid gender-inappropriate questions (e.g., no menstrual questions for males)
+3. **CRITICAL: GENDER-SPECIFIC QUESTIONING (MANDATORY - ZERO TOLERANCE FOR ERRORS)**: 
+   **YOU MUST CHECK PATIENT GENDER BEFORE EVERY QUESTION**
+   
+   Patient Gender from Demographics: ${demographics?.gender || demographics?.sex || 'NOT PROVIDED'}
+   
+   **ABSOLUTE RULES - NEVER VIOLATE:**
+   ❌ **NEVER EVER ask males about:**
+      - Menstrual cycles, periods, bleeding patterns
+      - Pregnancy, contraception, menopause
+      - Gynecological symptoms or history
+   
+   ❌ **NEVER EVER ask females about:**
+      - Prostate symptoms or PSA levels
+      - Testicular symptoms
+      - Male-pattern baldness related to testosterone
+   
+   ✅ **For females with anemia:** Ask about menstrual bleeding patterns (heavy periods, etc.)
+   ✅ **For males with anemia:** Ask about GI bleeding, hemorrhoids, NSAIDs use, dark/bloody stools
+   ✅ **For thyroid abnormalities in females:** Include menstrual changes
+   ✅ **For thyroid abnormalities in males:** Focus on libido, hair loss, energy
+   
+   **IF GENDER IS MALE/MASCULINE/M:** Skip ALL menstruation-related questions. Use "Not applicable" as default answer internally.
+   **IF GENDER IS FEMALE/FEMININE/F:** Include menstruation questions for anemia/thyroid conditions.
+   
 4. **Timeline exploration**: Ask about symptom duration, progression, and triggers
 5. **Severity assessment**: Quantify impact on daily activities and quality of life
 6. **Associated symptoms**: Explore symptom clusters that support diagnostic hypotheses
@@ -317,7 +342,62 @@ CRITICAL OPERATIONAL GUIDELINES:
       // Try to parse the JSON
       parsedResponse = JSON.parse(cleanedResponse);
       console.log('Successfully parsed AI response:', { action: parsedResponse.action });
+      
+      // CRITICAL: Validate gender-appropriate questions
+      if (parsedResponse.action === 'question' && parsedResponse.question) {
+        const questionText = parsedResponse.question.text.toLowerCase();
+        const patientGender = demographics?.gender?.toLowerCase() || demographics?.sex?.toLowerCase() || '';
+        
+        // Check for menstrual questions asked to males
+        const isMenstrualQuestion = questionText.includes('menstrual') || 
+                                    questionText.includes('period') || 
+                                    questionText.includes('pregnancy') ||
+                                    questionText.includes('contraception') ||
+                                    questionText.includes('menopause');
+        
+        const isMale = patientGender.includes('male') || patientGender === 'm';
+        
+        if (isMale && isMenstrualQuestion) {
+          console.error('🚨 CRITICAL ERROR: Gender-inappropriate question detected! Asking menstrual question to MALE patient.');
+          console.error('Question text:', parsedResponse.question.text);
+          console.error('Patient gender:', patientGender);
+          
+          // Skip this inappropriate question and generate next question
+          throw new Error('GENDER_INAPPROPRIATE_QUESTION');
+        }
+      }
     } catch (e) {
+      // Handle gender-inappropriate question error
+      if (e instanceof Error && e.message === 'GENDER_INAPPROPRIATE_QUESTION') {
+        // Return a safe fallback question instead
+        const fallbackResponse = {
+          action: 'question',
+          question: {
+            id: 'general_symptoms_' + Date.now(),
+            text: 'How would you describe your overall energy levels and daily activity tolerance?',
+            type: 'radio',
+            options: [
+              { id: 'normal', text: 'Normal - I can perform all my usual activities', value: 'normal' },
+              { id: 'slightly_reduced', text: 'Slightly reduced - Some activities are tiring', value: 'slightly_reduced' },
+              { id: 'moderately_reduced', text: 'Moderately reduced - I need more rest than usual', value: 'moderately_reduced' },
+              { id: 'severely_reduced', text: 'Severely reduced - Daily activities are very challenging', value: 'severely_reduced' }
+            ]
+          },
+          targetConditions: triageState.targetConditions || [],
+          nextStage: triageState.stage || 'symptoms'
+        };
+        
+        return new Response(
+          JSON.stringify({
+            type: 'question',
+            ...fallbackResponse,
+            state: triageState
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      // Handle JSON parsing errors
       console.error('Failed to parse OpenAI response:', aiResponse);
       const errorMessage = e instanceof Error ? e.message : 'Unknown error';
       console.error('Parse error:', errorMessage);

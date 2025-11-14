@@ -295,6 +295,14 @@ export const MedicalChatAgent = ({
 
       const data = response.data;
       handleTriageResponse(data);
+      
+      // Auto-scroll to next question after answer is submitted
+      setTimeout(() => {
+        if (scrollAreaRef.current) {
+          scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+          setIsAutoScrollEnabled(true);
+        }
+      }, 300);
     } catch (error) {
       console.error('Error submitting answer:', error);
       addMessage('agent', 'Sorry, I encountered an error. Please try again.');
