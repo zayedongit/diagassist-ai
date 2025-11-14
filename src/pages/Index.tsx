@@ -50,7 +50,7 @@ import { InteractiveRiskCalculator } from '@/components/InteractiveRiskCalculato
 import { AuthPrompt } from '@/components/AuthPrompt';
 
 // Header Navigation Component - Simplified for mobile
-const HeaderNav = () => {
+const HeaderNav = ({ onLogoClick }: { onLogoClick?: () => void }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   
@@ -60,7 +60,7 @@ const HeaderNav = () => {
         <div className="flex items-center justify-between">
           {/* Logo Section */}
           <button
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            onClick={() => onLogoClick ? onLogoClick() : window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="flex items-center gap-2 hover:opacity-80 transition-opacity"
           >
             <img 
@@ -1477,7 +1477,7 @@ RAW DATA: ${baseContext}`;
       {/* 1. Sticky Top Navigation Bar - Simplified */}
       <header className="sticky top-0 z-50 bg-white backdrop-blur-lg border-b border-border">
         {/* Header Navigation */}
-        <HeaderNav />
+        <HeaderNav onLogoClick={showResults && isMobile ? handleReset : undefined} />
       </header>
 
       <main className="w-full">
