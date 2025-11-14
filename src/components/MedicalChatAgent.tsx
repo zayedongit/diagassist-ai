@@ -74,7 +74,7 @@ export const MedicalChatAgent = ({
 
   useEffect(() => {
     // Only initialize with fresh, verified analysis data
-    if (mode === 'clinical-triage' && !sessionId && analysisContext && analysisId) {
+    if (mode === 'clinical-triage' && !sessionId && analysisContext) {
       // Validate data freshness
       if (analysisTimestamp) {
         const analysisAge = Date.now() - new Date(analysisTimestamp).getTime();
@@ -86,7 +86,7 @@ export const MedicalChatAgent = ({
         }
       }
       
-      console.log('[AUDIT] Initializing clinical chat with analysis:', analysisId);
+      console.log('[AUDIT] Initializing clinical chat with analysis:', analysisId || 'no-id');
       initializeChat();
     } else if (mode === 'voiceflow' && !sessionId) {
       initializeChat();

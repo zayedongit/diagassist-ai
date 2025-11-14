@@ -273,8 +273,8 @@ export const MobileResultsView = ({
               abnormalPanels={enhancedData ? extractAbnormalPanels(enhancedData) : []}
               mode="clinical-triage"
               onClinicalAssessmentComplete={onClinicalAssessmentComplete}
-              analysisId={analysisData?.analysisId || analysisData?.id}
-              analysisTimestamp={analysisData?.timestamp || analysisData?.created_at}
+              analysisId={analysisData?.analysisId || analysisData?.id || `temp-${Date.now()}`}
+              analysisTimestamp={analysisData?.timestamp || analysisData?.created_at || new Date().toISOString()}
             />
           </div>
         );
@@ -410,12 +410,12 @@ export const MobileResultsView = ({
         </div>
 
         {/* Step labels (plain text) */}
-        <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-1">
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 px-1">
           {cards.map((card, idx) => (
             <button
               key={card.id}
               onClick={() => setCurrentCard(idx)}
-              className={`text-xs whitespace-nowrap transition-all duration-200 ${
+              className={`text-xs whitespace-nowrap px-2 py-1 transition-all duration-200 flex-shrink-0 ${
                 idx === currentCard
                   ? 'text-primary font-semibold'
                   : 'text-muted-foreground font-normal'
