@@ -273,6 +273,8 @@ export const MobileResultsView = ({
               abnormalPanels={enhancedData ? extractAbnormalPanels(enhancedData) : []}
               mode="clinical-triage"
               onClinicalAssessmentComplete={onClinicalAssessmentComplete}
+              analysisId={analysisData?.analysisId || analysisData?.id}
+              analysisTimestamp={analysisData?.timestamp || analysisData?.created_at}
             />
           </div>
         );
@@ -407,16 +409,16 @@ export const MobileResultsView = ({
           </Badge>
         </div>
 
-        {/* Step labels (text chips) */}
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+        {/* Step labels (plain text) */}
+        <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-1">
           {cards.map((card, idx) => (
             <button
               key={card.id}
               onClick={() => setCurrentCard(idx)}
-              className={`px-2.5 py-1 rounded-full text-xs whitespace-nowrap border transition-all duration-200 ${
+              className={`text-xs whitespace-nowrap transition-all duration-200 ${
                 idx === currentCard
-                  ? 'bg-primary text-white border-primary'
-                  : 'bg-white text-navy/70 border-border'
+                  ? 'text-primary font-semibold'
+                  : 'text-muted-foreground font-normal'
               }`}
               aria-label={`Go to ${card.title}`}
             >
