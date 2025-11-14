@@ -10,6 +10,69 @@ interface NextStepsSectionProps {
 }
 
 export const NextStepsSection = ({ analysisData, specialist }: NextStepsSectionProps) => {
+  // Check if patient has actual anemia (not just low iron stores)
+  const hasActualAnemia = (): boolean => {
+    let hgbValue: number | null = null;
+    
+    if ('medicalPanels' in analysisData && analysisData.medicalPanels) {
+      for (const panel of analysisData.medicalPanels) {
+        if (panel.name.toLowerCase().includes('cbc') || 
+            panel.name.toLowerCase().includes('complete blood count') ||
+            panel.name.toLowerCase().includes('haematology') ||
+            panel.name.toLowerCase().includes('hematology')) {
+          
+          const allLabs = panel.abnormalLabs || [];
+          const hgbLab = allLabs.find(lab =>
+            lab.name.toLowerCase().includes('hemoglobin') ||
+            lab.name.toLowerCase().includes('haemoglobin') ||
+            lab.name === 'Hb' || lab.name === 'Hgb'
+          );
+          
+          if (hgbLab) {
+            hgbValue = parseFloat(hgbLab.value);
+            break;
+          }
+        }
+      }
+    }
+    
+    if (hgbValue === null) return false;
+    
+    // Anemia thresholds: Women <11.5, Men <13, Universal conservative <12
+    const hasAnemia = hgbValue < 12;
+    
+    console.log(`[CLINICAL CHECK] Hemoglobin: ${hgbValue} g/dL - Anemia: ${hasAnemia ? 'YES' : 'NO'}`);
+    return hasAnemia;
+  };
+
+  // Check severity of abnormality
+  const getAbnormalitySeverity = (labName: string, value: number): 'mild' | 'moderate' | 'severe' | 'critical' => {
+    const name = labName.toLowerCase();
+    
+    if (name.includes('hemoglobin') || name.includes('hb') || name.includes('hgb')) {
+      if (value < 7) return 'critical';
+      if (value < 9) return 'severe';
+      if (value < 11) return 'moderate';
+      return 'mild';
+    }
+    
+    if (name.includes('hba1c')) {
+      if (value > 11) return 'critical';
+      if (value > 9) return 'severe';
+      if (value > 7.5) return 'moderate';
+      return 'mild';
+    }
+    
+    if (name.includes('creatinine')) {
+      if (value > 3) return 'critical';
+      if (value > 2) return 'severe';
+      if (value > 1.5) return 'moderate';
+      return 'mild';
+    }
+    
+    return 'mild';
+  };
+
   // Generate medical investigation recommendations based on actual abnormal lab values - strict filtering
   const getMedicalInvestigations = () => {
     const investigations = [];

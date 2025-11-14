@@ -4,6 +4,7 @@ import { AlertTriangle, Stethoscope, Users, FileText, Activity, Heart } from "lu
 
 interface ClinicalAssessmentHighlightsProps {
   clinicalData?: any;
+  analysisData?: any;
 }
 
 const getProbabilityBadgeVariant = (probability: string) => {
@@ -25,11 +26,82 @@ const getUrgencyBadgeVariant = (urgency: string) => {
   }
 };
 
-export const ClinicalAssessmentHighlights = ({ clinicalData }: ClinicalAssessmentHighlightsProps) => {
+export const ClinicalAssessmentHighlights = ({ clinicalData, analysisData }: ClinicalAssessmentHighlightsProps) => {
+  // Filter out clinically inappropriate warning signs
+  const filterClinicallyAppropriateRedFlags = (redFlags: string[]): string[] => {
+    if (!redFlags || redFlags.length === 0) return [];
+    
+    // Check if patient has actual anemia
+    let hgbValue: number | null = null;
+    if (analysisData?.medicalPanels) {
+      for (const panel of analysisData.medicalPanels) {
+        if (panel.name.toLowerCase().includes('cbc') || 
+            panel.name.toLowerCase().includes('haematology') ||
+            panel.name.toLowerCase().includes('hematology')) {
+          const allLabs = [...(panel.labs || []), ...(panel.abnormalLabs || [])];
+          const hgbLab = allLabs.find((lab: any) =>
+            lab.name.toLowerCase().includes('hemoglobin') ||
+            lab.name.toLowerCase().includes('haemoglobin')
+          );
+          if (hgbLab) {
+            hgbValue = parseFloat(hgbLab.value);
+            break;
+          }
+        }
+      }
+    }
+    
+    // Filter out anemia-related warning signs if Hgb is normal
+    if (hgbValue !== null && hgbValue >= 11.5) {
+      console.log(`[WARNING FILTER] Hgb is ${hgbValue} g/dL (NORMAL) - Filtering out anemia warning signs`);
+      return redFlags.filter(flag => {
+        const lower = flag.toLowerCase();
+        // Remove anemia-specific emergency symptoms
+        const isAnemiaSymptom = (
+          lower.includes('tarry') ||
+          lower.includes('bloody stool') ||
+          lower.includes('black stool') ||
+          lower.includes('chest pain') ||
+          lower.includes('palpitation') ||
+          lower.includes('shortness of breath') ||
+          lower.includes('severe fatigue') ||
+          lower.includes('severe dizziness') ||
+          lower.includes('fainting') ||
+          lower.includes('gi bleeding')
+        );
+        
+        if (isAnemiaSymptom) {
+          console.log(`[WARNING FILTER] Removed inappropriate warning: "${flag}"`);
+          return false;
+        }
+        return true;
+      });
+    }
+    
+    // For severe cases (Hgb < 8), keep all warning signs
+    if (hgbValue !== null && hgbValue < 8) {
+      console.log(`[WARNING FILTER] Hgb is ${hgbValue} g/dL (SEVERE) - Keeping all warnings`);
+      return redFlags;
+    }
+    
+    // For moderate cases (Hgb 8-11), keep but limit to most relevant
+    if (hgbValue !== null && hgbValue < 11.5) {
+      console.log(`[WARNING FILTER] Hgb is ${hgbValue} g/dL (MODERATE) - Limiting warnings`);
+      return redFlags.slice(0, 3);
+    }
+    
+    return redFlags;
+  };
+
   // Don't show anything if clinical assessment is not completed
   if (!clinicalData) {
     return null;
   }
+  
+  // Apply clinical filtering to red flags
+  const filteredRedFlags = clinicalData.redFlags 
+    ? filterClinicallyAppropriateRedFlags(clinicalData.redFlags)
+    : [];
 
   // Legacy fallback for older data structure
   if (clinicalData && !clinicalData.redFlags && !clinicalData.possibleConditions && !clinicalData.investigations) {
