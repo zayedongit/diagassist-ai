@@ -390,9 +390,9 @@ export const MobileResultsView = ({
 
   return (
     <div 
-      className={`fixed inset-0 bg-white z-40 overflow-hidden pt-16 transition-transform duration-300 ${
+      className={`fixed inset-0 bg-white z-50 overflow-hidden transition-transform duration-300 ${
         isDismissing ? 'translate-y-full' : ''
-      }`}
+      } flex flex-col`}
     >
       
       {/* Header */}
@@ -430,7 +430,7 @@ export const MobileResultsView = ({
 
       {/* Swipeable Content */}
       <div
-        className="h-[calc(100vh-180px)] overflow-y-auto px-4 py-6"
+        className="flex-1 overflow-y-auto px-4 py-6 pb-[calc(env(safe-area-inset-bottom)+96px)]"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
