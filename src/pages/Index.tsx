@@ -2104,7 +2104,10 @@ RAW DATA: ${baseContext}`;
 
                           {/* Mobile: Stack in priority order */}
                           <div className="block lg:hidden space-y-4">
-                            <ClinicalAssessmentHighlights clinicalData={clinicalAssessmentData} />
+                            <ClinicalAssessmentHighlights 
+                              clinicalData={clinicalAssessmentData}
+                              analysisData={analysisData}
+                            />
                             
                             {enhancedData && clinicalAssessmentData && (() => {
                               const clinicalContext = parseClinicalContext(clinicalAssessmentData);
@@ -2139,7 +2142,10 @@ RAW DATA: ${baseContext}`;
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                               {/* Left Column - Clinical Assessment */}
                               <div className="lg:col-span-2 space-y-6">
-                                <ClinicalAssessmentHighlights clinicalData={clinicalAssessmentData} />
+                                <ClinicalAssessmentHighlights 
+                                  clinicalData={clinicalAssessmentData}
+                                  analysisData={analysisData}
+                                />
                               </div>
 
                               {/* Right Column - Charts */}
