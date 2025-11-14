@@ -96,20 +96,12 @@ function validateClinicalData(analysisResult: any): any {
           return false;
         }
 
-        // REDUCED VALIDATION - Trust AI analysis more
-        // Only filter out obviously impossible values or clear normal values
+        // MINIMAL VALIDATION - Only filter out obviously invalid entries
+        // Medical significance filter will handle clinical appropriateness later
         const labName = lab.name.toLowerCase();
         
-        // Only filter out clearly normal HbA1c (very conservative)
-        if (labName.includes('hba1c') || labName.includes('a1c')) {
-          const a1cValue = numericValue;
-          if (a1cValue <= 5.6) {  // Only remove clearly normal values
-            console.log('✅ HbA1c is clearly normal, removing from abnormal:', a1cValue);
-            if (!panel.normalParameters) panel.normalParameters = [];
-            panel.normalParameters.push(`${lab.name}: ${lab.value} ${lab.unit || ''}`);
-            return false;
-          }
-        }
+        console.log(`✅ Keeping ${lab.name}: ${lab.value} for medical significance filter`);
+        return true;
 
         // Trust AI for all other parameters - preserve abnormal findings
         console.log('✅ Preserving abnormal parameter (AI determined):', lab.name, lab.value);
@@ -289,6 +281,143 @@ async function retryWithBackoff<T>(
   }
   
   throw lastError!;
+}
+
+// Helper function to check if value is within reference range
+function checkIfValueWithinRange(value: number, referenceRange: string): boolean {
+  // Parse ranges like "70-140", "<6.0", ">2.5", "Below 6.0%", "11.5-15.5"
+  const range = referenceRange.toLowerCase().replace(/[^\d.\-<>]/g, '');
+  
+  // Handle "< X" format
+  if (range.startsWith('<')) {
+    const max = parseFloat(range.substring(1));
+    return !isNaN(max) && value < max;
+  }
+  
+  // Handle "> X" format
+  if (range.startsWith('>')) {
+    const min = parseFloat(range.substring(1));
+    return !isNaN(min) && value > min;
+  }
+  
+  // Handle "X-Y" format
+  if (range.includes('-')) {
+    const [minStr, maxStr] = range.split('-');
+    const min = parseFloat(minStr);
+    const max = parseFloat(maxStr);
+    return !isNaN(min) && !isNaN(max) && value >= min && value <= max;
+  }
+  
+  return false;
+}
+
+// Apply medical significance filter to remove incorrectly flagged normal values
+function applyMedicalSignificanceFilter(analysisResult: any): any {
+  console.log('🩺 [MEDICAL FILTER] Applying clinical significance filter...');
+  
+  if (!analysisResult.medicalPanels) return analysisResult;
+  
+  const filteredPanels: any[] = [];
+  let removedCount = 0;
+  
+  for (const panel of analysisResult.medicalPanels) {
+    const panelName = panel.name.toLowerCase();
+    
+    if (!panel.abnormalLabs || panel.abnormalLabs.length === 0) {
+      continue;
+    }
+    
+    // Filter abnormalLabs to remove values that are actually normal
+    const trulyAbnormalLabs = panel.abnormalLabs.filter((lab: any) => {
+      const labName = lab.name.toLowerCase();
+      const status = lab.status?.toLowerCase() || '';
+      const value = parseFloat(lab.value);
+      
+      // Remove if explicitly marked as normal
+      if (status === 'normal') {
+        console.log(`🩺 [MEDICAL FILTER] Removing ${lab.name}: Status is 'normal'`);
+        removedCount++;
+        return false;
+      }
+      
+      // HbA1c: Only abnormal if >= 6.0% (prediabetes threshold)
+      if (labName.includes('hba1c') || labName.includes('a1c') || labName.includes('glycosylated')) {
+        if (value < 6.0) {
+          console.log(`🩺 [MEDICAL FILTER] Removing HbA1c ${value}%: Below 6.0% threshold (NORMAL)`);
+          if (!panel.normalParameters) panel.normalParameters = [];
+          panel.normalParameters.push(`${lab.name}: ${lab.value}${lab.unit || ''} (Normal: <6.0%)`);
+          removedCount++;
+          return false;
+        }
+      }
+      
+      // Fasting/Random Glucose: Only abnormal if >= 100 mg/dL (fasting) or >= 140 mg/dL (random)
+      if (labName.includes('glucose') || labName.includes('blood sugar') || labName.includes('sugar')) {
+        const isFasting = labName.includes('fasting');
+        const isRandom = labName.includes('random') || labName.includes('rbs');
+        const threshold = isFasting ? 100 : (isRandom ? 140 : 100);
+        
+        if (value < threshold) {
+          console.log(`🩺 [MEDICAL FILTER] Removing ${lab.name} ${value}: Below threshold (NORMAL)`);
+          if (!panel.normalParameters) panel.normalParameters = [];
+          panel.normalParameters.push(`${lab.name}: ${lab.value}${lab.unit || ''} (Normal)`);
+          removedCount++;
+          return false;
+        }
+      }
+      
+      // Hemoglobin: Only abnormal if <11.5 (women) or <13 (men) - use conservative threshold
+      if (labName.includes('hemoglobin') || labName.includes('haemoglobin') || labName === 'hb' || labName === 'hgb') {
+        if (value >= 11.5 && value <= 18) {
+          console.log(`🩺 [MEDICAL FILTER] Removing Hemoglobin ${value}: Within normal range (NORMAL)`);
+          if (!panel.normalParameters) panel.normalParameters = [];
+          panel.normalParameters.push(`${lab.name}: ${lab.value}${lab.unit || ''} (Normal: 11.5-18)`);
+          removedCount++;
+          return false;
+        }
+      }
+      
+      // Check if value is within reference range (if provided)
+      if (lab.referenceRange) {
+        const isWithinRange = checkIfValueWithinRange(value, lab.referenceRange);
+        if (isWithinRange) {
+          console.log(`🩺 [MEDICAL FILTER] Removing ${lab.name}: Within lab's reference range (NORMAL)`);
+          if (!panel.normalParameters) panel.normalParameters = [];
+          panel.normalParameters.push(`${lab.name}: ${lab.value}${lab.unit || ''} (${lab.referenceRange})`);
+          removedCount++;
+          return false;
+        }
+      }
+      
+      // Keep this as truly abnormal
+      console.log(`✅ [MEDICAL FILTER] Keeping ${lab.name} ${value}: Truly abnormal`);
+      return true;
+    });
+    
+    // Update panel with filtered abnormal labs
+    panel.abnormalLabs = trulyAbnormalLabs;
+    
+    // Only keep panel if it has truly abnormal values
+    if (trulyAbnormalLabs.length > 0) {
+      filteredPanels.push(panel);
+    } else {
+      console.log(`🩺 [MEDICAL FILTER] Removing panel ${panel.name}: No truly abnormal values`);
+    }
+  }
+  
+  analysisResult.medicalPanels = filteredPanels;
+  
+  console.log(`🩺 [MEDICAL FILTER] Complete: Removed ${removedCount} incorrectly flagged values`);
+  console.log(`🩺 [MEDICAL FILTER] Remaining panels with abnormalities: ${filteredPanels.length}`);
+  
+  // Update overall status if no abnormalities remain
+  if (filteredPanels.length === 0) {
+    analysisResult.overallStatus = 'good';
+    analysisResult.summary = 'All tested parameters are within normal limits. Continue maintaining a healthy lifestyle.';
+    console.log('✅ [MEDICAL FILTER] Updated status to GOOD - no clinically significant abnormalities');
+  }
+  
+  return analysisResult;
 }
 
 serve(async (req) => {
@@ -836,6 +965,39 @@ Extract EVERY parameter from ALL sections:
 - Severe Dyslipidemia → Cardiologist
 - Thyroid Disorders → Endocrinologist
 
+=== CRITICAL: WHAT BELONGS IN abnormalLabs ARRAY ===
+
+**ONLY include a parameter in abnormalLabs if ALL of these are true:**
+1. The value is OUTSIDE the lab's stated reference range, AND
+2. The deviation is clinically significant (not borderline), AND
+3. It requires medical attention or monitoring
+
+**EXAMPLES OF WHAT TO INCLUDE IN abnormalLabs:**
+✅ HbA1c ≥6.0% (prediabetes/diabetes threshold)
+✅ Hemoglobin <11.5 g/dL (women) or <13 g/dL (men) - actual anemia
+✅ Fasting Glucose ≥100 mg/dL (impaired fasting glucose)
+✅ Random Blood Sugar ≥140 mg/dL (glucose intolerance)
+✅ Creatinine >1.3 mg/dL (kidney dysfunction)
+✅ ALT/AST >40 U/L (liver enzyme elevation)
+✅ Ferritin <30 ng/mL (iron deficiency)
+
+**EXAMPLES OF WHAT TO EXCLUDE (put in normalParameters instead):**
+❌ HbA1c 5.63% with reference "Below 6.0%" → This is NORMAL
+❌ Random Blood Sugar 88 mg/dL (range 70-140) → This is NORMAL
+❌ Hemoglobin 13 g/dL → This is NORMAL, not anemia
+❌ Any value marked as "Normal" by the lab report
+❌ Borderline values within 10% of reference that don't need intervention
+❌ Values that are technically within the stated reference range
+
+**CRITICAL THRESHOLDS TO APPLY:**
+- HbA1c: <6.0% = Normal (exclude from abnormal)
+- Fasting Glucose: <100 mg/dL = Normal (exclude)
+- Random Glucose: <140 mg/dL = Normal (exclude)
+- Hemoglobin: 11.5-18 g/dL = Normal (exclude)
+- If lab shows value within reference range = EXCLUDE from abnormal
+
+**RULE:** When in doubt, if the value is within normal limits or doesn't require medical action, put it in normalParameters, NOT abnormalLabs.
+
 === PATIENT NAME EXTRACTION (MANDATORY) ===
 
 Search EXHAUSTIVELY for patient name in:
@@ -868,7 +1030,7 @@ ONLY use "Anonymous Patient" if absolutely no name found after thorough search.
           "value": "string - Exact numeric value from report",
           "unit": "string - Exact unit",
           "referenceRange": "string - Normal range from report or standard clinical range",
-          "status": "low" | "high" | "critical",
+          "status": "low" | "high" | "critical" (NEVER use 'normal' - only include TRULY ABNORMAL values here),
           "significance": "string - Brief clinical significance with specific thresholds"
         }
       ],
@@ -995,7 +1157,11 @@ Respond ONLY with valid JSON matching the structure above - no markdown, no expl
       }
     }
 
-    // Apply clinical validation to remove invalid data
+    // Apply medical significance filter FIRST to remove incorrectly flagged normal values
+    console.log('🩺 Applying medical significance filter...');
+    analysisResult = applyMedicalSignificanceFilter(analysisResult);
+    
+    // Then apply clinical validation to remove invalid data
     console.log('🏥 Applying minimal clinical validation...');
     analysisResult = validateClinicalData(analysisResult);
 

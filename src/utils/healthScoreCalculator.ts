@@ -32,14 +32,37 @@ export interface HealthScoreBreakdown {
   comparisonToPopulation?: string;
 }
 
-// Helper function to get lab value
+// Helper function to get lab value - check ALL labs, not just abnormalLabs
 const getLabValue = (analysisData: EnhancedAnalysisResult, possibleNames: string[]): number | null => {
-  // Check medicalPanels abnormalLabs
+  // Check medicalPanels - look in BOTH abnormalLabs AND normalParameters
   for (const panel of analysisData.medicalPanels || []) {
+    // Check abnormal labs first
     for (const lab of panel.abnormalLabs || []) {
       if (possibleNames.some(name => lab.name.toLowerCase().includes(name.toLowerCase()))) {
         const value = parseFloat(lab.value);
-        return isNaN(value) ? null : value;
+        if (!isNaN(value)) {
+          console.log(`[HEALTH SCORE] Found ${possibleNames[0]}: ${value} in abnormalLabs`);
+          return value;
+        }
+      }
+    }
+    
+    // Also check normalParameters if they contain values
+    if (panel.normalParameters) {
+      for (const paramStr of panel.normalParameters) {
+        for (const name of possibleNames) {
+          if (paramStr.toLowerCase().includes(name.toLowerCase())) {
+            // Extract value from string like "HbA1c: 5.63 %" or "Hemoglobin: 13 g/dL"
+            const valueMatch = paramStr.match(/(\d+\.?\d*)/);
+            if (valueMatch) {
+              const value = parseFloat(valueMatch[1]);
+              if (!isNaN(value)) {
+                console.log(`[HEALTH SCORE] Found ${name}: ${value} in normalParameters`);
+                return value;
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -49,11 +72,15 @@ const getLabValue = (analysisData: EnhancedAnalysisResult, possibleNames: string
     for (const lab of analysisData.labs) {
       if (possibleNames.some(name => lab.name.toLowerCase().includes(name.toLowerCase()))) {
         const value = parseFloat(lab.value);
-        return isNaN(value) ? null : value;
+        if (!isNaN(value)) {
+          console.log(`[HEALTH SCORE] Found ${possibleNames[0]}: ${value} in legacy labs`);
+          return value;
+        }
       }
     }
   }
   
+  console.log(`[HEALTH SCORE] Could not find value for: ${possibleNames.join(', ')}`);
   return null;
 };
 

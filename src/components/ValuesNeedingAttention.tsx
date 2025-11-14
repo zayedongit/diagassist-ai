@@ -10,12 +10,46 @@ interface ValuesNeedingAttentionProps {
 export const ValuesNeedingAttention = ({ analysisData }: ValuesNeedingAttentionProps) => {
   const abnormalPanels = extractAbnormalPanels(analysisData);
   
-  // Collect all abnormal lab values
-  const allAbnormalValues = abnormalPanels.flatMap(panel => 
-    panel.abnormalLabs || []
-  );
+  // Filter out values that are marked as normal or are actually within normal range
+  const trulyAbnormalValues = abnormalPanels.flatMap(panel => {
+    return (panel.abnormalLabs || []).filter(lab => {
+      // Exclude if status is 'normal'
+      if (lab.status?.toLowerCase() === 'normal') {
+        console.log(`[UI FILTER] Excluding ${lab.name}: status is 'normal'`);
+        return false;
+      }
+      
+      // Additional safety check: exclude if value is within obvious normal range
+      const value = parseFloat(lab.value);
+      const labName = lab.name.toLowerCase();
+      
+      // HbA1c: exclude if < 6.0%
+      if ((labName.includes('hba1c') || labName.includes('a1c') || labName.includes('glycosylated')) && value < 6.0) {
+        console.log(`[UI FILTER] Excluding HbA1c ${value}%: Normal value`);
+        return false;
+      }
+      
+      // Glucose: exclude if < 100 (fasting) or < 140 (random)
+      if (labName.includes('glucose') || labName.includes('blood sugar') || labName.includes('sugar')) {
+        const threshold = labName.includes('fasting') ? 100 : 140;
+        if (value < threshold) {
+          console.log(`[UI FILTER] Excluding ${lab.name} ${value}: Normal value`);
+          return false;
+        }
+      }
+      
+      // Hemoglobin: exclude if within 11.5-18
+      if ((labName.includes('hemoglobin') || labName.includes('haemoglobin') || labName === 'hb' || labName === 'hgb') && 
+          value >= 11.5 && value <= 18) {
+        console.log(`[UI FILTER] Excluding Hemoglobin ${value}: Normal value`);
+        return false;
+      }
+      
+      return true;
+    });
+  });
 
-  const valueCount = allAbnormalValues.length;
+  const valueCount = trulyAbnormalValues.length;
 
   if (valueCount === 0) {
     return null;
@@ -55,7 +89,7 @@ export const ValuesNeedingAttention = ({ analysisData }: ValuesNeedingAttentionP
       </CardHeader>
       <CardContent>
         <div className="space-y-3 stagger-fade-in">
-          {allAbnormalValues.map((lab, index) => (
+          {trulyAbnormalValues.map((lab, index) => (
             <div 
               key={index}
               className={`flex items-start justify-between gap-4 p-3 rounded-lg border ${getStatusColor(lab.status)}`}
