@@ -1,8 +1,9 @@
 import * as pdfjsLib from 'pdfjs-dist';
-import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
-// Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+// Use CDN-hosted worker for reliable cross-browser compatibility
+// This avoids Vite bundling issues with worker modules
+pdfjsLib.GlobalWorkerOptions.workerSrc = 
+  'https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.149/build/pdf.worker.min.mjs';
 
 export interface ConversionResult {
   success: boolean;
