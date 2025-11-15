@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import { Activity, Users, CheckCircle, XCircle, TrendingUp, Clock } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -42,6 +43,7 @@ interface AnalyticsData {
 
 const Analytics = () => {
   const navigate = useNavigate();
+  const { user, isLoading: authLoading } = useAuth();
   const [timeframe, setTimeframe] = useState<Timeframe>('week');
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<AnalyticsData | null>(null);
@@ -49,8 +51,21 @@ const Analytics = () => {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const { toast } = useToast();
 
-  // Check admin status on mount
+  // Check admin status only after user is authenticated
   useEffect(() => {
+    if (authLoading) return; // Wait for auth to load
+    
+    if (!user) {
+      // No user, redirect to home
+      toast({
+        title: 'Access Denied',
+        description: 'Please sign in to access this page',
+        variant: 'destructive',
+      });
+      navigate('/');
+      return;
+    }
+
     const checkAdminAccess = async () => {
       try {
         const { data: authData, error } = await supabase.functions.invoke('check-admin-role');
@@ -80,7 +95,7 @@ const Analytics = () => {
     };
 
     checkAdminAccess();
-  }, [navigate, toast]);
+  }, [user, authLoading, navigate, toast]);
 
   useEffect(() => {
     if (isAdmin) {
