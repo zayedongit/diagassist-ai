@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Activity, AlertTriangle, Utensils, Heart, MessageCircle, FileText, Download, Calendar, X, Hand } from "lucide-react";
+import { ChevronLeft, ChevronRight, Activity, AlertTriangle, Utensils, Heart, MessageCircle, FileText, Download, Calendar, X, Hand, Home } from "lucide-react";
 import { useSwipe } from "@/hooks/useSwipe";
+import { useNavigate } from "react-router-dom";
+import daigasstLogo from "@/assets/daigasst-logo.png";
 import { SummaryCard } from "@/components/SummaryCard";
 import { HealthRiskDashboardWithTimeline } from "@/components/HealthRiskDashboard";
 import { UnderstandingYourNumbers } from "@/components/UnderstandingYourNumbers";
@@ -37,6 +39,7 @@ export const MobileResultsView = ({
   onDismiss
 }: MobileResultsViewProps) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [currentCard, setCurrentCard] = useState(0);
   const [isDismissing, setIsDismissing] = useState(false);
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
@@ -416,9 +419,28 @@ export const MobileResultsView = ({
         isDismissing ? 'translate-y-full' : ''
       } flex flex-col`}
     >
+      {/* Header with Home Navigation */}
+      <div className="absolute top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
+        <div className="flex items-center justify-between px-4 py-3">
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            aria-label="Go to home"
+          >
+            <img src={daigasstLogo} alt="DaiGasst" className="h-8 w-auto" />
+          </button>
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-sm font-medium"
+          >
+            <Home className="h-4 w-4" />
+            <span>Home</span>
+          </button>
+        </div>
+      </div>
       
       {/* Header */}
-      <div className="bg-gradient-to-br from-primary/10 to-primary/5 px-4 py-4 border-b border-border">
+      <div className="bg-gradient-to-br from-primary/10 to-primary/5 px-4 py-4 border-b border-border mt-16">
         <h2 className="text-lg font-semibold text-navy">{currentCardData.title}</h2>
       </div>
 
