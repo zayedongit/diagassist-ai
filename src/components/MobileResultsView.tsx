@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Activity, AlertTriangle, Utensils, Heart, MessageCircle, FileText, Download, Calendar } from "lucide-react";
+import { ChevronLeft, ChevronRight, Activity, AlertTriangle, Utensils, Heart, MessageCircle, FileText, Download, Calendar, X, Hand } from "lucide-react";
 import { useSwipe } from "@/hooks/useSwipe";
 import { SummaryCard } from "@/components/SummaryCard";
 import { HealthRiskDashboardWithTimeline } from "@/components/HealthRiskDashboard";
@@ -42,6 +42,21 @@ export const MobileResultsView = ({
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const [isChatComplete, setIsChatComplete] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
+
+  // Check if tutorial should be shown on first mount
+  useEffect(() => {
+    const tutorialShown = localStorage.getItem('mobile-results-tutorial-shown');
+    if (!tutorialShown) {
+      // Show tutorial after a brief delay for better UX
+      setTimeout(() => setShowTutorial(true), 500);
+    }
+  }, []);
+
+  const dismissTutorial = () => {
+    setShowTutorial(false);
+    localStorage.setItem('mobile-results-tutorial-shown', 'true');
+  };
 
   const cards = [
     {
@@ -477,6 +492,97 @@ export const MobileResultsView = ({
           setIsPlanModalOpen(true);
         }}
       />
+
+      {/* First-Time Tutorial Overlay */}
+      {showTutorial && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="absolute inset-0 flex items-center justify-center p-6">
+            <Card className="max-w-sm w-full bg-white shadow-2xl animate-scale-in">
+              <CardContent className="pt-6 space-y-6">
+                {/* Close button */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={dismissTutorial}
+                  className="absolute top-2 right-2 h-8 w-8 p-0"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+
+                {/* Header */}
+                <div className="text-center space-y-2">
+                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Hand className="w-8 h-8 text-primary animate-pulse" />
+                  </div>
+                  <h3 className="text-xl font-bold text-foreground">Navigate Your Results</h3>
+                  <p className="text-sm text-muted-foreground">Learn how to explore all your health insights</p>
+                </div>
+
+                {/* Tutorial Steps */}
+                <div className="space-y-4">
+                  {/* Swipe Gesture */}
+                  <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
+                        <span className="text-lg">👈</span>
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-sm text-foreground">Swipe to Navigate</h4>
+                        <p className="text-xs text-muted-foreground">Swipe left or right to move between screens</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Next/Prev Buttons */}
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
+                        <ChevronRight className="w-5 h-5 text-green-600" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-sm text-foreground">Use Navigation Buttons</h4>
+                        <p className="text-xs text-muted-foreground">Tap Prev/Next buttons at the bottom</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Available Screens */}
+                  <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg p-4 space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
+                        <FileText className="w-5 h-5 text-orange-600" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-sm text-foreground">6 Sections Available</h4>
+                        <div className="flex flex-wrap gap-1 mt-1.5">
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5">Chat</Badge>
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5">Score</Badge>
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5">Plan</Badge>
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5">Risks</Badge>
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5">Numbers</Badge>
+                          <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5">Tips</Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Button */}
+                <Button
+                  onClick={dismissTutorial}
+                  className="w-full h-12 text-base font-semibold"
+                >
+                  Got It, Let's Explore!
+                </Button>
+
+                <p className="text-xs text-center text-muted-foreground">
+                  This tutorial won't show again
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
