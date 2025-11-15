@@ -41,6 +41,7 @@ export const MobileResultsView = ({
   const [isDismissing, setIsDismissing] = useState(false);
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
+  const [isChatComplete, setIsChatComplete] = useState(false);
 
   const cards = [
     {
@@ -100,6 +101,11 @@ export const MobileResultsView = ({
     setTimeout(() => {
       onDismiss();
     }, 300);
+  };
+
+  const handleClinicalComplete = (data: any) => {
+    setIsChatComplete(true);
+    onClinicalAssessmentComplete(data);
   };
 
   const swipeHandlers = useSwipe({
@@ -272,7 +278,8 @@ export const MobileResultsView = ({
               demographics={analysisData?.demographics}
               abnormalPanels={enhancedData ? extractAbnormalPanels(enhancedData) : []}
               mode="clinical-triage"
-              onClinicalAssessmentComplete={onClinicalAssessmentComplete}
+              onClinicalAssessmentComplete={handleClinicalComplete}
+              onNavigateNext={goToNext}
               analysisId={analysisData?.analysisId || analysisData?.id || `temp-${Date.now()}`}
               analysisTimestamp={analysisData?.timestamp || analysisData?.created_at || new Date().toISOString()}
             />
@@ -435,12 +442,14 @@ export const MobileResultsView = ({
           <Button
             onClick={goToNext}
             disabled={currentCard === cards.length - 1}
-            variant="outline"
+            variant={currentCard === 0 && isChatComplete ? "default" : "outline"}
             size="lg"
-            className="rounded-xl min-h-[48px] min-w-[48px] flex-col gap-1"
+            className={`rounded-xl min-h-[48px] min-w-[48px] flex-col gap-1 ${
+              currentCard === 0 && isChatComplete ? 'animate-pulse shadow-lg' : ''
+            }`}
           >
             <ChevronRight className="w-5 h-5" />
-            <span className="text-[10px]">Next</span>
+            <span className="text-[10px]">{currentCard === 0 && isChatComplete ? 'View →' : 'Next'}</span>
           </Button>
         </div>
       </div>

@@ -42,6 +42,7 @@ interface MedicalChatAgentProps {
   abnormalPanels?: any[];
   mode?: 'voiceflow' | 'clinical-triage';
   onClinicalAssessmentComplete?: (reportData: any) => void;
+  onNavigateNext?: () => void;
   analysisId?: string;
   analysisTimestamp?: string;
 }
@@ -53,6 +54,7 @@ export const MedicalChatAgent = ({
   abnormalPanels,
   mode = 'clinical-triage',
   onClinicalAssessmentComplete,
+  onNavigateNext,
   analysisId,
   analysisTimestamp
 }: MedicalChatAgentProps) => {
@@ -626,14 +628,35 @@ export const MedicalChatAgent = ({
                 <p className="text-sm font-semibold text-green-800">Assessment Complete!</p>
               </div>
               <p className="text-xs text-muted-foreground">Your detailed health analysis is ready.</p>
-              <Button 
-                onClick={() => onClinicalAssessmentComplete?.(finalReport)}
-                size="lg"
-                className="w-full sm:w-auto min-h-[52px] bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-base font-semibold rounded-lg shadow-lg"
-              >
-                Continue to Your Results
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
+              
+              {/* Mobile - Show "Tap Next" guidance */}
+              {isMobile && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 space-y-2">
+                  <p className="text-xs font-medium text-blue-900">👇 Tap Next Below to View Your Results</p>
+                  <div className="flex flex-wrap gap-1.5 justify-center text-[10px] text-blue-700">
+                    <span className="bg-white px-2 py-1 rounded">📊 Health Score</span>
+                    <span className="bg-white px-2 py-1 rounded">📅 30-Day Plan</span>
+                    <span className="bg-white px-2 py-1 rounded">⚠️ Risks</span>
+                    <span className="bg-white px-2 py-1 rounded">📋 Numbers</span>
+                    <span className="bg-white px-2 py-1 rounded">💚 Tips</span>
+                  </div>
+                </div>
+              )}
+              
+              {/* Desktop - Show continue button */}
+              {!isMobile && (
+                <Button 
+                  onClick={() => {
+                    onClinicalAssessmentComplete?.(finalReport);
+                    onNavigateNext?.();
+                  }}
+                  size="lg"
+                  className="w-full sm:w-auto min-h-[52px] bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-base font-semibold rounded-lg shadow-lg"
+                >
+                  Continue to Your Results
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              )}
             </div>
           </div>
         )}
