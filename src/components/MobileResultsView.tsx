@@ -397,43 +397,15 @@ export const MobileResultsView = ({
       
       {/* Header */}
       <div className="bg-gradient-to-br from-primary/10 to-primary/5 px-4 py-4 border-b border-border">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg ${currentCardData.bgColor}`}>
-              <Icon className={`w-5 h-5 ${currentCardData.color}`} />
-            </div>
-            <h2 className="text-lg font-semibold text-navy">{currentCardData.title}</h2>
-          </div>
-          <Badge variant="secondary" className="text-xs">
-            {currentCard + 1} / {cards.length}
-          </Badge>
-        </div>
-
-        {/* Step labels (plain text) */}
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 px-1">
-          {cards.map((card, idx) => (
-            <button
-              key={card.id}
-              onClick={() => setCurrentCard(idx)}
-              className={`text-xs whitespace-nowrap px-2 py-1 transition-all duration-200 flex-shrink-0 ${
-                idx === currentCard
-                  ? 'text-primary font-semibold'
-                  : 'text-muted-foreground font-normal'
-              }`}
-              aria-label={`Go to ${card.title}`}
-            >
-              {card.title}
-            </button>
-          ))}
-        </div>
+        <h2 className="text-lg font-semibold text-navy">{currentCardData.title}</h2>
       </div>
 
       {/* Swipeable Content */}
       <div
         className="flex-1 overflow-y-auto px-4 py-6 pb-[calc(env(safe-area-inset-bottom)+96px)]"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
+        onTouchStart={cards[currentCard].id === 'chat' ? undefined : handleTouchStart}
+        onTouchMove={cards[currentCard].id === 'chat' ? undefined : handleTouchMove}
+        onTouchEnd={cards[currentCard].id === 'chat' ? undefined : handleTouchEnd}
       >
         <div className="animate-fade-in">
           {renderCardContent()}
