@@ -100,6 +100,9 @@ export const MedicalChatAgent = ({
 
     try {
       if (mode === 'clinical-triage') {
+        // Add initial greeting immediately to prevent blank state
+        addMessage('agent', "Hello! I'm here to help you understand your results. Let's begin.");
+        
         console.log('[AUDIT] Sending analysis context to clinical triage:', {
           analysisId,
           analysisTimestamp,
@@ -120,7 +123,7 @@ export const MedicalChatAgent = ({
 
         if (response.error) {
           console.error('Error initializing clinical triage:', response.error);
-          addMessage('agent', 'Hello! I\'m here to help you understand your health results. Please feel free to ask any questions.');
+          addMessage('agent', "I'm having trouble connecting right now. Please try again in a moment.");
           return;
         }
 
@@ -468,7 +471,7 @@ export const MedicalChatAgent = ({
 
       <CardContent className="relative p-0">
         <ScrollArea 
-          className="h-[400px] sm:h-[500px] px-3 sm:px-4"
+          className={isMobile ? "h-[55vh] px-3" : "h-[500px] px-4"}
           onScrollCapture={handleScroll}
           ref={scrollAreaRef}
         >

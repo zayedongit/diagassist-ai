@@ -1,1 +1,4 @@
 project_id = "eijdffylunwsusiayxzb"
+
+[functions."clinical-triage-chat"]
+verify_jwt = false
