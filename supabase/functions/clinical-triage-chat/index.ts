@@ -210,6 +210,13 @@ DYNAMIC QUESTIONING STRATEGY (Demographics-Aware):
 
 RESPONSE FORMATS:
 
+**CRITICAL: ALL QUESTIONS MUST BE MULTIPLE-CHOICE (MCQ) FORMAT ONLY**
+- NEVER use "text" type questions
+- ALWAYS provide "options" array with at least 2-5 choices
+- Use "radio" type for single-choice questions
+- Use "checkbox" type for multiple-selection questions
+- Include "I don't know" or "None of these" or "Other" as last option when appropriate
+
 For additional questions (continue until confident):
 {
   "action": "question",
@@ -219,9 +226,10 @@ For additional questions (continue until confident):
     "topic": "lab_correlation_topic (e.g., 'iron_deficiency_anemia', 'hypothyroid_symptoms', 'diabetes_complications')",
     "options": [
       {"id": "opt1", "text": "Specific option 1", "value": "detailed_value1"},
-      {"id": "opt2", "text": "Specific option 2", "value": "detailed_value2"}
+      {"id": "opt2", "text": "Specific option 2", "value": "detailed_value2"},
+      {"id": "opt3", "text": "I don't know / Not sure", "value": "unknown"}
     ],
-    "type": "radio|checkbox|text",
+    "type": "radio|checkbox",
     "allowMultiple": false|true
   },
   "targetConditions": ["Specific conditions being evaluated based on lab patterns"],

@@ -265,18 +265,12 @@ export const MedicalChatAgent = ({
   const handleQuestionSubmit = async () => {
     if (!currentQuestion) return;
 
-    let answer;
-    if (currentQuestion.type === 'text') {
-      if (!textInput.trim()) return;
-      answer = textInput.trim();
-    } else {
-      const selectedValues = Object.values(selectedAnswers).filter(Boolean);
-      if (selectedValues.length === 0) return;
-      answer = currentQuestion.allowMultiple ? selectedValues : selectedValues[0];
-    }
-
-    const answerText = currentQuestion.type === 'text' ? answer : 
-                      Array.isArray(answer) ? answer.join(', ') : answer;
+    // Only MCQ answers are allowed
+    const selectedValues = Object.values(selectedAnswers).filter(Boolean) as string[];
+    if (selectedValues.length === 0) return;
+    
+    const answer = currentQuestion.allowMultiple ? selectedValues : selectedValues[0];
+    const answerText = Array.isArray(answer) ? answer.join(', ') : answer;
     
     addMessage('user', answerText);
     setIsTyping(true);
@@ -513,21 +507,6 @@ export const MedicalChatAgent = ({
 
                 {message.type === 'question' && message.question && currentQuestion?.id === message.question.id && (
                   <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-white rounded-lg border-2 border-primary/20">
-                    {message.question.type === 'text' && (
-                      <Textarea
-                        value={textInput}
-                        onChange={(e) => setTextInput(e.target.value)}
-                        placeholder="Type your answer here..."
-                        className="mb-3 text-sm min-h-[80px]"
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            handleQuestionSubmit();
-                          }
-                        }}
-                      />
-                    )}
-
                     {message.question.type === 'radio' && message.question.options && (
                       <RadioGroup
                         value={Object.keys(selectedAnswers)[0] || ''}
@@ -573,10 +552,7 @@ export const MedicalChatAgent = ({
                     <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                       <Button 
                         onClick={handleQuestionSubmit}
-                        disabled={
-                          message.question.type === 'text' ? !textInput.trim() : 
-                          Object.keys(selectedAnswers).length === 0
-                        }
+                        disabled={Object.values(selectedAnswers).filter(Boolean).length === 0}
                         size="sm"
                         className="w-full sm:w-auto min-h-[48px] bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-colors text-base sm:text-sm"
                       >
