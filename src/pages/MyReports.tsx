@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { HealthScoreTimeline } from "@/components/HealthScoreTimeline";
 import { HealthPlanCalendar } from "@/components/HealthPlanCalendar";
+import { ShareReportDialog } from "@/components/ShareReportDialog";
 import { useHealthJourney } from "@/hooks/useHealthJourney";
 import { generate30DayPlan } from "@/utils/generate30DayPlan";
 import { calculateHealthScore } from "@/utils/healthScoreCalculator";
@@ -337,13 +338,16 @@ export default function MyReports() {
                                 {format(new Date(selectedAnalysis.created_at), "MMMM dd, yyyy 'at' h:mm a")}
                               </CardDescription>
                             </div>
-                            <Button
-                              onClick={() => handleDownloadReport(selectedAnalysis)}
-                              variant="outline"
-                            >
-                              <Download className="w-4 h-4 mr-2" />
-                              Download PDF
-                            </Button>
+                            <div className="flex gap-2">
+                              <ShareReportDialog reportId={selectedAnalysis.id} />
+                              <Button
+                                onClick={() => handleDownloadReport(selectedAnalysis)}
+                                variant="outline"
+                              >
+                                <Download className="w-4 h-4 mr-2" />
+                                Download PDF
+                              </Button>
+                            </div>
                           </div>
                         </CardHeader>
                         <CardContent>
