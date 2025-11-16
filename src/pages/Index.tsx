@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { AlertCircle, Activity, Heart, FileText, Download, RefreshCw, Brain, Eye, EyeOff, Lock, BarChart3, Stethoscope, CloudDownload, Shield, ArrowRight, ShieldCheck, FileCheck2, MessageCircle, TrendingUp, Calendar, Target } from "lucide-react";
+import { AlertCircle, Activity, Heart, FileText, Download, RefreshCw, Brain, Eye, EyeOff, Lock, BarChart3, Stethoscope, CloudDownload, Shield, ArrowRight, ShieldCheck, FileCheck2, MessageCircle, TrendingUp, Calendar, Target, User, LogOut } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
 import jsPDF from 'jspdf';
@@ -46,13 +46,81 @@ import { calculateHealthScore } from '@/utils/healthScoreCalculator';
 import { calculateHealthRisks } from '@/utils/healthRiskCalculator';
 import { RiskPredictionTimeline } from '@/components/RiskPredictionTimeline';
 import { InteractiveRiskCalculator } from '@/components/InteractiveRiskCalculator';
-
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { AuthPrompt } from '@/components/AuthPrompt';
 
 // Header Navigation Component - Simplified for mobile
 const HeaderNav = ({ onLogoClick }: { onLogoClick?: () => void }) => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>(null);
+
+  useEffect(() => {
+    if (user) {
+      // Check admin role
+      const checkAdminStatus = async () => {
+        try {
+          const { data, error } = await supabase.functions.invoke('check-admin-role');
+          if (!error && data) {
+            setIsAdmin(data.isAdmin === true);
+          }
+        } catch (error) {
+          console.error('Error checking admin status:', error);
+        }
+      };
+
+      // Fetch user profile
+      const fetchProfile = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('first_name, last_name, phone_number')
+            .eq('user_id', user.id)
+            .single();
+          
+          if (!error && data) {
+            setUserProfile(data);
+          }
+        } catch (error) {
+          console.error('Error fetching profile:', error);
+        }
+      };
+
+      checkAdminStatus();
+      fetchProfile();
+    } else {
+      setIsAdmin(false);
+      setUserProfile(null);
+    }
+  }, [user]);
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast.success("Signed out successfully");
+      navigate('/');
+    } catch (error) {
+      toast.error("Error signing out. Please try again");
+    }
+  };
+
+  const getUserDisplayName = () => {
+    if (userProfile?.first_name) {
+      return userProfile.first_name;
+    }
+    if (userProfile?.phone_number) {
+      return `...${userProfile.phone_number.slice(-4)}`;
+    }
+    return user?.phone || user?.email || 'User';
+  };
   
   return (
     <div className="bg-white border-b border-border sticky top-0 z-50 shadow-sm">
@@ -76,14 +144,39 @@ const HeaderNav = ({ onLogoClick }: { onLogoClick?: () => void }) => {
           {/* User Actions */}
           <div className="flex items-center gap-2 sm:gap-3">
             {user ? (
-              <Button
-                onClick={() => navigate('/my-reports')}
-                variant="default"
-                size="sm"
-                className="text-[11px] xs:text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3 md:px-4"
-              >
-                My Reports
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-[11px] xs:text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3 md:px-4 gap-1 sm:gap-2"
+                  >
+                    <User className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden xs:inline">{getUserDisplayName()}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuLabel className="text-xs">
+                    {getUserDisplayName()}
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('/my-reports')}>
+                    <User className="mr-2 h-4 w-4" />
+                    My Reports
+                  </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem onClick={() => navigate('/analytics')}>
+                      <BarChart3 className="mr-2 h-4 w-4" />
+                      Analytics
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <button
                 onClick={() => {
