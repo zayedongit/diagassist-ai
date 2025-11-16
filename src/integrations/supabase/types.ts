@@ -471,6 +471,45 @@ export type Database = {
         }
         Relationships: []
       }
+      report_shares: {
+        Row: {
+          access_count: number | null
+          accessed_at: string | null
+          created_at: string | null
+          expires_at: string
+          id: string
+          notes: string | null
+          report_id: string
+          revoked: boolean | null
+          share_token: string
+          user_id: string
+        }
+        Insert: {
+          access_count?: number | null
+          accessed_at?: string | null
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          notes?: string | null
+          report_id: string
+          revoked?: boolean | null
+          share_token: string
+          user_id: string
+        }
+        Update: {
+          access_count?: number | null
+          accessed_at?: string | null
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          notes?: string | null
+          report_id?: string
+          revoked?: boolean | null
+          share_token?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       sms_verifications: {
         Row: {
           created_at: string | null

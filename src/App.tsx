@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Analytics from "./pages/Analytics";
 import MyHealthJourney from "./pages/MyHealthJourney";
 import MyReports from "./pages/MyReports";
+import SharedReport from "./pages/SharedReport";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/my-health-journey" element={<MyHealthJourney />} />
+            <Route path="/shared-report/:token" element={<SharedReport />} />
             <Route 
               path="/my-reports" 
               element={
