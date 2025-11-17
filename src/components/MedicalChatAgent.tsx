@@ -295,13 +295,21 @@ export const MedicalChatAgent = ({
       const data = response.data;
       handleTriageResponse(data);
       
-      // Auto-scroll to next question after answer is submitted
+      // Auto-scroll to next question immediately after answer is submitted (mobile optimization)
       setTimeout(() => {
         if (scrollAreaRef.current) {
-          scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+          const scrollElement = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+          if (scrollElement) {
+            scrollElement.scrollTo({
+              top: scrollElement.scrollHeight,
+              behavior: isMobile ? 'auto' : 'smooth'
+            });
+          } else {
+            scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+          }
           setIsAutoScrollEnabled(true);
         }
-      }, 300);
+      }, isMobile ? 100 : 300);
     } catch (error) {
       console.error('Error submitting answer:', error);
       addMessage('agent', 'Sorry, I encountered an error. Please try again.');
