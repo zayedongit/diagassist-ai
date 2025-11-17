@@ -11,43 +11,33 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const url = new URL(req.url);
-    const timeframe = url.searchParams.get('timeframe') || 'all-time'; // today, week, month, all-time
-    const groupBy = url.searchParams.get('groupBy') || 'day'; // hour, day, week, month
+    const { timeframe = 'all-time', groupBy = 'day' } = await req.json();
 
-    // Calculate date range based on timeframe
-    let dateFilter = '';
-    const now = new Date();
-    
-    switch (timeframe) {
-      case 'today':
-        dateFilter = `created_at >= '${new Date(now.setHours(0, 0, 0, 0)).toISOString()}'`;
-        break;
-      case 'week':
-        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-        dateFilter = `created_at >= '${weekAgo.toISOString()}'`;
-        break;
-      case 'month':
-        const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-        dateFilter = `created_at >= '${monthAgo.toISOString()}'`;
-        break;
-      default:
-        dateFilter = 'true';
-    }
-
-    // Get overall statistics
-    const { data: overallStats, error: overallError } = await supabase
+    // Build query with timeframe filter at database level (more efficient and secure)
+    let query = supabase
       .from('pdf_analyses')
       .select('*', { count: 'exact', head: false });
 
-    if (overallError) throw overallError;
+    // Apply date filter at database level
+    const now = new Date();
+    switch (timeframe) {
+      case 'today':
+        const todayStart = new Date(now.setHours(0, 0, 0, 0)).toISOString();
+        query = query.gte('created_at', todayStart);
+        break;
+      case 'week':
+        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+        query = query.gte('created_at', weekAgo);
+        break;
+      case 'month':
+        const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
+        query = query.gte('created_at', monthAgo);
+        break;
+      // 'all-time' doesn't need a filter
+    }
 
-    const filteredData = dateFilter === 'true' 
-      ? overallStats 
-      : overallStats?.filter(item => {
-          const itemDate = new Date(item.created_at);
-          return eval(dateFilter.replace('created_at', `new Date('${item.created_at}')`));
-        });
+    const { data: filteredData, error: overallError } = await query;
+    if (overallError) throw overallError;
 
     const totalAnalyses = filteredData?.length || 0;
     const uniqueUsers = new Set(filteredData?.map(item => item.user_id)).size;
