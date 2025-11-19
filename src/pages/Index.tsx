@@ -974,37 +974,42 @@ RAW DATA: ${baseContext}`;
           // All retries exhausted - trigger admin alert and show error to user
           console.error('❌ CRITICAL: Polling failed after all retries');
           
-          // Send admin SMS alert
-          (async () => {
-            try {
-              await supabase.functions.invoke('send-admin-alert', {
-                body: {
-                  analysisId: id,
-                  userId: userId,
-                  error: `Polling failed after 12 attempts: ${errorMessage}. Error type: ${errorType}`,
-                  timestamp: new Date().toISOString()
-                }
-              });
-              console.log('📱 Admin alert sent successfully');
-            } catch (alertError) {
+          // Send admin SMS alert (don't wait - fire and forget)
+          supabase.functions.invoke('send-admin-alert', {
+            body: {
+              analysisId: id,
+              userId: userId,
+              error: `Polling failed after 12 attempts: ${errorMessage}. Error type: ${errorType}`,
+              timestamp: new Date().toISOString()
+            }
+          }).then(({ data, error: alertError }) => {
+            if (alertError) {
               console.error('❌ Failed to send admin alert:', alertError);
+            } else {
+              console.log('📱 Admin alert sent successfully:', data);
             }
-            
-            // Update database to mark analysis as failed
-            try {
-              await supabase
-                .from('pdf_analyses')
-                .update({ 
-                  status: 'failed',
-                  error_message: `Polling timeout: ${errorMessage}`,
-                  error_timestamp: new Date().toISOString(),
-                  retry_count: 12
-                })
-                .eq('id', id);
-            } catch (dbError) {
-              console.error('❌ Failed to update database:', dbError);
-            }
-          })();
+          }).catch(err => {
+            console.error('❌ Admin alert exception:', err);
+          });
+          
+          // Update database to mark analysis as failed (don't wait - fire and forget)
+          supabase
+            .from('pdf_analyses')
+            .update({ 
+              status: 'failed',
+              error_message: `Polling timeout: ${errorMessage}`,
+              error_timestamp: new Date().toISOString(),
+              retry_count: 12,
+              admin_alerted: true
+            })
+            .eq('id', id)
+            .then(({ error: dbError }) => {
+              if (dbError) {
+                console.error('❌ Failed to update database:', dbError);
+              } else {
+                console.log('✅ Database updated - analysis marked as failed');
+              }
+            });
           
           setError('Analysis is taking longer than expected. Our team has been notified and will investigate. Please try again or contact support.');
           setIsAnalyzing(false);
