@@ -2,3 +2,9 @@ project_id = "eijdffylunwsusiayxzb"
 
 [functions."clinical-triage-chat"]
 verify_jwt = false
+
+[functions."cleanup-stuck-analyses"]
+verify_jwt = false
+
+[functions."send-admin-alert"]
+verify_jwt = false
