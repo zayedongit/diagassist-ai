@@ -18,6 +18,8 @@ serve(async (req) => {
   }
 
   try {
+    const requestStartTime = Date.now();
+    
     // Use service role for database access (same as process-pdf-report)
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
@@ -61,6 +63,7 @@ serve(async (req) => {
     }
 
     console.log(`🔍 Fetching analysis result for ID: ${analysisId}, User: ${userId || 'anonymous'}`);
+    console.log(`📊 Request started at: ${new Date(requestStartTime).toISOString()}`);
 
     // Query with validation and ordering to get the most recent matching record
     const query = supabase
@@ -75,6 +78,13 @@ serve(async (req) => {
     }
     
     const { data: analysis, error } = await query.maybeSingle();
+    
+    const queryDuration = Date.now() - requestStartTime;
+    console.log(`⏱️ Database query completed in ${queryDuration}ms`);
+    
+    if (queryDuration > 5000) {
+      console.warn(`⚠️ SLOW QUERY WARNING: Took ${queryDuration}ms to fetch analysis`);
+    }
 
     if (error) {
       console.error('❌ Database query error:', error);
