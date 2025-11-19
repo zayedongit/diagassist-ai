@@ -959,12 +959,54 @@ RAW DATA: ${baseContext}`;
         console.error('❌ Polling error - Attempt', attempts, ':', err);
         console.error('❌ Error details:', JSON.stringify(err, null, 2));
         
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+        const errorType = err instanceof TypeError ? 'NetworkError' : 'UnknownError';
+        
         // Don't fail immediately on connection errors, give it more chances
-        if (attempts < 8) { // Increased retry attempts
-          // Use shorter interval for connection errors
-          setTimeout(poll, 3000);
+        if (attempts < 12) { // Increased from 8 to 12 retries for better resilience
+          // Use exponential backoff: 3s, 3s, 5s, 5s, 8s, 8s, 10s, 10s, 15s, 15s, 20s, 20s
+          const backoffDelays = [3000, 3000, 5000, 5000, 8000, 8000, 10000, 10000, 15000, 15000, 20000, 20000];
+          const delay = backoffDelays[attempts] || 20000;
+          
+          console.log(`⏳ Retrying in ${delay/1000}s... (attempt ${attempts + 1}/12)`);
+          setTimeout(poll, delay);
         } else {
-          setError('Connection error while checking analysis status. Please try again.');
+          // All retries exhausted - trigger admin alert and show error to user
+          console.error('❌ CRITICAL: Polling failed after all retries');
+          
+          // Send admin SMS alert
+          (async () => {
+            try {
+              await supabase.functions.invoke('send-admin-alert', {
+                body: {
+                  analysisId: id,
+                  userId: userId,
+                  error: `Polling failed after 12 attempts: ${errorMessage}. Error type: ${errorType}`,
+                  timestamp: new Date().toISOString()
+                }
+              });
+              console.log('📱 Admin alert sent successfully');
+            } catch (alertError) {
+              console.error('❌ Failed to send admin alert:', alertError);
+            }
+            
+            // Update database to mark analysis as failed
+            try {
+              await supabase
+                .from('pdf_analyses')
+                .update({ 
+                  status: 'failed',
+                  error_message: `Polling timeout: ${errorMessage}`,
+                  error_timestamp: new Date().toISOString(),
+                  retry_count: 12
+                })
+                .eq('id', id);
+            } catch (dbError) {
+              console.error('❌ Failed to update database:', dbError);
+            }
+          })();
+          
+          setError('Analysis is taking longer than expected. Our team has been notified and will investigate. Please try again or contact support.');
           setIsAnalyzing(false);
           setProcessingStatus('failed');
           pollingActiveRef.current = false;

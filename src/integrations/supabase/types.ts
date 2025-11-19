@@ -360,6 +360,7 @@ export type Database = {
           demo_link_id: string | null
           demo_session_id: string | null
           error_message: string | null
+          error_timestamp: string | null
           feature_tier: string | null
           filename: string | null
           id: string
@@ -368,6 +369,7 @@ export type Database = {
           payment_verified: boolean | null
           pdf_path: string | null
           result: Json | null
+          retry_count: number | null
           status: string
           updated_at: string | null
           user_id: string
@@ -378,6 +380,7 @@ export type Database = {
           demo_link_id?: string | null
           demo_session_id?: string | null
           error_message?: string | null
+          error_timestamp?: string | null
           feature_tier?: string | null
           filename?: string | null
           id: string
@@ -386,6 +389,7 @@ export type Database = {
           payment_verified?: boolean | null
           pdf_path?: string | null
           result?: Json | null
+          retry_count?: number | null
           status?: string
           updated_at?: string | null
           user_id: string
@@ -396,6 +400,7 @@ export type Database = {
           demo_link_id?: string | null
           demo_session_id?: string | null
           error_message?: string | null
+          error_timestamp?: string | null
           feature_tier?: string | null
           filename?: string | null
           id?: string
@@ -404,6 +409,7 @@ export type Database = {
           payment_verified?: boolean | null
           pdf_path?: string | null
           result?: Json | null
+          retry_count?: number | null
           status?: string
           updated_at?: string | null
           user_id?: string
