@@ -309,7 +309,7 @@ export const MedicalChatAgent = ({
           }
           setIsAutoScrollEnabled(true);
         }
-      }, isMobile ? 100 : 300);
+      }, isMobile ? 0 : 300);
     } catch (error) {
       console.error('Error submitting answer:', error);
       addMessage('agent', 'Sorry, I encountered an error. Please try again.');
