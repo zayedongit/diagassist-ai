@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Analytics from "./pages/Analytics";
 import MyHealthJourney from "./pages/MyHealthJourney";
 import MyReports from "./pages/MyReports";
+import AdminDashboard from "./pages/AdminDashboard";
 import SharedReport from "./pages/SharedReport";
 import NotFound from "./pages/NotFound";
 
@@ -24,6 +25,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/analytics" element={<Analytics />} />
+            <Route path="/admin-dashboard" element={<AdminDashboard />} />
             <Route path="/my-health-journey" element={<MyHealthJourney />} />
             <Route path="/shared-report/:token" element={<SharedReport />} />
             <Route 
