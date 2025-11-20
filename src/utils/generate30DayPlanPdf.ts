@@ -448,11 +448,14 @@ export async function generate30DayPlanPdf(plan: HealthImprovementPlan, patientN
     const fileName = `30-Day-Health-Plan-${patientName || 'Patient'}-${new Date().toISOString().split('T')[0]}.pdf`;
     pdf.save(fileName);
 
+    // Return PDF as base64 for backend storage
+    const pdfBase64 = pdf.output('datauristring').split(',')[1];
+
     toast.success('30-Day Improvement Plan downloaded successfully!');
-    return true;
+    return { success: true, pdfBase64, fileName };
   } catch (error) {
     console.error('Error generating 30-day plan PDF:', error);
     toast.error('Failed to generate improvement plan PDF');
-    return false;
+    return { success: false, pdfBase64: null, fileName: null };
   }
 }
