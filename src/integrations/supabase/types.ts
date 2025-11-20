@@ -356,6 +356,8 @@ export type Database = {
       pdf_analyses: {
         Row: {
           admin_alerted: boolean | null
+          admin_notified_at: string | null
+          admin_notified_success: boolean | null
           comprehensive_report_path: string | null
           created_at: string | null
           demo_link_id: string | null
@@ -380,6 +382,8 @@ export type Database = {
         }
         Insert: {
           admin_alerted?: boolean | null
+          admin_notified_at?: string | null
+          admin_notified_success?: boolean | null
           comprehensive_report_path?: string | null
           created_at?: string | null
           demo_link_id?: string | null
@@ -404,6 +408,8 @@ export type Database = {
         }
         Update: {
           admin_alerted?: boolean | null
+          admin_notified_at?: string | null
+          admin_notified_success?: boolean | null
           comprehensive_report_path?: string | null
           created_at?: string | null
           demo_link_id?: string | null

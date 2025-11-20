@@ -12,19 +12,42 @@ serve(async (req) => {
   }
 
   try {
-    const { analysisId, error, userId, timestamp } = await req.json();
+    const { 
+      analysisId, 
+      error,
+      userId, 
+      timestamp,
+      status = 'failed', // 'success' or 'failed'
+      patientName
+    } = await req.json();
     
-    console.log('📱 Sending admin SMS alert for analysis:', analysisId);
+    console.log(`📱 Sending admin SMS alert for analysis: ${analysisId} - Status: ${status}`);
     
-    const message = `🚨 Daigassist Analysis Error
+    // Create appropriate message based on status
+    let message: string;
+    
+    if (status === 'success') {
+      message = `✅ Daigassist Analysis Success
+
+Analysis ID: ${analysisId.substring(0, 20)}...
+Patient: ${patientName || 'N/A'}
+User: ${userId.substring(0, 15)}...
+Time: ${new Date(timestamp).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
+
+Status: Successfully Completed
+
+Report generated and ready for download.`;
+    } else {
+      message = `🚨 Daigassist Analysis Error
 
 Analysis ID: ${analysisId.substring(0, 20)}...
 User: ${userId.substring(0, 15)}...
 Time: ${new Date(timestamp).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
 
-Error: ${error.substring(0, 150)}${error.length > 150 ? '...' : ''}
+Error: ${error?.substring(0, 150)}${(error?.length || 0) > 150 ? '...' : ''}
 
 Please check the analytics dashboard immediately to resolve this issue.`;
+    }
 
     // Send SMS via Twilio
     const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
@@ -49,13 +72,14 @@ Please check the analytics dashboard immediately to resolve this issue.`;
     }
 
     const twilioData = await twilioResponse.json();
-    console.log('✅ Admin SMS alert sent successfully. SID:', twilioData.sid);
+    console.log(`✅ Admin SMS alert sent successfully (${status}). SID:`, twilioData.sid);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         messageSid: twilioData.sid,
-        sentTo: ADMIN_PHONE
+        sentTo: ADMIN_PHONE,
+        status
       }), 
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
