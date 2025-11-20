@@ -57,77 +57,26 @@ import {
 import { AuthPrompt } from '@/components/AuthPrompt';
 import { ExportToDriveDialog } from '@/components/ExportToDriveDialog';
 
-// Header Navigation Component - Simplified for mobile
+// Header Navigation Component - Minimal Design
 const HeaderNav = ({ onLogoClick }: { onLogoClick?: () => void }) => {
   const { user, signOut } = useAuth();
-  const navigate = useNavigate();
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [userProfile, setUserProfile] = useState<any>(null);
 
-  useEffect(() => {
+  const handleAuthClick = () => {
     if (user) {
-      // Check admin role
-      const checkAdminStatus = async () => {
-        try {
-          const { data, error } = await supabase.functions.invoke('check-admin-role');
-          if (!error && data) {
-            setIsAdmin(data.isAdmin === true);
-          }
-        } catch (error) {
-          console.error('Error checking admin status:', error);
-        }
-      };
-
-      // Fetch user profile
-      const fetchProfile = async () => {
-        try {
-          const { data, error } = await supabase
-            .from('profiles')
-            .select('first_name, last_name, phone_number')
-            .eq('user_id', user.id)
-            .single();
-          
-          if (!error && data) {
-            setUserProfile(data);
-          }
-        } catch (error) {
-          console.error('Error fetching profile:', error);
-        }
-      };
-
-      checkAdminStatus();
-      fetchProfile();
-    } else {
-      setIsAdmin(false);
-      setUserProfile(null);
-    }
-  }, [user]);
-
-  const handleSignOut = async () => {
-    try {
-      await signOut();
+      // Sign out directly
+      signOut();
       toast.success("Signed out successfully");
-      navigate('/');
-    } catch (error) {
-      toast.error("Error signing out. Please try again");
+    } else {
+      // Open auth dialog
+      window.dispatchEvent(new Event('open-auth-dialog'));
     }
-  };
-
-  const getUserDisplayName = () => {
-    if (userProfile?.first_name) {
-      return userProfile.first_name;
-    }
-    if (userProfile?.phone_number) {
-      return `...${userProfile.phone_number.slice(-4)}`;
-    }
-    return user?.phone || user?.email || 'User';
   };
   
   return (
     <div className="bg-white border-b border-border sticky top-0 z-50 shadow-sm">
       <div className="container mx-auto px-2 sm:px-3 md:px-4 py-2 sm:py-3">
         <div className="flex items-center justify-between">
-          {/* Logo Section */}
+          {/* Logo + Daigassist Text - Clickable */}
           <button
             onClick={() => onLogoClick ? onLogoClick() : window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="flex items-center gap-2 hover:opacity-80 transition-opacity"
@@ -142,54 +91,14 @@ const HeaderNav = ({ onLogoClick }: { onLogoClick?: () => void }) => {
             </span>
           </button>
           
-          {/* User Actions */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-[11px] xs:text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3 md:px-4 gap-1 sm:gap-2"
-                  >
-                    <User className="h-3 w-3 sm:h-4 sm:w-4" />
-                    <span className="hidden xs:inline">{getUserDisplayName()}</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuLabel className="text-xs">
-                    {getUserDisplayName()}
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate('/my-reports')}>
-                    <User className="mr-2 h-4 w-4" />
-                    My Reports
-                  </DropdownMenuItem>
-                  {isAdmin && (
-                    <DropdownMenuItem onClick={() => navigate('/analytics')}>
-                      <BarChart3 className="mr-2 h-4 w-4" />
-                      Analytics
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Sign Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <button
-                onClick={() => {
-                  const event = new CustomEvent('open-auth-dialog');
-                  window.dispatchEvent(event);
-                }}
-                className="text-[11px] xs:text-xs sm:text-sm text-gray-700 hover:text-primary transition-colors font-medium"
-              >
-                Sign In
-              </button>
-            )}
-          </div>
+          {/* Simple Sign-In/User Icon */}
+          <button
+            onClick={handleAuthClick}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            title={user ? "Sign Out" : "Sign In"}
+          >
+            <User className="h-5 w-5 sm:h-6 sm:w-6 text-navy" />
+          </button>
         </div>
       </div>
     </div>
@@ -1735,20 +1644,9 @@ RAW DATA: ${baseContext}`;
                       }}
                     >
                       <span className="flex items-center justify-center gap-2 relative z-10">
-                        Start Your Health Analysis
+                        Start
                         <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
                       </span>
-                    </button>
-                    
-                    {/* Secondary CTA - Mobile Friendly */}
-                    <button
-                      onClick={() => {
-                        const howItWorks = document.getElementById('how-it-works');
-                        howItWorks?.scrollIntoView({ behavior: 'smooth' });
-                      }}
-                      className="group px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 rounded-full font-poppins font-semibold text-sm sm:text-base md:text-lg text-white border-2 border-white/40 backdrop-blur-sm transition-all duration-400 hover:border-white/70 hover:bg-white/10 hover:scale-105 active:scale-95 w-full sm:w-auto"
-                    >
-                      Learn How It Works
                     </button>
                   </div>
                   
