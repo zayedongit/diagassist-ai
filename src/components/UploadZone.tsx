@@ -19,6 +19,11 @@ export const UploadZone = ({ onFileSelect, onImagesCapture }: UploadZoneProps) =
   const [capturedImagesCount, setCapturedImagesCount] = useState(0);
   const { isAuthenticated, user } = useAuth();
 
+  // Check if device is remembered
+  const isRememberedDevice = localStorage.getItem('daigassist_remember_device') === 'true';
+  const lastLogin = localStorage.getItem('daigassist_last_login');
+
+  // BYPASS AUTH FOR TESTING - Set to true to re-enable auth before deployment
   // Authentication is now MANDATORY for upload
   const BYPASS_AUTH = false;
   const effectiveAuth = BYPASS_AUTH || isAuthenticated;
@@ -178,6 +183,25 @@ export const UploadZone = ({ onFileSelect, onImagesCapture }: UploadZoneProps) =
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
+          {/* Welcome Back Message for Remembered Devices */}
+          {isAuthenticated && isRememberedDevice && (
+            <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+              <p className="text-sm text-green-700 dark:text-green-300 font-medium">
+                ✓ Welcome back! Device remembered
+              </p>
+              {lastLogin && (
+                <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                  Last login: {new Date(lastLogin).toLocaleDateString('en-IN', { 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </p>
+              )}
+            </div>
+          )}
+
           {selectedFile || capturedImagesCount > 0 ? (
             <div className="space-y-4 text-center">
               <CheckCircle className="w-12 h-12 sm:w-16 sm:h-16 text-green-400 mx-auto drop-shadow-lg" />
