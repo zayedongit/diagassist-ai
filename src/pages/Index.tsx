@@ -1725,50 +1725,42 @@ RAW DATA: ${baseContext}`;
 
             {/* 4. UPLOAD SECTION - With Video Background */}
             <section id="upload-section" className="relative py-16 sm:py-20 md:py-28 overflow-hidden">
-              {/* Full-width Background Video */}
+              {/* Full-width Background Video - Clear and Visible */}
               <div className="absolute inset-0 z-0 overflow-hidden">
                 <video
                   autoPlay
                   loop
                   muted
                   playsInline
-                  className="w-full h-full object-cover opacity-70"
-                  style={{ filter: 'brightness(0.8)' }}
+                  className="w-full h-full object-cover"
                 >
                   <source src="/upload-section-video.mp4" type="video/mp4" />
                 </video>
-                {/* Overlay gradient */}
-                <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-white/30 to-white/40" />
               </div>
 
-              {/* Content over video */}
+              {/* Content over video - No boxes, just text and components */}
               <div className="container mx-auto px-4 sm:px-6 relative z-10">
-                {/* Title with glassmorphism background */}
+                {/* Title - Plain text, no box */}
                 <div className="text-center mb-8 sm:mb-10 md:mb-12 space-y-2 sm:space-y-3">
-                  <div className="inline-block backdrop-blur-sm bg-white/30 px-6 py-3 rounded-2xl">
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-bold text-navy">
-                      Upload Your Test Report
-                    </h2>
-                  </div>
-                  <div className="inline-block backdrop-blur-sm bg-white/20 px-4 py-2 rounded-lg">
-                    <p className="text-slate text-sm sm:text-base md:text-lg">
-                      Supported formats: PDF, JPG, PNG. Get instant AI-powered analysis.
-                    </p>
-                  </div>
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-bold text-white drop-shadow-lg">
+                    Upload Your Test Report
+                  </h2>
+                  <p className="text-white/90 text-sm sm:text-base md:text-lg drop-shadow-md">
+                    Supported formats: PDF, JPG, PNG. Get instant AI-powered analysis.
+                  </p>
                 </div>
                 
-                {/* Upload zone with glassmorphism */}
-                <div className="backdrop-blur-lg bg-white/20 rounded-xl sm:rounded-2xl shadow-premium p-4 sm:p-8 md:p-12 border border-white/30">
+                {/* Upload zone - No box wrapper */}
+                <div className="max-w-4xl mx-auto">
                   <UploadZone 
                     onFileSelect={handleFileSelect}
                     onImagesCapture={handleCameraImages}
                   />
                 </div>
                 
-                {/* Privacy Notice with glassmorphism */}
-                <div className="flex items-start gap-3 p-4 backdrop-blur-lg bg-white/25 rounded-xl border border-white/30 mt-6">
-                  <Shield className="h-5 w-5 text-accentCyan shrink-0 mt-0.5" />
-                  <p className="text-sm text-navy leading-relaxed">
+                {/* Privacy Notice - Plain text, no box */}
+                <div className="max-w-4xl mx-auto mt-6 text-center">
+                  <p className="text-sm text-white/90 leading-relaxed drop-shadow-md">
                     <span className="font-semibold">Privacy Protected:</span> Your medical data is encrypted and automatically deleted after analysis. We never store your reports or personal health information permanently.
                   </p>
                 </div>
