@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Download, Calendar, FileText, Utensils, Activity, AlertCircle, Stethoscope, CalendarDays } from 'lucide-react';
+import { Download, Calendar, FileText, Utensils, Activity, AlertCircle, Stethoscope, CalendarDays, X } from 'lucide-react';
 import { HealthImprovementPlan } from '@/utils/generate30DayPlan';
 import { generate30DayPlanPdf } from '@/utils/generate30DayPlanPdf';
 import { HealthPlanCalendar } from './HealthPlanCalendar';
@@ -77,9 +77,18 @@ export const HealthImprovementPlanModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto sm:max-w-[95vw]">
+        {/* Mobile close button - prominent and accessible */}
+        <button 
+          onClick={onClose}
+          className="md:hidden absolute top-3 right-3 z-50 w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-lg border border-border hover:bg-gray-100 transition-colors"
+          aria-label="Close plan"
+        >
+          <X className="w-5 h-5" />
+        </button>
+        
         <DialogHeader>
-          <DialogTitle className="text-2xl font-poppins flex items-center gap-2">
+          <DialogTitle className="text-2xl font-poppins flex items-center gap-2 pr-12 sm:pr-0">
             <Calendar className="w-6 h-6 text-primary" />
             30-Day Health Improvement Plan
           </DialogTitle>
