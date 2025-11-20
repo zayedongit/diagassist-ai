@@ -604,11 +604,14 @@ export async function generateFullComprehensiveReport(data: ComprehensiveReportD
     const fileName = `Comprehensive-Health-Report-${data.patientInfo?.name || 'Patient'}-${new Date().toISOString().split('T')[0]}.pdf`;
     pdf.save(fileName);
 
+    // Return PDF as base64 for backend storage
+    const pdfBase64 = pdf.output('datauristring').split(',')[1];
+
     toast.success('Comprehensive report downloaded successfully!');
-    return true;
+    return { success: true, pdfBase64, fileName };
   } catch (error) {
     console.error('Error generating comprehensive PDF:', error);
     toast.error('Failed to generate comprehensive report');
-    return false;
+    return { success: false, pdfBase64: null, fileName: null };
   }
 }

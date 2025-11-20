@@ -55,6 +55,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AuthPrompt } from '@/components/AuthPrompt';
+import { ExportToDriveDialog } from '@/components/ExportToDriveDialog';
 
 // Header Navigation Component - Simplified for mobile
 const HeaderNav = ({ onLogoClick }: { onLogoClick?: () => void }) => {
@@ -665,7 +666,7 @@ RAW DATA: ${baseContext}`;
         status: lab.status as 'high' | 'low' | 'normal'
       }));
 
-    await generateFullComprehensiveReport({
+    const result = await generateFullComprehensiveReport({
       patientInfo: {
         name: analysisData.patientName || 'Not Available',
         age: analysisData.demographics?.age,
@@ -688,6 +689,23 @@ RAW DATA: ${baseContext}`;
         followUp: clinicalAssessmentData.followUp || ''
       }
     });
+    
+    // Store PDF in backend if generation successful
+    if (result.success && result.pdfBase64 && analysisId) {
+      try {
+        await supabase.functions.invoke('store-analysis-report', {
+          body: {
+            analysisId,
+            pdfBase64: result.pdfBase64,
+            reportType: 'comprehensive',
+            filename: result.fileName
+          }
+        });
+        console.log('✅ Comprehensive report stored in backend');
+      } catch (error) {
+        console.error('Failed to store report in backend:', error);
+      }
+    }
     
     console.log('✅ PDF generation completed');
   };
@@ -719,7 +737,24 @@ RAW DATA: ${baseContext}`;
     );
 
     const plan = generate30DayPlan(healthScoreBreakdown);
-    await generate30DayPlanPdf(plan, analysisData.patientName || 'Patient');
+    const result = await generate30DayPlanPdf(plan, analysisData.patientName || 'Patient');
+
+    // Store PDF in backend if generation successful
+    if (result.success && result.pdfBase64 && analysisId) {
+      try {
+        await supabase.functions.invoke('store-analysis-report', {
+          body: {
+            analysisId,
+            pdfBase64: result.pdfBase64,
+            reportType: 'plan',
+            filename: result.fileName
+          }
+        });
+        console.log('✅ 30-day plan stored in backend');
+      } catch (error) {
+        console.error('Failed to store plan in backend:', error);
+      }
+    }
   };
 
   // Handle clinical assessment completion
@@ -2350,6 +2385,21 @@ RAW DATA: ${baseContext}`;
                                 <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
                                 Download 30-Day Plan
                               </Button>
+                              {analysisId && (
+                                <ExportToDriveDialog 
+                                  analysisId={analysisId}
+                                  trigger={
+                                    <Button
+                                      size="lg"
+                                      variant="outline"
+                                      className="font-poppins font-semibold px-4 sm:px-6 py-4 sm:py-6 text-sm sm:text-base rounded-xl hover-scale-102 w-full sm:w-auto gap-2"
+                                    >
+                                      <CloudDownload className="w-4 h-4 sm:w-5 sm:h-5" />
+                                      Export to Drive
+                                    </Button>
+                                  }
+                                />
+                              )}
                             </div>
                           )}
 

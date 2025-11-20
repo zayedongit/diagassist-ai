@@ -356,11 +356,14 @@ export type Database = {
       pdf_analyses: {
         Row: {
           admin_alerted: boolean | null
+          comprehensive_report_path: string | null
           created_at: string | null
           demo_link_id: string | null
           demo_session_id: string | null
+          drive_file_id: string | null
           error_message: string | null
           error_timestamp: string | null
+          exported_to_drive: boolean | null
           feature_tier: string | null
           filename: string | null
           id: string
@@ -368,6 +371,7 @@ export type Database = {
           payment_transaction_id: string | null
           payment_verified: boolean | null
           pdf_path: string | null
+          plan_report_path: string | null
           result: Json | null
           retry_count: number | null
           status: string
@@ -376,11 +380,14 @@ export type Database = {
         }
         Insert: {
           admin_alerted?: boolean | null
+          comprehensive_report_path?: string | null
           created_at?: string | null
           demo_link_id?: string | null
           demo_session_id?: string | null
+          drive_file_id?: string | null
           error_message?: string | null
           error_timestamp?: string | null
+          exported_to_drive?: boolean | null
           feature_tier?: string | null
           filename?: string | null
           id: string
@@ -388,6 +395,7 @@ export type Database = {
           payment_transaction_id?: string | null
           payment_verified?: boolean | null
           pdf_path?: string | null
+          plan_report_path?: string | null
           result?: Json | null
           retry_count?: number | null
           status?: string
@@ -396,11 +404,14 @@ export type Database = {
         }
         Update: {
           admin_alerted?: boolean | null
+          comprehensive_report_path?: string | null
           created_at?: string | null
           demo_link_id?: string | null
           demo_session_id?: string | null
+          drive_file_id?: string | null
           error_message?: string | null
           error_timestamp?: string | null
+          exported_to_drive?: boolean | null
           feature_tier?: string | null
           filename?: string | null
           id?: string
@@ -408,6 +419,7 @@ export type Database = {
           payment_transaction_id?: string | null
           payment_verified?: boolean | null
           pdf_path?: string | null
+          plan_report_path?: string | null
           result?: Json | null
           retry_count?: number | null
           status?: string
