@@ -22,10 +22,12 @@ import {
 } from '@/components/ui/select';
 import { CheckCircle2, XCircle, Clock, RefreshCw, MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
+import { AnalysisDetailModal } from '@/components/AnalysisDetailModal';
 
 interface Analysis {
   id: string;
   created_at: string;
+  updated_at: string | null;
   status: string;
   user_id: string;
   filename: string | null;
@@ -33,7 +35,14 @@ interface Analysis {
   admin_notified_success: boolean;
   admin_notified_at: string | null;
   error_message: string | null;
+  error_timestamp: string | null;
   result: any;
+  feature_tier: string | null;
+  pdf_path: string | null;
+  comprehensive_report_path: string | null;
+  plan_report_path: string | null;
+  exported_to_drive: boolean;
+  drive_file_id: string | null;
 }
 
 export default function AdminDashboard() {
@@ -44,6 +53,8 @@ export default function AdminDashboard() {
   const [total, setTotal] = useState(0);
   const [statusFilter, setStatusFilter] = useState('all');
   const [notificationFilter, setNotificationFilter] = useState('all');
+  const [selectedAnalysis, setSelectedAnalysis] = useState<Analysis | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -165,6 +176,16 @@ export default function AdminDashboard() {
     return 'Unknown';
   };
 
+  const handleRowClick = (analysis: Analysis) => {
+    setSelectedAnalysis(analysis);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleCloseDetailModal = () => {
+    setIsDetailModalOpen(false);
+    setSelectedAnalysis(null);
+  };
+
   if (authLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -238,7 +259,11 @@ export default function AdminDashboard() {
                   </TableRow>
                 ) : (
                   analyses.map((analysis) => (
-                    <TableRow key={analysis.id}>
+                    <TableRow 
+                      key={analysis.id} 
+                      className="cursor-pointer hover:bg-muted/50 transition-colors"
+                      onClick={() => handleRowClick(analysis)}
+                    >
                       <TableCell className="font-mono text-xs">
                         {analysis.id.substring(0, 8)}...
                       </TableCell>
@@ -263,6 +288,12 @@ export default function AdminDashboard() {
           </div>
         </CardContent>
       </Card>
+
+      <AnalysisDetailModal
+        analysis={selectedAnalysis}
+        isOpen={isDetailModalOpen}
+        onClose={handleCloseDetailModal}
+      />
     </div>
   );
 }
