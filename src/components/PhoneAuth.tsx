@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Phone, Lock, CheckCircle, Shield } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 
 interface PhoneAuthProps {
@@ -36,6 +37,15 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resendTimer, setResendTimer] = useState(0);
+  const [rememberDevice, setRememberDevice] = useState(true); // Default to true for convenience
+
+  // Check if device is already remembered on mount
+  useEffect(() => {
+    const isRemembered = localStorage.getItem('daigassist_remember_device') === 'true';
+    if (isRemembered) {
+      console.log('Device is remembered - session will be maintained');
+    }
+  }, []);
 
   const formatPhoneNumber = (phone: string): string => {
     // Remove any existing country code and non-digits
@@ -151,6 +161,15 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
         if (sessionError) {
           console.error('Session error:', sessionError);
         }
+      }
+
+      // Store remember device preference
+      if (rememberDevice) {
+        localStorage.setItem('daigassist_remember_device', 'true');
+        localStorage.setItem('daigassist_last_login', new Date().toISOString());
+        toast.success('Device will be remembered for easier access');
+      } else {
+        localStorage.removeItem('daigassist_remember_device');
       }
 
       toast.success('Authentication successful!');
@@ -302,6 +321,28 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
                 maxLength={6}
                 className="text-center text-lg sm:text-xl md:text-2xl tracking-wider sm:tracking-widest"
               />
+            </div>
+
+            {/* Remember Device Checkbox */}
+            <div className="flex items-start space-x-3 p-3 bg-muted/50 rounded-lg border border-border">
+              <Checkbox
+                id="remember"
+                checked={rememberDevice}
+                onCheckedChange={(checked) => setRememberDevice(checked as boolean)}
+                disabled={loading}
+                className="mt-0.5"
+              />
+              <div className="flex-1">
+                <Label 
+                  htmlFor="remember" 
+                  className="text-sm font-medium leading-none cursor-pointer"
+                >
+                  Remember this device
+                </Label>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Stay logged in and skip verification next time
+                </p>
+              </div>
             </div>
 
             <Button 
