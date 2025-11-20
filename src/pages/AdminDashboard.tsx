@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { CheckCircle2, XCircle, Clock, RefreshCw, MessageSquare } from 'lucide-react';
+import { CheckCircle2, XCircle, Clock, RefreshCw, MessageSquare, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import { AnalysisDetailModal } from '@/components/AnalysisDetailModal';
 
@@ -186,6 +186,84 @@ export default function AdminDashboard() {
     setSelectedAnalysis(null);
   };
 
+  const exportToCSV = () => {
+    try {
+      // Define CSV headers
+      const headers = [
+        'Analysis ID',
+        'Patient Name',
+        'User ID',
+        'Created At',
+        'Updated At',
+        'Status',
+        'Feature Tier',
+        'Filename',
+        'SMS Sent',
+        'SMS Status (Success/Failure)',
+        'SMS Sent At',
+        'SMS Delivered',
+        'Error Message',
+        'Error Timestamp',
+        'PDF Stored',
+        'Comprehensive Report',
+        '30-Day Plan',
+        'Exported to Drive',
+        'Drive File ID',
+      ];
+
+      // Convert analyses to CSV rows
+      const rows = analyses.map((analysis) => {
+        const patientName = getPatientName(analysis);
+        
+        return [
+          analysis.id,
+          patientName,
+          analysis.user_id,
+          formatDate(analysis.created_at),
+          formatDate(analysis.updated_at),
+          analysis.status,
+          analysis.feature_tier || 'N/A',
+          analysis.filename || 'N/A',
+          analysis.admin_notified_at ? 'Yes' : 'No',
+          analysis.admin_notified_success ? 'Success' : 'Failure',
+          formatDate(analysis.admin_notified_at),
+          analysis.admin_alerted ? 'Yes' : 'No',
+          analysis.error_message ? `"${analysis.error_message.replace(/"/g, '""')}"` : 'None',
+          formatDate(analysis.error_timestamp),
+          analysis.pdf_path ? 'Yes' : 'No',
+          analysis.comprehensive_report_path ? 'Yes' : 'No',
+          analysis.plan_report_path ? 'Yes' : 'No',
+          analysis.exported_to_drive ? 'Yes' : 'No',
+          analysis.drive_file_id || 'N/A',
+        ];
+      });
+
+      // Combine headers and rows
+      const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.join(','))
+      ].join('\n');
+
+      // Create blob and download
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', `analysis-sms-history-${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success(`Exported ${analyses.length} records to CSV`);
+    } catch (error) {
+      console.error('Error exporting to CSV:', error);
+      toast.error('Failed to export data');
+    }
+  };
+
   if (authLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -200,10 +278,16 @@ export default function AdminDashboard() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-2xl font-bold">Admin Dashboard - Analysis & SMS Notifications</CardTitle>
-            <Button onClick={fetchAnalyses} variant="outline" size="sm">
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={exportToCSV} variant="outline" size="sm" disabled={analyses.length === 0}>
+                <Download className="h-4 w-4 mr-2" />
+                Export CSV
+              </Button>
+              <Button onClick={fetchAnalyses} variant="outline" size="sm">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh
+              </Button>
+            </div>
           </div>
           <div className="flex gap-4 mt-4">
             <Select value={statusFilter} onValueChange={setStatusFilter}>
