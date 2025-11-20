@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { AlertCircle, Activity, Heart, FileText, Download, RefreshCw, Brain, Eye, EyeOff, Lock, BarChart3, Stethoscope, CloudDownload, Shield, ArrowRight, ShieldCheck, FileCheck2, MessageCircle, TrendingUp, Calendar, Target, User, LogOut } from "lucide-react";
+import { AlertCircle, Activity, Heart, FileText, Download, RefreshCw, Brain, Eye, EyeOff, Lock, BarChart3, Stethoscope, CloudDownload, Shield, ArrowRight, ShieldCheck, FileCheck2, MessageCircle, TrendingUp, Calendar, Target, User, LogOut, Upload } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
 import jsPDF from 'jspdf';
@@ -1518,7 +1518,7 @@ RAW DATA: ${baseContext}`;
         {/* 2. HERO SECTION - Premium Futuristic with Video Background */}
         {!selectedFile && !showResults && !error && (
           <>
-            <section className="relative min-h-screen flex items-end justify-center overflow-hidden pb-12 sm:pb-16 md:pb-20">
+            <section className="relative min-h-screen flex items-end justify-center overflow-hidden pb-20 sm:pb-24 md:pb-32 lg:pb-40">
               {/* Full-width Background Video with Parallax */}
               <div className="absolute inset-0 z-0 overflow-hidden bg-gradient-to-br from-navy to-slate">
                 <video
@@ -1582,7 +1582,7 @@ RAW DATA: ${baseContext}`;
                         e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
                         e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 209, 209, 0.3)';
                       }}
-                      className="group relative px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 rounded-full font-poppins font-semibold text-sm sm:text-base md:text-lg text-white transition-all duration-400 hover:scale-105 active:scale-95 w-full sm:w-auto overflow-hidden backdrop-blur-lg"
+                      className="group relative px-5 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 rounded-full font-poppins font-semibold text-sm sm:text-base text-white transition-all duration-400 hover:scale-105 active:scale-95 w-full sm:w-auto overflow-hidden backdrop-blur-lg"
                       style={{ 
                         background: 'rgba(255, 255, 255, 0.15)',
                         border: '1px solid rgba(255, 255, 255, 0.3)',
@@ -1614,192 +1614,182 @@ RAW DATA: ${baseContext}`;
               </div>
             </section>
 
-            {/* Process Flow Section - Mobile Optimized */}
-            <section id="how-it-works" className="py-16 sm:py-20 md:py-28 bg-white relative z-10">
-              <div className="container mx-auto px-3 sm:px-4 md:px-6">
-                <div className="text-center mb-10 sm:mb-14 md:mb-18 space-y-3 sm:space-y-4">
-                  <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-poppins font-bold text-navy px-2">
+            {/* 3. HOW IT WORKS - Compact Flow */}
+            <section id="how-it-works" className="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-white to-gray-50">
+              <div className="container mx-auto px-4 sm:px-6">
+                {/* Header */}
+                <div className="text-center mb-10 sm:mb-12 space-y-3">
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-bold text-navy">
                     How It Works
                   </h2>
-                  <p className="text-slate text-sm sm:text-base md:text-lg max-w-3xl mx-auto leading-relaxed px-3 sm:px-4">
+                  <p className="text-slate text-sm sm:text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
                     Your medical data deserves more than numbers — it deserves understanding.
                     Our intelligent system analyzes your reports, interprets results, and builds a personalized 30-day roadmap toward better health and lasting wellness.
                   </p>
                 </div>
                 
-                <div className="flex flex-col lg:flex-row items-center justify-center gap-6 sm:gap-8 max-w-6xl mx-auto mb-16 sm:mb-20">
-                  {/* Step 1: Upload */}
-                  <div className="text-center space-y-4 sm:space-y-6 glass-card p-8 sm:p-10 rounded-3xl transition-all hover:shadow-float hover:-translate-y-2 duration-400 w-full lg:flex-1">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-2xl flex items-center justify-center glow-ring" style={{ background: 'linear-gradient(135deg, #00C6FF 0%, #44FFE8 100%)' }}>
-                      <CloudDownload className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                {/* Compact Flow - Horizontal on Desktop, Vertical on Mobile */}
+                <div className="max-w-5xl mx-auto">
+                  <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-12">
+                    {/* Step 1: Upload */}
+                    <div className="flex flex-col items-center text-center space-y-2 flex-1">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center backdrop-blur-lg bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-white/30">
+                        <Upload className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-600" />
+                      </div>
+                      <h3 className="text-sm sm:text-base font-poppins font-semibold text-navy">Upload</h3>
+                      <p className="text-xs sm:text-sm text-slate max-w-[160px]">Secure PDF/Image upload</p>
                     </div>
-                    <h3 className="text-lg sm:text-xl font-poppins font-bold text-navy">Upload</h3>
-                    <p className="text-slate text-sm sm:text-base leading-relaxed">
-                      Upload your medical report securely (PDF/JPG/PNG)
-                    </p>
-                  </div>
 
-                  {/* Arrow 1 */}
-                  <div className="hidden lg:block">
-                    <ArrowRight className="w-8 h-8 text-primary/40" />
-                  </div>
+                    {/* Arrow */}
+                    <ArrowRight className="hidden md:block w-6 h-6 text-slate/40" />
+                    <div className="md:hidden w-px h-8 bg-slate/20" />
 
-                  {/* Step 2: Analysis */}
-                  <div className="text-center space-y-4 sm:space-y-6 glass-card p-8 sm:p-10 rounded-3xl transition-all hover:shadow-float hover:-translate-y-2 duration-400 w-full lg:flex-1">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-2xl flex items-center justify-center glow-ring" style={{ background: 'linear-gradient(135deg, #00C6FF 0%, #44FFE8 100%)' }}>
-                      <BarChart3 className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                    {/* Step 2: AI Analysis */}
+                    <div className="flex flex-col items-center text-center space-y-2 flex-1">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center backdrop-blur-lg bg-gradient-to-br from-purple-400/20 to-pink-500/20 border border-white/30">
+                        <BarChart3 className="w-6 h-6 sm:w-7 sm:h-7 text-purple-600" />
+                      </div>
+                      <h3 className="text-sm sm:text-base font-poppins font-semibold text-navy">AI Analysis</h3>
+                      <p className="text-xs sm:text-sm text-slate max-w-[160px]">Real-time parameter analysis</p>
                     </div>
-                    <h3 className="text-lg sm:text-xl font-poppins font-bold text-navy">AI Analysis</h3>
-                    <p className="text-slate text-sm sm:text-base leading-relaxed">
-                      AI analyzes your report parameters in real-time
-                    </p>
-                  </div>
 
-                  {/* Arrow 2 */}
-                  <div className="hidden lg:block">
-                    <ArrowRight className="w-8 h-8 text-primary/40" />
-                  </div>
+                    {/* Arrow */}
+                    <ArrowRight className="hidden md:block w-6 h-6 text-slate/40" />
+                    <div className="md:hidden w-px h-8 bg-slate/20" />
 
-                  {/* Step 3: Clinical Chat (moved before Interpretation) */}
-                  <div className="text-center space-y-4 sm:space-y-6 glass-card p-8 sm:p-10 rounded-3xl transition-all hover:shadow-float hover:-translate-y-2 duration-400 w-full lg:flex-1">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-2xl flex items-center justify-center glow-ring" style={{ background: 'linear-gradient(135deg, #00C6FF 0%, #44FFE8 100%)' }}>
-                      <MessageCircle className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                    {/* Step 3: Clinical Chat */}
+                    <div className="flex flex-col items-center text-center space-y-2 flex-1">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center backdrop-blur-lg bg-gradient-to-br from-green-400/20 to-teal-500/20 border border-white/30">
+                        <MessageCircle className="w-6 h-6 sm:w-7 sm:h-7 text-green-600" />
+                      </div>
+                      <h3 className="text-sm sm:text-base font-poppins font-semibold text-navy">Clinical Chat</h3>
+                      <p className="text-xs sm:text-sm text-slate max-w-[160px]">Personalized Q&A</p>
                     </div>
-                    <h3 className="text-lg sm:text-xl font-poppins font-bold text-navy">Clinical Chat</h3>
-                    <p className="text-slate text-sm sm:text-base leading-relaxed">
-                      Ask questions about your results
-                    </p>
-                  </div>
 
-                  {/* Arrow 3 */}
-                  <div className="hidden lg:block">
-                    <ArrowRight className="w-8 h-8 text-primary/40" />
-                  </div>
+                    {/* Arrow */}
+                    <ArrowRight className="hidden md:block w-6 h-6 text-slate/40" />
+                    <div className="md:hidden w-px h-8 bg-slate/20" />
 
-                  {/* Step 4: Interpretation */}
-                  <div className="text-center space-y-4 sm:space-y-6 glass-card p-8 sm:p-10 rounded-3xl transition-all hover:shadow-float hover:-translate-y-2 duration-400 w-full lg:flex-1">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-2xl flex items-center justify-center glow-ring" style={{ background: 'linear-gradient(135deg, #00C6FF 0%, #44FFE8 100%)' }}>
-                      <FileText className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                    {/* Step 4: Results */}
+                    <div className="flex flex-col items-center text-center space-y-2 flex-1">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center backdrop-blur-lg bg-gradient-to-br from-orange-400/20 to-red-500/20 border border-white/30">
+                        <FileText className="w-6 h-6 sm:w-7 sm:h-7 text-orange-600" />
+                      </div>
+                      <h3 className="text-sm sm:text-base font-poppins font-semibold text-navy">Results</h3>
+                      <p className="text-xs sm:text-sm text-slate max-w-[160px]">Comprehensive insights</p>
                     </div>
-                    <h3 className="text-lg sm:text-xl font-poppins font-bold text-navy">Interpretation</h3>
-                    <p className="text-slate text-sm sm:text-base leading-relaxed">
-                      Get clear, personalized health insights
-                    </p>
                   </div>
-                </div>
 
-                {/* New Features Showcase Section - Mobile Optimized */}
-                <div className="mt-16 sm:mt-20 md:mt-24">
-                  <div className="text-center mb-8 sm:mb-10 md:mb-12 space-y-2 sm:space-y-3">
-                    <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-poppins font-bold text-navy px-2">
-                      Comprehensive Health Features
+                  {/* Outcomes Section - Single Row */}
+                  <div className="backdrop-blur-lg bg-gradient-to-r from-cyan-50/80 to-blue-50/80 rounded-2xl p-6 sm:p-8 border border-white/30">
+                    <h3 className="text-lg sm:text-xl font-poppins font-bold text-navy mb-4 text-center">
+                      What You Get
                     </h3>
-                    <p className="text-slate text-xs sm:text-sm md:text-base lg:text-lg max-w-3xl mx-auto px-3 sm:px-4">
-                      Beyond basic analysis - get personalized insights, predictions, and actionable improvement plans
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 max-w-7xl mx-auto">
-                    {/* Feature 1: Health Score Calculator */}
-                    <div className="glass-card p-6 sm:p-8 rounded-2xl transition-all hover:shadow-float hover:-translate-y-1 duration-300">
-                      <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-4 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
-                        <Target className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {/* Outcome 1 */}
+                      <div className="text-center space-y-2">
+                        <div className="w-10 h-10 mx-auto rounded-lg bg-white/50 flex items-center justify-center">
+                          <Target className="w-5 h-5 text-purple-600" />
+                        </div>
+                        <p className="text-xs sm:text-sm font-medium text-navy">Health Score (0-100)</p>
                       </div>
-                      <h4 className="text-base sm:text-lg font-poppins font-bold text-navy mb-2 text-center">
-                        Health Score Calculator
-                      </h4>
-                      <p className="text-slate text-xs sm:text-sm text-center leading-relaxed">
-                        Comprehensive 0-100 score across 6 body systems with medical validation
-                      </p>
-                    </div>
-
-                    {/* Feature 2: Health Prediction */}
-                    <div className="glass-card p-6 sm:p-8 rounded-2xl transition-all hover:shadow-float hover:-translate-y-1 duration-300">
-                      <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-4 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' }}>
-                        <TrendingUp className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+                      
+                      {/* Outcome 2 */}
+                      <div className="text-center space-y-2">
+                        <div className="w-10 h-10 mx-auto rounded-lg bg-white/50 flex items-center justify-center">
+                          <TrendingUp className="w-5 h-5 text-pink-600" />
+                        </div>
+                        <p className="text-xs sm:text-sm font-medium text-navy">Risk Predictions</p>
                       </div>
-                      <h4 className="text-base sm:text-lg font-poppins font-bold text-navy mb-2 text-center">
-                        Health Prediction
-                      </h4>
-                      <p className="text-slate text-xs sm:text-sm text-center leading-relaxed">
-                        AI-powered predictive insights for future health trends and risks
-                      </p>
-                    </div>
-
-                    {/* Feature 3: 30-Day Improvement Plan */}
-                    <div className="glass-card p-6 sm:p-8 rounded-2xl transition-all hover:shadow-float hover:-translate-y-1 duration-300">
-                      <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-4 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' }}>
-                        <Calendar className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+                      
+                      {/* Outcome 3 */}
+                      <div className="text-center space-y-2">
+                        <div className="w-10 h-10 mx-auto rounded-lg bg-white/50 flex items-center justify-center">
+                          <Calendar className="w-5 h-5 text-green-600" />
+                        </div>
+                        <p className="text-xs sm:text-sm font-medium text-navy">30-Day Plan</p>
                       </div>
-                      <h4 className="text-base sm:text-lg font-poppins font-bold text-navy mb-2 text-center">
-                        30-Day Plan
-                      </h4>
-                      <p className="text-slate text-xs sm:text-sm text-center leading-relaxed">
-                        Personalized targeted improvement plan with daily activities and milestones
-                      </p>
-                    </div>
-
-                    {/* Feature 4: Health Journey */}
-                    <div className="glass-card p-6 sm:p-8 rounded-2xl transition-all hover:shadow-float hover:-translate-y-1 duration-300">
-                      <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-4 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)' }}>
-                        <Activity className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+                      
+                      {/* Outcome 4 */}
+                      <div className="text-center space-y-2">
+                        <div className="w-10 h-10 mx-auto rounded-lg bg-white/50 flex items-center justify-center">
+                          <Activity className="w-5 h-5 text-orange-600" />
+                        </div>
+                        <p className="text-xs sm:text-sm font-medium text-navy">Health Journey</p>
                       </div>
-                      <h4 className="text-base sm:text-lg font-poppins font-bold text-navy mb-2 text-center">
-                        Health Journey
-                      </h4>
-                      <p className="text-slate text-xs sm:text-sm text-center leading-relaxed">
-                        Interactive calendar, progress tracker, and smart notification reminders
-                      </p>
                     </div>
                   </div>
                 </div>
               </div>
             </section>
 
-            {/* 3. UPLOAD SECTION */}
-            <section id="upload-section" className="py-12 sm:py-16 md:py-24 bg-coolGray relative">
-              <div className="container mx-auto px-4 sm:px-6">
-                <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
-                  <div className="text-center space-y-3 sm:space-y-4">
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-semibold text-navy px-4">
+            {/* 4. UPLOAD SECTION - With Video Background */}
+            <section id="upload-section" className="relative py-16 sm:py-20 md:py-28 overflow-hidden">
+              {/* Full-width Background Video */}
+              <div className="absolute inset-0 z-0 overflow-hidden">
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover opacity-70"
+                  style={{ filter: 'brightness(0.8)' }}
+                >
+                  <source src="/upload-section-video.mp4" type="video/mp4" />
+                </video>
+                {/* Overlay gradient */}
+                <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-white/30 to-white/40" />
+              </div>
+
+              {/* Content over video */}
+              <div className="container mx-auto px-4 sm:px-6 relative z-10">
+                {/* Title with glassmorphism background */}
+                <div className="text-center mb-8 sm:mb-10 md:mb-12 space-y-2 sm:space-y-3">
+                  <div className="inline-block backdrop-blur-sm bg-white/30 px-6 py-3 rounded-2xl">
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-bold text-navy">
                       Upload Your Test Report
                     </h2>
-                    <p className="text-slate text-sm sm:text-base md:text-lg px-4">
+                  </div>
+                  <div className="inline-block backdrop-blur-sm bg-white/20 px-4 py-2 rounded-lg">
+                    <p className="text-slate text-sm sm:text-base md:text-lg">
                       Supported formats: PDF, JPG, PNG. Get instant AI-powered analysis.
                     </p>
                   </div>
-                  
-                  <div className="bg-white rounded-xl sm:rounded-2xl shadow-premium p-4 sm:p-8 md:p-12">
-                    <UploadZone 
-                      onFileSelect={handleFileSelect}
-                      onImagesCapture={handleCameraImages}
-                    />
-                  </div>
-                  
-                  {/* Privacy Notice */}
-                  <div className="flex items-start gap-3 p-4 bg-white/50 rounded-xl border border-slate/20">
-                    <Shield className="h-5 w-5 text-accentCyan shrink-0 mt-0.5" />
-                    <p className="text-sm text-slate leading-relaxed">
-                      <span className="font-semibold text-navy">Privacy Protected:</span> Your medical data is encrypted and automatically deleted after analysis. We never store your reports or personal health information permanently.
-                    </p>
-                  </div>
                 </div>
-              </div>
-              
-              {/* Disclaimer at bottom */}
-              <div className="mt-16 border-t border-slate/20 pt-8">
-                <div className="container mx-auto px-4 sm:px-6">
-                  <div className="max-w-4xl mx-auto text-center">
-                    <h4 className="text-navy font-poppins font-semibold text-sm mb-2">Important Disclaimer</h4>
-                    <p className="text-slate text-xs leading-relaxed">
-                      This report is generated using AI analysis and is intended for informational purposes only. It should not replace professional medical advice, diagnosis, or treatment. Always consult with qualified healthcare professionals for medical concerns.
-                    </p>
-                  </div>
+                
+                {/* Upload zone with glassmorphism */}
+                <div className="backdrop-blur-lg bg-white/20 rounded-xl sm:rounded-2xl shadow-premium p-4 sm:p-8 md:p-12 border border-white/30">
+                  <UploadZone 
+                    onFileSelect={handleFileSelect}
+                    onImagesCapture={handleCameraImages}
+                  />
+                </div>
+                
+                {/* Privacy Notice with glassmorphism */}
+                <div className="flex items-start gap-3 p-4 backdrop-blur-lg bg-white/25 rounded-xl border border-white/30 mt-6">
+                  <Shield className="h-5 w-5 text-accentCyan shrink-0 mt-0.5" />
+                  <p className="text-sm text-navy leading-relaxed">
+                    <span className="font-semibold">Privacy Protected:</span> Your medical data is encrypted and automatically deleted after analysis. We never store your reports or personal health information permanently.
+                  </p>
                 </div>
               </div>
             </section>
           </>
         )}
+
+        {/* DISCLAIMER - Bottom of Page */}
+        <section className="py-8 bg-gray-100 border-t border-gray-200">
+          <div className="container mx-auto px-4 sm:px-6">
+            <div className="max-w-4xl mx-auto text-center">
+              <h4 className="text-navy font-poppins font-semibold text-sm sm:text-base mb-3">
+                Important Disclaimer
+              </h4>
+              <p className="text-slate text-xs sm:text-sm leading-relaxed">
+                This report is generated using AI analysis and is intended for informational purposes only. It should not replace professional medical advice, diagnosis, or treatment. Always consult with qualified healthcare professionals for medical concerns.
+              </p>
+            </div>
+          </div>
+        </section>
 
         {/* 4. AI ANALYSIS SECTION */}
         {isAnalyzing && (
