@@ -1736,6 +1736,8 @@ RAW DATA: ${baseContext}`;
                 >
                   <source src="/upload-section-video.mp4" type="video/mp4" />
                 </video>
+                {/* Semi-transparent dark overlay for text readability */}
+                <div className="absolute inset-0 bg-black/40" />
               </div>
 
               {/* Content over video - No boxes, just text and components */}
