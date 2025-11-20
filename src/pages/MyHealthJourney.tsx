@@ -8,6 +8,7 @@ import { HealthPlanCalendar } from '@/components/HealthPlanCalendar';
 import { HealthScoreTimeline } from '@/components/HealthScoreTimeline';
 import { NotificationSettingsPanel } from '@/components/NotificationSettingsPanel';
 import { useHealthJourney } from '@/hooks/useHealthJourney';
+import { GlobalNav } from '@/components/GlobalNav';
 import { generate30DayPlan } from '@/utils/generate30DayPlan';
 import type { HealthScoreBreakdown } from '@/utils/healthScoreCalculator';
 import type { HealthImprovementPlan } from '@/utils/generate30DayPlan';
@@ -73,7 +74,8 @@ export default function MyHealthJourney() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-background dark:to-gray-900">
-      <div className="container mx-auto px-4 py-8">
+      <GlobalNav theme="light" />
+      <div className="container mx-auto px-4 py-8 pt-20">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">My Health Journey</h1>

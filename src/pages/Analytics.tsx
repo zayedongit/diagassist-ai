@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { Activity, Users, CheckCircle, XCircle, TrendingUp, Clock } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { GlobalNav } from '@/components/GlobalNav';
 
 type Timeframe = 'today' | 'week' | 'month' | 'all-time';
 

@@ -27,6 +27,7 @@ import heroBackground from "@/assets/hero-background.jpg";
 import readyBackground from "@/assets/ready-background.jpg";
 import daigassistLogo from "@/assets/daigasst-logo.png";
 import medicalReportIcon from "@/assets/medical-report-icon.png";
+import { GlobalNav } from '@/components/GlobalNav';
 import { fetchUserAnalysisHistory } from '@/utils/fetchUserAnalysisHistory';
 import { PhoneAuth } from '@/components/PhoneAuth';
 import { useAuth } from '@/hooks/useAuth';
@@ -56,54 +57,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { AuthPrompt } from '@/components/AuthPrompt';
 import { ExportToDriveDialog } from '@/components/ExportToDriveDialog';
-
-// Header Navigation Component - Minimal Design
-const HeaderNav = ({ onLogoClick }: { onLogoClick?: () => void }) => {
-  const { user, signOut } = useAuth();
-
-  const handleAuthClick = () => {
-    if (user) {
-      // Sign out directly
-      signOut();
-      toast.success("Signed out successfully");
-    } else {
-      // Open auth dialog
-      window.dispatchEvent(new Event('open-auth-dialog'));
-    }
-  };
-  
-  return (
-    <div className="bg-white border-b border-border sticky top-0 z-50 shadow-sm">
-      <div className="container mx-auto px-2 sm:px-3 md:px-4 py-2 sm:py-3">
-        <div className="flex items-center justify-between">
-          {/* Logo + Daigassist Text - Clickable */}
-          <button
-            onClick={() => onLogoClick ? onLogoClick() : window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-          >
-            <img 
-              src={medicalReportIcon} 
-              alt="Daigassist" 
-              className="h-6 sm:h-8 md:h-10 w-auto"
-            />
-            <span className="text-base sm:text-lg font-bold text-navy">
-              Daigassist
-            </span>
-          </button>
-          
-          {/* Simple Sign-In/User Icon */}
-          <button
-            onClick={handleAuthClick}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            title={user ? "Sign Out" : "Sign In"}
-          >
-            <User className="h-5 w-5 sm:h-6 sm:w-6 text-navy" />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 
 const Index = () => {
@@ -1558,11 +1511,8 @@ RAW DATA: ${baseContext}`;
 
   return (
     <div className="min-h-screen bg-coolGray font-inter">
-      {/* 1. Sticky Top Navigation Bar - Simplified */}
-      <header className="sticky top-0 z-50 bg-white backdrop-blur-lg border-b border-border">
-        {/* Header Navigation */}
-        <HeaderNav onLogoClick={showResults && isMobile ? handleReset : undefined} />
-      </header>
+      {/* Global Navigation */}
+      <GlobalNav theme="dark" />
 
       <main className="w-full">
         {/* 2. HERO SECTION - Premium Futuristic with Video Background */}
@@ -1607,19 +1557,12 @@ RAW DATA: ${baseContext}`;
                 <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8 md:space-y-10 animate-fade-up">
                   
                   {/* Headline - Mobile Optimized */}
-                  <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-poppins font-bold text-white leading-tight px-2 sm:px-4 opacity-0 animate-fade-in" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
-                    Revolutionizing Health <br className="hidden sm:block" />
-                    with AI
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-poppins font-bold text-white leading-tight opacity-0 animate-fade-in px-2" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
+                    Revolutionizing Medical Report
                   </h1>
                   
-                  {/* Subtext - Mobile Optimized */}
-                  <p className="text-sm sm:text-base md:text-lg lg:text-xl text-cyan-300 font-inter font-normal leading-relaxed max-w-4xl mx-auto px-2 sm:px-4 opacity-0 animate-fade-in" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
-                    Your medical data deserves more than numbers — it deserves understanding.<br className="hidden md:block" />
-                    Our intelligent system analyzes your reports, interprets results, and builds a personalized 30-day roadmap toward better health and lasting wellness.
-                  </p>
-                  
                   {/* Tagline - Mobile Optimized */}
-                  <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-100 font-inter font-bold tracking-wide opacity-0 animate-fade-in px-2 pt-12 sm:pt-16 md:pt-20" style={{ animationDelay: '0.6s', animationFillMode: 'forwards' }}>
+                  <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-100 font-inter font-bold tracking-wide opacity-0 animate-fade-in px-2 pt-4 sm:pt-6" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
                     Guided by Science. Driven by Compassion.
                   </p>
                   
@@ -1631,16 +1574,19 @@ RAW DATA: ${baseContext}`;
                         const uploadSection = document.getElementById('upload-section');
                         uploadSection?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                       }}
-                      className="group relative px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 rounded-full font-poppins font-semibold text-sm sm:text-base md:text-lg text-white transition-all duration-400 hover:scale-105 active:scale-95 w-full sm:w-auto overflow-hidden"
-                      style={{ 
-                        background: 'linear-gradient(135deg, #00d1d1 0%, #0099ff 100%)',
-                        boxShadow: '0 0 30px rgba(0, 209, 209, 0.5), 0 10px 30px rgba(0, 153, 255, 0.3)'
-                      }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.boxShadow = '0 0 40px rgba(0, 209, 209, 0.7), 0 15px 40px rgba(0, 153, 255, 0.5)';
+                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)';
+                        e.currentTarget.style.boxShadow = '0 8px 40px rgba(0, 209, 209, 0.5)';
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.boxShadow = '0 0 30px rgba(0, 209, 209, 0.5), 0 10px 30px rgba(0, 153, 255, 0.3)';
+                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+                        e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 209, 209, 0.3)';
+                      }}
+                      className="group relative px-6 sm:px-8 md:px-10 py-3 sm:py-4 md:py-5 rounded-full font-poppins font-semibold text-sm sm:text-base md:text-lg text-white transition-all duration-400 hover:scale-105 active:scale-95 w-full sm:w-auto overflow-hidden backdrop-blur-lg"
+                      style={{ 
+                        background: 'rgba(255, 255, 255, 0.15)',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
+                        boxShadow: '0 8px 32px rgba(0, 209, 209, 0.3)'
                       }}
                     >
                       <span className="flex items-center justify-center gap-2 relative z-10">
@@ -1675,8 +1621,9 @@ RAW DATA: ${baseContext}`;
                   <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-poppins font-bold text-navy px-2">
                     How It Works
                   </h2>
-                  <p className="text-slate text-sm sm:text-base md:text-lg lg:text-xl max-w-2xl mx-auto leading-relaxed px-3 sm:px-4">
-                    Simple, secure, and comprehensive medical report analysis in 4 easy steps
+                  <p className="text-slate text-sm sm:text-base md:text-lg max-w-3xl mx-auto leading-relaxed px-3 sm:px-4">
+                    Your medical data deserves more than numbers — it deserves understanding.
+                    Our intelligent system analyzes your reports, interprets results, and builds a personalized 30-day roadmap toward better health and lasting wellness.
                   </p>
                 </div>
                 

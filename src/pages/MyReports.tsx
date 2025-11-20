@@ -29,6 +29,7 @@ import { parseClinicalContext } from "@/utils/parseClinicalContext";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { jsPDF } from "jspdf";
+import { GlobalNav } from '@/components/GlobalNav';
 
 interface AnalysisRecord {
   id: string;
@@ -218,9 +219,10 @@ export default function MyReports() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Header */}
-      <header className="bg-white border-b border-border sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4">
+      <GlobalNav theme="light" />
+      <div className="container mx-auto px-4 py-8 pt-20">
+        {/* Header */}
+        <header className="mb-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Button
@@ -238,10 +240,8 @@ export default function MyReports() {
               {analyses.length} {analyses.length === 1 ? "Report" : "Reports"}
             </Badge>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <div className="container mx-auto px-4 py-8">
         {analyses.length === 0 ? (
           <Card className="max-w-2xl mx-auto">
             <CardContent className="pt-12 pb-12 text-center">
