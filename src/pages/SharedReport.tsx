@@ -8,6 +8,7 @@ import { Loader2, AlertCircle, CheckCircle, Clock, Home, Eye } from "lucide-reac
 import { MobileResultsView } from "@/components/MobileResultsView";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { GlobalNav } from "@/components/GlobalNav";
 
 export default function SharedReport() {
   const { token } = useParams();
