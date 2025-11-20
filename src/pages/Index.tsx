@@ -824,6 +824,25 @@ RAW DATA: ${baseContext}`;
           localStorage.removeItem('analysisTimestamp');
           
           toast.success('PDF analysis completed successfully!');
+          
+          // Send admin SMS alert for successful analysis (NON-NEGOTIABLE)
+          supabase.functions.invoke('send-admin-alert', {
+            body: {
+              analysisId: id,
+              userId: userId,
+              status: 'success',
+              patientName: normalizedData.demographics?.name || 'Unknown',
+              timestamp: new Date().toISOString()
+            }
+          }).then(({ data, error: alertError }) => {
+            if (alertError) {
+              console.error('❌ Failed to send success SMS alert:', alertError);
+            } else {
+              console.log('✅ Admin success SMS alert sent:', data);
+            }
+          }).catch(err => {
+            console.error('❌ Error sending success alert:', err);
+          });
         } else if (analysis.status === 'failed') {
           console.error('❌ Analysis failed:', analysis.error_message);
           setError(analysis.error_message || 'Analysis failed');

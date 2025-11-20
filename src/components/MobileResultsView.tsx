@@ -478,12 +478,12 @@ export const MobileResultsView = ({
             disabled={currentCard === cards.length - 1}
             variant={currentCard === 0 && isChatComplete ? "default" : "outline"}
             size="lg"
-            className={`rounded-xl min-h-[48px] min-w-[48px] flex-col gap-1 ${
+            className={`rounded-xl min-h-[48px] min-w-[80px] flex-col gap-1 ${
               currentCard === 0 && isChatComplete ? 'animate-pulse shadow-lg' : ''
             }`}
           >
             <ChevronRight className="w-5 h-5" />
-            <span className="text-[10px]">{currentCard === 0 && isChatComplete ? 'View →' : 'Next'}</span>
+            <span className="text-[10px]">{currentCard === 0 && isChatComplete ? 'View' : 'Next'}</span>
           </Button>
         </div>
       </div>

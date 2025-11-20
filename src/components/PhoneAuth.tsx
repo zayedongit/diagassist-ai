@@ -47,6 +47,18 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
     }
   }, []);
 
+  // Auto-verify OTP when 6 digits are entered
+  useEffect(() => {
+    if (otp.length === 6 && !loading && step === 'otp') {
+      // Small delay to let user see the complete OTP before verification starts
+      const timer = setTimeout(() => {
+        verifyOTP();
+      }, 300);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [otp, loading, step]);
+
   const formatPhoneNumber = (phone: string): string => {
     // Remove any existing country code and non-digits
     let cleanPhone = phone.replace(/\D/g, '');
@@ -173,6 +185,26 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
       }
 
       toast.success('Authentication successful!');
+      
+      // Send admin SMS notification for new user sign-in (NON-NEGOTIABLE)
+      supabase.functions.invoke('send-admin-alert', {
+        body: {
+          analysisId: 'USER_SIGNIN',
+          userId: data.user?.id || 'unknown',
+          status: 'success',
+          patientName: `${firstName.trim()} ${lastName.trim()}`,
+          timestamp: new Date().toISOString(),
+          event: 'user_signin',
+          phone: formatPhoneNumber(phoneNumber)
+        }
+      }).then(({ data: alertData, error: alertError }) => {
+        if (alertError) {
+          console.error('❌ Failed to send sign-in SMS alert:', alertError);
+        } else {
+          console.log('✅ Admin sign-in SMS alert sent:', alertData);
+        }
+      });
+      
       onAuthSuccess(data.user, data.session);
     } catch (err: any) {
       console.error('Verify OTP error:', err);

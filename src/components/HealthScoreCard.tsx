@@ -141,23 +141,23 @@ export const HealthScoreCard = ({ breakdown }: HealthScoreCardProps) => {
 
       <CardContent className="space-y-6">
         {/* Large Circular Score Display */}
-        <div className="flex flex-col items-center justify-center py-6">
-          <div className="relative w-48 h-48 flex items-center justify-center">
+        <div className="flex flex-col items-center justify-center py-6 md:py-8">
+          <div className="relative w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 flex items-center justify-center">
             {/* Circular progress background */}
-            <svg className="absolute inset-0 w-48 h-48 transform -rotate-90">
+            <svg className="absolute inset-0 w-full h-full transform -rotate-90">
               <circle
-                cx="96"
-                cy="96"
-                r="88"
+                cx="50%"
+                cy="50%"
+                r="42%"
                 stroke="currentColor"
                 strokeWidth="12"
                 fill="none"
                 className="text-gray-200"
               />
               <circle
-                cx="96"
-                cy="96"
-                r="88"
+                cx="50%"
+                cy="50%"
+                r="42%"
                 stroke="currentColor"
                 strokeWidth="12"
                 fill="none"
@@ -171,10 +171,10 @@ export const HealthScoreCard = ({ breakdown }: HealthScoreCardProps) => {
             
             {/* Score number */}
             <div className="text-center z-10">
-              <div className={`text-6xl font-bold ${getScoreColor(overallScore)} transition-all duration-200`}>
+              <div className={`text-5xl sm:text-6xl md:text-7xl font-bold ${getScoreColor(overallScore)} transition-all duration-200`}>
                 {displayScore}
               </div>
-              <div className="text-sm text-muted-foreground font-medium">out of 100</div>
+              <div className="text-xs sm:text-sm text-muted-foreground font-medium">out of 100</div>
             </div>
           </div>
 
