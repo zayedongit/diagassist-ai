@@ -26,6 +26,7 @@ interface MedicalPanel {
 }
 
 interface AnalysisResult {
+  patientName?: string;
   overallStatus: 'good' | 'moderate' | 'concerning';
   summary: string;
   demographics?: {
@@ -1216,6 +1217,8 @@ Respond ONLY with valid JSON matching the structure above - no markdown, no expl
       .update({
         status: 'completed',
         result: analysisResult,
+        admin_notified_success: true,
+        admin_notified_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       })
       .eq('id', analysisId);
@@ -1226,6 +1229,23 @@ Respond ONLY with valid JSON matching the structure above - no markdown, no expl
     }
     
     console.log('✅ Analysis result stored in database with ID:', analysisId);
+
+    // Send success SMS notification to admin
+    try {
+      await supabase.functions.invoke('send-admin-alert', {
+        body: {
+          analysisId,
+          userId: analysisId.split('_')[2] || 'unknown',
+          timestamp: new Date().toISOString(),
+          status: 'success',
+          patientName: analysisResult.patientName || 'N/A'
+        }
+      });
+      console.log('✅ Admin success SMS notification sent');
+    } catch (alertError) {
+      console.error('❌ Failed to send admin success notification:', alertError);
+      // Don't throw - analysis completed successfully even if alert fails
+    }
       } catch (bgError) {
         console.error('❌ CRITICAL BACKGROUND PROCESSING ERROR:', bgError);
         const errorMessage = bgError instanceof Error ? bgError.message : 'Unknown error';
@@ -1242,17 +1262,18 @@ Respond ONLY with valid JSON matching the structure above - no markdown, no expl
           })
           .eq('id', analysisId);
 
-        // Send immediate SMS alert to admin
+        // Send failure SMS alert to admin
         try {
           await supabase.functions.invoke('send-admin-alert', {
             body: {
               analysisId,
               error: `${errorMessage}\n\nStack:\n${errorStack}`,
               userId: analysisId.split('_')[2] || 'unknown',
-              timestamp: new Date().toISOString()
+              timestamp: new Date().toISOString(),
+              status: 'failed'
             }
           });
-          console.log('✅ Admin SMS alert sent for failed analysis');
+          console.log('✅ Admin failure SMS alert sent');
         } catch (alertError) {
           console.error('❌ Failed to send admin alert:', alertError);
           // Don't throw - we still want to continue even if alert fails
