@@ -19,8 +19,8 @@ export const UploadZone = ({ onFileSelect, onImagesCapture }: UploadZoneProps) =
   const [capturedImagesCount, setCapturedImagesCount] = useState(0);
   const { isAuthenticated, user } = useAuth();
 
-  // BYPASS AUTH FOR TESTING - Set to true to re-enable auth before deployment
-  const BYPASS_AUTH = true;
+  // Authentication is now MANDATORY for upload
+  const BYPASS_AUTH = false;
   const effectiveAuth = BYPASS_AUTH || isAuthenticated;
 
   const handleDragOver = (e: React.DragEvent) => {
