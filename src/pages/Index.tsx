@@ -1518,7 +1518,7 @@ RAW DATA: ${baseContext}`;
         {/* 2. HERO SECTION - Premium Futuristic with Video Background */}
         {!selectedFile && !showResults && !error && (
           <>
-            <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+            <section className="relative min-h-screen flex items-end justify-center overflow-hidden pb-12 sm:pb-16 md:pb-20">
               {/* Full-width Background Video with Parallax */}
               <div className="absolute inset-0 z-0 overflow-hidden bg-gradient-to-br from-navy to-slate">
                 <video
