@@ -156,13 +156,27 @@ export const SampleReportPreview = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button 
-          variant="outline" 
-          className="gap-2 hover:border-primary hover:text-primary transition-colors"
+        <button
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)';
+            e.currentTarget.style.boxShadow = '0 12px 40px rgba(0, 209, 209, 0.4)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+            e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 209, 209, 0.3)';
+          }}
+          className="group relative px-5 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 rounded-full font-poppins font-semibold text-sm sm:text-base text-white transition-all duration-400 hover:scale-105 active:scale-95 overflow-hidden backdrop-blur-lg"
+          style={{ 
+            background: 'rgba(255, 255, 255, 0.15)',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            boxShadow: '0 8px 32px rgba(0, 209, 209, 0.3)'
+          }}
         >
-          <FileText className="w-4 h-4" />
-          View Sample Report
-        </Button>
+          <span className="flex items-center justify-center gap-2 relative z-10">
+            <FileText className="w-4 h-4" />
+            View Sample Report
+          </span>
+        </button>
       </DialogTrigger>
       <DialogContent className="max-w-[90vw] md:max-w-[80vw] lg:max-w-[1000px] h-[85vh] p-0">
         <ScrollArea className="h-full">
