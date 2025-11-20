@@ -38,22 +38,19 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Use service role key for admin operations
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    // Check if user has admin role
+    const { data: isAdmin, error: roleError } = await supabaseAuth
+      .rpc('has_role', { _user_id: user.id, _role: 'admin' });
 
-    // Check if user is admin by phone number
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('phone_number')
-      .eq('user_id', user.id)
-      .single();
-    
-    if (!profile || profile.phone_number !== '+917993448425') {
+    if (roleError || !isAdmin) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized - Admin access required' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
       );
     }
+
+    // Use service role key for admin operations
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const url = new URL(req.url);
     const status = url.searchParams.get('status'); // 'all', 'completed', 'failed', 'pending'
