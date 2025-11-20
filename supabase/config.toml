@@ -17,3 +17,9 @@ verify_jwt = true
 
 [functions."get-all-analyses"]
 verify_jwt = true
+
+[functions."check-admin-role"]
+verify_jwt = true
+
+[functions."get-user-analyses"]
+verify_jwt = true
