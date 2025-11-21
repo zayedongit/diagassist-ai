@@ -552,10 +552,29 @@ RAW DATA: ${baseContext}`;
       }
     });
     
+    console.log('🔍 STORAGE DEBUG - Comprehensive Report:', {
+      resultSuccess: result.success,
+      hasPdfBase64: !!result.pdfBase64,
+      pdfBase64Length: result.pdfBase64?.length,
+      analysisId: analysisId,
+      fileName: result.fileName,
+      userId: user?.id,
+      isAuthenticated: !!user
+    });
+    
     // Store PDF in backend if generation successful
     if (result.success && result.pdfBase64 && analysisId) {
+      console.log('✅ All conditions met - attempting to store comprehensive report');
+      
+      if (!user) {
+        console.error('❌ User not authenticated - cannot store report');
+        toast.error('Please sign in to save your reports to the cloud');
+        return;
+      }
+      
       try {
-        await supabase.functions.invoke('store-analysis-report', {
+        console.log('📤 Invoking store-analysis-report for comprehensive...');
+        const { data, error } = await supabase.functions.invoke('store-analysis-report', {
           body: {
             analysisId,
             pdfBase64: result.pdfBase64,
@@ -563,10 +582,24 @@ RAW DATA: ${baseContext}`;
             filename: result.fileName
           }
         });
-        console.log('✅ Comprehensive report stored in backend');
+        
+        if (error) {
+          console.error('❌ Edge function returned error:', error);
+          toast.error('Failed to save report to cloud storage');
+        } else {
+          console.log('✅ Comprehensive report stored successfully:', data);
+          toast.success('Report saved to your account');
+        }
       } catch (error) {
-        console.error('Failed to store report in backend:', error);
+        console.error('❌ Exception during storage:', error);
+        toast.error('Error saving report to cloud');
       }
+    } else {
+      console.warn('⚠️ Storage skipped - condition failed:', {
+        success: result.success,
+        hasPdfBase64: !!result.pdfBase64,
+        hasAnalysisId: !!analysisId
+      });
     }
     
     console.log('✅ PDF generation completed');
@@ -601,10 +634,29 @@ RAW DATA: ${baseContext}`;
     const plan = generate30DayPlan(healthScoreBreakdown);
     const result = await generate30DayPlanPdf(plan, analysisData.patientName || 'Patient');
 
+    console.log('🔍 STORAGE DEBUG - 30-Day Plan:', {
+      resultSuccess: result.success,
+      hasPdfBase64: !!result.pdfBase64,
+      pdfBase64Length: result.pdfBase64?.length,
+      analysisId: analysisId,
+      fileName: result.fileName,
+      userId: user?.id,
+      isAuthenticated: !!user
+    });
+
     // Store PDF in backend if generation successful
     if (result.success && result.pdfBase64 && analysisId) {
+      console.log('✅ All conditions met - attempting to store 30-day plan');
+      
+      if (!user) {
+        console.error('❌ User not authenticated - cannot store plan');
+        toast.error('Please sign in to save your plan to the cloud');
+        return;
+      }
+      
       try {
-        await supabase.functions.invoke('store-analysis-report', {
+        console.log('📤 Invoking store-analysis-report for plan...');
+        const { data, error } = await supabase.functions.invoke('store-analysis-report', {
           body: {
             analysisId,
             pdfBase64: result.pdfBase64,
@@ -612,10 +664,24 @@ RAW DATA: ${baseContext}`;
             filename: result.fileName
           }
         });
-        console.log('✅ 30-day plan stored in backend');
+        
+        if (error) {
+          console.error('❌ Edge function returned error:', error);
+          toast.error('Failed to save plan to cloud storage');
+        } else {
+          console.log('✅ 30-day plan stored successfully:', data);
+          toast.success('Plan saved to your account');
+        }
       } catch (error) {
-        console.error('Failed to store plan in backend:', error);
+        console.error('❌ Exception during plan storage:', error);
+        toast.error('Error saving plan to cloud');
       }
+    } else {
+      console.warn('⚠️ Plan storage skipped - condition failed:', {
+        success: result.success,
+        hasPdfBase64: !!result.pdfBase64,
+        hasAnalysisId: !!analysisId
+      });
     }
   };
 
@@ -846,6 +912,27 @@ RAW DATA: ${baseContext}`;
           });
         } else if (analysis.status === 'failed') {
           console.error('❌ Analysis failed:', analysis.error_message);
+          
+          // Send admin SMS alert for analysis failure (NON-NEGOTIABLE)
+          console.log('📱 FRONTEND: Triggering admin SMS for analysis FAILURE:', id);
+          supabase.functions.invoke('send-admin-alert', {
+            body: {
+              analysisId: id,
+              userId: userId,
+              status: 'failed',
+              error: analysis.error_message || 'Analysis failed without error message',
+              timestamp: new Date().toISOString()
+            }
+          }).then(({ data, error: alertError }) => {
+            if (alertError) {
+              console.error('❌ FAILURE SMS ALERT FAILED:', alertError);
+            } else {
+              console.log('✅ FAILURE SMS ALERT SUCCESS:', data);
+            }
+          }).catch(err => {
+            console.error('❌ FAILURE SMS ERROR:', err);
+          });
+          
           setError(analysis.error_message || 'Analysis failed');
           setIsAnalyzing(false);
           
