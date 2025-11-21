@@ -581,6 +581,56 @@ Return the complete extracted text maintaining the original structure and organi
         throw new Error('Unable to find valid laboratory values in the extracted text. Please ensure the uploaded file contains a medical lab report.');
       }
       
+      // ENHANCED VALIDATION: Check for non-medical document indicators
+      console.log('🔍 Enhanced medical report validation...');
+
+      // Check for invoice/receipt keywords
+      const invoiceKeywords = /invoice|receipt|bill|payment|amount due|subtotal|total amount|tax|gst|discount|purchase/i;
+      const hasInvoiceContent = invoiceKeywords.test(text);
+
+      // Check for appointment slip keywords
+      const appointmentKeywords = /appointment|booking|scheduled|time slot|clinic visit|consultation date|next visit/i;
+      const hasAppointmentContent = appointmentKeywords.test(text);
+
+      // Check for prescription keywords (without lab values)
+      const prescriptionKeywords = /prescription|prescribed|dosage|take.*times.*day|medication|tablet|capsule|syrup/i;
+      const hasPrescriptionContent = prescriptionKeywords.test(text);
+
+      // Check for medical report indicators (must have at least 2 of these)
+      const medicalIndicators = [
+        /complete blood count|cbc|hemogram/i.test(text),
+        /lipid profile|cholesterol/i.test(text),
+        /blood sugar|glucose|hba1c|diabetes/i.test(text),
+        /liver function|sgpt|sgot|alt|ast/i.test(text),
+        /kidney function|creatinine|urea|bun/i.test(text),
+        /thyroid|tsh|t3|t4/i.test(text),
+        /reference range|normal range|range:/i.test(text)
+      ];
+      const medicalIndicatorCount = medicalIndicators.filter(Boolean).length;
+
+      // Reject if clearly not a medical lab report
+      if (hasInvoiceContent && medicalIndicatorCount === 0) {
+        console.error('❌ Document appears to be an invoice/receipt');
+        throw new Error('This appears to be an invoice or receipt, not a medical laboratory report. Please upload a document containing blood test results, chemistry panels, or other diagnostic test results.');
+      }
+
+      if (hasAppointmentContent && medicalIndicatorCount === 0) {
+        console.error('❌ Document appears to be an appointment slip');
+        throw new Error('This appears to be an appointment confirmation. Please upload a medical laboratory report containing your blood test results.');
+      }
+
+      if (hasPrescriptionContent && !hasLabValues && medicalIndicatorCount === 0) {
+        console.error('❌ Document appears to be a prescription note');
+        throw new Error('This appears to be a prescription. Please upload a medical laboratory report with blood test results and diagnostic values.');
+      }
+
+      if (medicalIndicatorCount < 2 && !hasLabValues) {
+        console.error('❌ Document does not contain sufficient medical report indicators');
+        throw new Error('Unable to identify this as a medical laboratory report. Please ensure you are uploading a document with blood test results, chemistry panels, or other diagnostic laboratory values.');
+      }
+
+      console.log('✅ Document validation passed - appears to be a medical report');
+      
     } else {
       // Handle JSON with images array or pre-extracted text
       console.log('📄 Processing JSON request...');
