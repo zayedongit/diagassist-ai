@@ -1843,18 +1843,24 @@ RAW DATA: ${baseContext}`;
                 >
                   <source src="/upload-section-video.mp4" type="video/mp4" />
                 </video>
-                {/* Semi-transparent dark overlay for text readability */}
-                <div className="absolute inset-0 bg-black/40" />
+                {/* Darker overlay for better text readability */}
+                <div className="absolute inset-0 bg-black/60" />
               </div>
 
-              {/* Content over video - No boxes, just text and components */}
+              {/* Content over video - Enhanced text visibility */}
               <div className="container mx-auto px-4 sm:px-6 relative z-10">
-                {/* Title - Plain text, no box */}
+                {/* Title - Enhanced text shadow */}
                 <div className="text-center mb-8 sm:mb-10 md:mb-12 space-y-2 sm:space-y-3">
-                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-bold text-white drop-shadow-lg">
+                  <h2 
+                    className="text-2xl sm:text-3xl md:text-4xl font-poppins font-bold text-white"
+                    style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.8), 0 4px 16px rgba(0, 0, 0, 0.6)' }}
+                  >
                     Upload Your Test Report
                   </h2>
-                  <p className="text-white/90 text-sm sm:text-base md:text-lg drop-shadow-md">
+                  <p 
+                    className="text-white text-sm sm:text-base md:text-lg"
+                    style={{ textShadow: '0 2px 6px rgba(0, 0, 0, 0.8), 0 3px 12px rgba(0, 0, 0, 0.5)' }}
+                  >
                     Supported formats: PDF, JPG, PNG. Get instant AI-powered analysis.
                   </p>
                 </div>
@@ -1867,9 +1873,12 @@ RAW DATA: ${baseContext}`;
                   />
                 </div>
                 
-                {/* Privacy Notice - Plain text, no box */}
+                {/* Privacy Notice - Enhanced visibility */}
                 <div className="max-w-4xl mx-auto mt-6 text-center">
-                  <p className="text-sm text-white/90 leading-relaxed drop-shadow-md">
+                  <p 
+                    className="text-sm text-white leading-relaxed"
+                    style={{ textShadow: '0 2px 6px rgba(0, 0, 0, 0.8), 0 3px 12px rgba(0, 0, 0, 0.5)' }}
+                  >
                     <span className="font-semibold">Privacy Protected:</span> Your medical data is encrypted and automatically deleted after analysis. We never store your reports or personal health information permanently.
                   </p>
                 </div>
