@@ -179,9 +179,14 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
       if (rememberDevice) {
         localStorage.setItem('daigassist_remember_device', 'true');
         localStorage.setItem('daigassist_last_login', new Date().toISOString());
-        toast.success('Device will be remembered for easier access');
+        sessionStorage.setItem('daigassist_session_active', 'true');
+        console.log('✅ Device will be remembered - session persists across browser restarts');
+        toast.success('Device remembered - you won\'t need to log in again');
       } else {
         localStorage.removeItem('daigassist_remember_device');
+        sessionStorage.setItem('daigassist_session_active', 'true'); // Active for current session only
+        console.log('⚠️ Device not remembered - you\'ll need to log in after closing browser');
+        toast.info('You\'ll need to log in again after closing your browser');
       }
 
       toast.success('Authentication successful!');

@@ -33,6 +33,26 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Check if device should be remembered
+    const checkRememberDevice = async () => {
+      const isRemembered = localStorage.getItem('daigassist_remember_device') === 'true';
+      const sessionActive = sessionStorage.getItem('daigassist_session_active') === 'true';
+      
+      // If "Remember Me" was not checked and this is a new browser session, clear auth
+      if (!isRemembered && !sessionActive) {
+        console.log('Device not remembered - clearing session on new browser session');
+        await supabase.auth.signOut();
+        return;
+      }
+      
+      // Mark session as active for this browser session
+      if (isRemembered) {
+        sessionStorage.setItem('daigassist_session_active', 'true');
+      }
+    };
+
+    checkRememberDevice();
+
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
