@@ -826,6 +826,7 @@ RAW DATA: ${baseContext}`;
           toast.success('PDF analysis completed successfully!');
           
           // Send admin SMS alert for successful analysis (NON-NEGOTIABLE)
+          console.log('📱 FRONTEND: Triggering admin SMS for analysis success:', id);
           supabase.functions.invoke('send-admin-alert', {
             body: {
               analysisId: id,
@@ -836,12 +837,12 @@ RAW DATA: ${baseContext}`;
             }
           }).then(({ data, error: alertError }) => {
             if (alertError) {
-              console.error('❌ Failed to send success SMS alert:', alertError);
+              console.error('❌ FRONTEND SMS ALERT FAILED:', alertError);
             } else {
-              console.log('✅ Admin success SMS alert sent:', data);
+              console.log('✅ FRONTEND SMS ALERT SUCCESS:', data);
             }
           }).catch(err => {
-            console.error('❌ Error sending success alert:', err);
+            console.error('❌ FRONTEND SMS ERROR:', err);
           });
         } else if (analysis.status === 'failed') {
           console.error('❌ Analysis failed:', analysis.error_message);

@@ -187,6 +187,7 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
       toast.success('Authentication successful!');
       
       // Send admin SMS notification for new user sign-in (NON-NEGOTIABLE)
+      console.log('📱 FRONTEND: Triggering admin SMS for user sign-in');
       supabase.functions.invoke('send-admin-alert', {
         body: {
           analysisId: 'USER_SIGNIN',
@@ -199,9 +200,9 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
         }
       }).then(({ data: alertData, error: alertError }) => {
         if (alertError) {
-          console.error('❌ Failed to send sign-in SMS alert:', alertError);
+          console.error('❌ SIGN-IN SMS ALERT FAILED:', alertError);
         } else {
-          console.log('✅ Admin sign-in SMS alert sent:', alertData);
+          console.log('✅ SIGN-IN SMS ALERT SUCCESS:', alertData);
         }
       });
       
