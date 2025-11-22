@@ -36,22 +36,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const initAuth = async () => {
       // Check if device should be remembered
       const isRemembered = localStorage.getItem('daigassist_remember_device') === 'true';
-      const sessionActive = sessionStorage.getItem('daigassist_session_active') === 'true';
       
-      console.log('Auth check - isRemembered:', isRemembered, 'sessionActive:', sessionActive);
+      console.log('Auth check - isRemembered:', isRemembered);
       
-      // If "Remember Me" was not checked and this is a new browser session, clear auth
-      if (!isRemembered && !sessionActive) {
-        console.log('Device not remembered - clearing session on new browser session');
-        await supabase.auth.signOut();
-        setIsLoading(false);
-        return;
-      }
-      
-      // Mark session as active for this browser session
+      // If device is remembered, mark session as active and keep user signed in
       if (isRemembered) {
         sessionStorage.setItem('daigassist_session_active', 'true');
         console.log('Device remembered - session will persist');
+        return; // Don't sign out, let session continue
+      }
+      
+      // If device is NOT remembered and there's no active session, clear auth
+      const sessionActive = sessionStorage.getItem('daigassist_session_active') === 'true';
+      if (!sessionActive) {
+        console.log('Device not remembered and no active session - clearing auth');
+        await supabase.auth.signOut();
+        setIsLoading(false);
       }
     };
 
