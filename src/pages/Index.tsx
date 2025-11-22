@@ -720,12 +720,15 @@ RAW DATA: ${baseContext}`;
       }
     }, 1000);
     
-    // Show auth prompt after 3 seconds if user is not logged in
+    // Show auth prompt after 5 seconds if user is not logged in
+    // Give extra time for auth state to load from remembered device
     setTimeout(() => {
-      if (!user) {
+      const isRemembered = localStorage.getItem('daigassist_remember_device') === 'true';
+      // Only show auth prompt if device is not remembered and user is not authenticated
+      if (!user && !isRemembered) {
         setShowAuthPrompt(true);
       }
-    }, 3000);
+    }, 5000);
   };
 
 

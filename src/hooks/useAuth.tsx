@@ -33,38 +33,44 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if device should be remembered
-    const checkRememberDevice = async () => {
+    const initAuth = async () => {
+      // Check if device should be remembered
       const isRemembered = localStorage.getItem('daigassist_remember_device') === 'true';
       const sessionActive = sessionStorage.getItem('daigassist_session_active') === 'true';
+      
+      console.log('Auth check - isRemembered:', isRemembered, 'sessionActive:', sessionActive);
       
       // If "Remember Me" was not checked and this is a new browser session, clear auth
       if (!isRemembered && !sessionActive) {
         console.log('Device not remembered - clearing session on new browser session');
         await supabase.auth.signOut();
+        setIsLoading(false);
         return;
       }
       
       // Mark session as active for this browser session
       if (isRemembered) {
         sessionStorage.setItem('daigassist_session_active', 'true');
+        console.log('Device remembered - session will persist');
       }
     };
 
-    checkRememberDevice();
+    // Run auth check first
+    initAuth();
 
-    // Set up auth state listener FIRST
+    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log('Auth state changed:', event, session);
+        console.log('Auth state changed:', event, session?.user?.id);
         setSession(session);
         setUser(session?.user ?? null);
         setIsLoading(false);
       }
     );
 
-    // THEN check for existing session
+    // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session check:', session?.user?.id ? 'User found' : 'No user');
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
