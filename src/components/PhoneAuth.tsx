@@ -49,7 +49,7 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
 
   // Auto-verify OTP when 6 digits are entered
   useEffect(() => {
-    if (otp.length === 6 && !loading && step === 'otp') {
+    if (otp.length === 6 && !loading && !error && step === 'otp') {
       // Small delay to let user see the complete OTP before verification starts
       const timer = setTimeout(() => {
         verifyOTP();
@@ -57,7 +57,7 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
       
       return () => clearTimeout(timer);
     }
-  }, [otp, loading, step]);
+  }, [otp, loading, error, step]);
 
   const formatPhoneNumber = (phone: string): string => {
     // Remove any existing country code and non-digits
@@ -154,7 +154,7 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
           otp,
           user_type: 'patient',
           first_name: firstName.trim(),
-          last_name: lastName.trim()
+          last_name: lastName.trim() || undefined
         }
       });
 
