@@ -1354,7 +1354,7 @@ Respond ONLY with valid JSON matching the structure above - no markdown, no expl
             userId: analysisId.split('_')[2] || 'unknown',
             timestamp: new Date().toISOString(),
             status: 'success',
-            patientName: analysisResult.patientName || 'N/A'
+            patientName: patientName || 'Unknown'
           }
         });
         console.log('✅ Admin success SMS notification sent');
