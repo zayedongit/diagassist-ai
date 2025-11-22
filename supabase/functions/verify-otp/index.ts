@@ -1,4 +1,28 @@
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 import { corsHeaders } from '../_shared/cors.ts';
+
+// Input validation schemas
+const VerifyOTPSchema = z.object({
+  phone_number: z.string()
+    .regex(/^\+?[1-9]\d{7,14}$/, 'Invalid phone number format')
+    .min(10)
+    .max(15),
+  otp: z.string()
+    .regex(/^\d{6}$/, 'OTP must be 6 digits')
+    .length(6),
+  user_type: z.enum(['patient', 'doctor']).optional(),
+  first_name: z.string()
+    .trim()
+    .min(1, 'First name required')
+    .max(100, 'First name too long')
+    .regex(/^[a-zA-Z\s'-]+$/, 'First name contains invalid characters')
+    .optional(),
+  last_name: z.string()
+    .trim()
+    .max(100, 'Last name too long')
+    .regex(/^[a-zA-Z\s'-]+$/, 'Last name contains invalid characters')
+    .optional()
+});
 
 interface VerifyOTPRequest {
   phone_number: string;
@@ -8,6 +32,11 @@ interface VerifyOTPRequest {
   last_name?: string;
 }
 
+function maskPhone(phone: string): string {
+  if (phone.length < 7) return 'XXX';
+  return phone.slice(0, 3) + 'XXXXX' + phone.slice(-4);
+}
+
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -15,17 +44,21 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { phone_number, otp, user_type = 'patient', first_name, last_name }: VerifyOTPRequest = await req.json();
-    
-    if (!phone_number || !otp) {
+    const body = await req.json();
+
+    // Validate input with zod
+    const validation = VerifyOTPSchema.safeParse(body);
+    if (!validation.success) {
       return new Response(
-        JSON.stringify({ error: 'Phone number and OTP are required' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
+        JSON.stringify({ 
+          error: 'Invalid input',
+          details: validation.error.issues[0].message 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    const { phone_number, otp, user_type = 'patient', first_name, last_name } = validation.data;
 
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -52,7 +85,11 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (verifyError || !verification) {
-      console.log('OTP verification failed:', verifyError, verification);
+      // Secure logging: don't log full verification object
+      console.log('OTP verification failed', { 
+        phone: maskPhone(phone_number),
+        errorCode: verifyError?.code
+      });
       return new Response(
         JSON.stringify({ 
           success: false,
@@ -75,8 +112,11 @@ Deno.serve(async (req) => {
     const normalizedPhone = phone_number.replace('+', '');
     const phoneWithPlus = phone_number.startsWith('+') ? phone_number : `+${phone_number}`;
     const phoneWithoutPlus = phone_number.replace('+', '');
-
-    console.log('Searching for user with phone variations:', { phoneWithPlus, phoneWithoutPlus });
+    
+    // Secure logging: mask phone variations
+    console.log('Searching for user', { 
+      phone: maskPhone(phoneWithPlus)
+    });
 
     // Search for existing user with all phone number variations
     let user = null;
@@ -147,7 +187,8 @@ Deno.serve(async (req) => {
       }
     }
 
-    console.log('Found/created user:', user?.id, 'phone:', user?.phone);
+    // Secure logging: don't log phone number
+    console.log('Found/created user', { userId: user?.id });
 
     // Create/ensure profile exists for the user
     console.log('Creating/updating profile for user');
@@ -248,7 +289,12 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log('OTP verified successfully for:', phone_number, 'User ID:', user.id);
+    // Secure logging: mask phone number
+    console.log('OTP verified successfully', { 
+      phone: maskPhone(phone_number),
+      userId: user.id,
+      timestamp: new Date().toISOString()
+    });
 
     return new Response(
       JSON.stringify({ 

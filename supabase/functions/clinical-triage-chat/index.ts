@@ -1,10 +1,24 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation schema
+const ChatRequestSchema = z.object({
+  message: z.string()
+    .trim()
+    .min(1, 'Message cannot be empty')
+    .max(2000, 'Message too long (max 2000 characters)'),
+  sessionId: z.string().min(1, 'Session ID required'),
+  analysisContext: z.any().optional(),
+  isInitialization: z.boolean().optional(),
+  maxQuestions: z.number().int().min(1).max(10).optional()
+});
 
 interface TriageState {
   stage: 'symptoms' | 'history' | 'lifestyle' | 'severity' | 'complete';
@@ -51,11 +65,23 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Declare variables outside try block for error handling
-  let sessionId, isInitialization, analysisContext, demographics, abnormalPanels, state, selections, message, forceReport;
-  
   try {
-    ({ sessionId, isInitialization, analysisContext, demographics, abnormalPanels, state, selections, message, forceReport } = await req.json());
+    const body = await req.json();
+    
+    // Validate input with zod (only validate fields that are required for all requests)
+    const validation = ChatRequestSchema.safeParse(body);
+    if (!validation.success) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid input',
+          details: validation.error.issues[0].message 
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Extract all fields from validated body
+    const { sessionId, isInitialization, analysisContext, demographics, abnormalPanels, state, selections, message, forceReport, maxQuestions } = body;
 
     const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openaiApiKey) {
@@ -481,14 +507,11 @@ CRITICAL OPERATIONAL GUIDELINES:
     const errorStack = error instanceof Error ? error.stack : undefined;
     console.error('Error details:', {
       message: errorMessage,
-      stack: errorStack,
-      requestBody: { sessionId, isInitialization, analysisContext, demographics, abnormalPanels, state, selections, message, forceReport }
+      stack: errorStack
     });
     return new Response(JSON.stringify({ 
       error: `Clinical triage error: ${errorMessage}`,
-      type: 'error',
-      details: errorStack,
-      requestInfo: { sessionId, isInitialization, hasAnalysis: !!analysisContext }
+      type: 'error'
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
