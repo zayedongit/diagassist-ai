@@ -13,6 +13,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { invokeWithRetry } from '@/utils/retryWithBackoff';
 
 interface Message {
   id: string;
@@ -111,7 +112,7 @@ export const MedicalChatAgent = ({
           sessionId: newSessionId
         });
         
-        const response = await supabase.functions.invoke('clinical-triage-chat', {
+        const response = await invokeWithRetry(supabase, 'clinical-triage-chat', {
           body: {
             isInitialization: true,
             analysisContext,
@@ -120,12 +121,34 @@ export const MedicalChatAgent = ({
             sessionId: newSessionId,
             analysisId,  // Add analysis ID for verification
             analysisTimestamp  // Add timestamp for freshness check
+          },
+          retryOptions: {
+            maxRetries: 3,
+            onRetry: (attempt) => {
+              toast.info(`Reconnecting... (attempt ${attempt}/3)`, {
+                duration: 2000
+              });
+            }
           }
         });
 
         if (response.error) {
           console.error('Error initializing clinical triage:', response.error);
-          addMessage('agent', "I'm having trouble connecting right now. Please try again in a moment.");
+          
+          // Provide specific error messages based on error type
+          if (response.error.status === 429) {
+            toast.error('Service is experiencing high traffic. Please try again in a moment.', {
+              duration: 5000
+            });
+            addMessage('agent', "I'm experiencing high traffic right now. Please try again in a moment.");
+          } else if (response.error.status === 402) {
+            toast.error('Service credits exhausted. Please contact support.', {
+              duration: 5000
+            });
+            addMessage('agent', "I'm unable to connect right now. Please contact support for assistance.");
+          } else {
+            addMessage('agent', "I'm having trouble connecting right now. Please try again in a moment.");
+          }
           return;
         }
 
@@ -170,17 +193,32 @@ export const MedicalChatAgent = ({
 
     try {
       if (mode === 'clinical-triage') {
-        const response = await supabase.functions.invoke('clinical-triage-chat', {
+        const response = await invokeWithRetry(supabase, 'clinical-triage-chat', {
           body: {
             message: userMessage,
             sessionId: sessionId,
             state: triageState
+          },
+          retryOptions: {
+            maxRetries: 2,
+            onRetry: (attempt) => {
+              toast.info(`Retrying... (${attempt}/2)`, { duration: 1500 });
+            }
           }
         });
 
         if (response.error) {
           console.error('Error sending message:', response.error);
-          addMessage('agent', 'I apologize, but I encountered an error. Please try asking your question again.');
+          
+          if (response.error.status === 429) {
+            toast.error('Too many requests. Please wait a moment before trying again.');
+            addMessage('agent', 'Please wait a moment before sending another message.');
+          } else if (response.error.status === 402) {
+            toast.error('Service unavailable. Please contact support.');
+            addMessage('agent', 'Sorry, I cannot process your message right now.');
+          } else {
+            addMessage('agent', 'I apologize, but I encountered an error. Please try asking your question again.');
+          }
           return;
         }
 
@@ -278,17 +316,30 @@ export const MedicalChatAgent = ({
     setIsTyping(true);
 
     try {
-      const response = await supabase.functions.invoke('clinical-triage-chat', {
+      const response = await invokeWithRetry(supabase, 'clinical-triage-chat', {
         body: {
           selections: { [currentQuestion.id]: answer },
           sessionId: sessionId,
           state: triageState
+        },
+        retryOptions: {
+          maxRetries: 2,
+          onRetry: (attempt) => {
+            toast.info(`Processing answer... (${attempt}/2)`, { duration: 1500 });
+          }
         }
       });
 
       if (response.error) {
         console.error('Error submitting answer:', response.error);
-        addMessage('agent', 'Sorry, I encountered an error processing your answer. Please try again.');
+        
+        if (response.error.status === 429) {
+          toast.error('Please slow down. Wait a moment before answering.');
+        } else if (response.error.status === 402) {
+          toast.error('Service unavailable. Please contact support.');
+        } else {
+          addMessage('agent', 'Sorry, I encountered an error processing your answer. Please try again.');
+        }
         return;
       }
 
@@ -328,17 +379,30 @@ export const MedicalChatAgent = ({
     addMessage('user', 'Generate my report now');
 
     try {
-      const response = await supabase.functions.invoke('clinical-triage-chat', {
+      const response = await invokeWithRetry(supabase, 'clinical-triage-chat', {
         body: {
           forceReport: true,
           sessionId: sessionId,
           state: triageState
+        },
+        retryOptions: {
+          maxRetries: 3,
+          onRetry: (attempt) => {
+            toast.info(`Generating report... (${attempt}/3)`, { duration: 2000 });
+          }
         }
       });
 
       if (response.error) {
         console.error('Error generating report:', response.error);
-        addMessage('agent', 'Sorry, I encountered an error generating your report. Please try again.');
+        
+        if (response.error.status === 429) {
+          toast.error('Service is busy. Please wait a moment and try again.');
+        } else if (response.error.status === 402) {
+          toast.error('Service unavailable. Please contact support.');
+        } else {
+          addMessage('agent', 'Sorry, I encountered an error generating your report. Please try again.');
+        }
         return;
       }
 
@@ -359,17 +423,30 @@ export const MedicalChatAgent = ({
     addMessage('user', 'Skipped this question');
 
     try {
-      const response = await supabase.functions.invoke('clinical-triage-chat', {
+      const response = await invokeWithRetry(supabase, 'clinical-triage-chat', {
         body: {
           selections: { [currentQuestion.id]: 'skipped' },
           sessionId: sessionId,
           state: triageState
+        },
+        retryOptions: {
+          maxRetries: 2,
+          onRetry: (attempt) => {
+            toast.info(`Skipping question... (${attempt}/2)`, { duration: 1500 });
+          }
         }
       });
 
       if (response.error) {
         console.error('Error skipping question:', response.error);
-        addMessage('agent', 'Sorry, I encountered an error. Please try again.');
+        
+        if (response.error.status === 429) {
+          toast.error('Please wait a moment before skipping.');
+        } else if (response.error.status === 402) {
+          toast.error('Service unavailable. Please contact support.');
+        } else {
+          addMessage('agent', 'Sorry, I encountered an error. Please try again.');
+        }
         return;
       }
 
