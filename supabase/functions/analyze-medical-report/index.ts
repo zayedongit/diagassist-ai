@@ -1339,21 +1339,31 @@ Respond ONLY with valid JSON matching the structure above - no markdown, no expl
     
     console.log('✅ Analysis result stored in database with ID:', analysisId);
 
-    // Send success SMS notification to admin
-    try {
-      await supabase.functions.invoke('send-admin-alert', {
-        body: {
-          analysisId,
-          userId: analysisId.split('_')[2] || 'unknown',
-          timestamp: new Date().toISOString(),
-          status: 'success',
-          patientName: analysisResult.patientName || 'N/A'
-        }
-      });
-      console.log('✅ Admin success SMS notification sent');
-    } catch (alertError) {
-      console.error('❌ Failed to send admin success notification:', alertError);
-      // Don't throw - analysis completed successfully even if alert fails
+    // Send success SMS notification to admin (only if not already notified)
+    const { data: existingAnalysis } = await supabase
+      .from('pdf_analyses')
+      .select('admin_notified_success, admin_alerted')
+      .eq('id', analysisId)
+      .single();
+    
+    if (!existingAnalysis?.admin_notified_success) {
+      try {
+        await supabase.functions.invoke('send-admin-alert', {
+          body: {
+            analysisId,
+            userId: analysisId.split('_')[2] || 'unknown',
+            timestamp: new Date().toISOString(),
+            status: 'success',
+            patientName: analysisResult.patientName || 'N/A'
+          }
+        });
+        console.log('✅ Admin success SMS notification sent');
+      } catch (alertError) {
+        console.error('❌ Failed to send admin success notification:', alertError);
+        // Don't throw - analysis completed successfully even if alert fails
+      }
+    } else {
+      console.log('⏭️ Admin already notified of success, skipping SMS');
     }
       } catch (bgError) {
         console.error('❌ CRITICAL BACKGROUND PROCESSING ERROR:', bgError);
@@ -1371,21 +1381,32 @@ Respond ONLY with valid JSON matching the structure above - no markdown, no expl
           })
           .eq('id', analysisId);
 
-        // Send failure SMS alert to admin
-        try {
-          await supabase.functions.invoke('send-admin-alert', {
-            body: {
-              analysisId,
-              error: `${errorMessage}\n\nStack:\n${errorStack}`,
-              userId: analysisId.split('_')[2] || 'unknown',
-              timestamp: new Date().toISOString(),
-              status: 'failed'
-            }
-          });
-          console.log('✅ Admin failure SMS alert sent');
-        } catch (alertError) {
-          console.error('❌ Failed to send admin alert:', alertError);
-          // Don't throw - we still want to continue even if alert fails
+        // Send failure SMS alert to admin (only if not already notified)
+        const { data: failedAnalysis } = await supabase
+          .from('pdf_analyses')
+          .select('admin_alerted')
+          .eq('id', analysisId)
+          .single();
+        
+        if (!failedAnalysis?.admin_alerted) {
+          try {
+            await supabase.functions.invoke('send-admin-alert', {
+              body: {
+                analysisId,
+                error: `${errorMessage}\n\nStack:\n${errorStack}`,
+                userId: analysisId.split('_')[2] || 'unknown',
+                timestamp: new Date().toISOString(),
+                status: 'failed',
+                patientName: patientName || 'Unknown'
+              }
+            });
+            console.log('✅ Admin failure SMS alert sent');
+          } catch (alertError) {
+            console.error('❌ Failed to send admin alert:', alertError);
+            // Don't throw - we still want to continue even if alert fails
+          }
+        } else {
+          console.log('⏭️ Admin already notified of failure, skipping SMS');
         }
       }
     })(); // Execute background task immediately
