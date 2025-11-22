@@ -1,6 +1,10 @@
 import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 import { corsHeaders } from '../_shared/cors.ts';
 
+const TWILIO_ACCOUNT_SID = Deno.env.get('TWILIO_ACCOUNT_SID');
+const TWILIO_AUTH_TOKEN = Deno.env.get('TWILIO_AUTH_TOKEN');
+const TWILIO_VERIFY_SERVICE_SID = Deno.env.get('TWILIO_VERIFY_SERVICE_SID');
+
 // Input validation schemas
 const VerifyOTPSchema = z.object({
   phone_number: z.string()
@@ -45,6 +49,10 @@ Deno.serve(async (req) => {
   }
 
   try {
+    if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_VERIFY_SERVICE_SID) {
+      throw new Error('Missing Twilio Verify configuration');
+    }
+
     const body = await req.json();
 
     // Validate input with zod
@@ -61,6 +69,47 @@ Deno.serve(async (req) => {
 
     const { phone_number, otp, user_type = 'patient', first_name, last_name } = validation.data;
 
+    // Verify OTP using Twilio Verify API
+    const verifyCheckUrl = `https://verify.twilio.com/v2/Services/${TWILIO_VERIFY_SERVICE_SID}/VerificationCheck`;
+    const credentials = btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`);
+
+    const verifyCheckResponse = await fetch(verifyCheckUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${credentials}`,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({
+        To: phone_number,
+        Code: otp
+      }).toString()
+    });
+
+    const verifyCheckResult = await verifyCheckResponse.json();
+
+    if (!verifyCheckResponse.ok || verifyCheckResult.status !== 'approved') {
+      console.error('Twilio Verify check failed', { 
+        phone: maskPhone(phone_number),
+        status: verifyCheckResult.status,
+        valid: verifyCheckResult.valid
+      });
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          error: 'Invalid or expired verification code' 
+        }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    console.log('OTP verified successfully via Twilio Verify', { 
+      phone: maskPhone(phone_number),
+      status: verifyCheckResult.status
+    });
+
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -73,41 +122,12 @@ Deno.serve(async (req) => {
       }
     });
 
-    // Verify OTP
-    const { data: verification, error: verifyError } = await supabase
-      .from('sms_verifications')
-      .select('*')
-      .eq('phone_number', phone_number)
-      .eq('verification_code', otp)
-      .eq('verified', false)
-      .gt('expires_at', new Date().toISOString())
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (verifyError || !verification) {
-      // Secure logging: don't log full verification object
-      console.log('OTP verification failed', { 
-        phone: maskPhone(phone_number),
-        errorCode: verifyError?.code
-      });
-      return new Response(
-        JSON.stringify({ 
-          success: false,
-          error: 'Invalid or expired OTP' 
-        }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
-    }
-
-    // Mark OTP as verified
+    // Mark verification as used in database for tracking
     await supabase
       .from('sms_verifications')
       .update({ verified: true })
-      .eq('id', verification.id);
+      .eq('phone_number', phone_number)
+      .eq('verified', false);
 
     // Normalize phone number for search (both with and without +)
     const normalizedPhone = phone_number.replace('+', '');

@@ -8,7 +8,7 @@ const corsHeaders = {
 
 const TWILIO_ACCOUNT_SID = Deno.env.get('TWILIO_ACCOUNT_SID');
 const TWILIO_AUTH_TOKEN = Deno.env.get('TWILIO_AUTH_TOKEN');
-const TWILIO_PHONE_NUMBER = Deno.env.get('TWILIO_PHONE_NUMBER');
+const TWILIO_VERIFY_SERVICE_SID = Deno.env.get('TWILIO_VERIFY_SERVICE_SID');
 
 // Input validation schema
 const SendOTPSchema = z.object({
@@ -83,8 +83,8 @@ Deno.serve(async (req) => {
   }
 
   try {
-    if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_PHONE_NUMBER) {
-      throw new Error('Missing Twilio configuration');
+    if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_VERIFY_SERVICE_SID) {
+      throw new Error('Missing Twilio Verify configuration');
     }
 
     const body = await req.json();
@@ -106,11 +106,6 @@ Deno.serve(async (req) => {
 
     const { phone_number } = validation.data;
     const clientIP = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
-
-    // Generate OTP
-    const otp = generateOTP();
-    const expiresAt = new Date();
-    expiresAt.setMinutes(expiresAt.getMinutes() + 10); // 10 minutes expiry
 
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -147,61 +142,51 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Store OTP in database
-    const { error: dbError } = await supabase
-      .from('sms_verifications')
-      .insert({
-        phone_number,
-        verification_code: otp,
-        expires_at: expiresAt.toISOString()
-      });
-
-    if (dbError) {
-      console.error('Database error:', dbError);
-      throw new Error('Failed to store OTP');
-    }
-
-    // Send SMS via Twilio
-    const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
+    // Send verification via Twilio Verify API
+    const verifyUrl = `https://verify.twilio.com/v2/Services/${TWILIO_VERIFY_SERVICE_SID}/Verifications`;
     const credentials = btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`);
-    
-    const smsBody = new URLSearchParams({
-      To: phone_number,
-      From: TWILIO_PHONE_NUMBER,
-      Body: `Your PREDLABS Medical Analytics verification code is: ${otp}. Valid for 10 minutes.`
-    });
 
-    const twilioResponse = await fetch(twilioUrl, {
+    const verifyResponse = await fetch(verifyUrl, {
       method: 'POST',
       headers: {
         'Authorization': `Basic ${credentials}`,
         'Content-Type': 'application/x-www-form-urlencoded'
       },
-      body: smsBody.toString()
+      body: new URLSearchParams({
+        To: phone_number,
+        Channel: 'sms'
+      }).toString()
     });
 
-    const twilioResult = await twilioResponse.json();
+    const verifyResult = await verifyResponse.json();
 
-    if (!twilioResponse.ok) {
-      // Secure logging: only log error code, not full response
-      console.error('Twilio SMS failed', { 
-        code: twilioResult.code || 'UNKNOWN',
-        status: twilioResponse.status,
+    if (!verifyResponse.ok) {
+      console.error('Twilio Verify failed', { 
+        code: verifyResult.code || 'UNKNOWN',
+        message: verifyResult.message || 'Unknown error',
+        status: verifyResponse.status,
         phone: maskPhone(phone_number)
       });
-      throw new Error('Failed to send SMS');
+      throw new Error(verifyResult.message || 'Failed to send verification code');
     }
 
-    // Update database with Twilio SID
+    // Store verification SID in database for tracking
+    const expiresAt = new Date();
+    expiresAt.setMinutes(expiresAt.getMinutes() + 10); // 10 minutes expiry
+    
     await supabase
       .from('sms_verifications')
-      .update({ message_sid: twilioResult.sid })
-      .eq('phone_number', phone_number)
-      .eq('verification_code', otp);
+      .insert({
+        phone_number,
+        verification_code: verifyResult.sid, // Store verification SID instead of OTP
+        expires_at: expiresAt.toISOString(),
+        message_sid: verifyResult.sid
+      });
 
     // Secure logging: mask phone number
-    console.log('OTP sent successfully', { 
+    console.log('Verification sent successfully via Twilio Verify', { 
       phone: maskPhone(phone_number),
+      status: verifyResult.status,
       timestamp: new Date().toISOString()
     });
 
