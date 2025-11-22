@@ -429,6 +429,7 @@ serve(async (req) => {
 
   // Declare variables at outer scope so they're accessible in catch block
   let requestUserId: string | undefined = undefined;
+  let patientName: string | undefined = undefined;
 
   try {
     console.log('🏥 Starting medical analysis...');
@@ -1231,6 +1232,9 @@ Respond ONLY with valid JSON matching the structure above - no markdown, no expl
     console.log('🏥 Applying minimal clinical validation...');
     analysisResult = validateClinicalData(analysisResult);
 
+    // Extract patient name for admin notifications
+    patientName = analysisResult.patientName;
+
     // Additional comprehensive logging for debugging
     console.log('📊 FINAL ANALYSIS SUMMARY:');
     console.log(`   Overall Status: ${analysisResult.overallStatus}`);
@@ -1373,7 +1377,8 @@ Respond ONLY with valid JSON matching the structure above - no markdown, no expl
           error: `${errorMessage}\n\nDetails: ${errorDetails}`,
           userId: requestUserId || 'unknown',
           timestamp: new Date().toISOString(),
-          status: 'failed'
+          status: 'failed',
+          patientName: patientName || 'Unknown Patient'
         }
       });
       console.log('✅ Admin failure SMS alert sent for extraction error');
