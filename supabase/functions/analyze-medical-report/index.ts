@@ -591,6 +591,10 @@ Return the complete extracted text maintaining the original structure and organi
       const invoiceKeywords = /invoice|receipt|bill|payment|amount due|subtotal|total amount|tax|gst|discount|purchase/i;
       const hasInvoiceContent = invoiceKeywords.test(text);
 
+      // Check for bank/financial transaction keywords
+      const financialKeywords = /transfer funds|transaction type|transaction details|transaction id|UTR|NEFT|IMPS|RTGS|UPI|account number|debit|credit|bank statement|total debit|from account|to account|IFSC code|fund transfer|remittance|beneficiary|sender|receiver account/i;
+      const hasFinancialContent = financialKeywords.test(text);
+
       // Check for appointment slip keywords
       const appointmentKeywords = /appointment|booking|scheduled|time slot|clinic visit|consultation date|next visit/i;
       const hasAppointmentContent = appointmentKeywords.test(text);
@@ -612,6 +616,11 @@ Return the complete extracted text maintaining the original structure and organi
       const medicalIndicatorCount = medicalIndicators.filter(Boolean).length;
 
       // Reject if clearly not a medical lab report
+      if (hasFinancialContent && medicalIndicatorCount === 0) {
+        console.error('❌ Document is a bank/financial transaction');
+        throw new Error('This appears to be a bank transaction or financial document, not a medical laboratory report. Please upload a document containing blood test results.');
+      }
+
       if (hasInvoiceContent && medicalIndicatorCount === 0) {
         console.error('❌ Document appears to be an invoice/receipt');
         throw new Error('This appears to be an invoice or receipt, not a medical laboratory report. Please upload a document containing blood test results, chemistry panels, or other diagnostic test results.');
@@ -632,7 +641,14 @@ Return the complete extracted text maintaining the original structure and organi
         throw new Error('Unable to identify this as a medical laboratory report. Please ensure you are uploading a document with blood test results, chemistry panels, or other diagnostic laboratory values.');
       }
 
-      console.log('✅ Document validation passed - appears to be a medical report');
+      // Classify document type for logging
+      let documentType = 'Medical Report';
+      if (hasFinancialContent) documentType = 'Bank/Financial Transaction';
+      else if (hasInvoiceContent) documentType = 'Invoice/Bill';
+      else if (hasAppointmentContent) documentType = 'Appointment Slip';
+      else if (hasPrescriptionContent) documentType = 'Prescription';
+      
+      console.log(`✅ Document validation passed - classified as: ${documentType}`);
       
     } else {
       // Handle JSON with images array or pre-extracted text
@@ -1234,6 +1250,30 @@ Respond ONLY with valid JSON matching the structure above - no markdown, no expl
 
     // Extract patient name for admin notifications
     patientName = analysisResult.patientName;
+
+    // CRITICAL: Validate patient demographics were extracted
+    if (!patientName || 
+        patientName === 'Anonymous Patient' || 
+        patientName === 'Unknown Patient' ||
+        patientName.length < 3) {
+      console.error('❌ Failed to extract patient name from document');
+      throw new Error('Unable to extract patient information from this document. Please ensure you are uploading a valid medical laboratory report with patient demographics.');
+    }
+
+    // Validate age was extracted
+    if (!analysisResult.demographics?.age || analysisResult.demographics.age === 0) {
+      console.error('❌ Failed to extract patient age from document');
+      throw new Error('Unable to extract patient demographics. Please ensure the document contains patient information (name, age, gender) and laboratory test results.');
+    }
+
+    // Validate at least ONE lab test exists
+    const hasValidTests = analysisResult.medicalPanels && analysisResult.medicalPanels.length > 0;
+    if (!hasValidTests) {
+      console.error('❌ No laboratory test results found');
+      throw new Error('No laboratory test results found in this document. Please upload a medical report containing blood test values, chemistry panels, or diagnostic results.');
+    }
+
+    console.log('✅ Patient demographics validation passed');
 
     // Additional comprehensive logging for debugging
     console.log('📊 FINAL ANALYSIS SUMMARY:');

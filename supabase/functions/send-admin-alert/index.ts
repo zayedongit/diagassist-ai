@@ -29,30 +29,21 @@ serve(async (req) => {
       return name.slice(0, 3) + '***' + ` (${name.length})`;
     };
 
-    // Create appropriate message based on status
+    // Create SHORT message format as requested
     let message: string;
     
     if (status === 'success') {
-      message = `✅ Daigassist Analysis Success
-
-Analysis ID: ${analysisId.substring(0, 20)}...
-Patient: ${hashName(patientName)}
-User: ${userId.substring(0, 15)}...
-Time: ${new Date(timestamp).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
-
-Status: Successfully Completed
-
-Report generated and ready for download.`;
+      message = `✅ Daigassist Analysis
+Name: ${patientName || 'Unknown'}
+Analysis: Successful
+Reason: Report generated`;
     } else {
-      message = `🚨 Daigassist Analysis Error
-
-Analysis ID: ${analysisId.substring(0, 20)}...
-User: ${userId.substring(0, 15)}...
-Time: ${new Date(timestamp).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
-
-Error: ${error?.substring(0, 100)}${(error?.length || 0) > 100 ? '...' : ''}
-
-Check analytics dashboard.`;
+      // Extract first 60 chars of error for brevity
+      const shortError = error?.substring(0, 60) || 'Unknown error';
+      message = `❌ Daigassist Analysis
+Name: ${patientName || 'Unknown'}
+Analysis: Failed
+Reason: ${shortError}`;
     }
 
     // Send SMS via Twilio
