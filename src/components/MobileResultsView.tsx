@@ -420,14 +420,20 @@ export const MobileResultsView = ({
       <div className="absolute top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="flex items-center justify-between px-4 py-3">
           <button
-            onClick={() => navigate('/')}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDismiss();
+            }}
             className="flex items-center gap-2 hover:opacity-80 transition-opacity"
             aria-label="Go to home"
           >
             <img src={daigasstLogo} alt="DaiGasst" className="h-8 w-auto" />
           </button>
           <button
-            onClick={() => navigate('/')}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDismiss();
+            }}
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-sm font-medium"
           >
             <Home className="h-4 w-4" />
