@@ -1832,33 +1832,6 @@ RAW DATA: ${baseContext}`;
                   </p>
                 </div>
                 
-                {/* Upload Requirements Alert */}
-                <div className="max-w-4xl mx-auto mb-6">
-                  <Alert className="border-blue-200 bg-blue-50/95 backdrop-blur-sm">
-                    <FileText className="h-4 w-4 text-blue-600" />
-                    <AlertTitle className="text-blue-900 font-semibold">Upload Requirements</AlertTitle>
-                    <AlertDescription className="text-blue-800">
-                      <div className="mt-2 space-y-2">
-                        <div>
-                          <p className="font-semibold">✅ Please upload:</p>
-                          <ul className="ml-4 text-sm space-y-0.5 mt-1">
-                            <li>• Medical laboratory reports (blood tests)</li>
-                            <li>• Chemistry panels (liver, kidney, lipid)</li>
-                            <li>• Complete blood count (CBC/Hemogram)</li>
-                          </ul>
-                        </div>
-                        <div>
-                          <p className="font-semibold mt-2">❌ Do NOT upload:</p>
-                          <ul className="ml-4 text-sm space-y-0.5 mt-1">
-                            <li>• Bank receipts or transaction statements</li>
-                            <li>• Medical bills or payment invoices</li>
-                            <li>• Prescriptions or appointment slips</li>
-                          </ul>
-                        </div>
-                      </div>
-                    </AlertDescription>
-                  </Alert>
-                </div>
 
                 {/* Upload zone - No box wrapper */}
                 <div className="max-w-4xl mx-auto">
