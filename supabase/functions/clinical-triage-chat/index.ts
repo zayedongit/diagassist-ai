@@ -24,11 +24,14 @@ const ChatRequestSchema = z.object({
     gender: z.string()
   }).optional(),
   abnormalPanels: z.array(z.any()).optional(),
-  analysisId: z.string().optional()
+  analysisId: z.string().optional(),
+  selections: z.record(z.any()).optional(),
+  state: z.any().optional(),
+  forceReport: z.boolean().optional()
 }).refine(
-  (data) => data.isInitialization || (data.message && data.message.trim().length > 0),
+  (data) => data.isInitialization || data.selections || data.forceReport || (data.message && data.message.trim().length > 0),
   {
-    message: 'Message is required when not initializing',
+    message: 'Message, selections, or initialization required',
     path: ['message']
   }
 );
