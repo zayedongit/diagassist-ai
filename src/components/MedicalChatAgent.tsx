@@ -72,6 +72,7 @@ export const MedicalChatAgent = ({
   const [showJumpButton, setShowJumpButton] = useState(false);
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
   const [showHelpSection, setShowHelpSection] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
@@ -303,16 +304,18 @@ export const MedicalChatAgent = ({
   };
 
   const handleQuestionSubmit = async () => {
-    if (!currentQuestion) return;
+    if (!currentQuestion || isSubmitting) return;
 
     // Only MCQ answers are allowed
     const selectedValues = Object.values(selectedAnswers).filter(Boolean) as string[];
     if (selectedValues.length === 0) return;
     
+    // Prevent duplicate submissions
+    setIsSubmitting(true);
+    
     const answer = currentQuestion.allowMultiple ? selectedValues : selectedValues[0];
     const answerText = Array.isArray(answer) ? answer.join(', ') : answer;
     
-    addMessage('user', answerText);
     setIsTyping(true);
 
     try {
@@ -338,34 +341,31 @@ export const MedicalChatAgent = ({
         } else if (response.error.status === 402) {
           toast.error('Service unavailable. Please contact support.');
         } else {
+          toast.error('Error processing your answer. Please try again.');
           addMessage('agent', 'Sorry, I encountered an error processing your answer. Please try again.');
         }
         return;
       }
 
       const data = response.data;
+      
+      // Clear current question immediately to prevent re-submission
+      setCurrentQuestion(null);
+      setSelectedAnswers({});
+      
       handleTriageResponse(data);
       
-      // Auto-scroll to next question immediately after answer is submitted (mobile optimization)
+      // Auto-scroll to next question after DOM updates (mobile optimization)
       setTimeout(() => {
-        if (scrollAreaRef.current) {
-          const scrollElement = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
-          if (scrollElement) {
-            scrollElement.scrollTo({
-              top: scrollElement.scrollHeight,
-              behavior: isMobile ? 'auto' : 'smooth'
-            });
-          } else {
-            scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
-          }
-          setIsAutoScrollEnabled(true);
-        }
-      }, isMobile ? 100 : 300); // 100ms delay for mobile to ensure DOM updates
+        scrollToLatest();
+      }, isMobile ? 200 : 300);
     } catch (error) {
       console.error('Error submitting answer:', error);
+      toast.error('Error submitting answer. Please try again.');
       addMessage('agent', 'Sorry, I encountered an error. Please try again.');
     } finally {
       setIsTyping(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -496,12 +496,25 @@ export const MedicalChatAgent = ({
     setIsAutoScrollEnabled(isAtBottom);
   };
 
-  const jumpToLatest = () => {
+  const scrollToLatest = () => {
     if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
-      setShowJumpButton(false);
+      const scrollElement = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollElement) {
+        scrollElement.scrollTo({
+          top: scrollElement.scrollHeight,
+          behavior: isMobile ? 'auto' : 'smooth'
+        });
+      } else {
+        scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+      }
       setIsAutoScrollEnabled(true);
+      setShowJumpButton(false);
     }
+  };
+
+  const jumpToLatest = () => {
+    scrollToLatest();
+  };
   };
 
   return (
@@ -639,11 +652,11 @@ export const MedicalChatAgent = ({
                     <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                       <Button 
                         onClick={handleQuestionSubmit}
-                        disabled={Object.values(selectedAnswers).filter(Boolean).length === 0}
+                        disabled={isSubmitting || Object.values(selectedAnswers).filter(Boolean).length === 0}
                         size="sm"
                         className="w-full sm:w-auto min-h-[48px] bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-colors text-base sm:text-sm"
                       >
-                        Submit Answer
+                        {isSubmitting ? 'Submitting...' : 'Submit Answer'}
                       </Button>
                       
                       <Button 
