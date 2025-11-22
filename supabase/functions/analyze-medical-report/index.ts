@@ -754,8 +754,21 @@ Return the complete extracted text maintaining the original structure and organi
       }
     }
     
-    if (text.length < 50) {
-      throw new Error('Extracted text is too short. Please ensure the PDF contains readable medical data.');
+    if (text.length < 20) {
+      console.warn('⚠️ Very short text extracted:', text.length, 'characters');
+      console.warn('📝 Text preview:', text);
+      
+      // If we have images but very short text, still allow processing
+      // The AI can work with minimal text or rely more on OCR from images
+      if (!images || images.length === 0) {
+        throw new Error(
+          'Extracted text is insufficient (less than 20 characters). ' +
+          'This might be a scanned document or have extraction issues. ' +
+          'Please ensure the PDF contains readable medical data or try taking photos instead.'
+        );
+      }
+      
+      console.log('✅ Proceeding with images despite short text');
     }
     
     console.log(`Processing report: ${filename}`);
