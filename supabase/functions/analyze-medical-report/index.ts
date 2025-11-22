@@ -427,6 +427,9 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Declare variables at outer scope so they're accessible in catch block
+  let requestUserId: string | undefined = undefined;
+
   try {
     console.log('🏥 Starting medical analysis...');
     
@@ -442,7 +445,6 @@ serve(async (req) => {
     let filename = 'report.pdf';
     
     // Parse request body - handle both JSON and FormData
-    let requestUserId: string | undefined = undefined;
     let images: string[] = [];
     
     const contentType = req.headers.get('content-type') || '';
@@ -1358,6 +1360,27 @@ Respond ONLY with valid JSON matching the structure above - no markdown, no expl
     console.error('Error in analyze-medical-report function:', error);
     const errorMessage = error instanceof Error ? error.message : 'An error occurred during analysis';
     const errorDetails = error instanceof Error ? error.toString() : String(error);
+    
+    // Send failure SMS alert to admin for early-stage errors
+    try {
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const supabase = createClient(supabaseUrl, supabaseKey);
+      
+      await supabase.functions.invoke('send-admin-alert', {
+        body: {
+          analysisId: 'EXTRACTION_FAILURE',
+          error: `${errorMessage}\n\nDetails: ${errorDetails}`,
+          userId: requestUserId || 'unknown',
+          timestamp: new Date().toISOString(),
+          status: 'failed'
+        }
+      });
+      console.log('✅ Admin failure SMS alert sent for extraction error');
+    } catch (alertError) {
+      console.error('❌ Failed to send admin failure alert:', alertError);
+    }
+    
     return new Response(
       JSON.stringify({ 
         error: errorMessage,
