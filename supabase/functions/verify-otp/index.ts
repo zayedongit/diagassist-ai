@@ -21,6 +21,7 @@ const VerifyOTPSchema = z.object({
     .trim()
     .max(100, 'Last name too long')
     .regex(/^[a-zA-Z\s'-]+$/, 'Last name contains invalid characters')
+    .or(z.literal(''))
     .optional()
 });
 
