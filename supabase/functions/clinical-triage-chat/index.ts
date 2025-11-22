@@ -13,12 +13,25 @@ const ChatRequestSchema = z.object({
   message: z.string()
     .trim()
     .min(1, 'Message cannot be empty')
-    .max(2000, 'Message too long (max 2000 characters)'),
+    .max(2000, 'Message too long (max 2000 characters)')
+    .optional(),
   sessionId: z.string().min(1, 'Session ID required'),
   analysisContext: z.any().optional(),
   isInitialization: z.boolean().optional(),
-  maxQuestions: z.number().int().min(1).max(10).optional()
-});
+  maxQuestions: z.number().int().min(1).max(10).optional(),
+  demographics: z.object({
+    age: z.number(),
+    gender: z.string()
+  }).optional(),
+  abnormalPanels: z.array(z.any()).optional(),
+  analysisId: z.string().optional()
+}).refine(
+  (data) => data.isInitialization || (data.message && data.message.trim().length > 0),
+  {
+    message: 'Message is required when not initializing',
+    path: ['message']
+  }
+);
 
 interface TriageState {
   stage: 'symptoms' | 'history' | 'lifestyle' | 'severity' | 'complete';
