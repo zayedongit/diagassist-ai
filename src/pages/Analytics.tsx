@@ -15,6 +15,8 @@ type Timeframe = 'today' | 'week' | 'month' | 'all-time';
 interface AnalyticsSummary {
   totalAnalyses: number;
   uniqueUsers: number;
+  newUsers: number;
+  returningUsers: number;
   completedAnalyses: number;
   failedAnalyses: number;
   pendingAnalyses: number;
@@ -282,6 +284,35 @@ const Analytics = () => {
               </div>
               <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
                 {data.summary.peakHour ? `${data.summary.peakHour.count} uses` : 'No data'}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* New vs Returning Users */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>New Customers</CardTitle>
+              <CardDescription>First-time users in this period</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-4xl font-bold text-primary">{data.summary.newUsers}</div>
+              <p className="text-sm text-muted-foreground mt-2">
+                {((data.summary.newUsers / data.summary.uniqueUsers) * 100).toFixed(1)}% of total users
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Returning Customers</CardTitle>
+              <CardDescription>Users who came back</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-4xl font-bold text-chart-2">{data.summary.returningUsers}</div>
+              <p className="text-sm text-muted-foreground mt-2">
+                {((data.summary.returningUsers / data.summary.uniqueUsers) * 100).toFixed(1)}% of total users
               </p>
             </CardContent>
           </Card>

@@ -45,6 +45,50 @@ Deno.serve(async (req) => {
     const failedAnalyses = filteredData?.filter(item => item.status === 'failed').length || 0;
     const pendingAnalyses = filteredData?.filter(item => item.status === 'pending').length || 0;
 
+    // Track new vs returning users
+    const userFirstAnalysis = new Map<string, Date>();
+    filteredData?.forEach(item => {
+      const userId = item.user_id;
+      const analysisDate = new Date(item.created_at);
+      if (!userFirstAnalysis.has(userId) || analysisDate < userFirstAnalysis.get(userId)!) {
+        userFirstAnalysis.set(userId, analysisDate);
+      }
+    });
+
+    // Get ALL analyses (not just filtered) to determine truly new users
+    const { data: allAnalyses } = await supabase
+      .from('pdf_analyses')
+      .select('user_id, created_at')
+      .order('created_at', { ascending: true });
+
+    // Build map of actual first analysis date per user across all time
+    const actualFirstAnalysis = new Map<string, Date>();
+    allAnalyses?.forEach(item => {
+      const userId = item.user_id;
+      const analysisDate = new Date(item.created_at);
+      if (!actualFirstAnalysis.has(userId) || analysisDate < actualFirstAnalysis.get(userId)!) {
+        actualFirstAnalysis.set(userId, analysisDate);
+      }
+    });
+
+    // Determine new vs returning users in current timeframe
+    let newUsersCount = 0;
+    let returningUsersCount = 0;
+    const userIdsInTimeframe = new Set(filteredData?.map(item => item.user_id));
+
+    userIdsInTimeframe.forEach(userId => {
+      const firstEver = actualFirstAnalysis.get(userId);
+      const firstInTimeframe = userFirstAnalysis.get(userId);
+      
+      // If their first ever analysis is within this timeframe, they're new
+      if (firstEver && firstInTimeframe && 
+          firstEver.getTime() === firstInTimeframe.getTime()) {
+        newUsersCount++;
+      } else {
+        returningUsersCount++;
+      }
+    });
+
     // Calculate success rate
     const successRate = totalAnalyses > 0 ? (completedAnalyses / totalAnalyses * 100).toFixed(1) : 0;
 
@@ -138,6 +182,8 @@ Deno.serve(async (req) => {
         summary: {
           totalAnalyses,
           uniqueUsers,
+          newUsers: newUsersCount,
+          returningUsers: returningUsersCount,
           completedAnalyses,
           failedAnalyses,
           pendingAnalyses,
