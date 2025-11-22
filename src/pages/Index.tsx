@@ -728,39 +728,6 @@ RAW DATA: ${baseContext}`;
     }, 3000);
   };
 
-  // Helper function to detect non-medical reports
-  const isNonMedicalReport = (data: any) => {
-    if (!data) return false;
-    
-    const summary = data.summary || '';
-    const detailedAnalysis = data.detailedAnalysis || [];
-    const medicalPanels = data.medicalPanels || [];
-    
-    // Check for common non-medical report indicators
-    const nonMedicalIndicators = [
-      'architectural blueprint',
-      'not a medical report',
-      'no medical analysis can be performed',
-      'not a blood report',
-      'technical drawing',
-      'electrical drawing',
-      'invoice',
-      'receipt',
-      'prescription note',
-      'appointment slip',
-      'discharge summary',
-      'medical bill'
-    ];
-    
-    const text = (summary + ' ' + detailedAnalysis.join(' ')).toLowerCase();
-    const hasNonMedicalIndicator = nonMedicalIndicators.some(indicator => text.includes(indicator));
-    
-    // Also check if medicalPanels is empty or has very few parameters
-    const hasInsufficientData = medicalPanels.length === 0 || 
-      (medicalPanels.length === 1 && medicalPanels[0].abnormalLabs?.length === 0);
-    
-    return hasNonMedicalIndicator || hasInsufficientData;
-  };
 
   // Initialize or restore analysis state from localStorage with validation
   useEffect(() => {
@@ -1993,41 +1960,8 @@ RAW DATA: ${baseContext}`;
             ) : (
               <>
                 {/* Desktop View - Keep all existing functionality */}
-                {/* Non-Medical Report Alert */}
-                {isNonMedicalReport(analysisData) && (
-                  <section className="py-8 bg-yellow-50">
-                <div className="container mx-auto px-4 sm:px-6">
-                  <Alert className="max-w-3xl mx-auto border-yellow-400 bg-white shadow-lg">
-                    <AlertCircle className="h-5 w-5 text-yellow-600" />
-                    <AlertTitle className="text-lg font-semibold text-yellow-900">
-                      Not a Medical Lab Report
-                    </AlertTitle>
-                    <AlertDescription className="mt-2 space-y-3">
-                      <p className="text-yellow-800">
-                        Thank you for using our service! We specialize in analyzing <strong>blood tests and medical laboratory reports</strong>. 
-                        The document you uploaded appears to be a different type of document.
-                      </p>
-                      <p className="text-yellow-800">
-                        Please upload a medical lab report containing:
-                      </p>
-                      <ul className="list-disc list-inside space-y-1 text-yellow-800 ml-2">
-                        <li>Blood test results (CBC, lipid profile, etc.)</li>
-                        <li>Chemistry panels (liver function, kidney function)</li>
-                        <li>Other diagnostic laboratory test results</li>
-                      </ul>
-                      <Button 
-                        onClick={handleReset}
-                        className="mt-4 bg-yellow-600 hover:bg-yellow-700 text-white"
-                      >
-                        Try Another Document
-                      </Button>
-                    </AlertDescription>
-                  </Alert>
-                </div>
-              </section>
-            )}
 
-            <section className="py-8 sm:py-12 md:py-16 bg-white">
+                <section className="py-8 sm:py-12 md:py-16 bg-white">
               <div className="container mx-auto px-4 sm:px-6">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 mb-6 sm:mb-8">
                   <div className="flex-1 min-w-0">
@@ -2100,8 +2034,7 @@ RAW DATA: ${baseContext}`;
                   </section>
 
                   {/* Clinical Chat - Moved before detailed analysis */}
-                  {!isNonMedicalReport(analysisData) && (
-                    <section id="chat-section" className="py-8 sm:py-12 md:py-16 bg-white transition-all duration-500 rounded-lg">
+                  <section id="chat-section" className="py-8 sm:py-12 md:py-16 bg-white transition-all duration-500 rounded-lg">
                       <div className="container mx-auto px-4 sm:px-6">
                         <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
                           <div className="text-center space-y-2 sm:space-y-3 px-4 animate-fade-in">
@@ -2128,10 +2061,9 @@ RAW DATA: ${baseContext}`;
                         </div>
                       </div>
                     </section>
-                  )}
 
                   {/* New Sections After Clinical Chat Completion */}
-                  {!isNonMedicalReport(analysisData) && enhancedData && showPostChatSections && (
+                  {enhancedData && showPostChatSections && (
                     <>
                       {/* Report Summary in Layman's Language */}
                       <section id="summary-section" className="py-6 sm:py-8 bg-white transition-all duration-500">
@@ -2194,7 +2126,7 @@ RAW DATA: ${baseContext}`;
 
 
                   {/* Placeholder when clinical chat not complete */}
-                  {!isNonMedicalReport(analysisData) && enhancedData && !showPostChatSections && (
+                  {enhancedData && !showPostChatSections && (
                     <section className="py-6 sm:py-8 bg-coolGray">
                       <div className="container mx-auto px-4 sm:px-6">
                         <div className="max-w-4xl mx-auto">
@@ -2212,7 +2144,7 @@ RAW DATA: ${baseContext}`;
                   )}
 
                   {/* Final Interpretation */}
-                  {!isNonMedicalReport(analysisData) && showPostChatSections && (
+                  {showPostChatSections && (
                     <section id="interpretation-section" className="py-6 sm:py-10 md:py-16 bg-coolGray">
                       <div className="container mx-auto px-3 sm:px-4 lg:px-6">
                         <div className="max-w-full lg:max-w-6xl mx-auto space-y-4 sm:space-y-6 lg:space-y-8">
@@ -2359,44 +2291,6 @@ RAW DATA: ${baseContext}`;
                     </section>
                   )}
 
-                  {/* Non-medical report prompt */}
-                  {isNonMedicalReport(analysisData) && (
-                    <section className="py-16 bg-white">
-                      <div className="container mx-auto px-4 sm:px-6">
-                        <Card className="max-w-2xl mx-auto border-2 border-dashed border-accentCyan/30 bg-coolGray">
-                          <CardContent className="text-center py-12">
-                            <div className="space-y-6">
-                              <div className="w-20 h-20 mx-auto bg-accentCyan/10 rounded-full flex items-center justify-center">
-                                <FileText className="w-10 h-10 text-accentCyan" />
-                              </div>
-                              <div>
-                                <h3 className="text-xl font-poppins font-semibold text-navy mb-3">
-                                  Please Upload a Blood Report
-                                </h3>
-                                <p className="text-slate mb-6">
-                                  To get accurate health analysis and recommendations, please upload a valid blood test report.
-                                </p>
-                              </div>
-                              <Button 
-                                onClick={() => {
-                                  setShowResults(false);
-                                  setAnalysisData(null);
-                                  setSelectedFile(null);
-                                  if (fileInputRef.current) {
-                                    fileInputRef.current.click();
-                                  }
-                                }}
-                                className="bg-accentCyan text-navy hover:bg-accentCyan/90"
-                              >
-                                <FileText className="w-4 h-4 mr-2" />
-                                Upload Blood Report
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    </section>
-                  )}
                 </div>
               </ErrorBoundary>
               </>
