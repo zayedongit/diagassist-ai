@@ -515,7 +515,6 @@ export const MedicalChatAgent = ({
   const jumpToLatest = () => {
     scrollToLatest();
   };
-  };
 
   return (
     <Card className={`border-primary/20 bg-gradient-to-r from-primary/5 to-blue-50 ${className}`}>
