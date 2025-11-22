@@ -23,6 +23,12 @@ serve(async (req) => {
     
     console.log(`📱 Sending admin SMS alert for analysis: ${analysisId} - Status: ${status}`);
     
+    // Hash patient name for privacy
+    const hashName = (name: string | undefined) => {
+      if (!name) return 'N/A';
+      return name.slice(0, 3) + '***' + ` (${name.length})`;
+    };
+
     // Create appropriate message based on status
     let message: string;
     
@@ -30,7 +36,7 @@ serve(async (req) => {
       message = `✅ Daigassist Analysis Success
 
 Analysis ID: ${analysisId.substring(0, 20)}...
-Patient: ${patientName || 'N/A'}
+Patient: ${hashName(patientName)}
 User: ${userId.substring(0, 15)}...
 Time: ${new Date(timestamp).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
 
@@ -44,9 +50,9 @@ Analysis ID: ${analysisId.substring(0, 20)}...
 User: ${userId.substring(0, 15)}...
 Time: ${new Date(timestamp).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
 
-Error: ${error?.substring(0, 150)}${(error?.length || 0) > 150 ? '...' : ''}
+Error: ${error?.substring(0, 100)}${(error?.length || 0) > 100 ? '...' : ''}
 
-Please check the analytics dashboard immediately to resolve this issue.`;
+Check analytics dashboard.`;
     }
 
     // Send SMS via Twilio
