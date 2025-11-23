@@ -1061,14 +1061,15 @@ RAW DATA: ${baseContext}`;
       console.log('📤 Sending to backend for analysis...');
       setCurrentStage('analysis');
       
-      // Use existing userId or create new one
-      let userId = currentUserId;
-      if (!userId) {
-        userId = 'anonymous-' + Date.now();
-        setCurrentUserId(userId);
+      // CRITICAL: Authentication is MANDATORY - use authenticated user ID only
+      if (!user) {
+        throw new Error('Authentication required. Please sign in to analyze reports.');
       }
       
-      console.log('👤 Using userId:', userId);
+      const userId = user.id;
+      setCurrentUserId(userId);
+      
+      console.log('👤 Using authenticated userId:', userId);
       
       const requestBody: any = {
         userId,
@@ -1239,14 +1240,15 @@ RAW DATA: ${baseContext}`;
       setExtractedText(`Processing ${images.length} images from camera...`);
       setCurrentStage('analysis');
       
-      // Use existing userId or create new one
-      let userId = currentUserId;
-      if (!userId) {
-        userId = 'anonymous-' + Date.now();
-        setCurrentUserId(userId);
+      // CRITICAL: Authentication is MANDATORY - use authenticated user ID only
+      if (!user) {
+        throw new Error('Authentication required. Please sign in to analyze reports.');
       }
       
-      console.log('👤 Using userId:', userId);
+      const userId = user.id;
+      setCurrentUserId(userId);
+      
+      console.log('👤 Using authenticated userId:', userId);
       
       const requestBody = {
         userId,
