@@ -21,6 +21,7 @@ import { SummaryCard } from "@/components/SummaryCard";
 import { ClinicalAssessmentHighlights } from "@/components/ClinicalAssessmentHighlights";
 import { UnderstandingYourNumbers } from "@/components/UnderstandingYourNumbers";
 import { HealthRiskDashboardWithTimeline } from "@/components/HealthRiskDashboard";
+import { ConsolidatedHealthReport } from "@/components/ConsolidatedHealthReport";
 import { EnhancedAnalysisResult, extractAbnormalPanels } from "@/types/medicalAnalysis";
 import { parseClinicalContext } from "@/utils/parseClinicalContext";
 import heroBackground from "@/assets/hero-background.jpg";
@@ -2072,16 +2073,22 @@ RAW DATA: ${baseContext}`;
                   {/* New Sections After Clinical Chat Completion */}
                   {enhancedData && showPostChatSections && (
                     <>
-                      {/* Report Summary in Layman's Language */}
-                      <section id="summary-section" className="py-6 sm:py-8 bg-white transition-all duration-500">
+                      {/* CONSOLIDATED COMPREHENSIVE HEALTH REPORT - ALL IN ONE SECTION */}
+                      <section id="comprehensive-report-section" className="py-6 sm:py-8 bg-gradient-to-br from-slate-50 to-gray-50 transition-all duration-500">
                         <div className="container mx-auto px-4 sm:px-6 animate-fade-in">
-                          <div className="max-w-4xl mx-auto animate-scale-in">
-                            <SummaryCard
-                              summary={analysisData.summary}
-                              overallStatus={analysisData.overallStatus}
-                              abnormalCount={analysisData.abnormalCount || 0}
-                              normalCount={analysisData.normalCount}
+                          <div className="max-w-6xl mx-auto space-y-4">
+                            <div className="text-center mb-6">
+                              <h2 className="text-2xl sm:text-3xl font-poppins font-bold text-navy mb-2">
+                                Your Comprehensive Health Report
+                              </h2>
+                              <p className="text-sm sm:text-base text-slate">
+                                Complete analysis combining your lab results and clinical assessment
+                              </p>
+                            </div>
+                            
+                            <ConsolidatedHealthReport 
                               analysisData={enhancedData}
+                              clinicalAssessmentData={clinicalAssessmentData}
                             />
                           </div>
                         </div>
@@ -2110,24 +2117,6 @@ RAW DATA: ${baseContext}`;
                           </p>
                         </div>
                       </div>
-
-                      {/* Abnormal Panels Summary */}
-                      <section className="py-6 sm:py-8 bg-coolGray transition-all duration-500">
-                        <div className="container mx-auto px-4 sm:px-6 animate-fade-in">
-                          <div className="max-w-4xl mx-auto animate-scale-in">
-                            <AbnormalPanelsSummary analysisData={enhancedData} />
-                          </div>
-                        </div>
-                      </section>
-
-                      {/* Values Needing Attention */}
-                      <section className="py-6 sm:py-8 bg-white transition-all duration-500">
-                        <div className="container mx-auto px-4 sm:px-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-                          <div className="max-w-4xl mx-auto animate-scale-in" style={{ animationDelay: '0.2s' }}>
-                            <ValuesNeedingAttention analysisData={enhancedData} />
-                          </div>
-                        </div>
-                      </section>
                     </>
                   )}
 
@@ -2150,95 +2139,44 @@ RAW DATA: ${baseContext}`;
                     </section>
                   )}
 
-                  {/* Final Interpretation */}
-                  {showPostChatSections && (
-                    <section id="interpretation-section" className="py-6 sm:py-10 md:py-16 bg-coolGray">
+                  {/* Risk Prediction & Analysis Tools */}
+                  {showPostChatSections && enhancedData && clinicalAssessmentData && (
+                    <section id="risk-analysis-section" className="py-6 sm:py-10 md:py-16 bg-coolGray">
                       <div className="container mx-auto px-3 sm:px-4 lg:px-6">
                         <div className="max-w-full lg:max-w-6xl mx-auto space-y-4 sm:space-y-6 lg:space-y-8">
                           <div className="text-center px-2">
                             <h2 className="text-xl sm:text-2xl lg:text-3xl font-poppins font-semibold text-navy mb-3 sm:mb-4">
-                              Final Interpretation
+                              Risk Predictions & Interactive Analysis
                             </h2>
+                            <p className="text-sm sm:text-base text-slate">
+                              Understand your long-term health risks and explore interactive risk calculators
+                            </p>
                           </div>
 
-                          {/* Mobile: Stack in priority order */}
-                          <div className="block lg:hidden space-y-4">
-                            <ClinicalAssessmentHighlights 
-                              clinicalData={clinicalAssessmentData}
-                              analysisData={analysisData}
-                            />
+                          {(() => {
+                            const clinicalContext = parseClinicalContext(clinicalAssessmentData);
+                            const healthRisks = calculateHealthRisks(
+                              enhancedData,
+                              analysisData.demographics,
+                              clinicalContext
+                            );
                             
-                            {enhancedData && clinicalAssessmentData && (() => {
-                              const clinicalContext = parseClinicalContext(clinicalAssessmentData);
-                              const healthRisks = calculateHealthRisks(
-                                enhancedData,
-                                analysisData.demographics,
-                                clinicalContext
-                              );
-                              
-                              return (
-                                <>
-                                  <RiskPredictionTimeline
-                                    cardiovascularRisk={healthRisks.cardiovascularRisk}
-                                    diabetesRisk={healthRisks.diabetesRisk}
-                                    clinicalContext={clinicalContext}
-                                  />
-                                  
-                                  <InteractiveRiskCalculator
-                                    cardiovascularRisk={healthRisks.cardiovascularRisk}
-                                    diabetesRisk={healthRisks.diabetesRisk}
-                                    clinicalContext={clinicalContext}
-                                  />
-                                </>
-                              );
-                            })()}
-                            
-                            <UnderstandingYourNumbers analysisData={analysisData} />
-                          </div>
-
-                          {/* Desktop: Grid layout */}
-                          <div className="hidden lg:block">
-                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                              {/* Left Column - Clinical Assessment */}
-                              <div className="lg:col-span-2 space-y-6">
-                                <ClinicalAssessmentHighlights 
-                                  clinicalData={clinicalAssessmentData}
-                                  analysisData={analysisData}
+                            return (
+                              <div className="space-y-6 animate-fade-in">
+                                <RiskPredictionTimeline
+                                  cardiovascularRisk={healthRisks.cardiovascularRisk}
+                                  diabetesRisk={healthRisks.diabetesRisk}
+                                  clinicalContext={clinicalContext}
+                                />
+                                
+                                <InteractiveRiskCalculator
+                                  cardiovascularRisk={healthRisks.cardiovascularRisk}
+                                  diabetesRisk={healthRisks.diabetesRisk}
+                                  clinicalContext={clinicalContext}
                                 />
                               </div>
-
-                              {/* Right Column - Charts */}
-                              <div className="space-y-6">
-                                <UnderstandingYourNumbers analysisData={analysisData} />
-                              </div>
-                            </div>
-
-                            {/* Risk Prediction Timeline */}
-                            {enhancedData && clinicalAssessmentData && (() => {
-                              const clinicalContext = parseClinicalContext(clinicalAssessmentData);
-                              const healthRisks = calculateHealthRisks(
-                                enhancedData,
-                                analysisData.demographics,
-                                clinicalContext
-                              );
-                              
-                              return (
-                                <div className="mt-6 space-y-6 animate-fade-in">
-                                  <RiskPredictionTimeline
-                                    cardiovascularRisk={healthRisks.cardiovascularRisk}
-                                    diabetesRisk={healthRisks.diabetesRisk}
-                                    clinicalContext={clinicalContext}
-                                  />
-                                  
-                                  <InteractiveRiskCalculator
-                                    cardiovascularRisk={healthRisks.cardiovascularRisk}
-                                    diabetesRisk={healthRisks.diabetesRisk}
-                                    clinicalContext={clinicalContext}
-                                  />
-                                </div>
-                              );
-                            })()}
-                          </div>
+                            );
+                          })()}
 
                           {/* Preview and Download Buttons */}
                           {clinicalAssessmentData && (
