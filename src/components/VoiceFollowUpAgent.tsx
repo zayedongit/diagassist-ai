@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
-import { Mic, Loader2 } from 'lucide-react';
+import { Mic, Loader2, Languages } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { EnhancedAnalysisResult } from '@/types/medicalAnalysis';
 
@@ -144,6 +144,15 @@ export const VoiceFollowUpAgent = ({
             <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-muted-foreground`}>
               Talk to Zara, our AI assistant who has reviewed your complete analysis and can answer your questions
             </p>
+            
+            <div className={`mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full 
+              bg-gradient-to-r from-cyan-50 to-blue-50 border border-cyan-200 
+              ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
+              <Languages className={`${isMobile ? 'w-3 h-3' : 'w-3.5 h-3.5'} text-cyan-600`} />
+              <span className="font-medium text-cyan-900">
+                English & हिंदी Supported
+              </span>
+            </div>
           </div>
         </div>
       </CardHeader>
