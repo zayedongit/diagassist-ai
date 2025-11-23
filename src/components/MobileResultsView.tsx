@@ -30,6 +30,7 @@ interface MobileResultsViewProps {
   onDownloadReport: () => void;
   onPreviewReport: () => void;
   onDismiss: () => void;
+  analysisId?: string;
 }
 
 export const MobileResultsView = ({
@@ -39,7 +40,8 @@ export const MobileResultsView = ({
   onClinicalAssessmentComplete,
   onDownloadReport,
   onPreviewReport,
-  onDismiss
+  onDismiss,
+  analysisId
 }: MobileResultsViewProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -206,6 +208,7 @@ export const MobileResultsView = ({
               analysisData={analysisData}
               clinicalAssessmentData={clinicalAssessmentData}
               isMobile={true}
+              analysisId={analysisId}
             />
           </div>
         ) : (
