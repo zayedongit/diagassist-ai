@@ -7,8 +7,162 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, RefreshCw, LogOut, Download } from "lucide-react";
+import { Loader2, RefreshCw, LogOut, Download, Database, CloudUpload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+
+// Storage Overview Component
+const StorageOverview = () => {
+  const [storageStats, setStorageStats] = useState<any>(null);
+  const [isExporting, setIsExporting] = useState(false);
+  const [accessToken, setAccessToken] = useState('');
+  const [folderId, setFolderId] = useState('');
+  const { toast } = useToast();
+
+  useEffect(() => {
+    fetchStorageStats();
+  }, []);
+
+  const fetchStorageStats = async () => {
+    try {
+      const { count: totalReports } = await supabase
+        .from('pdf_analyses')
+        .select('*', { count: 'exact', head: true })
+        .not('comprehensive_report_path', 'is', null);
+
+      const { count: exportedReports } = await supabase
+        .from('pdf_analyses')
+        .select('*', { count: 'exact', head: true })
+        .eq('exported_to_drive', true);
+
+      const { data: lastExport } = await supabase
+        .from('storage_alerts')
+        .select('exported_at, export_count')
+        .not('exported_at', 'is', null)
+        .order('exported_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      setStorageStats({
+        totalReports: totalReports || 0,
+        exportedReports: exportedReports || 0,
+        pendingExports: (totalReports || 0) - (exportedReports || 0),
+        lastExport: lastExport?.exported_at,
+        lastExportCount: lastExport?.export_count || 0
+      });
+    } catch (error) {
+      console.error('Error fetching storage stats:', error);
+    }
+  };
+
+  const handleExportToDrive = async () => {
+    if (!accessToken) {
+      toast({ title: 'Access token required', variant: 'destructive' });
+      return;
+    }
+
+    setIsExporting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('batch-export-to-drive', {
+        body: { 
+          autoExport: false,
+          accessToken,
+          folderId: folderId || undefined
+        }
+      });
+
+      if (error) throw error;
+
+      toast({ 
+        title: 'Export successful', 
+        description: `${data.exportedCount} reports exported to Google Drive`
+      });
+      
+      // Refresh stats
+      fetchStorageStats();
+      setAccessToken('');
+      setFolderId('');
+    } catch (error: any) {
+      toast({ 
+        title: 'Export failed', 
+        description: error.message,
+        variant: 'destructive' 
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  if (!storageStats) {
+    return <div className="flex justify-center"><Loader2 className="w-6 h-6 animate-spin" /></div>;
+  }
+
+  const usagePercentage = Math.round((storageStats.totalReports / 100) * 100);
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div>
+          <div className="text-2xl font-bold text-blue-600">{storageStats.totalReports}</div>
+          <div className="text-sm text-muted-foreground">Total Reports</div>
+        </div>
+        <div>
+          <div className="text-2xl font-bold text-green-600">{storageStats.exportedReports}</div>
+          <div className="text-sm text-muted-foreground">Exported</div>
+        </div>
+        <div>
+          <div className="text-2xl font-bold text-orange-600">{storageStats.pendingExports}</div>
+          <div className="text-sm text-muted-foreground">Pending</div>
+        </div>
+        <div>
+          <div className="text-2xl font-bold text-purple-600">{usagePercentage}%</div>
+          <div className="text-sm text-muted-foreground">Usage</div>
+        </div>
+      </div>
+
+      {storageStats.lastExport && (
+        <div className="text-sm text-muted-foreground">
+          Last export: {new Date(storageStats.lastExport).toLocaleString()} 
+          ({storageStats.lastExportCount} reports)
+        </div>
+      )}
+
+      <div className="border-t pt-4">
+        <h4 className="font-semibold mb-3">Export to Google Drive</h4>
+        <div className="space-y-2">
+          <Input
+            type="text"
+            placeholder="Google Drive Access Token"
+            value={accessToken}
+            onChange={(e) => setAccessToken(e.target.value)}
+          />
+          <Input
+            type="text"
+            placeholder="Folder ID (optional)"
+            value={folderId}
+            onChange={(e) => setFolderId(e.target.value)}
+          />
+          <Button 
+            onClick={handleExportToDrive} 
+            disabled={isExporting || !accessToken}
+            className="w-full"
+          >
+            {isExporting ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Exporting...
+              </>
+            ) : (
+              <>
+                <CloudUpload className="w-4 h-4 mr-2" />
+                Export All to Drive
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 interface AdminEvent {
   id: string;
@@ -248,6 +402,16 @@ export default function AdminDashboard() {
             </Card>
           </div>
         )}
+
+        {/* Storage Overview Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Storage Management</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <StorageOverview />
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>
