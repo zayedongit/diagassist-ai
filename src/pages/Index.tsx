@@ -22,6 +22,7 @@ import { ClinicalAssessmentHighlights } from "@/components/ClinicalAssessmentHig
 import { UnderstandingYourNumbers } from "@/components/UnderstandingYourNumbers";
 import { HealthRiskDashboardWithTimeline } from "@/components/HealthRiskDashboard";
 import { ConsolidatedHealthReport } from "@/components/ConsolidatedHealthReport";
+import { VoiceFollowUpAgent } from "@/components/VoiceFollowUpAgent";
 import { EnhancedAnalysisResult, extractAbnormalPanels } from "@/types/medicalAnalysis";
 import { parseClinicalContext } from "@/utils/parseClinicalContext";
 import heroBackground from "@/assets/hero-background.jpg";
@@ -2087,6 +2088,18 @@ RAW DATA: ${baseContext}`;
                             </div>
                             
                             <ConsolidatedHealthReport 
+                              analysisData={enhancedData}
+                              clinicalAssessmentData={clinicalAssessmentData}
+                            />
+                          </div>
+                        </div>
+                      </section>
+
+                      {/* Voice Follow-Up Agent */}
+                      <section className="py-6 sm:py-8 bg-background transition-all duration-500">
+                        <div className="container mx-auto px-4 sm:px-6 animate-fade-in">
+                          <div className="max-w-4xl mx-auto">
+                            <VoiceFollowUpAgent 
                               analysisData={enhancedData}
                               clinicalAssessmentData={clinicalAssessmentData}
                             />
