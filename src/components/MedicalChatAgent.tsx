@@ -614,82 +614,7 @@ export const MedicalChatAgent = ({
                   </div>
                 )}
 
-                {message.type === 'question' && message.question && currentQuestion?.id === message.question.id && (
-                  <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-white rounded-lg border-2 border-primary/20">
-                    {message.question.type === 'radio' && message.question.options && (
-                      <RadioGroup
-                        value={Object.keys(selectedAnswers)[0] || ''}
-                        onValueChange={(value) => {
-                          const option = message.question.options?.find(opt => opt.id === value);
-                          setSelectedAnswers({ [value]: option?.text });
-                        }}
-                        className="space-y-2 mb-3"
-                      >
-                        {message.question.options.map((option) => (
-                          <div key={option.id} className="flex items-center space-x-2 min-h-[44px]">
-                            <RadioGroupItem value={option.id} id={option.id} />
-                            <Label htmlFor={option.id} className="text-xs sm:text-sm cursor-pointer flex-1">
-                              {option.text}
-                            </Label>
-                          </div>
-                        ))}
-                      </RadioGroup>
-                    )}
-
-                    {message.question.type === 'checkbox' && message.question.options && (
-                      <div className="space-y-2 mb-3">
-                        {message.question.options.map((option) => (
-                          <div key={option.id} className="flex items-center space-x-2 min-h-[44px]">
-                            <Checkbox
-                              id={option.id}
-                              checked={selectedAnswers[option.id] || false}
-                              onCheckedChange={(checked) => {
-                                setSelectedAnswers(prev => ({
-                                  ...prev,
-                                  [option.id]: checked ? option.text : undefined
-                                }));
-                              }}
-                            />
-                            <Label htmlFor={option.id} className="text-xs sm:text-sm cursor-pointer flex-1">
-                              {option.text}
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                      <Button 
-                        onClick={handleQuestionSubmit}
-                        disabled={isSubmitting || Object.values(selectedAnswers).filter(Boolean).length === 0}
-                        size="sm"
-                        className="w-full sm:w-auto min-h-[48px] bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-colors text-base sm:text-sm"
-                      >
-                        {isSubmitting ? 'Submitting...' : 'Submit Answer'}
-                      </Button>
-                      
-                      <Button 
-                        onClick={handleSkipQuestion}
-                        variant="outline"
-                        size="sm"
-                        className="w-full sm:w-auto min-h-[48px] px-4 py-2"
-                      >
-                        Skip
-                      </Button>
-                      
-                      {triageState?.questionCount >= 3 && (
-                        <Button 
-                          onClick={handleForceReport}
-                          variant="secondary"
-                          size="sm"
-                          className="w-full sm:w-auto min-h-[48px] px-4 py-2"
-                        >
-                          Generate Report Now
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                )}
+                {/* NOTE: currentQuestion is now rendered separately below ScrollArea, not here */}
               </div>
             ))}
 
@@ -720,6 +645,99 @@ export const MedicalChatAgent = ({
             >
               <ArrowDown className="w-4 h-4" />
             </Button>
+          </div>
+        )}
+
+        {/* Current Question Card - Rendered separately below messages, always visible */}
+        {currentQuestion && !finalReport && (
+          <div className="p-3 sm:p-4 border-t bg-gradient-to-br from-cyan-50 to-blue-50">
+            <div className="space-y-3">
+              {/* Question Badge */}
+              <Badge className="text-xs bg-primary text-primary-foreground">
+                Question {triageState?.questionCount || 1} of {triageState?.maxQuestions || 6}
+              </Badge>
+              
+              {/* Question Text - Enhanced visibility on mobile */}
+              <p className={`font-medium leading-relaxed ${isMobile ? 'text-sm min-h-[50px]' : 'text-base min-h-[60px]'}`}>
+                {currentQuestion.text}
+              </p>
+              
+              {/* Answer Options */}
+              {currentQuestion.type === 'radio' && currentQuestion.options && (
+                <RadioGroup
+                  value={Object.keys(selectedAnswers)[0] || ''}
+                  onValueChange={(value) => {
+                    const option = currentQuestion.options?.find(opt => opt.id === value);
+                    setSelectedAnswers({ [value]: option?.text });
+                  }}
+                  className="space-y-2"
+                >
+                  {currentQuestion.options.map((option) => (
+                    <div key={option.id} className="flex items-center space-x-2 min-h-[44px] bg-white rounded-lg p-2 border border-primary/10 hover:border-primary/30 transition-colors">
+                      <RadioGroupItem value={option.id} id={option.id} className={isMobile ? 'w-2.5 h-2.5' : 'w-4 h-4'} />
+                      <Label htmlFor={option.id} className={`cursor-pointer flex-1 ${isMobile ? 'text-[13px] leading-tight' : 'text-sm'}`}>
+                        {option.text}
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              )}
+
+              {currentQuestion.type === 'checkbox' && currentQuestion.options && (
+                <div className="space-y-2">
+                  {currentQuestion.options.map((option) => (
+                    <div key={option.id} className="flex items-center space-x-2 min-h-[44px] bg-white rounded-lg p-2 border border-primary/10 hover:border-primary/30 transition-colors">
+                      <Checkbox
+                        id={option.id}
+                        checked={selectedAnswers[option.id] || false}
+                        onCheckedChange={(checked) => {
+                          setSelectedAnswers(prev => ({
+                            ...prev,
+                            [option.id]: checked ? option.text : undefined
+                          }));
+                        }}
+                        className={isMobile ? 'w-2.5 h-2.5' : 'w-4 h-4'}
+                      />
+                      <Label htmlFor={option.id} className={`cursor-pointer flex-1 ${isMobile ? 'text-[13px] leading-tight' : 'text-sm'}`}>
+                        {option.text}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                <Button 
+                  onClick={handleQuestionSubmit}
+                  disabled={isSubmitting || Object.values(selectedAnswers).filter(Boolean).length === 0}
+                  size={isMobile ? 'default' : 'sm'}
+                  className={`w-full sm:w-auto ${isMobile ? 'min-h-[48px] text-base' : 'min-h-[44px] text-sm'} bg-primary hover:bg-primary/90 text-primary-foreground font-medium`}
+                >
+                  {isSubmitting ? 'Submitting...' : 'Submit Answer'}
+                </Button>
+                
+                <Button 
+                  onClick={handleSkipQuestion}
+                  variant="outline"
+                  size={isMobile ? 'default' : 'sm'}
+                  className={`w-full sm:w-auto ${isMobile ? 'min-h-[48px]' : 'min-h-[44px]'}`}
+                >
+                  Skip
+                </Button>
+                
+                {triageState?.questionCount >= 3 && (
+                  <Button 
+                    onClick={handleForceReport}
+                    variant="secondary"
+                    size={isMobile ? 'default' : 'sm'}
+                    className={`w-full sm:w-auto ${isMobile ? 'min-h-[48px]' : 'min-h-[44px]'}`}
+                  >
+                    Generate Report Now
+                  </Button>
+                )}
+              </div>
+            </div>
           </div>
         )}
 

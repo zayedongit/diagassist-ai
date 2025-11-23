@@ -97,7 +97,7 @@ const Index = () => {
   const currentPollingIdRef = useRef<string | null>(null);
 
   // Auto-scroll refs for smooth navigation
-  const analysisRef = useRef<HTMLElement | null>(null);
+  const analysisRef = useRef<HTMLDivElement | null>(null);
   const chatRef = useRef<HTMLElement | null>(null);
   const abnormalPanelsRef = useRef<HTMLElement | null>(null);
 
@@ -1249,6 +1249,16 @@ RAW DATA: ${baseContext}`;
       description: "Clearing previous data and processing your new report...",
     });
 
+    // Auto-scroll to analysis section on mobile after a short delay
+    if (isMobile && analysisRef.current) {
+      setTimeout(() => {
+        analysisRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 800);
+    }
+
     try {
       // Process PDF on client side only
       const response = await processClientSide(file);
@@ -1964,7 +1974,7 @@ RAW DATA: ${baseContext}`;
 
         {/* 4. AI ANALYSIS SECTION */}
         {isAnalyzing && (
-          <section id="analysis-section" className="py-12 sm:py-16 md:py-24 bg-white min-h-screen flex items-center justify-center transition-all duration-500">
+          <section ref={analysisRef} id="analysis-section" className="py-12 sm:py-16 md:py-24 bg-white min-h-screen flex items-center justify-center transition-all duration-500">
             <div className="container mx-auto px-4 sm:px-6 animate-fade-in">
               <div className="max-w-4xl mx-auto text-center space-y-6 sm:space-y-8">
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-semibold text-navy px-4">
