@@ -594,6 +594,42 @@ export type Database = {
         }
         Relationships: []
       }
+      storage_alerts: {
+        Row: {
+          admin_notified: boolean | null
+          alerted_at: string | null
+          created_at: string | null
+          export_count: number | null
+          export_method: string | null
+          exported_at: string | null
+          id: string
+          threshold_reached: number
+          total_reports: number
+        }
+        Insert: {
+          admin_notified?: boolean | null
+          alerted_at?: string | null
+          created_at?: string | null
+          export_count?: number | null
+          export_method?: string | null
+          exported_at?: string | null
+          id?: string
+          threshold_reached: number
+          total_reports: number
+        }
+        Update: {
+          admin_notified?: boolean | null
+          alerted_at?: string | null
+          created_at?: string | null
+          export_count?: number | null
+          export_method?: string | null
+          exported_at?: string | null
+          id?: string
+          threshold_reached?: number
+          total_reports?: number
+        }
+        Relationships: []
+      }
       user_login_events: {
         Row: {
           created_at: string | null

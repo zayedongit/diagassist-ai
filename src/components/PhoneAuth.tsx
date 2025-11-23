@@ -39,13 +39,59 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
   const [resendTimer, setResendTimer] = useState(0);
   const [rememberDevice, setRememberDevice] = useState(true); // Default to true for convenience
 
-  // Check if device is already remembered on mount
+  // Check if device is already remembered on mount and auto-authenticate
   useEffect(() => {
-    const isRemembered = localStorage.getItem('daigassist_remember_device') === 'true';
-    if (isRemembered) {
-      console.log('Device is remembered - session will be maintained');
-    }
-  }, []);
+    const autoAuthenticate = async () => {
+      const isRemembered = localStorage.getItem('daigassist_remember_device') === 'true';
+      const lastLogin = localStorage.getItem('daigassist_last_login');
+      
+      if (!isRemembered || !lastLogin) {
+        console.log('❌ Device not remembered or no last login');
+        return;
+      }
+      
+      console.log('✅ Device is remembered - checking session validity');
+      
+      // Check session validity with age limit
+      const lastLoginDate = new Date(lastLogin);
+      const currentDate = new Date();
+      const daysSinceLogin = (currentDate.getTime() - lastLoginDate.getTime()) / (1000 * 60 * 60 * 24);
+      
+      // Admin phone gets 90 days, regular users get 30 days
+      const savedPhone = localStorage.getItem('daigassist_saved_phone') || '';
+      const isAdminPhone = savedPhone === '+917993448425';
+      const maxAge = isAdminPhone ? 90 : 30;
+      
+      console.log('📅 Session age check:', {
+        daysSinceLogin: Math.floor(daysSinceLogin),
+        maxAge,
+        isAdminPhone
+      });
+      
+      if (daysSinceLogin > maxAge) {
+        console.log('⏰ Session expired - clearing remembered device');
+        localStorage.removeItem('daigassist_remember_device');
+        localStorage.removeItem('daigassist_last_login');
+        return;
+      }
+      
+      // Check if valid Supabase session exists
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error || !session) {
+        console.log('❌ No valid Supabase session found');
+        return;
+      }
+      
+      console.log('🎉 Valid session found - auto-authenticating');
+      
+      // Auto-authenticate without showing OTP UI
+      onAuthSuccess(session.user, session);
+      toast.success('Welcome back! Auto-signed in from remembered device.');
+    };
+    
+    autoAuthenticate();
+  }, [onAuthSuccess]);
 
   // Auto-verify OTP when 6 digits are entered
   useEffect(() => {
@@ -175,15 +221,21 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
         }
       }
 
-      // Store remember device preference
+      // Store remember device preference with extended duration for admin
+      const isAdminPhone = formattedPhone === '+917993448425';
+      
       if (rememberDevice) {
         localStorage.setItem('daigassist_remember_device', 'true');
         localStorage.setItem('daigassist_last_login', new Date().toISOString());
+        localStorage.setItem('daigassist_saved_phone', formattedPhone);
         sessionStorage.setItem('daigassist_session_active', 'true');
-        console.log('✅ Device will be remembered - session persists across browser restarts');
-        toast.success('Device remembered - you won\'t need to log in again');
+        
+        const duration = isAdminPhone ? '90 days' : '30 days';
+        console.log(`✅ Device will be remembered for ${duration} - session persists across browser restarts`);
+        toast.success(`Device remembered for ${duration} - you won't need to log in again`);
       } else {
         localStorage.removeItem('daigassist_remember_device');
+        localStorage.removeItem('daigassist_saved_phone');
         sessionStorage.setItem('daigassist_session_active', 'true'); // Active for current session only
         console.log('⚠️ Device not remembered - you\'ll need to log in after closing browser');
         toast.info('You\'ll need to log in again after closing your browser');

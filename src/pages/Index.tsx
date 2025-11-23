@@ -205,7 +205,7 @@ const Index = () => {
     }
   };
 
-  // Handle analysis completion with auto-refresh from database
+  // Handle analysis completion with auto-refresh from database and auto-storage
   const handleAnalysisComplete = async (data: EnhancedAnalysisResult) => {
     console.log('[AUDIT] Analysis completed:', {
       patientName: data.patientName,
@@ -223,6 +223,92 @@ const Index = () => {
     setAnalysisData(data);
     setAnalysisTimestamp(new Date().toISOString());
     setIsAnalyzing(false);
+    
+    // AUTO-STORAGE: Store comprehensive report automatically
+    if (user && analysisId && data) {
+      console.log('💾 AUTO-STORAGE: Initiating comprehensive report storage');
+      
+      try {
+        // Generate comprehensive report
+        const { generateFullComprehensiveReport } = await import('@/utils/generateFullComprehensiveReport');
+        const { calculateHealthScore } = await import('@/utils/healthScoreCalculator');
+        const { extractAbnormalPanels } = await import('@/types/medicalAnalysis');
+        
+        const healthScoreBreakdown = calculateHealthScore(
+          data as any,
+          data.demographics,
+          {}
+        );
+        
+        const abnormalPanels = extractAbnormalPanels(data as any).map(panel => ({
+          panelName: panel.name || 'Unknown Panel',
+          abnormalLabs: (panel.abnormalLabs || []).map(lab => ({
+            parameter: lab.name,
+            value: lab.value,
+            unit: lab.unit || '',
+            normalRange: lab.referenceRange || 'N/A',
+            status: lab.status as 'high' | 'low' | 'normal'
+          }))
+        }));
+        
+        const valuesNeedingAttention = data.medicalPanels
+          ?.flatMap((p: any) => p.abnormalLabs || [])
+          .map((lab: any) => ({
+            parameter: lab.name,
+            value: lab.value,
+            unit: lab.unit || '',
+            normalRange: lab.referenceRange || 'N/A',
+            status: lab.status as 'high' | 'low' | 'normal'
+          })) || [];
+        
+        const result = await generateFullComprehensiveReport({
+          patientInfo: {
+            name: data.patientName || 'Not Available',
+            age: data.demographics?.age,
+            gender: data.demographics?.gender,
+            testDate: data.testDate || 'Not Available'
+          },
+          summary: data.summary,
+          overallStatus: data.overallStatus,
+          healthScoreBreakdown,
+          abnormalPanels,
+          valuesNeedingAttention,
+          clinicalAssessment: {},
+          recommendations: {
+            immediate: [],
+            dietary: { toAdd: [], toLimitOrAvoid: [] },
+            lifestyle: [],
+            followUp: ''
+          }
+        });
+        
+        if (result.success && result.pdfBase64) {
+          console.log('📤 AUTO-STORAGE: Storing comprehensive report');
+          
+          const { error: storageError } = await supabase.functions.invoke('store-analysis-report', {
+            body: {
+              analysisId,
+              pdfBase64: result.pdfBase64,
+              reportType: 'comprehensive',
+              filename: result.fileName
+            }
+          });
+          
+          if (storageError) {
+            console.error('❌ AUTO-STORAGE: Failed to store report:', storageError);
+          } else {
+            console.log('✅ AUTO-STORAGE: Report stored successfully');
+            
+            // Check storage threshold
+            await supabase.functions.invoke('check-storage-threshold', {
+              body: { userId: user.id }
+            });
+          }
+        }
+      } catch (error) {
+        console.error('❌ AUTO-STORAGE: Error during auto-storage:', error);
+      }
+    }
     
     // AUTO-REFRESH: Fetch fresh data from database after 2 seconds
     setTimeout(async () => {
