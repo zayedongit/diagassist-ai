@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Bot, User, Send, Activity, ArrowDown, ArrowRight, HelpCircle } from 'lucide-react';
+import { Bot, User, Send, Activity, ArrowDown, ArrowRight, HelpCircle, Info } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from 'sonner';
@@ -561,6 +561,16 @@ export const MedicalChatAgent = ({
           </Collapsible>
         )}
       </CardHeader>
+
+      {/* Clinical Chat Purpose Banner */}
+      <div className="mx-3 mt-2 mb-0 sm:mx-6">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+          <Info className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" />
+          <p className="text-xs sm:text-sm text-blue-900 font-medium">
+            Clinical chat is required for more comprehensive analysis
+          </p>
+        </div>
+      </div>
 
       <CardContent className="relative p-0">
         <ScrollArea 
