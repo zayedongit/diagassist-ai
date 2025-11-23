@@ -19,6 +19,7 @@ export const useSwipe = ({
   const [touchStartY, setTouchStartY] = useState<number | null>(null);
   const [touchEndX, setTouchEndX] = useState<number | null>(null);
   const [touchEndY, setTouchEndY] = useState<number | null>(null);
+  const [disabled, setDisabled] = useState(false);
 
   const onTouchStart = (e: React.TouchEvent) => {
     setTouchEndX(null);
@@ -33,7 +34,7 @@ export const useSwipe = ({
   };
 
   const onTouchEnd = () => {
-    if (!touchStartX || !touchStartY || !touchEndX || !touchEndY) return;
+    if (!touchStartX || !touchStartY || !touchEndX || !touchEndY || disabled) return;
     
     const distanceX = touchStartX - touchEndX;
     const distanceY = touchStartY - touchEndY;
@@ -61,5 +62,7 @@ export const useSwipe = ({
     onTouchStart,
     onTouchMove,
     onTouchEnd,
+    disableSwipe: () => setDisabled(true),
+    enableSwipe: () => setDisabled(false),
   };
 };
