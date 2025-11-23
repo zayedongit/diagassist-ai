@@ -10,6 +10,7 @@ import { SummaryCard } from "@/components/SummaryCard";
 import { HealthRiskDashboardWithTimeline } from "@/components/HealthRiskDashboard";
 import { UnderstandingYourNumbers } from "@/components/UnderstandingYourNumbers";
 import { MedicalChatAgent } from "@/components/MedicalChatAgent";
+import { ConsolidatedHealthReport } from "@/components/ConsolidatedHealthReport";
 import { EnhancedAnalysisResult, extractAbnormalPanels } from "@/types/medicalAnalysis";
 import { parseClinicalContext } from "@/utils/parseClinicalContext";
 import { HealthScoreCard } from "@/components/HealthScoreCard";
@@ -73,6 +74,13 @@ export const MobileResultsView = ({
       icon: MessageCircle,
       color: 'text-cyan-500',
       bgColor: 'bg-cyan-50'
+    },
+    {
+      id: 'report',
+      title: 'Your Report',
+      icon: FileText,
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-50'
     },
     {
       id: 'voice',
@@ -157,14 +165,14 @@ export const MobileResultsView = ({
     swipeHandlers.onTouchEnd();
   };
 
-  // Auto-advance to Voice Agent after clinical chat completes
+  // Auto-advance to Comprehensive Report after clinical chat completes
   useEffect(() => {
     if (clinicalAssessmentData && currentCard === 0) {
       const timer = setTimeout(() => {
-        setCurrentCard(1); // Move to voice agent card
+        setCurrentCard(1); // Move to report card
         toast({
-          title: "Voice Agent Ready",
-          description: "Ask questions about your report via voice",
+          title: "Report Ready",
+          description: "Your comprehensive health report is ready",
         });
       }, 1500);
       return () => clearTimeout(timer);
@@ -199,6 +207,25 @@ export const MobileResultsView = ({
               analysisTimestamp={analysisData?.timestamp || analysisData?.created_at || new Date().toISOString()}
             />
           </div>
+        );
+      
+      case 'report':
+        return clinicalAssessmentData && enhancedData ? (
+          <div className="pb-4">
+            <ConsolidatedHealthReport 
+              analysisData={enhancedData}
+              clinicalAssessmentData={clinicalAssessmentData}
+            />
+          </div>
+        ) : (
+          <Card className="border-2 border-purple-200 mx-4">
+            <CardContent className="p-6 text-center">
+              <FileText className="w-12 h-12 text-purple-400 mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground">
+                Complete clinical chat to view your comprehensive report
+              </p>
+            </CardContent>
+          </Card>
         );
       
       case 'voice':
