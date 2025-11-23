@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,16 +10,10 @@ import Analytics from "./pages/Analytics";
 import MyHealthJourney from "./pages/MyHealthJourney";
 import MyReports from "./pages/MyReports";
 import SharedReport from "./pages/SharedReport";
+import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
-
-const AdminRedirect = () => {
-  useEffect(() => {
-    window.location.href = '/realtime-admin-dashboard.html';
-  }, []);
-  return null;
-};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -31,7 +24,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/admin" element={<AdminRedirect />} />
+            <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/my-health-journey" element={<MyHealthJourney />} />
             <Route path="/shared-report/:token" element={<SharedReport />} />
