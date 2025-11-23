@@ -2048,6 +2048,9 @@ RAW DATA: ${baseContext}`;
                             <p className="text-xs sm:text-sm text-slate">
                               This chat is strictly about your uploaded test report. It does not replace medical diagnosis.
                             </p>
+                            <p className="text-xs sm:text-sm text-slate font-medium">
+                              Clinical chat makes the analysis more focused
+                            </p>
                           </div>
                           
                           <div className="bg-coolGray rounded-xl sm:rounded-2xl shadow-premium p-4 sm:p-6 animate-slide-in">
