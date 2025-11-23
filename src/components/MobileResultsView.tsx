@@ -18,6 +18,9 @@ import { HealthImprovementPlanModal } from "@/components/HealthImprovementPlanMo
 import { generate30DayPlan } from "@/utils/generate30DayPlan";
 import { AuthPrompt } from "@/components/AuthPrompt";
 import { useAuth } from "@/hooks/useAuth";
+import { VoiceFollowUpAgent } from "@/components/VoiceFollowUpAgent";
+import { toast } from "@/hooks/use-toast";
+import { Mic } from "lucide-react";
 
 interface MobileResultsViewProps {
   analysisData: any;
@@ -68,6 +71,13 @@ export const MobileResultsView = ({
       icon: MessageCircle,
       color: 'text-cyan-500',
       bgColor: 'bg-cyan-50'
+    },
+    {
+      id: 'voice',
+      title: 'Ask Questions',
+      icon: Mic,
+      color: 'text-blue-500',
+      bgColor: 'bg-blue-50'
     },
     {
       id: 'score',
@@ -145,10 +155,70 @@ export const MobileResultsView = ({
     swipeHandlers.onTouchEnd();
   };
 
+  // Auto-advance to Voice Agent after clinical chat completes
+  useEffect(() => {
+    if (clinicalAssessmentData && currentCard === 0) {
+      const timer = setTimeout(() => {
+        setCurrentCard(1); // Move to voice agent card
+        toast({
+          title: "Voice Agent Ready",
+          description: "Ask questions about your report via voice",
+        });
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [clinicalAssessmentData, currentCard]);
+
   const renderCardContent = () => {
     const card = cards[currentCard];
 
     switch (card.id) {
+      case 'chat':
+        const createEnhancedAnalysisContext = (data: any) => {
+          if (!data) return 'No analysis data available';
+          return JSON.stringify({
+            summary: data.summary,
+            overallStatus: data.overallStatus,
+            medicalPanels: data.medicalPanels || [],
+            demographics: data.demographics
+          });
+        };
+
+        return (
+          <div className="pb-4">
+            <MedicalChatAgent
+              analysisContext={createEnhancedAnalysisContext(analysisData)}
+              demographics={analysisData?.demographics}
+              abnormalPanels={enhancedData ? extractAbnormalPanels(enhancedData) : []}
+              mode="clinical-triage"
+              onClinicalAssessmentComplete={handleClinicalComplete}
+              onNavigateNext={goToNext}
+              analysisId={analysisData?.analysisId || analysisData?.id || `temp-${Date.now()}`}
+              analysisTimestamp={analysisData?.timestamp || analysisData?.created_at || new Date().toISOString()}
+            />
+          </div>
+        );
+      
+      case 'voice':
+        return clinicalAssessmentData ? (
+          <div className="pb-4">
+            <VoiceFollowUpAgent
+              analysisData={analysisData}
+              clinicalAssessmentData={clinicalAssessmentData}
+              isMobile={true}
+            />
+          </div>
+        ) : (
+          <Card className="border-2 border-blue-200 mx-4">
+            <CardContent className="p-6 text-center">
+              <Mic className="w-12 h-12 text-blue-400 mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground">
+                Complete clinical chat first to enable voice questions
+              </p>
+            </CardContent>
+          </Card>
+        );
+      
       case 'score':
         return enhancedData ? (
           <div className="pb-4">
@@ -272,32 +342,6 @@ export const MobileResultsView = ({
                 </p>
               </CardContent>
             </Card>
-          </div>
-        );
-      
-      case 'chat':
-        const createEnhancedAnalysisContext = (data: any) => {
-          if (!data) return 'No analysis data available';
-          return JSON.stringify({
-            summary: data.summary,
-            overallStatus: data.overallStatus,
-            medicalPanels: data.medicalPanels || [],
-            demographics: data.demographics
-          });
-        };
-
-        return (
-          <div className="pb-4">
-            <MedicalChatAgent
-              analysisContext={createEnhancedAnalysisContext(analysisData)}
-              demographics={analysisData?.demographics}
-              abnormalPanels={enhancedData ? extractAbnormalPanels(enhancedData) : []}
-              mode="clinical-triage"
-              onClinicalAssessmentComplete={handleClinicalComplete}
-              onNavigateNext={goToNext}
-              analysisId={analysisData?.analysisId || analysisData?.id || `temp-${Date.now()}`}
-              analysisTimestamp={analysisData?.timestamp || analysisData?.created_at || new Date().toISOString()}
-            />
           </div>
         );
       
@@ -450,9 +494,9 @@ export const MobileResultsView = ({
       {/* Swipeable Content */}
       <div
         className="flex-1 overflow-y-auto px-4 py-6 pb-[calc(env(safe-area-inset-bottom)+96px)]"
-        onTouchStart={cards[currentCard].id === 'chat' ? undefined : handleTouchStart}
-        onTouchMove={cards[currentCard].id === 'chat' ? undefined : handleTouchMove}
-        onTouchEnd={cards[currentCard].id === 'chat' ? undefined : handleTouchEnd}
+        onTouchStart={cards[currentCard].id === 'chat' || cards[currentCard].id === 'voice' ? undefined : handleTouchStart}
+        onTouchMove={cards[currentCard].id === 'chat' || cards[currentCard].id === 'voice' ? undefined : handleTouchMove}
+        onTouchEnd={cards[currentCard].id === 'chat' || cards[currentCard].id === 'voice' ? undefined : handleTouchEnd}
       >
         <div className="animate-fade-in">
           {renderCardContent()}
