@@ -284,32 +284,78 @@ async function retryWithBackoff<T>(
   throw lastError!;
 }
 
-// Helper function to check if value is within reference range
+// Enhanced helper function to check if value is within reference range
 function checkIfValueWithinRange(value: number, referenceRange: string): boolean {
-  // Parse ranges like "70-140", "<6.0", ">2.5", "Below 6.0%", "11.5-15.5"
-  const range = referenceRange.toLowerCase().replace(/[^\d.\-<>]/g, '');
-  
-  // Handle "< X" format
-  if (range.startsWith('<')) {
-    const max = parseFloat(range.substring(1));
-    return !isNaN(max) && value < max;
+  try {
+    // Normalize the reference range string
+    const normalized = referenceRange.toLowerCase().trim();
+    
+    // Remove common text prefixes
+    let range = normalized
+      .replace(/below/g, '<')
+      .replace(/above/g, '>')
+      .replace(/less than/g, '<')
+      .replace(/greater than/g, '>')
+      .replace(/up to/g, '<')
+      .replace(/upto/g, '<')
+      .replace(/within/g, '')
+      .replace(/range/g, '')
+      .trim();
+    
+    // Extract numbers and operators
+    const cleanRange = range.replace(/[^\d.\-<>]/g, '');
+    
+    // Handle "< X" format (e.g., "<6.0", "Below 6.0%")
+    if (cleanRange.startsWith('<') || range.includes('<')) {
+      const maxMatch = cleanRange.match(/<(\d+\.?\d*)/);
+      if (maxMatch) {
+        const max = parseFloat(maxMatch[1]);
+        const result = !isNaN(max) && value < max;
+        console.log(`🔍 Range check: ${value} < ${max} = ${result}`);
+        return result;
+      }
+    }
+    
+    // Handle "> X" format (e.g., ">2.5", "Above 2.5")
+    if (cleanRange.startsWith('>') || range.includes('>')) {
+      const minMatch = cleanRange.match(/>(\d+\.?\d*)/);
+      if (minMatch) {
+        const min = parseFloat(minMatch[1]);
+        const result = !isNaN(min) && value > min;
+        console.log(`🔍 Range check: ${value} > ${min} = ${result}`);
+        return result;
+      }
+    }
+    
+    // Handle "X-Y" format (e.g., "70-110", "11.5 - 15.5", "70.09-110.10")
+    if (cleanRange.includes('-')) {
+      // Make sure it's not a negative number
+      const parts = cleanRange.split('-').filter(p => p.length > 0);
+      if (parts.length >= 2) {
+        const min = parseFloat(parts[0]);
+        const max = parseFloat(parts[parts.length - 1]);
+        if (!isNaN(min) && !isNaN(max)) {
+          const result = value >= min && value <= max;
+          console.log(`🔍 Range check: ${min} <= ${value} <= ${max} = ${result}`);
+          return result;
+        }
+      }
+    }
+    
+    // Handle single value with implied upper limit (rare)
+    const singleValue = parseFloat(cleanRange);
+    if (!isNaN(singleValue) && cleanRange === singleValue.toString()) {
+      const result = value <= singleValue;
+      console.log(`🔍 Range check (single upper limit): ${value} <= ${singleValue} = ${result}`);
+      return result;
+    }
+    
+    console.log(`⚠️ Could not parse reference range: "${referenceRange}"`);
+    return false;
+  } catch (error) {
+    console.error(`❌ Error parsing reference range "${referenceRange}":`, error);
+    return false;
   }
-  
-  // Handle "> X" format
-  if (range.startsWith('>')) {
-    const min = parseFloat(range.substring(1));
-    return !isNaN(min) && value > min;
-  }
-  
-  // Handle "X-Y" format
-  if (range.includes('-')) {
-    const [minStr, maxStr] = range.split('-');
-    const min = parseFloat(minStr);
-    const max = parseFloat(maxStr);
-    return !isNaN(min) && !isNaN(max) && value >= min && value <= max;
-  }
-  
-  return false;
 }
 
 // Apply medical significance filter to remove incorrectly flagged normal values
@@ -341,44 +387,7 @@ function applyMedicalSignificanceFilter(analysisResult: any): any {
         return false;
       }
       
-      // HbA1c: Only abnormal if >= 6.0% (prediabetes threshold)
-      if (labName.includes('hba1c') || labName.includes('a1c') || labName.includes('glycosylated')) {
-        if (value < 6.0) {
-          console.log(`🩺 [MEDICAL FILTER] Removing HbA1c ${value}%: Below 6.0% threshold (NORMAL)`);
-          if (!panel.normalParameters) panel.normalParameters = [];
-          panel.normalParameters.push(`${lab.name}: ${lab.value}${lab.unit || ''} (Normal: <6.0%)`);
-          removedCount++;
-          return false;
-        }
-      }
-      
-      // Fasting/Random Glucose: Only abnormal if >= 100 mg/dL (fasting) or >= 140 mg/dL (random)
-      if (labName.includes('glucose') || labName.includes('blood sugar') || labName.includes('sugar')) {
-        const isFasting = labName.includes('fasting');
-        const isRandom = labName.includes('random') || labName.includes('rbs');
-        const threshold = isFasting ? 100 : (isRandom ? 140 : 100);
-        
-        if (value < threshold) {
-          console.log(`🩺 [MEDICAL FILTER] Removing ${lab.name} ${value}: Below threshold (NORMAL)`);
-          if (!panel.normalParameters) panel.normalParameters = [];
-          panel.normalParameters.push(`${lab.name}: ${lab.value}${lab.unit || ''} (Normal)`);
-          removedCount++;
-          return false;
-        }
-      }
-      
-      // Hemoglobin: Only abnormal if <11.5 (women) or <13 (men) - use conservative threshold
-      if (labName.includes('hemoglobin') || labName.includes('haemoglobin') || labName === 'hb' || labName === 'hgb') {
-        if (value >= 11.5 && value <= 18) {
-          console.log(`🩺 [MEDICAL FILTER] Removing Hemoglobin ${value}: Within normal range (NORMAL)`);
-          if (!panel.normalParameters) panel.normalParameters = [];
-          panel.normalParameters.push(`${lab.name}: ${lab.value}${lab.unit || ''} (Normal: 11.5-18)`);
-          removedCount++;
-          return false;
-        }
-      }
-      
-      // Check if value is within reference range (if provided)
+      // Check if value is within reference range (if provided) - THIS IS THE PRIMARY CHECK
       if (lab.referenceRange) {
         const isWithinRange = checkIfValueWithinRange(value, lab.referenceRange);
         if (isWithinRange) {
@@ -1048,38 +1057,66 @@ Extract EVERY parameter from ALL sections:
 - Severe Dyslipidemia → Cardiologist
 - Thyroid Disorders → Endocrinologist
 
-=== CRITICAL: WHAT BELONGS IN abnormalLabs ARRAY ===
+=== ⚠️ CRITICAL: LAB REFERENCE RANGES ARE THE ONLY SOURCE OF TRUTH ⚠️ ===
 
-**ONLY include a parameter in abnormalLabs if ALL of these are true:**
-1. The value is OUTSIDE the lab's stated reference range, AND
-2. The deviation is clinically significant (not borderline), AND
-3. It requires medical attention or monitoring
+**ABSOLUTE RULE - NO EXCEPTIONS:**
 
-**EXAMPLES OF WHAT TO INCLUDE IN abnormalLabs:**
-✅ HbA1c ≥6.0% (prediabetes/diabetes threshold)
-✅ Hemoglobin <11.5 g/dL (women) or <13 g/dL (men) - actual anemia
-✅ Fasting Glucose ≥100 mg/dL (impaired fasting glucose)
-✅ Random Blood Sugar ≥140 mg/dL (glucose intolerance)
-✅ Creatinine >1.3 mg/dL (kidney dysfunction)
-✅ ALT/AST >40 U/L (liver enzyme elevation)
-✅ Ferritin <30 ng/mL (iron deficiency)
+🔴 The lab's stated reference range is the SOLE determinant of normal vs abnormal
+🔴 NEVER use generic clinical thresholds (ADA, AHA, WHO, KDIGO) to override lab ranges
+🔴 Different labs use different analyzers (Roche, Abbott, Siemens) with different calibrations
+🔴 Each analyzer has lab-specific normal ranges - a value normal in one lab may be abnormal in another
 
-**EXAMPLES OF WHAT TO EXCLUDE (put in normalParameters instead):**
-❌ HbA1c 5.63% with reference "Below 6.0%" → This is NORMAL
-❌ Random Blood Sugar 88 mg/dL (range 70-140) → This is NORMAL
-❌ Hemoglobin 13 g/dL → This is NORMAL, not anemia
-❌ Any value marked as "Normal" by the lab report
-❌ Borderline values within 10% of reference that don't need intervention
-❌ Values that are technically within the stated reference range
+**ALGORITHM - FOLLOW EXACTLY:**
 
-**CRITICAL THRESHOLDS TO APPLY:**
-- HbA1c: <6.0% = Normal (exclude from abnormal)
-- Fasting Glucose: <100 mg/dL = Normal (exclude)
-- Random Glucose: <140 mg/dL = Normal (exclude)
-- Hemoglobin: 11.5-18 g/dL = Normal (exclude)
-- If lab shows value within reference range = EXCLUDE from abnormal
+1. **Extract:** parameter name, value, unit, and lab's reference range from the report
+2. **Parse:** lab's reference range (e.g., "70-110", "<6.0", "11.5-15.5", "Below 6.0%")
+3. **Compare numerically:**
+   - IF (value >= referenceMin AND value <= referenceMax) → status = "normal" → EXCLUDE from abnormalLabs
+   - IF (value < referenceMin OR value > referenceMax) → status = "low"/"high" → INCLUDE in abnormalLabs
+4. **Clinical guidelines:** Use ADA/AHA/KDIGO/WHO ONLY for interpretation text, NOT for determining abnormal status
 
-**RULE:** When in doubt, if the value is within normal limits or doesn't require medical action, put it in normalParameters, NOT abnormalLabs.
+**WHY THIS MATTERS:**
+- Lab in Mumbai may have HbA1c reference "<6.0%" (their analyzer's normal)
+- Lab in Delhi may have HbA1c reference "<5.7%" (their analyzer's normal)
+- HbA1c 5.8% is NORMAL in Mumbai lab but ABNORMAL in Delhi lab
+- Trust each lab's ranges - they calibrate to their specific equipment!
+
+**CONCRETE EXAMPLES:**
+
+✅ **Example 1:** Fasting Glucose 105 mg/dL, Lab range "70.09-110.10"
+   → 105 is WITHIN lab range → status = "normal" → EXCLUDE from abnormalLabs
+   → Add to normalParameters: "Fasting Glucose: 105 mg/dL (70.09-110.10)"
+
+✅ **Example 2:** Fasting Glucose 105 mg/dL, Lab range "60-100"
+   → 105 is OUTSIDE lab range → status = "high" → INCLUDE in abnormalLabs
+   → Can mention "above ADA guidelines" in interpretation, but abnormal status comes from lab range
+
+✅ **Example 3:** HbA1c 5.8%, Lab range "<6.0%"
+   → 5.8 is WITHIN lab range → status = "normal" → EXCLUDE from abnormalLabs
+
+✅ **Example 4:** HbA1c 6.2%, Lab range "<6.0%"
+   → 6.2 is OUTSIDE lab range → status = "high" → INCLUDE in abnormalLabs
+
+✅ **Example 5:** Hemoglobin 13.2 g/dL, Lab range "11.5-15.5"
+   → 13.2 is WITHIN lab range → status = "normal" → EXCLUDE from abnormalLabs
+
+❌ **NEVER DO THIS:**
+- ❌ Don't use "HbA1c <6.0% = always normal" as universal rule
+- ❌ Don't use "Fasting Glucose <100 mg/dL = always normal" as universal rule
+- ❌ Don't use "Hemoglobin 11.5-18 g/dL = always normal" as universal rule
+- ❌ Don't override lab's stated range with generic thresholds
+
+**WHAT TO INCLUDE IN abnormalLabs:**
+✅ Values OUTSIDE the lab's stated reference range
+✅ Values marked "High", "Low", "Critical" by the lab report
+✅ Values with clinically significant deviation from lab's normal
+
+**WHAT TO EXCLUDE (put in normalParameters instead):**
+❌ Values WITHIN the lab's stated reference range
+❌ Values marked "Normal" by the lab report
+❌ Any value where lab says it's in normal range
+
+**GOLDEN RULE:** When lab range and clinical guidelines conflict, ALWAYS trust the lab range for determining abnormal status. Use clinical guidelines only for interpretation and context.
 
 === PATIENT NAME EXTRACTION (MANDATORY) ===
 
