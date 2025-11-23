@@ -406,6 +406,7 @@ export type Database = {
           status: string
           updated_at: string | null
           user_id: string
+          voice_agent_used: boolean | null
         }
         Insert: {
           admin_alerted?: boolean | null
@@ -432,6 +433,7 @@ export type Database = {
           status?: string
           updated_at?: string | null
           user_id: string
+          voice_agent_used?: boolean | null
         }
         Update: {
           admin_alerted?: boolean | null
@@ -458,6 +460,7 @@ export type Database = {
           status?: string
           updated_at?: string | null
           user_id?: string
+          voice_agent_used?: boolean | null
         }
         Relationships: [
           {
@@ -588,6 +591,39 @@ export type Database = {
           phone_number?: string
           verification_code?: string
           verified?: boolean | null
+        }
+        Relationships: []
+      }
+      user_login_events: {
+        Row: {
+          created_at: string | null
+          device_info: string | null
+          id: string
+          ip_address: string | null
+          is_new_user: boolean
+          login_timestamp: string
+          phone_number: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          device_info?: string | null
+          id?: string
+          ip_address?: string | null
+          is_new_user?: boolean
+          login_timestamp?: string
+          phone_number: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          device_info?: string | null
+          id?: string
+          ip_address?: string | null
+          is_new_user?: boolean
+          login_timestamp?: string
+          phone_number?: string
+          user_id?: string | null
         }
         Relationships: []
       }

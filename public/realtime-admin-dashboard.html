@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Real-Time Admin Dashboard - Daigassist</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+    }
+
+    .live-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .pulse-dot {
+      width: 10px;
+      height: 10px;
+      background: #10b981;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.9); }
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+      border-radius: 12px;
+      color: white;
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      opacity: 0.9;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .controls {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .filter-group label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    select, button {
+      padding: 10px 14px;
+      border: 2px solid #e5e5e5;
+      border-radius: 8px;
+      font-size: 14px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    select:hover, select:focus {
+      border-color: #667eea;
+      outline: none;
+    }
+
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    button:hover {
+      background: #5568d3;
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .table-container {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 800px;
+    }
+
+    thead {
+      background: #f8f9fa;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    th {
+      padding: 12px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 700;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid #e5e5e5;
+    }
+
+    td {
+      padding: 14px 12px;
+      font-size: 14px;
+      color: #333;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    tbody tr:hover {
+      background: #f8f9fa;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .badge-login { background: #dbeafe; color: #1e40af; }
+    .badge-analysis { background: #fce7f3; color: #be123c; }
+    .badge-new { background: #dcfce7; color: #15803d; }
+    .badge-old { background: #e5e7eb; color: #4b5563; }
+    .badge-success { background: #d1fae5; color: #065f46; }
+    .badge-failed { background: #fee2e2; color: #991b1b; }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+    }
+
+    .empty-state svg {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 16px;
+      opacity: 0.3;
+    }
+
+    .login-screen {
+      max-width: 400px;
+      margin: 100px auto;
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+
+    .login-screen h2 {
+      margin-bottom: 24px;
+      color: #1a1a1a;
+      text-align: center;
+    }
+
+    .login-screen input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e5e5e5;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    .login-screen input:focus {
+      border-color: #667eea;
+      outline: none;
+    }
+
+    .error-message {
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+
+      .stat-card {
+        padding: 16px;
+      }
+
+      .stat-value {
+        font-size: 24px;
+      }
+
+      .stat-label {
+        font-size: 10px;
+      }
+
+      .filters {
+        grid-template-columns: 1fr;
+      }
+
+      table {
+        font-size: 12px;
+      }
+
+      th, td {
+        padding: 8px 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Screen -->
+  <div id="loginScreen" class="login-screen">
+    <h2>🔐 Admin Login</h2>
+    <div id="loginError" class="error-message" style="display: none;"></div>
+    <input 
+      type="tel" 
+      id="phoneInput" 
+      placeholder="+917993448425" 
+      value="+917993448425"
+    >
+    <input 
+      type="password" 
+      id="passwordInput" 
+      placeholder="Password"
+    >
+    <button onclick="login()" id="loginBtn">
+      Sign In
+    </button>
+  </div>
+
+  <!-- Main Dashboard (hidden by default) -->
+  <div id="mainDashboard" style="display: none;">
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <h1>📊 Real-Time Admin Dashboard</h1>
+        <div class="live-indicator">
+          <div class="pulse-dot"></div>
+          <span id="lastUpdated">Loading...</span>
+          <button onclick="fetchEvents()" style="margin-left: auto; padding: 8px 16px; font-size: 12px;">
+            Refresh Now
+          </button>
+          <button onclick="logout()" style="padding: 8px 16px; font-size: 12px; background: #ef4444;">
+            Logout
+          </button>
+        </div>
+      </div>
+
+      <!-- Statistics -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="statLogins">-</div>
+          <div class="stat-label">Logins Today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statNewCustomers">-</div>
+          <div class="stat-label">New Customers</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statSuccess">-</div>
+          <div class="stat-label">Successful Analyses</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statFailed">-</div>
+          <div class="stat-label">Failed Analyses</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statVoiceRate">-</div>
+          <div class="stat-label">Voice Agent Rate</div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls">
+        <div class="filters">
+          <div class="filter-group">
+            <label>Time Range</label>
+            <select id="timeRangeFilter" onchange="fetchEvents()">
+              <option value="today">Today</option>
+              <option value="week">Last 7 Days</option>
+              <option value="month">Last 30 Days</option>
+              <option value="all">All Time</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Event Type</label>
+            <select id="eventTypeFilter" onchange="fetchEvents()">
+              <option value="all">All Events</option>
+              <option value="login">Login Only</option>
+              <option value="analysis">Analysis Only</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Customer Type</label>
+            <select id="customerTypeFilter" onchange="fetchEvents()">
+              <option value="all">All</option>
+              <option value="new">New</option>
+              <option value="old">Returning</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Analysis Status</label>
+            <select id="analysisStatusFilter" onchange="fetchEvents()">
+              <option value="all">All</option>
+              <option value="success">Success</option>
+              <option value="failed">Failed</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Voice Agent</label>
+            <select id="voiceAgentFilter" onchange="fetchEvents()">
+              <option value="all">All</option>
+              <option value="used">Used</option>
+              <option value="not_used">Not Used</option>
+            </select>
+          </div>
+        </div>
+        <div class="actions">
+          <button onclick="exportToCSV()">📥 Export to CSV</button>
+        </div>
+      </div>
+
+      <!-- Events Table -->
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Date & Time</th>
+              <th>Event Type</th>
+              <th>Phone Number</th>
+              <th>Customer</th>
+              <th>Status</th>
+              <th>Failure Reason</th>
+              <th>Voice Agent</th>
+            </tr>
+          </thead>
+          <tbody id="eventsTableBody">
+            <tr>
+              <td colspan="7" class="empty-state">
+                <div class="loading">
+                  <div class="spinner"></div>
+                  <span>Loading events...</span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://eijdffylunwsusiayxzb.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpamRmZnlsdW53c3VzaWF5eHpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyNzA1NzIsImV4cCI6MjA3Nzg0NjU3Mn0.aEpIylw-Bu5zPUmEnJ1Nkm5xU8SQkUaUCzk6dmxlFMk';
+    
+    let currentToken = localStorage.getItem('admin_token');
+    let autoRefreshInterval;
+
+    // Check if already logged in
+    if (currentToken) {
+      checkAdminRole();
+    }
+
+    async function login() {
+      const phone = document.getElementById('phoneInput').value;
+      const password = document.getElementById('passwordInput').value;
+      const loginBtn = document.getElementById('loginBtn');
+      const errorDiv = document.getElementById('loginError');
+
+      errorDiv.style.display = 'none';
+      loginBtn.disabled = true;
+      loginBtn.innerHTML = '<div class="loading"><div class="spinner"></div><span>Signing in...</span></div>';
+
+      try {
+        // Sign in with phone and password
+        const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            phone: phone,
+            password: password
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.access_token) {
+          throw new Error('Invalid credentials');
+        }
+
+        currentToken = data.access_token;
+        localStorage.setItem('admin_token', currentToken);
+
+        await checkAdminRole();
+      } catch (error) {
+        errorDiv.textContent = error.message || 'Login failed. Please try again.';
+        errorDiv.style.display = 'block';
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Sign In';
+      }
+    }
+
+    async function checkAdminRole() {
+      try {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/check-admin-role`, {
+          headers: {
+            'Authorization': `Bearer ${currentToken}`,
+            'apikey': SUPABASE_ANON_KEY
+          }
+        });
+
+        const data = await response.json();
+
+        if (!data.isAdmin) {
+          throw new Error('Unauthorized. Admin access required.');
+        }
+
+        // Show dashboard
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('mainDashboard').style.display = 'block';
+
+        // Start fetching data
+        fetchEvents();
+        startAutoRefresh();
+      } catch (error) {
+        document.getElementById('loginError').textContent = error.message;
+        document.getElementById('loginError').style.display = 'block';
+        logout();
+      }
+    }
+
+    async function fetchEvents() {
+      const timeRange = document.getElementById('timeRangeFilter').value;
+      const eventType = document.getElementById('eventTypeFilter').value;
+      const customerType = document.getElementById('customerTypeFilter').value;
+      const analysisStatus = document.getElementById('analysisStatusFilter').value;
+      const voiceAgent = document.getElementById('voiceAgentFilter').value;
+
+      try {
+        const params = new URLSearchParams({
+          timeRange,
+          eventType,
+          customerType,
+          analysisStatus,
+          voiceAgent
+        });
+
+        const response = await fetch(
+          `${SUPABASE_URL}/functions/v1/get-realtime-admin-events?${params}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${currentToken}`,
+              'apikey': SUPABASE_ANON_KEY
+            }
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to fetch events');
+        }
+
+        updateStatistics(data.summary);
+        renderEventsTable(data.events);
+        document.getElementById('lastUpdated').textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+      } catch (error) {
+        console.error('Fetch error:', error);
+        document.getElementById('eventsTableBody').innerHTML = `
+          <tr>
+            <td colspan="7" class="empty-state">
+              <p style="color: #991b1b;">❌ ${error.message}</p>
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    function updateStatistics(summary) {
+      document.getElementById('statLogins').textContent = summary.total_logins_today || 0;
+      document.getElementById('statNewCustomers').textContent = summary.new_customers_today || 0;
+      document.getElementById('statSuccess').textContent = summary.successful_analyses_today || 0;
+      document.getElementById('statFailed').textContent = summary.failed_analyses_today || 0;
+      document.getElementById('statVoiceRate').textContent = `${summary.voice_agent_usage_rate || 0}%`;
+    }
+
+    function renderEventsTable(events) {
+      const tbody = document.getElementById('eventsTableBody');
+
+      if (!events || events.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="empty-state">
+              <p>📭 No events found</p>
+              <p style="font-size: 12px; color: #999; margin-top: 8px;">Try adjusting your filters</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = events.map(event => `
+        <tr>
+          <td>${formatDateTime(event.timestamp)}</td>
+          <td>
+            <span class="badge badge-${event.type}">
+              ${event.type === 'login' ? '🔐 Login' : '📊 Analysis'}
+            </span>
+          </td>
+          <td>${event.phone_number || '-'}</td>
+          <td>
+            <span class="badge badge-${event.is_new_user || event.is_new_customer ? 'new' : 'old'}">
+              ${event.is_new_user || event.is_new_customer ? '✨ New' : '🔄 Returning'}
+            </span>
+          </td>
+          <td>${renderStatus(event)}</td>
+          <td>${event.error_message || '-'}</td>
+          <td style="text-align: center;">
+            ${event.type === 'analysis' ? (event.voice_agent_used ? '✅' : '❌') : '-'}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderStatus(event) {
+      if (event.type === 'login') {
+        return '-';
+      }
+      
+      if (event.status === 'completed') {
+        return '<span class="badge badge-success">✓ Success</span>';
+      } else if (event.status === 'failed') {
+        return '<span class="badge badge-failed">✗ Failed</span>';
+      }
+      
+      return `<span class="badge">${event.status}</span>`;
+    }
+
+    function formatDateTime(timestamp) {
+      const date = new Date(timestamp);
+      const today = new Date();
+      const isToday = date.toDateString() === today.toDateString();
+
+      const timeStr = date.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: true 
+      });
+
+      if (isToday) {
+        return `Today, ${timeStr}`;
+      }
+
+      return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+    }
+
+    function exportToCSV() {
+      const table = document.querySelector('table');
+      const rows = Array.from(table.querySelectorAll('tr'));
+      
+      const csv = rows.map(row => {
+        const cells = Array.from(row.querySelectorAll('th, td'));
+        return cells.map(cell => {
+          const text = cell.textContent.trim().replace(/"/g, '""');
+          return `"${text}"`;
+        }).join(',');
+      }).join('\n');
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `daigassist-events-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    }
+
+    function startAutoRefresh() {
+      // Refresh every 30 seconds
+      autoRefreshInterval = setInterval(() => {
+        if (!document.hidden) {
+          fetchEvents();
+        }
+      }, 30000);
+    }
+
+    function logout() {
+      localStorage.removeItem('admin_token');
+      currentToken = null;
+      clearInterval(autoRefreshInterval);
+      document.getElementById('loginScreen').style.display = 'block';
+      document.getElementById('mainDashboard').style.display = 'none';
+      document.getElementById('phoneInput').value = '+917993448425';
+      document.getElementById('passwordInput').value = '';
+    }
+
+    // Stop auto-refresh when page is hidden
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+      } else if (!document.hidden && currentToken) {
+        startAutoRefresh();
+      }
+    });
+  </script>
+</body>
+</html>

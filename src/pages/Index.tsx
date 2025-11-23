@@ -1964,6 +1964,7 @@ RAW DATA: ${baseContext}`;
                 onDownloadReport={handleDownloadEssentialReport}
                 onPreviewReport={handlePreviewReport}
                 onDismiss={handleReset}
+                analysisId={analysisId || undefined}
               />
             ) : (
               <>
@@ -2104,6 +2105,7 @@ RAW DATA: ${baseContext}`;
                             <VoiceFollowUpAgent 
                               analysisData={enhancedData}
                               clinicalAssessmentData={clinicalAssessmentData}
+                              analysisId={analysisId || undefined}
                             />
                           </div>
                         </div>

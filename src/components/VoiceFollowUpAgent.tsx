@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Mic, Loader2, Languages } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,6 +8,7 @@ interface VoiceFollowUpAgentProps {
   analysisData: EnhancedAnalysisResult;
   clinicalAssessmentData: any;
   isMobile?: boolean;
+  analysisId?: string;
 }
 
 interface VoiceContext {
@@ -21,12 +22,14 @@ interface VoiceContext {
 export const VoiceFollowUpAgent = ({ 
   analysisData, 
   clinicalAssessmentData,
-  isMobile = false
+  isMobile = false,
+  analysisId
 }: VoiceFollowUpAgentProps) => {
   const [voiceContext, setVoiceContext] = useState<VoiceContext | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
+  const voiceAgentTracked = useRef(false);
 
   useEffect(() => {
     const prepareContext = async () => {
@@ -130,6 +133,26 @@ export const VoiceFollowUpAgent = ({
     ?.find(panel => panel.abnormalLabs && panel.abnormalLabs.length > 0)
     ?.abnormalLabs[0];
 
+  // Track voice agent usage when component becomes interactive
+  const handleVoiceAgentInteraction = () => {
+    if (!voiceAgentTracked.current && analysisId) {
+      console.log('🎤 Voice agent interaction detected, marking as used');
+      
+      supabase
+        .from('pdf_analyses')
+        .update({ voice_agent_used: true })
+        .eq('id', analysisId)
+        .then(({ error }) => {
+          if (error) {
+            console.error('❌ Failed to track voice agent usage:', error);
+          } else {
+            console.log('✅ Voice agent usage tracked successfully');
+            voiceAgentTracked.current = true;
+          }
+        });
+    }
+  };
+
   return (
     <Card className={`shadow-lg border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10 ${isMobile ? 'mx-4' : ''}`}>
       <CardHeader className={isMobile ? 'p-4' : ''}>
@@ -158,7 +181,11 @@ export const VoiceFollowUpAgent = ({
       </CardHeader>
       
       <CardContent className={`space-y-4 ${isMobile ? 'p-4 pt-0' : ''}`}>
-        <div className={`bg-background rounded-lg ${isMobile ? 'p-3' : 'p-4'} border border-border min-h-[200px]`}>
+        <div 
+          className={`bg-background rounded-lg ${isMobile ? 'p-3' : 'p-4'} border border-border min-h-[200px]`}
+          onClick={handleVoiceAgentInteraction}
+          onFocus={handleVoiceAgentInteraction}
+        >
           <elevenlabs-convai agent-id="agent_7601k9wd9yfje8ta73nd9apejndt" />
         </div>
         

@@ -191,6 +191,27 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
 
       toast.success('Authentication successful!');
       
+      // Determine if this is a new user (profile was just created)
+      const isNewUser = data.is_new_user || false;
+      
+      // Log login event to database for admin dashboard tracking
+      console.log('📊 Logging login event for admin dashboard');
+      const deviceInfo = /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop';
+      
+      supabase.from('user_login_events').insert({
+        user_id: data.user?.id,
+        phone_number: formatPhoneNumber(phoneNumber),
+        is_new_user: isNewUser,
+        device_info: deviceInfo,
+        login_timestamp: new Date().toISOString()
+      }).then(({ error: loginLogError }) => {
+        if (loginLogError) {
+          console.error('❌ Login event logging failed:', loginLogError);
+        } else {
+          console.log('✅ Login event logged successfully');
+        }
+      });
+      
       // Send admin SMS notification for new user sign-in (NON-NEGOTIABLE)
       console.log('📱 FRONTEND: Triggering admin SMS for user sign-in');
       supabase.functions.invoke('send-admin-alert', {
