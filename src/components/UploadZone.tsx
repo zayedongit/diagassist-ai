@@ -246,7 +246,7 @@ export const UploadZone = ({ onFileSelect, onImagesCapture }: UploadZoneProps) =
             {/* PDF Upload Button - Primary */}
             <input
               type="file"
-              accept=".pdf"
+              accept="application/pdf,.pdf"
               onChange={handleFileChange}
               className="hidden"
               id="file-upload"
