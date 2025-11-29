@@ -277,8 +277,11 @@ export const UploadZone = ({ onFileSelect, onImagesCapture }: UploadZoneProps) =
           </div>
           
           <div className={`text-xs text-center px-4 space-y-1 transition-opacity ${isDragOver ? 'opacity-0' : 'opacity-100'}`}>
-            <p style={{color: 'hsl(220, 74%, 42%, 0.7)'}}>
+            <p className="hidden sm:block" style={{color: 'hsl(220, 74%, 42%, 0.7)'}}>
               📄 Drag & drop PDF files here or use the buttons above
+            </p>
+            <p className="sm:hidden" style={{color: 'hsl(220, 74%, 42%, 0.7)'}}>
+              📱 Tap "Upload PDF" to select from WhatsApp, Drive, or Files
             </p>
             <p style={{color: 'hsl(220, 74%, 42%, 0.6)'}}>
               📸 For best results with photos, ensure good lighting and clear text
