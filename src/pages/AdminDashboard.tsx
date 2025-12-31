@@ -230,7 +230,7 @@ export default function AdminDashboard() {
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: `${phoneNumber}@daigassist.app`,
+        email: `${phoneNumber}@diagassist.app`,
         password: password,
       });
 

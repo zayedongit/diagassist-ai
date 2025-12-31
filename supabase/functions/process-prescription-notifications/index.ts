@@ -101,7 +101,7 @@ serve(async (req) => {
         }
 
         // Format message
-        const message = `🏥 DAIGASSIST - Prescription Request
+        const message = `🏥 DIAGASSIST - Prescription Request
 
 Patient: ${patientName}
 Consultation ID: ${notification.consultation_id}
@@ -110,7 +110,7 @@ A prescription has been requested through VRDoc consultation. Please review and 
 
 Log in to your dashboard to manage this request.
 
-- DAIGASSIST Medical Platform`;
+- DIAGASSIST Medical Platform`;
 
         console.log(`Sending SMS to doctor ${doctorData.name} at ${doctorPhone}`);
 

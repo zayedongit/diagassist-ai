@@ -72,7 +72,7 @@ export async function generateEssentialReportPdf(data: ReportData) {
     pdf.setTextColor(255, 255, 255);
     pdf.setFontSize(18);
     pdf.setFont(undefined, 'bold');
-    pdf.text('daigassist-health-ai', pageWidth / 2, 12, { align: 'center' });
+    pdf.text('diagassist-health-ai', pageWidth / 2, 12, { align: 'center' });
     pdf.setFontSize(10);
     pdf.setFont(undefined, 'normal');
     pdf.text('Essential Health Report', pageWidth / 2, 18, { align: 'center' });

@@ -811,7 +811,7 @@ RAW DATA: ${baseContext}`;
     // Show auth prompt after 5 seconds if user is not logged in
     // Give extra time for auth state to load from remembered device
     setTimeout(() => {
-      const isRemembered = localStorage.getItem('daigassist_remember_device') === 'true';
+      const isRemembered = localStorage.getItem('diagassist_remember_device') === 'true';
       // Only show auth prompt if device is not remembered and user is not authenticated
       if (!user && !isRemembered) {
         setShowAuthPrompt(true);
@@ -1426,7 +1426,7 @@ RAW DATA: ${baseContext}`;
       pdf.setTextColor(255, 255, 255);
       pdf.setFontSize(20);
       pdf.setFont(undefined, 'bold');
-      pdf.text('daigassist-health-ai - Analysis Report', pageWidth / 2, 15, { align: 'center' });
+      pdf.text('diagassist-health-ai - Analysis Report', pageWidth / 2, 15, { align: 'center' });
       
       yPosition = 35;
 

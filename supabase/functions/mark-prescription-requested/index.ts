@@ -77,7 +77,7 @@ serve(async (req) => {
       const TWILIO_PHONE_NUMBER = Deno.env.get('TWILIO_PHONE_NUMBER');
 
       if (TWILIO_ACCOUNT_SID && TWILIO_AUTH_TOKEN && TWILIO_PHONE_NUMBER) {
-        const message = `🏥 DAIGASSIST - Prescription Request
+        const message = `🏥 DIAGASSIST - Prescription Request
 
 Patient: ${patient_name || 'Patient'}
 Consultation ID: ${consultation_id}
@@ -86,7 +86,7 @@ A prescription has been requested through VRDoc consultation. Please review and 
 
 Log in to your dashboard to manage this request.
 
-- DAIGASSIST Medical Platform`;
+- DIAGASSIST Medical Platform`;
 
         try {
           const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
