@@ -33,14 +33,14 @@ serve(async (req) => {
     let message: string;
     
     if (status === 'success') {
-      message = `✅ Daigassist Analysis
+      message = `✅ Diagassist Analysis
 Name: ${patientName || 'Unknown'}
 Analysis: Successful
 Reason: Report generated`;
     } else {
       // Extract first 60 chars of error for brevity
       const shortError = error?.substring(0, 60) || 'Unknown error';
-      message = `❌ Daigassist Analysis
+      message = `❌ Diagassist Analysis
 Name: ${patientName || 'Unknown'}
 Analysis: Failed
 Reason: ${shortError}`;

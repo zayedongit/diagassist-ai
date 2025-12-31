@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Real-Time Admin Dashboard - Daigassist</title>
+  <title>Real-Time Admin Dashboard - Diagassist</title>
   <style>
     * {
       margin: 0;
@@ -697,7 +697,7 @@
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `daigassist-events-${new Date().toISOString().split('T')[0]}.csv`;
+      a.download = `diagassist-events-${new Date().toISOString().split('T')[0]}.csv`;
       a.click();
       window.URL.revokeObjectURL(url);
     }

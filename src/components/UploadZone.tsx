@@ -20,8 +20,8 @@ export const UploadZone = ({ onFileSelect, onImagesCapture }: UploadZoneProps) =
   const { isAuthenticated, user } = useAuth();
 
   // Check if device is remembered
-  const isRememberedDevice = localStorage.getItem('daigassist_remember_device') === 'true';
-  const lastLogin = localStorage.getItem('daigassist_last_login');
+  const isRememberedDevice = localStorage.getItem('diagassist_remember_device') === 'true';
+  const lastLogin = localStorage.getItem('diagassist_last_login');
 
   // BYPASS AUTH FOR TESTING - Set to true to re-enable auth before deployment
   // Authentication is now MANDATORY for upload
