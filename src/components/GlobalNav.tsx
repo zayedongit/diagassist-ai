@@ -33,7 +33,7 @@ export const GlobalNav = ({ theme = 'dark' }: GlobalNavProps) => {
           }}
           className={`text-lg sm:text-xl md:text-2xl font-poppins font-bold hover:opacity-80 transition-opacity ${textColor}`}
         >
-          Daigassist
+          Diagassist
         </button>
         
         <button
