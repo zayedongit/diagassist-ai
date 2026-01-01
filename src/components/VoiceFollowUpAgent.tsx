@@ -186,7 +186,10 @@ export const VoiceFollowUpAgent = ({
           onClick={handleVoiceAgentInteraction}
           onFocus={handleVoiceAgentInteraction}
         >
-          <elevenlabs-convai agent-id="agent_7601k9wd9yfje8ta73nd9apejndt" />
+          <elevenlabs-convai 
+            agent-id="agent_7601k9wd9yfje8ta73nd9apejndt"
+            dynamic-variables={JSON.stringify(voiceContext)}
+          />
         </div>
         
         <div className={`${isMobile ? 'text-[11px]' : 'text-xs'} text-muted-foreground space-y-2`}>
