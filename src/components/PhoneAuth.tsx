@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Phone, Lock, CheckCircle, Shield } from 'lucide-react';
+import { Loader2, Phone, Lock, CheckCircle, Shield, ExternalLink, FileText } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
@@ -38,6 +38,8 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
   const [error, setError] = useState<string | null>(null);
   const [resendTimer, setResendTimer] = useState(0);
   const [rememberDevice, setRememberDevice] = useState(true); // Default to true for convenience
+  const [termsClicked, setTermsClicked] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   // Check if device is already remembered on mount and auto-authenticate
   useEffect(() => {
@@ -402,9 +404,66 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
               </div>
             </div>
 
+            {/* Terms and Conditions Section */}
+            <div className="space-y-3 p-4 bg-muted/50 rounded-lg border border-border">
+              <div className="flex items-start gap-3">
+                <FileText className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <p className="text-sm font-medium text-foreground">
+                    Important: Please read our Terms and Conditions
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      window.open('/terms', '_blank');
+                      setTermsClicked(true);
+                    }}
+                    className="flex items-center gap-2 text-sm text-primary hover:underline font-medium"
+                  >
+                    <span>PredLabs - Terms and Conditions for AI Medical Report Interpretation Service</span>
+                    <ExternalLink className="w-4 h-4" />
+                  </button>
+                  {termsClicked && (
+                    <div className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400">
+                      <CheckCircle className="w-3 h-3" />
+                      <span>Terms opened</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {termsClicked && (
+                <div className="flex items-start space-x-3 pt-2 border-t border-border mt-2">
+                  <Checkbox
+                    id="termsAccepted"
+                    checked={termsAccepted}
+                    onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
+                    disabled={loading}
+                    className="mt-0.5"
+                  />
+                  <div className="flex-1">
+                    <Label 
+                      htmlFor="termsAccepted" 
+                      className="text-sm font-medium leading-tight cursor-pointer"
+                    >
+                      I have read and agree to the Terms and Conditions
+                    </Label>
+                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                      By continuing, I acknowledge that:
+                    </p>
+                    <ul className="text-xs text-muted-foreground mt-1 space-y-0.5 list-disc list-inside">
+                      <li>Reports are for informational purposes only</li>
+                      <li>Reports cannot be used as medicolegal documents</li>
+                      <li>This does not replace professional medical advice</li>
+                    </ul>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <Button 
               onClick={sendOTP} 
-              disabled={loading || !phoneNumber || !firstName.trim()}
+              disabled={loading || !phoneNumber || !firstName.trim() || !termsAccepted}
               className="w-full"
               size="lg"
             >
@@ -417,6 +476,15 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
                 'Send OTP'
               )}
             </Button>
+
+            {!termsAccepted && (
+              <p className="text-xs text-center text-muted-foreground">
+                {!termsClicked 
+                  ? 'Please click the link above to read the Terms and Conditions'
+                  : 'Please check the box to agree to the Terms and Conditions'
+                }
+              </p>
+            )}
           </div>
         ) : (
           <div className="space-y-4">
