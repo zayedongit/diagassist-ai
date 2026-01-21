@@ -5,10 +5,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Phone, Lock, CheckCircle, Shield, ExternalLink, FileText } from 'lucide-react';
+import { Loader2, Phone, Lock, CheckCircle, Shield, FileText, ScrollText } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface PhoneAuthProps {
   onAuthSuccess: (user: any, session: any) => void;
@@ -40,6 +42,7 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
   const [rememberDevice, setRememberDevice] = useState(true); // Default to true for convenience
   const [termsClicked, setTermsClicked] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [showTermsDialog, setShowTermsDialog] = useState(false);
 
   // Check if device is already remembered on mount and auto-authenticate
   useEffect(() => {
@@ -415,18 +418,17 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
                   <button
                     type="button"
                     onClick={() => {
-                      window.open('/terms', '_blank');
-                      setTermsClicked(true);
+                      setShowTermsDialog(true);
                     }}
                     className="flex items-center gap-2 text-sm text-primary hover:underline font-medium"
                   >
+                    <ScrollText className="w-4 h-4" />
                     <span>PredLabs - Terms and Conditions for AI Medical Report Interpretation Service</span>
-                    <ExternalLink className="w-4 h-4" />
                   </button>
                   {termsClicked && (
                     <div className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400">
                       <CheckCircle className="w-3 h-3" />
-                      <span>Terms opened</span>
+                      <span>Terms reviewed</span>
                     </div>
                   )}
                 </div>
@@ -460,6 +462,136 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
                 </div>
               )}
             </div>
+
+            {/* Terms Dialog */}
+            <Dialog open={showTermsDialog} onOpenChange={setShowTermsDialog}>
+              <DialogContent className="max-w-3xl max-h-[85vh] p-0">
+                <DialogHeader className="p-6 pb-0">
+                  <DialogTitle className="text-xl font-bold">
+                    PredLabs - Terms and Conditions
+                  </DialogTitle>
+                  <p className="text-sm text-muted-foreground">
+                    For AI Medical Report Interpretation Service
+                  </p>
+                </DialogHeader>
+                <ScrollArea className="h-[60vh] px-6">
+                  <div className="space-y-6 pb-6">
+                    <p className="text-xs text-muted-foreground">Last Updated: 25/12/2025</p>
+                    
+                    <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3">
+                      <p className="text-xs font-medium text-destructive">
+                        PLEASE READ THESE TERMS AND CONDITIONS CAREFULLY. BY ACCESSING OR USING OUR AI MEDICAL REPORT 
+                        INTERPRETATION SERVICE, YOU ACKNOWLEDGE THAT YOU HAVE READ, UNDERSTOOD, AND AGREE TO BE BOUND 
+                        BY THESE TERMS.
+                      </p>
+                    </div>
+
+                    {/* Section 1 */}
+                    <section>
+                      <h3 className="text-base font-semibold mb-2">1. Nature of the Service</h3>
+                      <div className="space-y-2 pl-3 text-sm text-muted-foreground">
+                        <p><strong>1.1</strong> The AI-powered medical report interpretation provided by PredLabs is intended solely for general informational and educational purposes.</p>
+                        <p><strong>1.2</strong> PredLabs is not a licensed healthcare provider, medical institution, diagnostic laboratory, or clinical facility.</p>
+                      </div>
+                    </section>
+
+                    {/* Section 2 */}
+                    <section>
+                      <h3 className="text-base font-semibold mb-2">2. Critical Disclaimers</h3>
+                      <div className="space-y-2 pl-3">
+                        <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded p-2">
+                          <p className="text-xs text-amber-700 dark:text-amber-300">
+                            <strong>2.1</strong> The interpretations provided are NOT a substitute for professional medical advice, diagnosis, or treatment.
+                          </p>
+                        </div>
+                        <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded p-2">
+                          <p className="text-xs text-amber-700 dark:text-amber-300">
+                            <strong>2.2</strong> The Service does NOT diagnose, treat, cure, or prevent any disease or health condition.
+                          </p>
+                        </div>
+                        <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded p-2">
+                          <p className="text-xs text-amber-700 dark:text-amber-300">
+                            <strong>2.3</strong> For any health concerns, you MUST consult with a qualified and licensed healthcare professional.
+                          </p>
+                        </div>
+                      </div>
+                    </section>
+
+                    {/* Section 3 */}
+                    <section>
+                      <h3 className="text-base font-semibold mb-2">3. Accuracy Disclaimer</h3>
+                      <div className="space-y-2 pl-3 text-sm text-muted-foreground">
+                        <p><strong>3.1</strong> PredLabs makes NO REPRESENTATIONS OR WARRANTIES regarding the accuracy, completeness, reliability of AI-generated interpretations.</p>
+                        <p><strong>3.2</strong> The Service is provided on an "AS IS" and "AS AVAILABLE" basis without any warranties.</p>
+                        <p><strong>3.3</strong> It is YOUR responsibility to verify ANY information with a qualified healthcare professional.</p>
+                      </div>
+                    </section>
+
+                    {/* Section 4 */}
+                    <section>
+                      <h3 className="text-base font-semibold mb-2">4. Limitation of Liability</h3>
+                      <div className="space-y-2 pl-3 text-sm text-muted-foreground">
+                        <p><strong>4.1</strong> TO THE FULLEST EXTENT PERMITTED BY LAW, PREDLABS SHALL NOT BE LIABLE FOR ANY DAMAGES ARISING FROM YOUR USE OF THE SERVICE.</p>
+                        <p><strong>4.2</strong> You assume full responsibility for any outcomes based on information provided by the Service.</p>
+                        <p><strong>4.3</strong> You agree to indemnify and hold harmless PredLabs from any claims arising from your use of the Service.</p>
+                      </div>
+                    </section>
+
+                    {/* Section 5 - Critical */}
+                    <section>
+                      <h3 className="text-base font-semibold mb-2 text-destructive">5. Prohibition on Legal & Regulatory Use</h3>
+                      <div className="space-y-2 pl-3">
+                        <div className="bg-destructive/10 border border-destructive/30 rounded p-2">
+                          <p className="text-xs text-destructive/90">
+                            <strong>5.1</strong> THE INTERPRETATIONS GENERATED BY THIS SERVICE ARE EXPLICITLY NOT INTENDED AND SHALL NOT BE USED AS MEDICOLEGAL DOCUMENTS.
+                          </p>
+                        </div>
+                        <div className="bg-destructive/10 border border-destructive/30 rounded p-2">
+                          <p className="text-xs text-destructive/90">
+                            <strong>5.2</strong> You expressly agree NOT to use any output in connection with any court case, tribunal, arbitration, insurance claim, or any legal matter.
+                          </p>
+                        </div>
+                        <div className="bg-destructive/10 border border-destructive/30 rounded p-2">
+                          <p className="text-xs text-destructive/90">
+                            <strong>5.3</strong> The Service does not provide certified, validated, or officially recognized medical interpretations.
+                          </p>
+                        </div>
+                      </div>
+                    </section>
+
+                    {/* Section 6 */}
+                    <section>
+                      <h3 className="text-base font-semibold mb-2">6. General Provisions</h3>
+                      <div className="space-y-2 pl-3 text-sm text-muted-foreground">
+                        <p><strong>6.1</strong> PredLabs reserves the right to modify these Terms at any time.</p>
+                        <p><strong>6.2</strong> These Terms shall be governed by the laws of India.</p>
+                        <p><strong>6.3</strong> If any provision is found unenforceable, remaining provisions remain in effect.</p>
+                        <p><strong>6.4</strong> These Terms constitute the entire agreement between you and PredLabs.</p>
+                      </div>
+                    </section>
+
+                    {/* Acknowledgment */}
+                    <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
+                      <p className="text-xs text-muted-foreground">
+                        BY CLICKING "I AGREE" OR BY USING THIS SERVICE, YOU ACKNOWLEDGE THAT YOU HAVE READ THESE 
+                        TERMS AND CONDITIONS, UNDERSTAND THEM, AND AGREE TO BE BOUND BY THEM.
+                      </p>
+                    </div>
+                  </div>
+                </ScrollArea>
+                <div className="p-4 border-t">
+                  <Button 
+                    onClick={() => {
+                      setTermsClicked(true);
+                      setShowTermsDialog(false);
+                    }}
+                    className="w-full"
+                  >
+                    I Have Read the Terms
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
 
             <Button 
               onClick={sendOTP} 
