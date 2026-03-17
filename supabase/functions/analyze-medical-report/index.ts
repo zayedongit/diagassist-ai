@@ -286,6 +286,65 @@ function checkIfValueWithinRange(value: number, referenceRange: string): boolean
     // Normalize the reference range string
     const normalized = referenceRange.toLowerCase().trim();
     
+    // Handle gender-specific ranges - extract ALL numeric ranges and check if value fits any
+    // e.g., "Male 8-42 Female 6-27" or "Males: 0.62 – 1.10 Females: 0.45– 0.75"
+    const hasGenderSpecific = /(?:male|female|men|women)/i.test(referenceRange);
+    if (hasGenderSpecific) {
+      // Extract all numeric ranges from the string
+      const rangeMatches = referenceRange.match(/(\d+\.?\d*)\s*[-–—]\s*(\d+\.?\d*)/g);
+      if (rangeMatches && rangeMatches.length > 0) {
+        // Check if value falls within ANY of the gender-specific ranges
+        for (const rangeStr of rangeMatches) {
+          const parts = rangeStr.split(/[-–—]/).map(p => parseFloat(p.trim()));
+          if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+            const min = Math.min(parts[0], parts[1]);
+            const max = Math.max(parts[0], parts[1]);
+            if (value >= min && value <= max) {
+              console.log(`🔍 Gender range check: ${min} <= ${value} <= ${max} = true`);
+              return true;
+            }
+          }
+        }
+        console.log(`🔍 Gender range check: ${value} not in any gender range = false`);
+        return false;
+      }
+    }
+    
+    // Handle complex multi-category ranges like "Non-Diabetic ≤100 Pre-Diabetic: 100-125 Diabetic: >126"
+    // or "Desirable: <200 Borderline: 200-239 High: >240"
+    const hasCategories = /(?:non.?diabetic|pre.?diabetic|diabetic|desirable|borderline|normal|high|low|moderate|risk|optimal)/i.test(referenceRange);
+    if (hasCategories) {
+      // Look for the "normal" category range
+      const normalPatterns = [
+        /(?:non.?diabetic|normal|desirable|optimal|low.?risk)[^0-9]*[≤<]?\s*(\d+\.?\d*)/i,
+        /(?:non.?diabetic|normal|desirable|optimal)[^0-9]*(\d+\.?\d*)\s*[-–—]\s*(\d+\.?\d*)/i,
+      ];
+      
+      for (const pattern of normalPatterns) {
+        const match = referenceRange.match(pattern);
+        if (match) {
+          if (match[2]) {
+            // Range format: min-max
+            const min = parseFloat(match[1]);
+            const max = parseFloat(match[2]);
+            if (!isNaN(min) && !isNaN(max)) {
+              const result = value >= min && value <= max;
+              console.log(`🔍 Category range check: ${min} <= ${value} <= ${max} = ${result}`);
+              return result;
+            }
+          } else {
+            // Single value: ≤ max
+            const max = parseFloat(match[1]);
+            if (!isNaN(max)) {
+              const result = value <= max;
+              console.log(`🔍 Category upper limit check: ${value} <= ${max} = ${result}`);
+              return result;
+            }
+          }
+        }
+      }
+    }
+    
     // Remove common text prefixes
     let range = normalized
       .replace(/below/g, '<')
@@ -324,17 +383,15 @@ function checkIfValueWithinRange(value: number, referenceRange: string): boolean
     }
     
     // Handle "X-Y" format (e.g., "70-110", "11.5 - 15.5", "70.09-110.10")
-    if (cleanRange.includes('-')) {
-      // Make sure it's not a negative number
-      const parts = cleanRange.split('-').filter(p => p.length > 0);
-      if (parts.length >= 2) {
-        const min = parseFloat(parts[0]);
-        const max = parseFloat(parts[parts.length - 1]);
-        if (!isNaN(min) && !isNaN(max)) {
-          const result = value >= min && value <= max;
-          console.log(`🔍 Range check: ${min} <= ${value} <= ${max} = ${result}`);
-          return result;
-        }
+    // Use a smarter approach to avoid confusing negative numbers with ranges
+    const rangeMatch = range.match(/(\d+\.?\d*)\s*[-–—]\s*(\d+\.?\d*)/);
+    if (rangeMatch) {
+      const min = parseFloat(rangeMatch[1]);
+      const max = parseFloat(rangeMatch[2]);
+      if (!isNaN(min) && !isNaN(max)) {
+        const result = value >= min && value <= max;
+        console.log(`🔍 Range check: ${min} <= ${value} <= ${max} = ${result}`);
+        return result;
       }
     }
     
