@@ -71,8 +71,6 @@ function validateClinicalData(analysisResult: any): any {
     return analysisResult;
   }
 
-  let totalValidAbnormalities = 0;
-
   // Minimal validation - only remove obviously invalid data
   analysisResult.medicalPanels = analysisResult.medicalPanels.filter((panel: any) => {
     // Remove any "Additional Findings" panels
@@ -97,16 +95,7 @@ function validateClinicalData(analysisResult: any): any {
           return false;
         }
 
-        // MINIMAL VALIDATION - Only filter out obviously invalid entries
-        // Medical significance filter will handle clinical appropriateness later
-        const labName = lab.name.toLowerCase();
-        
         console.log(`✅ Keeping ${lab.name}: ${lab.value} for medical significance filter`);
-        return true;
-
-        // Trust AI for all other parameters - preserve abnormal findings
-        console.log('✅ Preserving abnormal parameter (AI determined):', lab.name, lab.value);
-        totalValidAbnormalities++;
         return true;
       });
     }
@@ -118,6 +107,13 @@ function validateClinicalData(analysisResult: any): any {
     }
     return hasAbnormalLabs;
   });
+
+  // Count ACTUAL remaining abnormal values after filtering
+  let totalValidAbnormalities = 0;
+  for (const panel of analysisResult.medicalPanels) {
+    totalValidAbnormalities += (panel.abnormalLabs?.length || 0);
+  }
+  console.log(`📊 Total valid abnormalities after filtering: ${totalValidAbnormalities}`);
 
   // Enhanced critical condition detection and summary validation
   let criticalConditions: string[] = [];
