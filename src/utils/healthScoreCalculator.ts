@@ -34,11 +34,26 @@ export interface HealthScoreBreakdown {
 
 // Helper function to get lab value - check ALL labs, not just abnormalLabs
 const getLabValue = (analysisData: EnhancedAnalysisResult, possibleNames: string[]): number | null => {
+  // Helper: check if a lab name matches any of the possible names using word-boundary-aware matching
+  const isNameMatch = (labName: string, searchNames: string[]): boolean => {
+    const lower = labName.toLowerCase();
+    return searchNames.some(name => {
+      const searchLower = name.toLowerCase();
+      // For short terms (≤3 chars like "alt", "ast", "bun"), require word boundary or exact segment match
+      if (searchLower.length <= 3) {
+        // Match as standalone word or within parentheses/slashes
+        const wordBoundaryRegex = new RegExp(`(?:^|[\\s(/,])${searchLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:$|[\\s)/,])`, 'i');
+        return wordBoundaryRegex.test(` ${lower} `);
+      }
+      return lower.includes(searchLower);
+    });
+  };
+
   // Check medicalPanels - look in BOTH abnormalLabs AND normalParameters
   for (const panel of analysisData.medicalPanels || []) {
     // Check abnormal labs first
     for (const lab of panel.abnormalLabs || []) {
-      if (possibleNames.some(name => lab.name.toLowerCase().includes(name.toLowerCase()))) {
+      if (isNameMatch(lab.name, possibleNames)) {
         const value = parseFloat(lab.value);
         if (!isNaN(value)) {
           console.log(`[HEALTH SCORE] Found ${possibleNames[0]}: ${value} in abnormalLabs`);
@@ -50,16 +65,24 @@ const getLabValue = (analysisData: EnhancedAnalysisResult, possibleNames: string
     // Also check normalParameters if they contain values
     if (panel.normalParameters) {
       for (const paramStr of panel.normalParameters) {
-        for (const name of possibleNames) {
-          if (paramStr.toLowerCase().includes(name.toLowerCase())) {
-            // Extract value from string like "HbA1c: 5.63 %" or "Hemoglobin: 13 g/dL"
-            const valueMatch = paramStr.match(/(\d+\.?\d*)/);
-            if (valueMatch) {
-              const value = parseFloat(valueMatch[1]);
-              if (!isNaN(value)) {
-                console.log(`[HEALTH SCORE] Found ${name}: ${value} in normalParameters`);
-                return value;
-              }
+        if (isNameMatch(paramStr, possibleNames)) {
+          // Extract value from string like "HbA1c: 5.63 %" or "Hemoglobin: 13 g/dL"
+          // Look for value after colon to avoid matching reference range numbers
+          const colonMatch = paramStr.match(/:\s*(\d+\.?\d*)/);
+          if (colonMatch) {
+            const value = parseFloat(colonMatch[1]);
+            if (!isNaN(value)) {
+              console.log(`[HEALTH SCORE] Found ${possibleNames[0]}: ${value} in normalParameters (after colon)`);
+              return value;
+            }
+          }
+          // Fallback to first number
+          const valueMatch = paramStr.match(/(\d+\.?\d*)/);
+          if (valueMatch) {
+            const value = parseFloat(valueMatch[1]);
+            if (!isNaN(value)) {
+              console.log(`[HEALTH SCORE] Found ${possibleNames[0]}: ${value} in normalParameters (fallback)`);
+              return value;
             }
           }
         }
@@ -70,7 +93,7 @@ const getLabValue = (analysisData: EnhancedAnalysisResult, possibleNames: string
   // Check legacy labs field
   if (analysisData.labs) {
     for (const lab of analysisData.labs) {
-      if (possibleNames.some(name => lab.name.toLowerCase().includes(name.toLowerCase()))) {
+      if (isNameMatch(lab.name, possibleNames)) {
         const value = parseFloat(lab.value);
         if (!isNaN(value)) {
           console.log(`[HEALTH SCORE] Found ${possibleNames[0]}: ${value} in legacy labs`);
