@@ -1,73 +1,37 @@
-# Welcome to your Lovable project
+# Diagassist AI
 
-## Project info
+AI-powered medical report analysis. Upload a lab or diagnostic report and get clear,
+easy-to-understand insights — health scores, risk predictions, flagged abnormal values,
+downloadable PDF reports, and an AI assistant for follow-up questions.
 
-**URL**: https://lovable.dev/projects/c5b577a5-47b5-4187-839d-9002df8a0acd
+## Tech stack
 
-## How can I edit this code?
+- **Frontend:** React + TypeScript + Vite
+- **Styling:** Tailwind CSS + shadcn/ui
+- **Backend:** Supabase (Postgres, Auth, Storage, Edge Functions)
+- **AI:** OpenAI (GPT-4o / GPT-4o-mini)
 
-There are several ways of editing your application.
+## Running locally
 
-**Use Lovable**
+Requires Node.js and npm.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/c5b577a5-47b5-4187-839d-9002df8a0acd) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```bash
+npm install       # install dependencies
+npm run dev       # start the dev server at http://localhost:8080
 ```
 
-**Edit a file directly in GitHub**
+Copy `.env.example` to `.env` and fill in your Supabase project values:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```
+VITE_SUPABASE_PROJECT_ID="..."
+VITE_SUPABASE_PUBLISHABLE_KEY="..."
+VITE_SUPABASE_URL="https://<your-project>.supabase.co"
+```
 
-**Use GitHub Codespaces**
+## Project structure
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/c5b577a5-47b5-4187-839d-9002df8a0acd) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- `src/pages` — top-level screens
+- `src/components` — UI components
+- `src/utils` — analysis, scoring, and PDF-generation logic
+- `supabase/functions` — backend edge functions (AI analysis, auth, notifications)
+- `supabase/migrations` — database schema

@@ -62,6 +62,28 @@ import { ExportToDriveDialog } from '@/components/ExportToDriveDialog';
 
 
 const Index = () => {
+  const marbleRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    let raf = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        if (marbleRef.current) {
+          marbleRef.current.style.backgroundPositionY = `${window.scrollY * 0.05}px`;
+        }
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => { window.removeEventListener('scroll', onScroll); cancelAnimationFrame(raf); };
+  }, []);
+
+  useEffect(() => {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    document.querySelectorAll('.reveal-on-scroll').forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
   const navigate = useNavigate();
   const { user } = useAuth();
   const isMobile = useIsMobile();
@@ -1687,7 +1709,35 @@ RAW DATA: ${baseContext}`;
   };
 
   return (
-    <div className="min-h-screen bg-coolGray font-inter">
+    <div className="min-h-screen bg-transparent font-inter">
+      <div className="site-marble" aria-hidden="true" ref={marbleRef}>
+        <span className="marble-sheen" />
+        <span className="marble-blob marble-blob--1" />
+        <span className="marble-blob marble-blob--2" />
+        <span className="marble-blob marble-blob--3" />
+        <span className="marble-blob marble-blob--4" />
+        <span className="marble-blob marble-blob--5" />
+        <span className="orb orb--1" />
+        <span className="orb orb--2" />
+        <span className="orb orb--3" />
+        <span className="orb orb--4" />
+        <span className="orb orb--5" />
+        <span className="orb orb--6" />
+        <span className="orb orb--7" />
+        <span className="orb orb--8" />
+        <span className="orb orb--9" />
+        <span className="orb orb--10" />
+        <span className="orb orb--11" />
+        <span className="orb orb--12" />
+        <span className="orb orb--13" />
+        <span className="orb orb--14" />
+        <span className="orb orb--15" />
+        <span className="orb orb--16" />
+        <span className="orb orb--17" />
+        <span className="orb orb--18" />
+        <span className="orb orb--19" />
+        <span className="orb orb--20" />
+      </div>
       {/* Global Navigation */}
       <GlobalNav theme="dark" />
 
@@ -1695,36 +1745,16 @@ RAW DATA: ${baseContext}`;
         {/* 2. HERO SECTION - Premium Futuristic with Video Background */}
         {!selectedFile && !showResults && !error && (
           <>
-            <section className="relative min-h-screen flex items-end justify-center overflow-hidden pb-20 sm:pb-24 md:pb-32 lg:pb-40">
+            <section className="relative min-h-screen flex items-center justify-center overflow-hidden py-24">
               {/* Full-width Background Video with Parallax */}
-              <div className="absolute inset-0 z-0 overflow-hidden bg-gradient-to-br from-navy to-slate">
-                <video
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  preload="metadata"
-                  className="absolute top-0 left-0 w-full h-full object-cover transform scale-105 transition-transform duration-[10000ms] ease-out opacity-0 animate-fade-in"
-                  style={{ 
-                    willChange: 'transform',
-                    filter: 'brightness(1.2) contrast(1.1)',
-                    animationDelay: '0.3s',
-                    animationFillMode: 'forwards'
-                  }}
-                  onLoadedData={(e) => {
-                    const video = e.target as HTMLVideoElement;
-                    video.style.opacity = '1';
-                  }}
-                >
-                  <source src="/hero-video.mp4" type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
+              <div className="absolute inset-0 z-0 overflow-hidden">
+                
                 
                 {/* Lighter Semi-transparent Dark Gradient Overlay for better video visibility */}
                 <div 
                   className="absolute inset-0 z-10"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(14, 27, 44, 0.45) 0%, rgba(10, 31, 61, 0.35) 50%, rgba(6, 15, 30, 0.45) 100%)'
+                    background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.45) 50%, rgba(0, 0, 0, 0.7) 100%)'
                   }}
                 />
               </div>
@@ -1734,14 +1764,14 @@ RAW DATA: ${baseContext}`;
                 <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8 md:space-y-10 animate-fade-up">
                   
                   {/* Headline - Mobile Optimized */}
-                  <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-poppins font-bold text-white leading-tight opacity-0 animate-fade-in px-2" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
-                    Revolutionizing Medical Report
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-poppins font-light text-white leading-tight tracking-tight opacity-0 animate-fade-in px-2" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
+                    Understand your medical reports
                   </h1>
+                  <p className="text-sm sm:text-base md:text-lg text-white/60 font-inter max-w-2xl mx-auto leading-relaxed opacity-0 animate-fade-in px-2 pt-4" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
+                    Upload a lab report and get an AI breakdown — health score, risk predictions, and a personalized 30-day plan.
+                  </p>
                   
                   {/* Tagline - Mobile Optimized */}
-                  <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-100 font-inter font-bold tracking-wide opacity-0 animate-fade-in px-2 pt-4 sm:pt-6" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
-                    Guided by Science. Driven by Compassion.
-                  </p>
                   
                   {/* CTA Buttons - Mobile Optimized */}
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 md:gap-6 pt-6 sm:pt-8 md:pt-10 opacity-0 animate-fade-in px-2" style={{ animationDelay: '0.8s', animationFillMode: 'forwards' }}>
@@ -1753,17 +1783,17 @@ RAW DATA: ${baseContext}`;
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)';
-                        e.currentTarget.style.boxShadow = '0 8px 40px rgba(0, 209, 209, 0.5)';
+                        e.currentTarget.style.boxShadow = '0 8px 40px rgba(255, 255, 255, 0.18)';
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
-                        e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 209, 209, 0.3)';
+                        e.currentTarget.style.boxShadow = '0 8px 32px rgba(255, 255, 255, 0.10)';
                       }}
-                      className="group relative px-5 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 rounded-full font-poppins font-semibold text-sm sm:text-base text-white transition-all duration-400 hover:scale-105 active:scale-95 w-full sm:w-auto overflow-hidden backdrop-blur-lg"
+                      className="group relative px-5 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 rounded-full font-poppins font-light text-sm sm:text-base text-white transition-all duration-400 hover:scale-105 active:scale-95 w-full sm:w-auto overflow-hidden backdrop-blur-lg"
                       style={{ 
                         background: 'rgba(255, 255, 255, 0.15)',
                         border: '1px solid rgba(255, 255, 255, 0.3)',
-                        boxShadow: '0 8px 32px rgba(0, 209, 209, 0.3)'
+                        boxShadow: '0 8px 32px rgba(255, 255, 255, 0.10)'
                       }}
                     >
                       <span className="flex items-center justify-center gap-2 relative z-10">
@@ -1785,21 +1815,21 @@ RAW DATA: ${baseContext}`;
               
               {/* Scroll indicator with glow */}
               <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 animate-bounce opacity-60">
-                <div className="w-6 h-10 border-2 border-cyan-400/60 rounded-full flex items-start justify-center p-2" style={{ boxShadow: '0 0 20px rgba(0, 209, 209, 0.4)' }}>
-                  <div className="w-1 h-2 bg-cyan-400 rounded-full animate-pulse" />
+                <div className="w-6 h-10 border-2 border-white/40 rounded-full flex items-start justify-center p-2" style={{ boxShadow: '0 0 20px rgba(255, 255, 255, 0.15)' }}>
+                  <div className="w-1 h-2 bg-white/80 rounded-full animate-pulse" />
                 </div>
               </div>
             </section>
 
             {/* 3. HOW IT WORKS - Compact Flow */}
-            <section id="how-it-works" className="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-white to-gray-50">
+            <section id="how-it-works" className="py-12 sm:py-16 md:py-20 bg-transparent">
               <div className="container mx-auto px-4 sm:px-6">
                 {/* Header */}
-                <div className="text-center mb-10 sm:mb-12 space-y-3">
-                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-bold text-navy">
+                <div className="reveal-on-scroll text-center mb-10 sm:mb-12 space-y-3">
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-light text-white">
                     How It Works
                   </h2>
-                  <p className="text-slate text-sm sm:text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
+                  <p className="text-white/70 text-sm sm:text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
                     Your medical data deserves more than numbers — it deserves understanding.
                     Our intelligent system analyzes your reports, interprets results, and builds a personalized 30-day roadmap toward better health and lasting wellness.
                   </p>
@@ -1807,92 +1837,92 @@ RAW DATA: ${baseContext}`;
                 
                 {/* Compact Flow - Horizontal on Desktop, Vertical on Mobile */}
                 <div className="max-w-5xl mx-auto">
-                  <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-12">
+                  <div className="reveal-on-scroll flex flex-col md:flex-row items-center justify-between gap-4 mb-12">
                     {/* Step 1: Upload */}
                     <div className="flex flex-col items-center text-center space-y-2 flex-1">
-                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center backdrop-blur-lg bg-gradient-to-br from-cyan-400/20 to-blue-500/20 border border-white/30">
-                        <Upload className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-600" />
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center backdrop-blur-lg bg-white/5 border border-white/10">
+                        <Upload className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                       </div>
-                      <h3 className="text-sm sm:text-base font-poppins font-semibold text-navy">Upload</h3>
-                      <p className="text-xs sm:text-sm text-slate max-w-[160px]">Secure PDF/Image upload</p>
+                      <h3 className="text-sm sm:text-base font-poppins font-light text-white">Upload</h3>
+                      <p className="text-xs sm:text-sm text-white/70 max-w-[160px]">Secure PDF/Image upload</p>
                     </div>
 
                     {/* Arrow */}
-                    <ArrowRight className="hidden md:block w-6 h-6 text-slate/40" />
-                    <div className="md:hidden w-px h-8 bg-slate/20" />
+                    <ArrowRight className="hidden md:block w-6 h-6 text-white/30" />
+                    <div className="md:hidden w-px h-8 bg-white/15" />
 
                     {/* Step 2: AI Analysis */}
                     <div className="flex flex-col items-center text-center space-y-2 flex-1">
-                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center backdrop-blur-lg bg-gradient-to-br from-purple-400/20 to-pink-500/20 border border-white/30">
-                        <BarChart3 className="w-6 h-6 sm:w-7 sm:h-7 text-purple-600" />
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center backdrop-blur-lg bg-white/5 border border-white/10">
+                        <BarChart3 className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                       </div>
-                      <h3 className="text-sm sm:text-base font-poppins font-semibold text-navy">AI Analysis</h3>
-                      <p className="text-xs sm:text-sm text-slate max-w-[160px]">Real-time parameter analysis</p>
+                      <h3 className="text-sm sm:text-base font-poppins font-light text-white">AI Analysis</h3>
+                      <p className="text-xs sm:text-sm text-white/70 max-w-[160px]">Real-time parameter analysis</p>
                     </div>
 
                     {/* Arrow */}
-                    <ArrowRight className="hidden md:block w-6 h-6 text-slate/40" />
-                    <div className="md:hidden w-px h-8 bg-slate/20" />
+                    <ArrowRight className="hidden md:block w-6 h-6 text-white/30" />
+                    <div className="md:hidden w-px h-8 bg-white/15" />
 
                     {/* Step 3: Clinical Chat */}
                     <div className="flex flex-col items-center text-center space-y-2 flex-1">
-                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center backdrop-blur-lg bg-gradient-to-br from-green-400/20 to-teal-500/20 border border-white/30">
-                        <MessageCircle className="w-6 h-6 sm:w-7 sm:h-7 text-green-600" />
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center backdrop-blur-lg bg-white/5 border border-white/10">
+                        <MessageCircle className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                       </div>
-                      <h3 className="text-sm sm:text-base font-poppins font-semibold text-navy">Clinical Chat</h3>
-                      <p className="text-xs sm:text-sm text-slate max-w-[160px]">Personalized Q&A</p>
+                      <h3 className="text-sm sm:text-base font-poppins font-light text-white">Clinical Chat</h3>
+                      <p className="text-xs sm:text-sm text-white/70 max-w-[160px]">Personalized Q&A</p>
                     </div>
 
                     {/* Arrow */}
-                    <ArrowRight className="hidden md:block w-6 h-6 text-slate/40" />
-                    <div className="md:hidden w-px h-8 bg-slate/20" />
+                    <ArrowRight className="hidden md:block w-6 h-6 text-white/30" />
+                    <div className="md:hidden w-px h-8 bg-white/15" />
 
                     {/* Step 4: Results */}
                     <div className="flex flex-col items-center text-center space-y-2 flex-1">
-                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center backdrop-blur-lg bg-gradient-to-br from-orange-400/20 to-red-500/20 border border-white/30">
-                        <FileText className="w-6 h-6 sm:w-7 sm:h-7 text-orange-600" />
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center backdrop-blur-lg bg-white/5 border border-white/10">
+                        <FileText className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                       </div>
-                      <h3 className="text-sm sm:text-base font-poppins font-semibold text-navy">Results</h3>
-                      <p className="text-xs sm:text-sm text-slate max-w-[160px]">Comprehensive insights</p>
+                      <h3 className="text-sm sm:text-base font-poppins font-light text-white">Results</h3>
+                      <p className="text-xs sm:text-sm text-white/70 max-w-[160px]">Comprehensive insights</p>
                     </div>
                   </div>
 
                   {/* Outcomes Section - Single Row */}
-                  <div className="backdrop-blur-lg bg-gradient-to-r from-cyan-50/80 to-blue-50/80 rounded-2xl p-6 sm:p-8 border border-white/30">
-                    <h3 className="text-lg sm:text-xl font-poppins font-bold text-navy mb-4 text-center">
+                  <div className="reveal-on-scroll backdrop-blur-xl bg-white/5 rounded-2xl p-6 sm:p-8 border border-white/10">
+                    <h3 className="text-lg sm:text-xl font-poppins font-light text-white mb-4 text-center">
                       What You Get
                     </h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {/* Outcome 1 */}
                       <div className="text-center space-y-2">
-                        <div className="w-10 h-10 mx-auto rounded-lg bg-white/50 flex items-center justify-center">
-                          <Target className="w-5 h-5 text-purple-600" />
+                        <div className="w-10 h-10 mx-auto rounded-lg bg-white/10 flex items-center justify-center">
+                          <Target className="w-5 h-5 text-white" />
                         </div>
-                        <p className="text-xs sm:text-sm font-medium text-navy">Health Score (0-100)</p>
+                        <p className="text-xs sm:text-sm font-medium text-white">Health Score (0-100)</p>
                       </div>
                       
                       {/* Outcome 2 */}
                       <div className="text-center space-y-2">
-                        <div className="w-10 h-10 mx-auto rounded-lg bg-white/50 flex items-center justify-center">
-                          <TrendingUp className="w-5 h-5 text-pink-600" />
+                        <div className="w-10 h-10 mx-auto rounded-lg bg-white/10 flex items-center justify-center">
+                          <TrendingUp className="w-5 h-5 text-white" />
                         </div>
-                        <p className="text-xs sm:text-sm font-medium text-navy">Risk Predictions</p>
+                        <p className="text-xs sm:text-sm font-medium text-white">Risk Predictions</p>
                       </div>
                       
                       {/* Outcome 3 */}
                       <div className="text-center space-y-2">
-                        <div className="w-10 h-10 mx-auto rounded-lg bg-white/50 flex items-center justify-center">
-                          <Calendar className="w-5 h-5 text-green-600" />
+                        <div className="w-10 h-10 mx-auto rounded-lg bg-white/10 flex items-center justify-center">
+                          <Calendar className="w-5 h-5 text-white" />
                         </div>
-                        <p className="text-xs sm:text-sm font-medium text-navy">30-Day Plan</p>
+                        <p className="text-xs sm:text-sm font-medium text-white">30-Day Plan</p>
                       </div>
                       
                       {/* Outcome 4 */}
                       <div className="text-center space-y-2">
-                        <div className="w-10 h-10 mx-auto rounded-lg bg-white/50 flex items-center justify-center">
-                          <Activity className="w-5 h-5 text-orange-600" />
+                        <div className="w-10 h-10 mx-auto rounded-lg bg-white/10 flex items-center justify-center">
+                          <Activity className="w-5 h-5 text-white" />
                         </div>
-                        <p className="text-xs sm:text-sm font-medium text-navy">Health Journey</p>
+                        <p className="text-xs sm:text-sm font-medium text-white">Health Journey</p>
                       </div>
                     </div>
                   </div>
@@ -1901,18 +1931,19 @@ RAW DATA: ${baseContext}`;
             </section>
 
             {/* 4. UPLOAD SECTION - With Video Background */}
+            {/* Brand statement */}
+            <section className="py-24 sm:py-32 md:py-40 text-center">
+              <div className="container mx-auto px-6">
+                <p className="reveal-on-scroll text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-poppins font-light tracking-tight text-white/90 max-w-3xl mx-auto leading-snug">
+                  Guided by Science. <span className="text-white/45">Driven by Compassion.</span>
+                </p>
+              </div>
+            </section>
+
             <section id="upload-section" className="relative py-16 sm:py-20 md:py-28 overflow-hidden">
               {/* Full-width Background Video - Clear and Visible */}
               <div className="absolute inset-0 z-0 overflow-hidden">
-                <video
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="w-full h-full object-cover"
-                >
-                  <source src="/upload-section-video.mp4" type="video/mp4" />
-                </video>
+                
                 {/* Darker overlay for better text readability */}
                 <div className="absolute inset-0 bg-black/60" />
               </div>
@@ -1920,9 +1951,9 @@ RAW DATA: ${baseContext}`;
               {/* Content over video - Enhanced text visibility */}
               <div className="container mx-auto px-4 sm:px-6 relative z-10">
                 {/* Title - Enhanced text shadow */}
-                <div className="text-center mb-8 sm:mb-10 md:mb-12 space-y-2 sm:space-y-3">
+                <div className="reveal-on-scroll text-center mb-8 sm:mb-10 md:mb-12 space-y-2 sm:space-y-3">
                   <h2 
-                    className="text-2xl sm:text-3xl md:text-4xl font-poppins font-bold text-white"
+                    className="text-2xl sm:text-3xl md:text-4xl font-poppins font-light text-white"
                     style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.8), 0 4px 16px rgba(0, 0, 0, 0.6)' }}
                   >
                     Upload Your Test Report
@@ -1959,13 +1990,13 @@ RAW DATA: ${baseContext}`;
         )}
 
         {/* DISCLAIMER - Bottom of Page */}
-        <section className="py-8 bg-gray-100 border-t border-gray-200">
+        <section className="py-8 bg-white/5 backdrop-blur-xl border-t border-white/10">
           <div className="container mx-auto px-4 sm:px-6">
             <div className="max-w-4xl mx-auto text-center">
-              <h4 className="text-navy font-poppins font-semibold text-sm sm:text-base mb-3">
+              <h4 className="text-white font-poppins font-light text-sm sm:text-base mb-3">
                 Important Disclaimer
               </h4>
-              <p className="text-slate text-xs sm:text-sm leading-relaxed">
+              <p className="text-white/70 text-xs sm:text-sm leading-relaxed">
                 This report is generated using AI analysis and is intended for informational purposes only. It should not replace professional medical advice, diagnosis, or treatment. Always consult with qualified healthcare professionals for medical concerns.
               </p>
             </div>
@@ -1977,7 +2008,7 @@ RAW DATA: ${baseContext}`;
           <section ref={analysisRef} id="analysis-section" className="py-12 sm:py-16 md:py-24 bg-white min-h-screen flex items-center justify-center transition-all duration-500">
             <div className="container mx-auto px-4 sm:px-6 animate-fade-in">
               <div className="max-w-4xl mx-auto text-center space-y-6 sm:space-y-8">
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-semibold text-navy px-4">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-light text-navy px-4">
                   AI Analysis in Progress
                 </h2>
                 
@@ -2033,7 +2064,7 @@ RAW DATA: ${baseContext}`;
                   </div>
                 </div>
                 <div className="space-y-4">
-                  <h3 className="text-2xl font-poppins font-semibold text-navy">Analysis Failed</h3>
+                  <h3 className="text-2xl font-poppins font-light text-navy">Analysis Failed</h3>
                   <p className="text-slate max-w-md mx-auto">{error}</p>
                   <Button
                     onClick={handleReset}
@@ -2071,7 +2102,7 @@ RAW DATA: ${baseContext}`;
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 mb-6 sm:mb-8">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-xl sm:text-2xl font-poppins font-semibold text-navy">Your Analysis Results</h3>
+                      <h3 className="text-xl sm:text-2xl font-poppins font-light text-navy">Your Analysis Results</h3>
                       {analysisId && (
                         <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
                           ✓ Verified
@@ -2143,7 +2174,7 @@ RAW DATA: ${baseContext}`;
                       <div className="container mx-auto px-4 sm:px-6">
                         <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
                           <div className="text-center space-y-2 sm:space-y-3 px-4 animate-fade-in">
-                            <h2 className="text-2xl sm:text-3xl font-poppins font-semibold text-navy">
+                            <h2 className="text-2xl sm:text-3xl font-poppins font-light text-navy">
                               Clinical Chat on Your Report
                             </h2>
                             <p className="text-xs sm:text-sm text-slate">
@@ -2178,7 +2209,7 @@ RAW DATA: ${baseContext}`;
                         <div className="container mx-auto px-4 sm:px-6 animate-fade-in">
                           <div className="max-w-6xl mx-auto space-y-4">
                             <div className="text-center mb-6">
-                              <h2 className="text-2xl sm:text-3xl font-poppins font-bold text-navy mb-2">
+                              <h2 className="text-2xl sm:text-3xl font-poppins font-light text-navy mb-2">
                                 Your Comprehensive Health Report
                               </h2>
                               <p className="text-sm sm:text-base text-slate">
@@ -2258,7 +2289,7 @@ RAW DATA: ${baseContext}`;
                       <div className="container mx-auto px-3 sm:px-4 lg:px-6">
                         <div className="max-w-full lg:max-w-6xl mx-auto space-y-4 sm:space-y-6 lg:space-y-8">
                           <div className="text-center px-2">
-                            <h2 className="text-xl sm:text-2xl lg:text-3xl font-poppins font-semibold text-navy mb-3 sm:mb-4">
+                            <h2 className="text-xl sm:text-2xl lg:text-3xl font-poppins font-light text-navy mb-3 sm:mb-4">
                               Risk Predictions & Interactive Analysis
                             </h2>
                             <p className="text-sm sm:text-base text-slate">
@@ -2298,7 +2329,7 @@ RAW DATA: ${baseContext}`;
                                 onClick={handlePreviewReport}
                                 size="lg"
                                 variant="outline"
-                                className="font-poppins font-semibold px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-6 text-sm sm:text-base rounded-xl hover-scale-102 w-full sm:w-auto gap-2 min-h-[44px]"
+                                className="font-poppins font-light px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-6 text-sm sm:text-base rounded-xl hover-scale-102 w-full sm:w-auto gap-2 min-h-[44px]"
                               >
                                 <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
                                 Preview Report
@@ -2306,7 +2337,7 @@ RAW DATA: ${baseContext}`;
                               <Button 
                                 onClick={handleDownloadComprehensiveReport}
                                 size="lg"
-                                className="bg-accentCyan text-navy hover:bg-accentCyan/90 font-poppins font-semibold px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-6 text-sm sm:text-base rounded-xl hover-scale-102 shadow-premium w-full sm:w-auto gap-2 min-h-[44px]"
+                                className="bg-accentCyan text-navy hover:bg-accentCyan/90 font-poppins font-light px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-6 text-sm sm:text-base rounded-xl hover-scale-102 shadow-premium w-full sm:w-auto gap-2 min-h-[44px]"
                               >
                                 <Download className="w-4 h-4 sm:w-5 sm:h-5" />
                                 Download Report
@@ -2315,7 +2346,7 @@ RAW DATA: ${baseContext}`;
                                 onClick={handleDownload30DayPlan}
                                 size="lg"
                                 variant="secondary"
-                                className="font-poppins font-semibold px-4 sm:px-6 py-4 sm:py-6 text-sm sm:text-base rounded-xl hover-scale-102 w-full sm:w-auto gap-2"
+                                className="font-poppins font-light px-4 sm:px-6 py-4 sm:py-6 text-sm sm:text-base rounded-xl hover-scale-102 w-full sm:w-auto gap-2"
                               >
                                 <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
                                 Download 30-Day Plan
@@ -2327,7 +2358,7 @@ RAW DATA: ${baseContext}`;
                                     <Button
                                       size="lg"
                                       variant="outline"
-                                      className="font-poppins font-semibold px-4 sm:px-6 py-4 sm:py-6 text-sm sm:text-base rounded-xl hover-scale-102 w-full sm:w-auto gap-2"
+                                      className="font-poppins font-light px-4 sm:px-6 py-4 sm:py-6 text-sm sm:text-base rounded-xl hover-scale-102 w-full sm:w-auto gap-2"
                                     >
                                       <CloudDownload className="w-4 h-4 sm:w-5 sm:h-5" />
                                       Export to Drive
@@ -2358,16 +2389,16 @@ RAW DATA: ${baseContext}`;
 
         {/* 7. FAQ SECTION - Mobile Optimized */}
         {!showResults && (
-        <section id="faq-section" className="py-10 sm:py-14 md:py-20 bg-white">
+        <section id="faq-section" className="py-10 sm:py-14 md:py-20 bg-transparent">
           <div className="container mx-auto px-3 sm:px-4 md:px-6">
             <div className="max-w-3xl mx-auto">
-              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-poppins font-semibold text-navy text-center mb-6 sm:mb-8 md:mb-10 px-2 sm:px-4">
+              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-poppins font-light text-white text-center mb-6 sm:mb-8 md:mb-10 px-2 sm:px-4">
                 Frequently Asked Questions
               </h2>
               
-              <div className="bg-coolGray rounded-lg sm:rounded-xl md:rounded-2xl shadow-card p-3 sm:p-5 md:p-7 space-y-2 sm:space-y-3">
+              <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg sm:rounded-xl md:rounded-2xl p-3 sm:p-5 md:p-7 space-y-2 sm:space-y-3">
                 <details className="group">
-                  <summary className="flex items-center justify-between cursor-pointer py-3 sm:py-4 font-inter font-medium text-navy text-sm sm:text-base">
+                  <summary className="flex items-center justify-between cursor-pointer py-3 sm:py-4 font-inter font-medium text-white text-sm sm:text-base">
                     What file formats are supported?
                     <span className="transition group-open:rotate-180 flex-shrink-0 ml-2">
                       <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2375,7 +2406,7 @@ RAW DATA: ${baseContext}`;
                       </svg>
                     </span>
                   </summary>
-                  <p className="pb-3 sm:pb-4 text-slate text-xs sm:text-sm leading-relaxed">
+                  <p className="pb-3 sm:pb-4 text-white/70 text-xs sm:text-sm leading-relaxed">
                     We support PDF, JPG, and PNG file formats for your medical reports. Files are processed securely and deleted after analysis.
                   </p>
                 </details>
@@ -2383,7 +2414,7 @@ RAW DATA: ${baseContext}`;
                 <Separator />
 
                 <details className="group">
-                  <summary className="flex items-center justify-between cursor-pointer py-3 sm:py-4 font-inter font-medium text-navy text-sm sm:text-base">
+                  <summary className="flex items-center justify-between cursor-pointer py-3 sm:py-4 font-inter font-medium text-white text-sm sm:text-base">
                     How long does analysis take?
                     <span className="transition group-open:rotate-180 flex-shrink-0 ml-2">
                       <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2391,7 +2422,7 @@ RAW DATA: ${baseContext}`;
                       </svg>
                     </span>
                   </summary>
-                  <p className="pb-3 sm:pb-4 text-slate text-xs sm:text-sm leading-relaxed">
+                  <p className="pb-3 sm:pb-4 text-white/70 text-xs sm:text-sm leading-relaxed">
                     Most analyses complete in 30-60 seconds. Complex reports may take slightly longer. You'll see real-time progress updates.
                   </p>
                 </details>
@@ -2399,7 +2430,7 @@ RAW DATA: ${baseContext}`;
                 <Separator />
 
                 <details className="group">
-                  <summary className="flex items-center justify-between cursor-pointer py-3 sm:py-4 font-inter font-medium text-navy text-sm sm:text-base">
+                  <summary className="flex items-center justify-between cursor-pointer py-3 sm:py-4 font-inter font-medium text-white text-sm sm:text-base">
                     Is my data secure?
                     <span className="transition group-open:rotate-180 flex-shrink-0 ml-2">
                       <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2407,7 +2438,7 @@ RAW DATA: ${baseContext}`;
                       </svg>
                     </span>
                   </summary>
-                  <p className="pb-3 sm:pb-4 text-slate text-xs sm:text-sm leading-relaxed">
+                  <p className="pb-3 sm:pb-4 text-white/70 text-xs sm:text-sm leading-relaxed">
                     Yes. All data is encrypted during transmission and automatically deleted after your session. We comply with healthcare data protection standards.
                   </p>
                 </details>
@@ -2415,7 +2446,7 @@ RAW DATA: ${baseContext}`;
                 <Separator />
 
                 <details className="group">
-                  <summary className="flex items-center justify-between cursor-pointer py-3 sm:py-4 font-inter font-medium text-navy text-sm sm:text-base">
+                  <summary className="flex items-center justify-between cursor-pointer py-3 sm:py-4 font-inter font-medium text-white text-sm sm:text-base">
                     Can I save my results?
                     <span className="transition group-open:rotate-180 flex-shrink-0 ml-2">
                       <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2423,7 +2454,7 @@ RAW DATA: ${baseContext}`;
                       </svg>
                     </span>
                   </summary>
-                  <p className="pb-3 sm:pb-4 text-slate text-xs sm:text-sm leading-relaxed">
+                  <p className="pb-3 sm:pb-4 text-white/70 text-xs sm:text-sm leading-relaxed">
                     Yes! After completing your clinical assessment, you can download a comprehensive PDF report with all findings and recommendations.
                   </p>
                 </details>
@@ -2431,7 +2462,7 @@ RAW DATA: ${baseContext}`;
                 <Separator />
 
                 <details className="group">
-                  <summary className="flex items-center justify-between cursor-pointer py-4 font-inter font-medium text-navy">
+                  <summary className="flex items-center justify-between cursor-pointer py-4 font-inter font-medium text-white">
                     What if I don't understand something?
                     <span className="transition group-open:rotate-180">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2439,7 +2470,7 @@ RAW DATA: ${baseContext}`;
                       </svg>
                     </span>
                   </summary>
-                  <p className="pb-4 text-slate text-sm">
+                  <p className="pb-4 text-white/70 text-sm">
                     Use our Clinical Chat feature to ask questions about your specific results. The AI will explain complex medical terms in simple language.
                   </p>
                 </details>

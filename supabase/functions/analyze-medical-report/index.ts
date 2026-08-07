@@ -543,7 +543,7 @@ serve(async (req) => {
       
       console.log(`📸 Received ${images.length} images`);
       
-      // Use Lovable AI vision to extract text from images
+      // Use OpenAI Vision to extract text from images
       console.log('🔍 Extracting text from images using AI vision...');
       console.log(`📊 Processing ${images.length} pages for comprehensive analysis`);
       const visionPrompt = `You are analyzing a ${images.length}-page medical laboratory report. Extract ALL text from EVERY page sequentially.

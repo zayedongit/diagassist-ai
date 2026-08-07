@@ -98,8 +98,8 @@ export const SampleReportPreview = () => {
       const weekNum = Math.ceil(day / 7);
       
       schedule[dateKey] = [
-        { type: "exercise", activity: "30-min walk", icon: Activity, color: "text-green-600" },
-        { type: "monitoring", activity: "BP check (2x)", icon: CheckCircle2, color: "text-blue-600" },
+        { type: "exercise", activity: "30-min walk", icon: Activity, color: "text-white/80" },
+        { type: "monitoring", activity: "BP check (2x)", icon: CheckCircle2, color: "text-white/80" },
         { type: "diet", activity: "Healthy meals", icon: Utensils, color: "text-orange-600" }
       ];
 
@@ -159,17 +159,17 @@ export const SampleReportPreview = () => {
         <button
           onMouseEnter={(e) => {
             e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)';
-            e.currentTarget.style.boxShadow = '0 12px 40px rgba(0, 209, 209, 0.4)';
+            e.currentTarget.style.boxShadow = '0 12px 40px rgba(255,255,255,0.14)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
-            e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 209, 209, 0.3)';
+            e.currentTarget.style.boxShadow = '0 8px 32px rgba(255,255,255,0.10)';
           }}
           className="group relative px-5 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 rounded-full font-poppins font-semibold text-sm sm:text-base text-white transition-all duration-400 hover:scale-105 active:scale-95 overflow-hidden backdrop-blur-lg"
           style={{ 
             background: 'rgba(255, 255, 255, 0.15)',
             border: '1px solid rgba(255, 255, 255, 0.3)',
-            boxShadow: '0 8px 32px rgba(0, 209, 209, 0.3)'
+            boxShadow: '0 8px 32px rgba(255,255,255,0.10)'
           }}
         >
           <span className="flex items-center justify-center gap-2 relative z-10">
@@ -182,7 +182,7 @@ export const SampleReportPreview = () => {
         <ScrollArea className="h-full">
           <div className="p-6 space-y-6">
             {/* Header */}
-            <div className="text-center space-y-2 pb-4 border-b bg-gradient-to-r from-blue-50 to-cyan-50 rounded-t-lg p-6">
+            <div className="text-center space-y-2 pb-4 border-b bg-gradient-to-r from-white/5 to-white/5 rounded-t-lg p-6">
               <Calendar className="w-12 h-12 mx-auto text-primary mb-2" />
               <h2 className="text-2xl md:text-3xl font-poppins font-bold text-navy">
                 30-Day Health Improvement Plan
@@ -193,7 +193,7 @@ export const SampleReportPreview = () => {
             </div>
 
             {/* Focus Areas */}
-            <Card className="border-primary/20 bg-gradient-to-br from-blue-50/50 to-cyan-50/30 animate-fade-in">
+            <Card className="border-primary/20 bg-gradient-to-br from-white/5 to-white/5 animate-fade-in">
               <CardHeader>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center animate-scale-in">
@@ -219,10 +219,10 @@ export const SampleReportPreview = () => {
             </Card>
 
             {/* Daily Activities */}
-            <Card className="border-green-200 bg-gradient-to-br from-green-50/50 to-emerald-50/30 animate-fade-in">
+            <Card className="border-white/10 bg-gradient-to-br from-green-50/50 to-emerald-50/30 animate-fade-in">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <Activity className="w-5 h-5 text-green-600" />
+                  <Activity className="w-5 h-5 text-white/80" />
                   <CardTitle className="text-lg font-poppins text-navy">
                     Daily Activities Overview
                   </CardTitle>
@@ -236,7 +236,7 @@ export const SampleReportPreview = () => {
                       className="flex items-center justify-between p-3 bg-white/70 rounded-lg border border-green-100"
                     >
                       <div className="flex items-center gap-3">
-                        <CheckCircle2 className="w-4 h-4 text-green-600" />
+                        <CheckCircle2 className="w-4 h-4 text-white/80" />
                         <span className="font-medium text-sm">{activity.activity}</span>
                       </div>
                       <Badge variant="secondary" className="text-xs">
@@ -462,7 +462,7 @@ export const SampleReportPreview = () => {
             <Card className="animate-fade-in">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <Utensils className="w-5 h-5 text-green-600" />
+                  <Utensils className="w-5 h-5 text-white/80" />
                   Dietary Plan
                 </CardTitle>
               </CardHeader>
@@ -472,7 +472,7 @@ export const SampleReportPreview = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     {samplePlan.dietaryPlan.add.map((food, idx) => (
                       <div key={idx} className="flex items-center gap-2 text-xs bg-green-50/50 p-2 rounded">
-                        <span className="text-green-600">•</span>
+                        <span className="text-white/80">•</span>
                         <span>{food}</span>
                       </div>
                     ))}
