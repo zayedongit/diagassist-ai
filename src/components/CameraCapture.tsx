@@ -262,10 +262,10 @@ export const CameraCapture = ({ onImagesReady, onClose, maxImages = 15 }: Camera
           <Button
             onClick={canCapture ? captureImage : undefined}
             disabled={!canCapture}
-            className={`rounded-full w-20 h-20 ${canCapture ? 'bg-white hover:bg-gray-200' : 'bg-gray-500'}`}
+            className={`rounded-full w-20 h-20 ${canCapture ? 'bg-white/5 hover:bg-white/10' : 'bg-white/[0.03]0'}`}
           >
             <div className="w-16 h-16 rounded-full border-4 border-black flex items-center justify-center">
-              <Camera className="w-8 h-8 text-black" />
+              <Camera className="w-8 h-8 text-white/90" />
             </div>
           </Button>
           

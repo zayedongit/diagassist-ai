@@ -60,7 +60,7 @@ export const ValuesNeedingAttention = ({ analysisData }: ValuesNeedingAttentionP
     if (statusLower.includes('high')) {
       return <TrendingUp className="w-4 h-4 text-red-500" />;
     } else if (statusLower.includes('low')) {
-      return <TrendingDown className="w-4 h-4 text-blue-500" />;
+      return <TrendingDown className="w-4 h-4 text-white/70" />;
     }
     return <AlertCircle className="w-4 h-4 text-orange-500" />;
   };
@@ -70,13 +70,13 @@ export const ValuesNeedingAttention = ({ analysisData }: ValuesNeedingAttentionP
     if (statusLower.includes('high')) {
       return 'border-red-200 bg-red-50/50';
     } else if (statusLower.includes('low')) {
-      return 'border-blue-200 bg-blue-50/50';
+      return 'border-white/10 bg-white/5';
     }
     return 'border-orange-200 bg-orange-50/50';
   };
 
   return (
-    <Card className="border-red-200 bg-gradient-to-br from-red-50/50 to-pink-50/30 animate-fade-in">
+    <Card className="border-red-200 bg-gradient-to-br from-red-50/50 to-white/5 animate-fade-in">
       <CardHeader>
         <div className="flex items-center gap-3 animate-scale-in">
           <Badge 
@@ -97,11 +97,11 @@ export const ValuesNeedingAttention = ({ analysisData }: ValuesNeedingAttentionP
               <div className="flex items-start gap-3 flex-1 min-w-0">
                 {getStatusIcon(lab.status)}
                 <div className="space-y-1 flex-1 min-w-0">
-                  <p className="font-inter font-semibold text-navy">{lab.name}</p>
-                  <div className="text-sm text-slate space-y-1">
+                  <p className="font-inter font-semibold text-white/90">{lab.name}</p>
+                  <div className="text-sm text-white/60 space-y-1">
                     <div className="font-medium">{lab.value} {lab.unit}</div>
                     {lab.referenceRange && (
-                      <div className="text-slate/70 text-xs break-words">
+                      <div className="text-white/70 text-xs break-words">
                         Normal: {lab.referenceRange}
                       </div>
                     )}

@@ -32,7 +32,7 @@ export const AnimatedLoader = ({ message, onCancel }: AnimatedLoaderProps) => {
       
       {/* Loading message */}
       <div className="text-center max-w-md px-4">
-        <h3 className="text-xl sm:text-2xl font-semibold text-navy mb-3 sm:mb-4">
+        <h3 className="text-xl sm:text-2xl font-semibold text-white/90 mb-3 sm:mb-4">
           {message || "Analyzing Your Report"}
         </h3>
         
@@ -43,7 +43,7 @@ export const AnimatedLoader = ({ message, onCancel }: AnimatedLoaderProps) => {
           <div className="w-2 h-2 rounded-full bg-[#7CFFCB] animate-bounce" style={{ animationDelay: '0.4s' }} />
         </div>
         
-        <p className="text-sm sm:text-base text-slate mt-4 sm:mt-6 leading-relaxed">
+        <p className="text-sm sm:text-base text-white/60 mt-4 sm:mt-6 leading-relaxed">
           Our AI is carefully analyzing your medical data to provide personalized insights
         </p>
       </div>

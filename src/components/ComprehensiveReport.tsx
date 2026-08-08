@@ -535,7 +535,7 @@ export const ComprehensiveReport = ({
                   })()}
                   
                   {/* Panel Interpretation */}
-                  <div className="bg-blue-50 p-3 rounded-lg">
+                  <div className="bg-white/5 p-3 rounded-lg">
                     <h4 className="font-medium text-report-text mb-2">Clinical Interpretation:</h4>
                     <p className="text-sm text-report-text/80">
                       {(() => {
@@ -700,7 +700,7 @@ export const ComprehensiveReport = ({
       </div>
 
       {/* 4. Patient-Friendly Summary */}
-      <Card className="border-report-border bg-blue-50">
+      <Card className="border-report-border bg-white/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2" style={{color: 'hsl(220, 74%, 42%)'}}>
             <FileText className="h-5 w-5" />

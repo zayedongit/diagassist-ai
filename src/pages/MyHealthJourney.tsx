@@ -53,7 +53,7 @@ export default function MyHealthJourney() {
 
   if (!plan || !breakdown) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-background dark:to-gray-900">
+      <div className="min-h-screen bg-gradient-to-br from-white/5 via-white to-white/5 dark:from-gray-900 dark:via-background dark:to-gray-900">
         <div className="container mx-auto px-4 py-12">
           <Card className="p-12 text-center">
             <Calendar className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
@@ -73,7 +73,7 @@ export default function MyHealthJourney() {
   const stats = getCompletionStats();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-background dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-white/5 via-white to-white/5 dark:from-gray-900 dark:via-background dark:to-gray-900">
       <GlobalNav theme="light" />
       <div className="container mx-auto px-4 py-8 pt-20">
         {/* Header */}
@@ -118,7 +118,7 @@ export default function MyHealthJourney() {
 
           <Card className="p-4">
             <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-blue-500" />
+              <TrendingUp className="w-4 h-4 text-white/70" />
               <span className="text-sm text-muted-foreground">Score</span>
             </div>
             <div className="text-2xl font-bold">

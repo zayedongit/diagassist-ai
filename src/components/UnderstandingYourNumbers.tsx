@@ -39,7 +39,7 @@ export const UnderstandingYourNumbers = ({ analysisData }: UnderstandingYourNumb
       case 'critical':
         return <TrendingUp className="w-4 h-4 text-red-500" />;
       case 'low':
-        return <TrendingDown className="w-4 h-4 text-blue-500" />;
+        return <TrendingDown className="w-4 h-4 text-white/70" />;
       default:
         return <BarChart3 className="w-4 h-4 text-muted-foreground" />;
     }
@@ -60,7 +60,7 @@ export const UnderstandingYourNumbers = ({ analysisData }: UnderstandingYourNumb
 
   if (uniqueAbnormalLabs.length === 0) {
     return (
-      <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-blue-50">
+      <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-white/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-primary">
             <BarChart3 className="w-5 h-5" />
@@ -80,7 +80,7 @@ export const UnderstandingYourNumbers = ({ analysisData }: UnderstandingYourNumb
   }
 
   return (
-    <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-blue-50">
+    <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-white/5">
       <CardHeader className="p-3 sm:p-4 lg:p-6">
         <CardTitle className="flex items-center gap-2 text-persian-blue text-base sm:text-lg lg:text-xl">
           <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -132,27 +132,27 @@ export const UnderstandingYourNumbers = ({ analysisData }: UnderstandingYourNumb
                 
                 {/* What It Means */}
                 <div>
-                  <h5 className="font-medium text-gray-900 mb-1.5 sm:mb-2 text-sm sm:text-base">What It Means</h5>
-                  <p className="text-xs sm:text-sm text-gray-800 bg-blue-50 p-2.5 sm:p-3 rounded border border-blue-200 leading-relaxed">
+                  <h5 className="font-medium text-white mb-1.5 sm:mb-2 text-sm sm:text-base">What It Means</h5>
+                  <p className="text-xs sm:text-sm text-white/90 bg-white/5 p-2.5 sm:p-3 rounded border border-white/10 leading-relaxed">
                     {context.whatItMeans}
                   </p>
                 </div>
                 
                 {/* Body Connection */}
                 <div>
-                  <h5 className="font-medium text-gray-900 mb-1.5 sm:mb-2 text-sm sm:text-base">Body Connection</h5>
-                  <p className="text-xs sm:text-sm text-gray-800 bg-green-50 p-2.5 sm:p-3 rounded border border-green-200 leading-relaxed">
+                  <h5 className="font-medium text-white mb-1.5 sm:mb-2 text-sm sm:text-base">Body Connection</h5>
+                  <p className="text-xs sm:text-sm text-white/90 bg-green-50 p-2.5 sm:p-3 rounded border border-green-200 leading-relaxed">
                     {context.bodyConnection}
                   </p>
                 </div>
                 
                 {/* Possible Contributing Factors */}
                 <div>
-                    <h5 className="font-medium text-gray-900 mb-2">Possible Contributing Factors</h5>
+                    <h5 className="font-medium text-white mb-2">Possible Contributing Factors</h5>
                     <div className="bg-yellow-50 p-3 rounded border border-yellow-200">
                       <ul className="space-y-1">
                         {context.possibleCauses.map((cause, causeIndex) => (
-                          <li key={causeIndex} className="text-sm text-gray-800 flex items-start gap-2">
+                          <li key={causeIndex} className="text-sm text-white/90 flex items-start gap-2">
                             <span className="w-1 h-1 rounded-full bg-yellow-500 mt-2 flex-shrink-0"></span>
                             {cause}
                           </li>
@@ -168,7 +168,7 @@ export const UnderstandingYourNumbers = ({ analysisData }: UnderstandingYourNumb
         
         {/* Special Note for AUTO-DETECTED values */}
         <div className="mt-4 p-3 bg-muted/10 rounded-lg border border-border/20">
-          <p className="text-xs text-gray-700">
+          <p className="text-xs text-white/80">
             <strong>Note:</strong> These explanations are for educational purposes. 
             Always discuss your results with your healthcare provider for proper interpretation and treatment recommendations.
           </p>

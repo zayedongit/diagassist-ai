@@ -81,7 +81,7 @@ export const HealthImprovementPlanModal = ({
         {/* Mobile close button - prominent and accessible */}
         <button 
           onClick={onClose}
-          className="md:hidden absolute top-3 right-3 z-50 w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-lg border border-border hover:bg-gray-100 transition-colors"
+          className="md:hidden absolute top-3 right-3 z-50 w-10 h-10 flex items-center justify-center rounded-full bg-white/5 shadow-lg border border-border hover:bg-white/[0.05] transition-colors"
           aria-label="Close plan"
         >
           <X className="w-5 h-5" />
@@ -232,7 +232,7 @@ export const HealthImprovementPlanModal = ({
                           <div className="flex-1">
                             <p className="font-medium text-sm">{test.testName}</p>
                             <p className="text-xs text-muted-foreground mt-1">{test.reason}</p>
-                            <p className="text-xs text-slate font-medium mt-1">
+                            <p className="text-xs text-white/60 font-medium mt-1">
                               Timing: {test.timing}
                             </p>
                           </div>
@@ -248,12 +248,12 @@ export const HealthImprovementPlanModal = ({
                 {plan.specialistReferrals.length > 0 && (
                   <div>
                     <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
-                      <Stethoscope className="w-5 h-5 text-blue-600" />
+                      <Stethoscope className="w-5 h-5 text-white/80" />
                       Specialist Referrals
                     </h3>
                     <div className="space-y-3">
                       {plan.specialistReferrals.map((referral, idx) => (
-                        <div key={idx} className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                        <div key={idx} className="bg-white/5 border border-white/10 rounded-lg p-3">
                           <div className="flex items-start justify-between mb-2">
                             <p className="font-semibold text-sm">{referral.specialty}</p>
                             <Badge variant={getPriorityColor(referral.priority)} className="text-xs">
@@ -261,7 +261,7 @@ export const HealthImprovementPlanModal = ({
                             </Badge>
                           </div>
                           <p className="text-xs text-muted-foreground mb-1">{referral.reason}</p>
-                          <p className="text-xs font-medium text-blue-700">
+                          <p className="text-xs font-medium text-white/80">
                             Timeframe: {referral.timeframe}
                           </p>
                         </div>
@@ -342,7 +342,7 @@ export const HealthImprovementPlanModal = ({
                   </div>
                 </div>
 
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <div className="bg-white/5 border border-white/10 rounded-lg p-3">
                   <p className="font-medium text-sm mb-1">Hydration Goals</p>
                   <p className="text-xs text-muted-foreground">{plan.dietaryPlan.hydrationGoals}</p>
                 </div>

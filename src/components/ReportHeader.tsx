@@ -24,7 +24,7 @@ const getStatusInfo = (status: string) => {
     case 'critical':
       return { color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200', text: 'Requires Action' };
     default:
-      return { color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200', text: 'Review Required' };
+      return { color: 'text-white/80', bg: 'bg-white/5', border: 'border-white/10', text: 'Review Required' };
   }
 };
 
@@ -32,7 +32,7 @@ export const ReportHeader = ({ patientName, demographics, testDate, overallStatu
   const statusInfo = getStatusInfo(overallStatus || 'review');
   
   return (
-    <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-blue-50">
+    <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-white/5">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-3">

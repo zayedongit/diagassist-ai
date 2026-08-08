@@ -184,7 +184,7 @@ export const SampleReportPreview = () => {
             {/* Header */}
             <div className="text-center space-y-2 pb-4 border-b bg-gradient-to-r from-white/5 to-white/5 rounded-t-lg p-6">
               <Calendar className="w-12 h-12 mx-auto text-primary mb-2" />
-              <h2 className="text-2xl md:text-3xl font-poppins font-bold text-navy">
+              <h2 className="text-2xl md:text-3xl font-poppins font-bold text-white/90">
                 30-Day Health Improvement Plan
               </h2>
               <p className="text-sm text-muted-foreground">
@@ -199,7 +199,7 @@ export const SampleReportPreview = () => {
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center animate-scale-in">
                     <Target className="w-5 h-5 text-primary" />
                   </div>
-                  <CardTitle className="text-xl font-poppins text-navy">
+                  <CardTitle className="text-xl font-poppins text-white/90">
                     Focus Areas
                   </CardTitle>
                 </div>
@@ -223,7 +223,7 @@ export const SampleReportPreview = () => {
               <CardHeader>
                 <div className="flex items-center gap-3">
                   <Activity className="w-5 h-5 text-white/80" />
-                  <CardTitle className="text-lg font-poppins text-navy">
+                  <CardTitle className="text-lg font-poppins text-white/90">
                     Daily Activities Overview
                   </CardTitle>
                 </div>
@@ -249,7 +249,7 @@ export const SampleReportPreview = () => {
             </Card>
 
             {/* Tests Required */}
-            <Card className="animate-fade-in border-red-200 bg-gradient-to-br from-red-50/30 to-pink-50/20">
+            <Card className="animate-fade-in border-red-200 bg-gradient-to-br from-red-50/30 to-white/5">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <FlaskConical className="w-5 h-5 text-red-600" />
@@ -351,10 +351,10 @@ export const SampleReportPreview = () => {
                                       key={aIdx}
                                       className={`w-1.5 h-1.5 rounded-full ${
                                         activity.type === 'test' ? 'bg-red-500' :
-                                        activity.type === 'appointment' ? 'bg-purple-500' :
+                                        activity.type === 'appointment' ? 'bg-white/50' :
                                         activity.type === 'exercise' ? 'bg-green-500' :
                                         activity.type === 'diet' ? 'bg-orange-500' :
-                                        'bg-blue-500'
+                                        'bg-white/50'
                                       }`}
                                     />
                                   ))}
@@ -406,7 +406,7 @@ export const SampleReportPreview = () => {
                         <span className="text-xs text-muted-foreground">Exercise</span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <div className="w-2 h-2 rounded-full bg-blue-500" />
+                        <div className="w-2 h-2 rounded-full bg-white/50" />
                         <span className="text-xs text-muted-foreground">Monitoring</span>
                       </div>
                       <div className="flex items-center gap-1.5">
@@ -418,7 +418,7 @@ export const SampleReportPreview = () => {
                         <span className="text-xs text-muted-foreground">Tests</span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <div className="w-2 h-2 rounded-full bg-purple-500" />
+                        <div className="w-2 h-2 rounded-full bg-white/50" />
                         <span className="text-xs text-muted-foreground">Appointments</span>
                       </div>
                     </div>
@@ -493,7 +493,7 @@ export const SampleReportPreview = () => {
                   <h4 className="font-semibold text-primary mb-2 text-sm">Sample Meals</h4>
                   <div className="space-y-1">
                     {samplePlan.dietaryPlan.sampleMeals.map((meal, idx) => (
-                      <div key={idx} className="text-xs bg-blue-50/50 p-2 rounded">
+                      <div key={idx} className="text-xs bg-white/5 p-2 rounded">
                         {meal}
                       </div>
                     ))}
@@ -503,7 +503,7 @@ export const SampleReportPreview = () => {
             </Card>
 
             {/* Progress Tracking */}
-            <Card className="animate-fade-in border-purple-200 bg-gradient-to-br from-purple-50/30 to-pink-50/20">
+            <Card className="animate-fade-in border-purple-200 bg-gradient-to-br from-white/5 to-white/5">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <Activity className="w-5 h-5 text-purple-600" />

@@ -1807,7 +1807,7 @@ RAW DATA: ${baseContext}`;
                   <div className="flex justify-center pt-6 opacity-0 animate-fade-in" style={{ animationDelay: '1s', animationFillMode: 'forwards' }}>
                     <div className="flex flex-col items-center gap-2">
                       <SampleReportPreview />
-                      <p className="text-xs text-gray-400">See the full analysis you'll get</p>
+                      <p className="text-xs text-white/45">See the full analysis you'll get</p>
                     </div>
                   </div>
                 </div>
@@ -2005,22 +2005,22 @@ RAW DATA: ${baseContext}`;
 
         {/* 4. AI ANALYSIS SECTION */}
         {isAnalyzing && (
-          <section ref={analysisRef} id="analysis-section" className="py-12 sm:py-16 md:py-24 bg-white min-h-screen flex items-center justify-center transition-all duration-500">
+          <section ref={analysisRef} id="analysis-section" className="py-12 sm:py-16 md:py-24 bg-white/5 min-h-screen flex items-center justify-center transition-all duration-500">
             <div className="container mx-auto px-4 sm:px-6 animate-fade-in">
               <div className="max-w-4xl mx-auto text-center space-y-6 sm:space-y-8">
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-light text-navy px-4">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-light text-white/90 px-4">
                   AI Analysis in Progress
                 </h2>
                 
                 {/* Status Chips */}
                 <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 md:gap-4 px-4">
-                  <div className={`px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-lg sm:rounded-xl border-2 ${selectedFile ? 'bg-green-50 border-green-500 text-green-800' : 'bg-slate/10 border-slate/30 text-slate'}`}>
+                  <div className={`px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-lg sm:rounded-xl border-2 ${selectedFile ? 'bg-green-50 border-green-500 text-green-800' : 'bg-white/10 border-white/30 text-white/60'}`}>
                     <span className="font-inter font-medium text-xs sm:text-sm">File received</span>
                   </div>
-                  <div className={`px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-lg sm:rounded-xl border-2 ${processingStatus === 'processing' ? 'bg-yellow-50 border-yellow-500 text-yellow-900 animate-pulse' : processingStatus === 'completed' ? 'bg-green-50 border-green-500 text-green-800' : 'bg-slate/10 border-slate/30 text-slate'}`}>
+                  <div className={`px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-lg sm:rounded-xl border-2 ${processingStatus === 'processing' ? 'bg-yellow-50 border-yellow-500 text-yellow-900 animate-pulse' : processingStatus === 'completed' ? 'bg-green-50 border-green-500 text-green-800' : 'bg-white/10 border-white/30 text-white/60'}`}>
                     <span className="font-inter font-medium text-xs sm:text-sm">Parsing</span>
                   </div>
-                  <div className={`px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-lg sm:rounded-xl border-2 ${processingStatus === 'completed' ? 'bg-green-50 border-green-500 text-green-800' : 'bg-slate/10 border-slate/30 text-slate'}`}>
+                  <div className={`px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-lg sm:rounded-xl border-2 ${processingStatus === 'completed' ? 'bg-green-50 border-green-500 text-green-800' : 'bg-white/10 border-white/30 text-white/60'}`}>
                     <span className="font-inter font-medium text-xs sm:text-sm">Insights</span>
                   </div>
                 </div>
@@ -2032,7 +2032,7 @@ RAW DATA: ${baseContext}`;
                 />
                 
                 {/* Animated Loader */}
-                <div className="bg-coolGray rounded-xl sm:rounded-2xl shadow-card p-6 sm:p-8 md:p-12">
+                <div className="bg-white/5 rounded-xl sm:rounded-2xl shadow-card p-6 sm:p-8 md:p-12">
                   {progressUpdate ? (
                     <div className="space-y-4">
                       <CompressionProgress 
@@ -2055,7 +2055,7 @@ RAW DATA: ${baseContext}`;
 
         {/* Error Section */}
         {error && (
-          <section className="py-24 bg-white min-h-screen flex items-center justify-center">
+          <section className="py-24 bg-white/5 min-h-screen flex items-center justify-center">
             <div className="container mx-auto px-4 sm:px-6">
               <div className="max-w-2xl mx-auto text-center space-y-8">
                 <div className="flex justify-center">
@@ -2064,11 +2064,11 @@ RAW DATA: ${baseContext}`;
                   </div>
                 </div>
                 <div className="space-y-4">
-                  <h3 className="text-2xl font-poppins font-light text-navy">Analysis Failed</h3>
-                  <p className="text-slate max-w-md mx-auto">{error}</p>
+                  <h3 className="text-2xl font-poppins font-light text-white/90">Analysis Failed</h3>
+                  <p className="text-white/60 max-w-md mx-auto">{error}</p>
                   <Button
                     onClick={handleReset}
-                    className="bg-accentCyan text-navy hover:bg-accentCyan/90 font-inter font-medium px-8 py-6 rounded-xl hover-scale-102"
+                    className="bg-white/10 text-white/90 hover:bg-white/10 font-inter font-medium px-8 py-6 rounded-xl hover-scale-102"
                   >
                     Try Again
                   </Button>
@@ -2097,19 +2097,19 @@ RAW DATA: ${baseContext}`;
               <>
                 {/* Desktop View - Keep all existing functionality */}
 
-                <section className="py-8 sm:py-12 md:py-16 bg-white">
+                <section className="py-8 sm:py-12 md:py-16 bg-white/5">
               <div className="container mx-auto px-4 sm:px-6">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 mb-6 sm:mb-8">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-xl sm:text-2xl font-poppins font-light text-navy">Your Analysis Results</h3>
+                      <h3 className="text-xl sm:text-2xl font-poppins font-light text-white/90">Your Analysis Results</h3>
                       {analysisId && (
                         <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
                           ✓ Verified
                         </Badge>
                       )}
                     </div>
-                    <p className="text-sm sm:text-base text-slate truncate">Based on: {selectedFile?.name}</p>
+                    <p className="text-sm sm:text-base text-white/60 truncate">Based on: {selectedFile?.name}</p>
                     {analysisTimestamp && (
                       <p className="text-xs text-muted-foreground mt-1">
                         Analysis completed: {new Date(analysisTimestamp).toLocaleString()}
@@ -2144,7 +2144,7 @@ RAW DATA: ${baseContext}`;
                     <Button
                       onClick={handleReset}
                       variant="outline"
-                      className="text-accentCyan border-accentCyan hover:bg-accentCyan/10 w-full sm:w-auto text-sm sm:text-base"
+                      className="text-white border-white/15 hover:bg-white/10 w-full sm:w-auto text-sm sm:text-base"
                       size="sm"
                     >
                       New Report
@@ -2157,7 +2157,7 @@ RAW DATA: ${baseContext}`;
             <ErrorBoundary>
               <div className="w-full">
                 {/* Patient Details */}
-                <section className="py-6 sm:py-8 bg-coolGray">
+                <section className="py-6 sm:py-8 bg-white/5">
                     <div className="container mx-auto px-4 sm:px-6">
                       <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
                         <ReportHeader 
@@ -2170,22 +2170,22 @@ RAW DATA: ${baseContext}`;
                   </section>
 
                   {/* Clinical Chat - Moved before detailed analysis */}
-                  <section id="chat-section" className="py-8 sm:py-12 md:py-16 bg-white transition-all duration-500 rounded-lg">
+                  <section id="chat-section" className="py-8 sm:py-12 md:py-16 bg-white/5 transition-all duration-500 rounded-lg">
                       <div className="container mx-auto px-4 sm:px-6">
                         <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
                           <div className="text-center space-y-2 sm:space-y-3 px-4 animate-fade-in">
-                            <h2 className="text-2xl sm:text-3xl font-poppins font-light text-navy">
+                            <h2 className="text-2xl sm:text-3xl font-poppins font-light text-white/90">
                               Clinical Chat on Your Report
                             </h2>
-                            <p className="text-xs sm:text-sm text-slate">
+                            <p className="text-xs sm:text-sm text-white/60">
                               This chat is strictly about your uploaded test report. It does not replace medical diagnosis.
                             </p>
-                            <p className="text-xs sm:text-sm text-slate font-medium">
+                            <p className="text-xs sm:text-sm text-white/60 font-medium">
                               Clinical chat makes the analysis more focused
                             </p>
                           </div>
                           
-                          <div className="bg-coolGray rounded-xl sm:rounded-2xl shadow-premium p-4 sm:p-6 animate-slide-in">
+                          <div className="bg-white/5 rounded-xl sm:rounded-2xl shadow-premium p-4 sm:p-6 animate-slide-in">
                             <MedicalChatAgent
                               className="w-full"
                               analysisContext={createEnhancedAnalysisContext(analysisData)}
@@ -2205,14 +2205,14 @@ RAW DATA: ${baseContext}`;
                   {enhancedData && showPostChatSections && (
                     <>
                       {/* CONSOLIDATED COMPREHENSIVE HEALTH REPORT - ALL IN ONE SECTION */}
-                      <section id="comprehensive-report-section" className="py-6 sm:py-8 bg-gradient-to-br from-slate-50 to-gray-50 transition-all duration-500">
+                      <section id="comprehensive-report-section" className="py-6 sm:py-8 bg-gradient-to-br from-slate-50 to-white/5 transition-all duration-500">
                         <div className="container mx-auto px-4 sm:px-6 animate-fade-in">
                           <div className="max-w-6xl mx-auto space-y-4">
                             <div className="text-center mb-6">
-                              <h2 className="text-2xl sm:text-3xl font-poppins font-light text-navy mb-2">
+                              <h2 className="text-2xl sm:text-3xl font-poppins font-light text-white/90 mb-2">
                                 Your Comprehensive Health Report
                               </h2>
-                              <p className="text-sm sm:text-base text-slate">
+                              <p className="text-sm sm:text-base text-white/60">
                                 Complete analysis combining your lab results and clinical assessment
                               </p>
                             </div>
@@ -2239,7 +2239,7 @@ RAW DATA: ${baseContext}`;
                       </section>
 
                       {/* Health Score Calculator */}
-                      <section id="health-score-section" className="py-6 sm:py-8 bg-gradient-to-br from-blue-50 to-purple-50 transition-all duration-500">
+                      <section id="health-score-section" className="py-6 sm:py-8 bg-gradient-to-br from-white/5 to-white/5 transition-all duration-500">
                         <div className="container mx-auto px-4 sm:px-6 animate-fade-in">
                           <div className="max-w-4xl mx-auto animate-scale-in">
                             <HealthScoreCard 
@@ -2267,11 +2267,11 @@ RAW DATA: ${baseContext}`;
 
                   {/* Placeholder when clinical chat not complete */}
                   {enhancedData && !showPostChatSections && (
-                    <section className="py-6 sm:py-8 bg-coolGray">
+                    <section className="py-6 sm:py-8 bg-white/5">
                       <div className="container mx-auto px-4 sm:px-6">
                         <div className="max-w-4xl mx-auto">
-                          <Alert className="bg-blue-50 border-blue-200">
-                            <AlertCircle className="h-5 w-5 text-blue-600" />
+                          <Alert className="bg-white/5 border-white/10">
+                            <AlertCircle className="h-5 w-5 text-white/80" />
                             <AlertTitle className="text-blue-900 font-semibold">Complete Clinical Assessment Above</AlertTitle>
                             <AlertDescription className="text-blue-800">
                               Complete the clinical chat assessment above to unlock personalized health risk predictions, 
@@ -2285,14 +2285,14 @@ RAW DATA: ${baseContext}`;
 
                   {/* Risk Prediction & Analysis Tools */}
                   {showPostChatSections && enhancedData && clinicalAssessmentData && (
-                    <section id="risk-analysis-section" className="py-6 sm:py-10 md:py-16 bg-coolGray">
+                    <section id="risk-analysis-section" className="py-6 sm:py-10 md:py-16 bg-white/5">
                       <div className="container mx-auto px-3 sm:px-4 lg:px-6">
                         <div className="max-w-full lg:max-w-6xl mx-auto space-y-4 sm:space-y-6 lg:space-y-8">
                           <div className="text-center px-2">
-                            <h2 className="text-xl sm:text-2xl lg:text-3xl font-poppins font-light text-navy mb-3 sm:mb-4">
+                            <h2 className="text-xl sm:text-2xl lg:text-3xl font-poppins font-light text-white/90 mb-3 sm:mb-4">
                               Risk Predictions & Interactive Analysis
                             </h2>
-                            <p className="text-sm sm:text-base text-slate">
+                            <p className="text-sm sm:text-base text-white/60">
                               Understand your long-term health risks and explore interactive risk calculators
                             </p>
                           </div>
@@ -2337,7 +2337,7 @@ RAW DATA: ${baseContext}`;
                               <Button 
                                 onClick={handleDownloadComprehensiveReport}
                                 size="lg"
-                                className="bg-accentCyan text-navy hover:bg-accentCyan/90 font-poppins font-light px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-6 text-sm sm:text-base rounded-xl hover-scale-102 shadow-premium w-full sm:w-auto gap-2 min-h-[44px]"
+                                className="bg-white/10 text-white/90 hover:bg-white/10 font-poppins font-light px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-6 text-sm sm:text-base rounded-xl hover-scale-102 shadow-premium w-full sm:w-auto gap-2 min-h-[44px]"
                               >
                                 <Download className="w-4 h-4 sm:w-5 sm:h-5" />
                                 Download Report
@@ -2371,8 +2371,8 @@ RAW DATA: ${baseContext}`;
 
                           {/* Disclaimer */}
                           <div className="mt-6 sm:mt-8 p-4 sm:p-6 bg-yellow-50 border-2 border-yellow-200 rounded-xl">
-                            <p className="text-xs sm:text-sm text-center text-slate leading-relaxed">
-                              <span className="font-semibold text-navy">Disclaimer:</span> This is informational support only — not a medical diagnosis.
+                            <p className="text-xs sm:text-sm text-center text-white/60 leading-relaxed">
+                              <span className="font-semibold text-white/90">Disclaimer:</span> This is informational support only — not a medical diagnosis.
                             </p>
                           </div>
                         </div>

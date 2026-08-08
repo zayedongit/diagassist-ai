@@ -53,7 +53,7 @@ export function ReportPreviewModal({ open, onOpenChange, reportData, onDownload 
       case 'critical':
         return 'bg-red-500';
       default:
-        return 'bg-gray-500';
+        return 'bg-white/[0.03]0';
     }
   };
 
@@ -64,7 +64,7 @@ export function ReportPreviewModal({ open, onOpenChange, reportData, onDownload 
       case 'low':
         return 'text-yellow-600 bg-yellow-50';
       default:
-        return 'text-gray-600 bg-gray-50';
+        return 'text-white/60 bg-white/[0.03]';
     }
   };
 
@@ -223,7 +223,7 @@ export function ReportPreviewModal({ open, onOpenChange, reportData, onDownload 
 
             {/* Lifestyle Modifications */}
             {reportData.lifestyleModifications && reportData.lifestyleModifications.length > 0 && (
-              <Card className="border-blue-200 bg-blue-50/50">
+              <Card className="border-white/10 bg-white/5">
                 <CardContent className="pt-6">
                   <h3 className="font-semibold mb-3 flex items-center gap-2 text-blue-900">
                     <Heart className="w-4 h-4" />

@@ -29,7 +29,7 @@ export const ManagementRecommendations = ({ recommendations }: ManagementRecomme
 
   const getCategoryColor = (category: string) => {
     const lower = category.toLowerCase();
-    if (lower.includes('medication')) return 'text-blue-600';
+    if (lower.includes('medication')) return 'text-white/80';
     if (lower.includes('monitoring')) return 'text-purple-600';
     if (lower.includes('follow-up')) return 'text-orange-600';
     if (lower.includes('lifestyle')) return 'text-green-600';
@@ -85,9 +85,9 @@ export const ManagementRecommendations = ({ recommendations }: ManagementRecomme
           })}
         </div>
         
-        <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+        <div className="mt-6 p-4 bg-white/5 dark:bg-blue-950/20 rounded-lg border border-white/10 dark:border-blue-800">
           <p className="text-sm text-foreground flex items-start space-x-2">
-            <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+            <AlertCircle className="w-4 h-4 text-white/80 mt-0.5 flex-shrink-0" />
             <span>
               <strong>Important:</strong> These recommendations are based on your test results. 
               Always discuss any new medications or significant lifestyle changes with your healthcare provider before implementation.

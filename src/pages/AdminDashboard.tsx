@@ -102,7 +102,7 @@ const StorageOverview = () => {
     <div className="space-y-4">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div>
-          <div className="text-2xl font-bold text-blue-600">{storageStats.totalReports}</div>
+          <div className="text-2xl font-bold text-white/80">{storageStats.totalReports}</div>
           <div className="text-sm text-muted-foreground">Total Reports</div>
         </div>
         <div>
@@ -384,7 +384,7 @@ export default function AdminDashboard() {
             </Card>
             <Card>
               <CardContent className="p-4">
-                <div className="text-2xl font-bold text-blue-600">{stats.successful_analyses}</div>
+                <div className="text-2xl font-bold text-white/80">{stats.successful_analyses}</div>
                 <div className="text-sm text-muted-foreground">Successful</div>
               </CardContent>
             </Card>

@@ -23,7 +23,7 @@ const getStatusIcon = (status: string) => {
     case 'critical':
       return <XCircle className="w-5 h-5 text-red-600" />;
     default:
-      return <Heart className="w-5 h-5 text-blue-600" />;
+      return <Heart className="w-5 h-5 text-white/80" />;
   }
 };
 
@@ -53,8 +53,8 @@ export const SummaryCard = ({ summary, overallStatus, abnormalCount = 0, normalC
         <CardTitle className="flex items-center gap-3">
           {statusIcon}
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">Summary in Simple Terms</h2>
-            <p className="text-sm font-normal text-gray-700">Easy-to-understand overview of your results</p>
+            <h2 className="text-lg font-semibold text-white">Summary in Simple Terms</h2>
+            <p className="text-sm font-normal text-white/80">Easy-to-understand overview of your results</p>
           </div>
         </CardTitle>
       </CardHeader>
@@ -69,16 +69,16 @@ export const SummaryCard = ({ summary, overallStatus, abnormalCount = 0, normalC
         )}
         
         {/* Summary Text */}
-        <div className="bg-white rounded-lg p-4 border border-warning/30">
-          <p className="text-sm leading-relaxed text-gray-900">
+        <div className="bg-white/5 rounded-lg p-4 border border-warning/30">
+          <p className="text-sm leading-relaxed text-white">
             {summary || statusMessage}
           </p>
         </div>
         
         {/* Key Message */}
         <div className="bg-primary/5 rounded-lg p-3 border border-primary/20">
-          <p className="text-xs text-gray-700">
-            <strong className="text-gray-900">Remember:</strong> This summary provides a general overview. 
+          <p className="text-xs text-white/80">
+            <strong className="text-white">Remember:</strong> This summary provides a general overview. 
             Always discuss your results with your healthcare provider for personalized medical advice.
           </p>
         </div>

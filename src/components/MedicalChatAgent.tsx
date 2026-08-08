@@ -517,7 +517,7 @@ export const MedicalChatAgent = ({
   };
 
   return (
-    <Card className={`border-primary/20 bg-gradient-to-r from-primary/5 to-blue-50 ${className}`}>
+    <Card className={`border-primary/20 bg-gradient-to-r from-primary/5 to-white/5 ${className}`}>
       <CardHeader className="px-3 py-4 sm:px-6 sm:py-5 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3">
@@ -546,7 +546,7 @@ export const MedicalChatAgent = ({
         {showHelpSection && (
           <Collapsible open={showHelpSection} onOpenChange={setShowHelpSection}>
             <CollapsibleContent>
-              <Alert className="bg-blue-50 border-blue-200">
+              <Alert className="bg-white/5 border-white/10">
                 <AlertDescription className="text-xs sm:text-sm space-y-2">
                   <p className="font-medium text-blue-900">How to use:</p>
                   <ul className="list-disc list-inside space-y-1 text-blue-800">
@@ -564,8 +564,8 @@ export const MedicalChatAgent = ({
 
       {/* Clinical Chat Purpose Banner */}
       <div className="mx-3 mt-2 mb-0 sm:mx-6">
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
-          <Info className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" />
+        <div className="bg-white/5 border border-white/10 rounded-lg p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+          <Info className="w-4 h-4 sm:w-5 sm:h-5 text-white/80 flex-shrink-0" />
           <p className="text-xs sm:text-sm text-blue-900 font-medium">
             Clinical chat is required for more comprehensive analysis
           </p>
@@ -608,7 +608,7 @@ export const MedicalChatAgent = ({
                     <div className="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-green-100 flex items-center justify-center">
                       <Bot className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
                     </div>
-                    <div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-lg p-2 sm:p-3 border-2 border-green-200 max-w-[85%] sm:max-w-[80%]">
+                    <div className="bg-gradient-to-br from-green-50 to-white/5 rounded-lg p-2 sm:p-3 border-2 border-green-200 max-w-[85%] sm:max-w-[80%]">
                       <p className="text-xs sm:text-sm font-medium text-green-800">{message.content}</p>
                     </div>
                   </div>
@@ -650,7 +650,7 @@ export const MedicalChatAgent = ({
 
         {/* Current Question Card - Rendered separately below messages, always visible */}
         {currentQuestion && !finalReport && (
-          <div className="p-3 sm:p-4 border-t bg-gradient-to-br from-cyan-50 to-blue-50">
+          <div className="p-3 sm:p-4 border-t bg-gradient-to-br from-white/5 to-white/5">
             <div className="space-y-3">
               {/* Question Badge */}
               <Badge className="text-xs bg-primary text-primary-foreground">
@@ -673,7 +673,7 @@ export const MedicalChatAgent = ({
                   className="space-y-2"
                 >
                   {currentQuestion.options.map((option) => (
-                    <div key={option.id} className="flex items-center space-x-2 min-h-[44px] bg-white rounded-lg p-2 border border-primary/10 hover:border-primary/30 transition-colors">
+                    <div key={option.id} className="flex items-center space-x-2 min-h-[44px] bg-white/5 rounded-lg p-2 border border-primary/10 hover:border-primary/30 transition-colors">
                       <RadioGroupItem value={option.id} id={option.id} className={isMobile ? 'w-2.5 h-2.5' : 'w-4 h-4'} />
                       <Label htmlFor={option.id} className={`cursor-pointer flex-1 ${isMobile ? 'text-[13px] leading-tight' : 'text-sm'}`}>
                         {option.text}
@@ -686,7 +686,7 @@ export const MedicalChatAgent = ({
               {currentQuestion.type === 'checkbox' && currentQuestion.options && (
                 <div className="space-y-2">
                   {currentQuestion.options.map((option) => (
-                    <div key={option.id} className="flex items-center space-x-2 min-h-[44px] bg-white rounded-lg p-2 border border-primary/10 hover:border-primary/30 transition-colors">
+                    <div key={option.id} className="flex items-center space-x-2 min-h-[44px] bg-white/5 rounded-lg p-2 border border-primary/10 hover:border-primary/30 transition-colors">
                       <Checkbox
                         id={option.id}
                         checked={selectedAnswers[option.id] || false}
@@ -742,7 +742,7 @@ export const MedicalChatAgent = ({
         )}
 
         {finalReport && (
-          <div className="p-4 border-t bg-gradient-to-r from-green-50 to-blue-50">
+          <div className="p-4 border-t bg-gradient-to-r from-green-50 to-white/5">
             <div className="text-center space-y-3">
               <div className="flex items-center justify-center gap-2">
                 <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
@@ -756,14 +756,14 @@ export const MedicalChatAgent = ({
               
               {/* Mobile - Show "Tap Next" guidance */}
               {isMobile && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 space-y-2">
+                <div className="bg-white/5 border border-white/10 rounded-lg p-3 space-y-2">
                   <p className="text-xs font-medium text-blue-900">👇 Tap Next Below to View Your Results</p>
-                  <div className="flex flex-wrap gap-1.5 justify-center text-[10px] text-blue-700">
-                    <span className="bg-white px-2 py-1 rounded">📊 Health Score</span>
-                    <span className="bg-white px-2 py-1 rounded">📅 30-Day Plan</span>
-                    <span className="bg-white px-2 py-1 rounded">⚠️ Risks</span>
-                    <span className="bg-white px-2 py-1 rounded">📋 Numbers</span>
-                    <span className="bg-white px-2 py-1 rounded">💚 Tips</span>
+                  <div className="flex flex-wrap gap-1.5 justify-center text-[10px] text-white/80">
+                    <span className="bg-white/5 px-2 py-1 rounded">📊 Health Score</span>
+                    <span className="bg-white/5 px-2 py-1 rounded">📅 30-Day Plan</span>
+                    <span className="bg-white/5 px-2 py-1 rounded">⚠️ Risks</span>
+                    <span className="bg-white/5 px-2 py-1 rounded">📋 Numbers</span>
+                    <span className="bg-white/5 px-2 py-1 rounded">💚 Tips</span>
                   </div>
                 </div>
               )}

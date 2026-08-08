@@ -11,7 +11,7 @@ export const GlobalNav = ({ theme = 'dark' }: GlobalNavProps) => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   
-  const textColor = theme === 'dark' ? 'text-white' : 'text-navy';
+  const textColor = theme === 'dark' ? 'text-white' : 'text-white/90';
   const hoverBg = theme === 'dark' ? 'hover:bg-white/20' : 'hover:bg-navy/10';
   
   const handleSignInClick = () => {
