@@ -159,7 +159,7 @@ export const CameraCapture = ({ onImagesReady, onClose, maxImages = 15 }: Camera
   const canCapture = capturedImages.length < maxImages;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black">
+    <div className="fixed inset-0 z-50 bg-background">
       {/* Header */}
       <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/80 to-transparent p-4">
         <div className="flex items-center justify-between mb-2">
@@ -167,7 +167,7 @@ export const CameraCapture = ({ onImagesReady, onClose, maxImages = 15 }: Camera
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="text-white hover:bg-white/20"
+            className="text-foreground hover:bg-card"
           >
             <X className="w-6 h-6" />
           </Button>
@@ -180,7 +180,7 @@ export const CameraCapture = ({ onImagesReady, onClose, maxImages = 15 }: Camera
             variant="ghost"
             size="icon"
             onClick={switchCamera}
-            className="text-white hover:bg-white/20"
+            className="text-foreground hover:bg-card"
           >
             <RotateCcw className="w-6 h-6" />
           </Button>
@@ -214,7 +214,7 @@ export const CameraCapture = ({ onImagesReady, onClose, maxImages = 15 }: Camera
         {/* Overlay guide */}
         <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
           <div className="border-4 border-white/50 rounded-lg w-[85%] h-[70%] shadow-2xl">
-            <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-full text-sm whitespace-nowrap">
+            <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-background text-foreground px-4 py-2 rounded-full text-sm whitespace-nowrap">
               Align report within frame
             </div>
           </div>
@@ -239,7 +239,7 @@ export const CameraCapture = ({ onImagesReady, onClose, maxImages = 15 }: Camera
                   onClick={() => deleteImage(idx)}
                   className="absolute -top-2 -right-2 bg-red-500 rounded-full p-1 hover:bg-red-600"
                 >
-                  <X className="w-3 h-3 text-white" />
+                  <X className="w-3 h-3 text-foreground" />
                 </button>
               </div>
             ))}
@@ -253,7 +253,7 @@ export const CameraCapture = ({ onImagesReady, onClose, maxImages = 15 }: Camera
               variant="ghost"
               size="icon"
               onClick={() => setFlashEnabled(!flashEnabled)}
-              className="text-white hover:bg-white/20 w-12 h-12"
+              className="text-foreground hover:bg-card w-12 h-12"
             >
               {flashEnabled ? <Zap className="w-6 h-6" /> : <ZapOff className="w-6 h-6" />}
             </Button>
@@ -262,10 +262,10 @@ export const CameraCapture = ({ onImagesReady, onClose, maxImages = 15 }: Camera
           <Button
             onClick={canCapture ? captureImage : undefined}
             disabled={!canCapture}
-            className={`rounded-full w-20 h-20 ${canCapture ? 'bg-white/5 hover:bg-white/10' : 'bg-white/[0.03]0'}`}
+            className={`rounded-full w-20 h-20 ${canCapture ? 'bg-card hover:bg-card' : 'bg-card/[0.03]0'}`}
           >
             <div className="w-16 h-16 rounded-full border-4 border-black flex items-center justify-center">
-              <Camera className="w-8 h-8 text-white/90" />
+              <Camera className="w-8 h-8 text-foreground" />
             </div>
           </Button>
           
@@ -281,7 +281,7 @@ export const CameraCapture = ({ onImagesReady, onClose, maxImages = 15 }: Camera
         </div>
         
         {!canCapture && (
-          <p className="text-center text-white mt-4">Maximum {maxImages} images reached</p>
+          <p className="text-center text-foreground mt-4">Maximum {maxImages} images reached</p>
         )}
       </div>
     </div>

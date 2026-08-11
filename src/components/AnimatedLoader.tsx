@@ -5,56 +5,40 @@ interface AnimatedLoaderProps {
 
 export const AnimatedLoader = ({ message, onCancel }: AnimatedLoaderProps) => {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] p-4 sm:p-8">
-      {/* Circular glowing ring animation - PredLabs style */}
-      <div className="relative w-40 h-40 sm:w-48 sm:h-48 mb-8 sm:mb-10">
-        {/* Outer glowing ring */}
-        <div className="absolute inset-0 rounded-full border-[3px] border-primary/40 animate-spin" style={{ animationDuration: '3s' }}>
-          <div className="absolute top-0 left-1/2 w-4 h-4 -ml-2 -mt-2 rounded-full bg-primary shadow-[0_0_20px_rgba(0,198,255,0.8)]" />
-        </div>
-        
-        {/* Middle aqua ring */}
-        <div className="absolute inset-4 rounded-full border-[3px] border-[#44FFE8]/30 animate-spin" style={{ animationDuration: '4s', animationDirection: 'reverse' }}>
-          <div className="absolute top-0 right-1/2 w-3 h-3 -mr-1.5 -mt-1.5 rounded-full bg-[#44FFE8] shadow-[0_0_15px_rgba(68,255,232,0.7)]" />
-        </div>
-        
-        {/* Inner mint ring */}
-        <div className="absolute inset-8 rounded-full border-[2px] border-[#7CFFCB]/30 animate-spin" style={{ animationDuration: '5s' }}>
-          <div className="absolute bottom-0 left-1/2 w-2.5 h-2.5 -ml-1.25 -mb-1.25 rounded-full bg-[#7CFFCB] shadow-[0_0_12px_rgba(124,255,203,0.6)]" />
-        </div>
-        
-        {/* Central gradient core */}
-        <div className="absolute inset-12 rounded-full bg-gradient-to-br from-primary via-[#44FFE8] to-[#7CFFCB] opacity-30 animate-pulse blur-sm" style={{ animationDuration: '2s' }} />
-        
-        {/* Soft outer glow */}
-        <div className="absolute inset-[-30px] rounded-full bg-gradient-to-br from-primary/20 via-transparent to-[#7CFFCB]/10 blur-2xl animate-breathe" style={{ animationDuration: '3s' }} />
+    <div className="flex flex-col items-center justify-center px-6 py-8 sm:py-10 text-center">
+      {/* Minimal olive indicator — quiet motion, no glow, no cyan */}
+      <div className="relative w-14 h-14 sm:w-16 sm:h-16 mb-8 sm:mb-10">
+        <svg
+          viewBox="0 0 64 64"
+          className="w-full h-full animate-spin"
+          style={{ animationDuration: '1.6s' }}
+        >
+          <circle cx="32" cy="32" r="27" fill="none" stroke="hsl(44 20% 82%)" strokeWidth="2" />
+          <circle
+            cx="32" cy="32" r="27" fill="none"
+            stroke="hsl(95 24% 20%)" strokeWidth="2" strokeLinecap="round"
+            strokeDasharray="42 128"
+          />
+        </svg>
       </div>
-      
-      {/* Loading message */}
-      <div className="text-center max-w-md px-4">
-        <h3 className="text-xl sm:text-2xl font-semibold text-white/90 mb-3 sm:mb-4">
-          {message || "Analyzing Your Report"}
-        </h3>
-        
-        {/* Animated dots */}
-        <div className="flex items-center justify-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0s' }} />
-          <div className="w-2 h-2 rounded-full bg-[#44FFE8] animate-bounce" style={{ animationDelay: '0.2s' }} />
-          <div className="w-2 h-2 rounded-full bg-[#7CFFCB] animate-bounce" style={{ animationDelay: '0.4s' }} />
-        </div>
-        
-        <p className="text-sm sm:text-base text-white/60 mt-4 sm:mt-6 leading-relaxed">
-          Our AI is carefully analyzing your medical data to provide personalized insights
-        </p>
-      </div>
-      
-      {/* Cancel button if provided */}
+
+      <h3 className="text-2xl sm:text-3xl font-poppins font-light text-foreground">
+        {message || 'Making sense of your results.'}
+      </h3>
+      <p className="mt-4 text-sm sm:text-base text-muted-foreground max-w-md leading-relaxed">
+        We&rsquo;re reviewing your report and preparing a clearer picture of your health.
+      </p>
+
+      <p className="mt-10 text-xs text-muted-foreground/80 max-w-sm leading-relaxed">
+        Your report is being handled with care — used only for your analysis and removed after processing.
+      </p>
+
       {onCancel && (
         <button
           onClick={onCancel}
-          className="mt-8 sm:mt-10 px-8 py-3.5 glass-dark text-white rounded-full border border-primary/30 transition-all duration-300 hover:shadow-glow hover:border-primary/50 hover:scale-105 active:scale-95 backdrop-blur-md"
+          className="mt-8 px-6 py-2.5 rounded-lg border border-foreground/25 text-foreground text-sm transition-colors duration-300 hover:bg-primary hover:text-primary-foreground hover:border-primary"
         >
-          Cancel Analysis
+          Cancel
         </button>
       )}
     </div>

@@ -80,14 +80,14 @@ export const MobileResultsView = ({
       title: 'Your Report',
       icon: FileText,
       color: 'text-purple-600',
-      bgColor: 'bg-white/5'
+      bgColor: 'bg-card'
     },
     {
       id: 'voice',
       title: 'Ask Questions',
       icon: Mic,
-      color: 'text-white/70',
-      bgColor: 'bg-white/5'
+      color: 'text-foreground',
+      bgColor: 'bg-card'
     },
     {
       id: 'score',
@@ -100,8 +100,8 @@ export const MobileResultsView = ({
       id: 'plan',
       title: '30-Day Plan',
       icon: Calendar,
-      color: 'text-white/80',
-      bgColor: 'bg-white/5'
+      color: 'text-foreground',
+      bgColor: 'bg-card'
     },
     {
       id: 'risks',
@@ -115,7 +115,7 @@ export const MobileResultsView = ({
       title: 'Your Numbers',
       icon: FileText,
       color: 'text-purple-500',
-      bgColor: 'bg-white/5'
+      bgColor: 'bg-card'
     },
     {
       id: 'recommendations',
@@ -261,12 +261,12 @@ export const MobileResultsView = ({
             />
           </div>
         ) : (
-          <p className="text-white/60 text-center py-8">No health data available for scoring</p>
+          <p className="text-foreground text-center py-8">No health data available for scoring</p>
         );
       
       case 'plan':
         if (!enhancedData) {
-          return <p className="text-white/60 text-center py-8">Complete health score analysis to view your 30-day plan</p>;
+          return <p className="text-foreground text-center py-8">Complete health score analysis to view your 30-day plan</p>;
         }
 
         const healthScoreBreakdown = calculateHealthScore(
@@ -281,17 +281,17 @@ export const MobileResultsView = ({
             <Card className="border-2 border-white/10 bg-gradient-to-br from-white/5 to-white/5">
               <CardContent className="pt-6 space-y-4">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="p-3 bg-white/10 rounded-full">
-                    <Calendar className="w-6 h-6 text-white/80" />
+                  <div className="p-3 bg-card rounded-full">
+                    <Calendar className="w-6 h-6 text-foreground" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg text-white/90">Your 30-Day Plan</h3>
+                    <h3 className="font-semibold text-lg text-foreground">Your 30-Day Plan</h3>
                     <p className="text-sm text-muted-foreground">Personalized improvement strategy</p>
                   </div>
                 </div>
 
-                <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-                  <h4 className="font-medium text-sm text-white/90 mb-2">Focus Areas</h4>
+                <div className="bg-card rounded-lg p-4 border border-white/10">
+                  <h4 className="font-medium text-sm text-foreground mb-2">Focus Areas</h4>
                   <div className="flex flex-wrap gap-2">
                     {improvementPlan.targetSystems.map(system => (
                       <Badge key={system} variant="default" className="text-xs">
@@ -301,9 +301,9 @@ export const MobileResultsView = ({
                   </div>
                 </div>
 
-                <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-                  <h4 className="font-medium text-sm text-white/90 mb-2">Your Goal</h4>
-                  <p className="text-xs text-white/60 leading-relaxed">
+                <div className="bg-card rounded-lg p-4 border border-white/10">
+                  <h4 className="font-medium text-sm text-foreground mb-2">Your Goal</h4>
+                  <p className="text-xs text-foreground leading-relaxed">
                     {improvementPlan.overallGoal}
                   </p>
                 </div>
@@ -329,18 +329,18 @@ export const MobileResultsView = ({
                   </div>
                 </div>
 
-                <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-                  <h4 className="font-medium text-sm text-white/90 mb-3">4-Week Overview</h4>
+                <div className="bg-card rounded-lg p-4 border border-white/10">
+                  <h4 className="font-medium text-sm text-foreground mb-3">4-Week Overview</h4>
                   <div className="space-y-2">
                     {improvementPlan.weeklyBreakdown.map((week) => (
-                      <div key={week.week} className="bg-white/5 rounded p-2 border border-white/10">
+                      <div key={week.week} className="bg-card rounded p-2 border border-white/10">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs font-semibold text-white/80">Week {week.week}</span>
+                          <span className="text-xs font-semibold text-foreground">Week {week.week}</span>
                           <Badge variant="outline" className="text-xs">{week.focus}</Badge>
                         </div>
                         <ul className="space-y-0.5">
                           {week.goals.slice(0, 2).map((goal, idx) => (
-                            <li key={idx} className="text-xs text-white/60 flex items-start">
+                            <li key={idx} className="text-xs text-foreground flex items-start">
                               <span className="text-green-600 mr-1">✓</span>
                               <span>{goal}</span>
                             </li>
@@ -382,7 +382,7 @@ export const MobileResultsView = ({
             demographics={enhancedData.demographics}
           />
         ) : (
-          <p className="text-white/60 text-center py-8">No health risk data available</p>
+          <p className="text-foreground text-center py-8">No health risk data available</p>
         );
       
       case 'numbers':
@@ -391,7 +391,7 @@ export const MobileResultsView = ({
             analysisData={enhancedData}
           />
         ) : (
-          <p className="text-white/60 text-center py-8">No lab data available</p>
+          <p className="text-foreground text-center py-8">No lab data available</p>
         );
       
       case 'recommendations':
@@ -403,7 +403,7 @@ export const MobileResultsView = ({
                 <CardContent className="pt-6">
                   <div className="flex items-center gap-2 mb-4">
                     <Utensils className="w-5 h-5 text-green-600" />
-                    <h4 className="font-semibold text-white/90">Dietary Guidance</h4>
+                    <h4 className="font-semibold text-foreground">Dietary Guidance</h4>
                   </div>
                   
                   {analysisData.diet.increase && analysisData.diet.increase.length > 0 && (
@@ -411,7 +411,7 @@ export const MobileResultsView = ({
                       <p className="text-sm font-semibold text-green-700 mb-2">Foods to Include:</p>
                       <ul className="space-y-1">
                         {analysisData.diet.increase.map((item: string, idx: number) => (
-                          <li key={idx} className="text-sm text-white/60 flex items-start">
+                          <li key={idx} className="text-sm text-foreground flex items-start">
                             <span className="text-green-600 mr-2">+</span>
                             {item}
                           </li>
@@ -425,7 +425,7 @@ export const MobileResultsView = ({
                       <p className="text-sm font-semibold text-red-700 mb-2">Foods to Limit:</p>
                       <ul className="space-y-1">
                         {analysisData.diet.avoid.map((item: string, idx: number) => (
-                          <li key={idx} className="text-sm text-white/60 flex items-start">
+                          <li key={idx} className="text-sm text-foreground flex items-start">
                             <span className="text-red-600 mr-2">-</span>
                             {item}
                           </li>
@@ -442,13 +442,13 @@ export const MobileResultsView = ({
               <Card className="border-l-4 border-l-blue-500">
                 <CardContent className="pt-6">
                   <div className="flex items-center gap-2 mb-4">
-                    <Heart className="w-5 h-5 text-white/80" />
-                    <h4 className="font-semibold text-white/90">Lifestyle Changes</h4>
+                    <Heart className="w-5 h-5 text-foreground" />
+                    <h4 className="font-semibold text-foreground">Lifestyle Changes</h4>
                   </div>
                   <ul className="space-y-2">
                     {analysisData.lifestyle.recommendations.map((item: string, idx: number) => (
-                      <li key={idx} className="text-sm text-white/60 flex items-start">
-                        <span className="text-white/80 mr-2">•</span>
+                      <li key={idx} className="text-sm text-foreground flex items-start">
+                        <span className="text-foreground mr-2">•</span>
                         {item}
                       </li>
                     ))}
@@ -461,10 +461,10 @@ export const MobileResultsView = ({
             {analysisData.nextSteps && analysisData.nextSteps.length > 0 && (
               <Card className="border-l-4 border-l-purple-500">
                 <CardContent className="pt-6">
-                  <h4 className="font-semibold text-white/90 mb-4">Next Steps</h4>
+                  <h4 className="font-semibold text-foreground mb-4">Next Steps</h4>
                   <ul className="space-y-2">
                     {analysisData.nextSteps.map((step: string, idx: number) => (
-                      <li key={idx} className="text-sm text-white/60 flex items-start">
+                      <li key={idx} className="text-sm text-foreground flex items-start">
                         <span className="text-purple-600 mr-2 font-semibold">{idx + 1}.</span>
                         {step}
                       </li>
@@ -486,7 +486,7 @@ export const MobileResultsView = ({
 
   return (
     <div 
-      className={`fixed inset-0 bg-white/5 z-50 overflow-hidden transition-transform duration-300 ${
+      className={`fixed inset-0 bg-card z-50 overflow-hidden transition-transform duration-300 ${
         isDismissing ? 'translate-y-full' : ''
       } flex flex-col`}
     >
@@ -518,7 +518,7 @@ export const MobileResultsView = ({
       
       {/* Header */}
       <div className="bg-gradient-to-br from-primary/10 to-primary/5 px-4 py-4 border-b border-border mt-16">
-        <h2 className="text-lg font-semibold text-white/90">{currentCardData.title}</h2>
+        <h2 className="text-lg font-semibold text-foreground">{currentCardData.title}</h2>
       </div>
 
       {/* Swipeable Content */}
@@ -534,7 +534,7 @@ export const MobileResultsView = ({
       </div>
 
       {/* Navigation Footer - Mobile Optimized */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white/5 border-t border-border shadow-lg" 
+      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border shadow-lg" 
            style={{ paddingBottom: 'env(safe-area-inset-bottom, 12px)' }}>
         <div className="px-4 py-3 flex items-center justify-between gap-4">
           <Button
@@ -594,9 +594,9 @@ export const MobileResultsView = ({
 
       {/* First-Time Tutorial Overlay */}
       {showTutorial && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm animate-fade-in">
+        <div className="fixed inset-0 z-50 bg-background backdrop-blur-sm animate-fade-in">
           <div className="absolute inset-0 flex items-center justify-center p-6">
-            <Card className="max-w-sm w-full bg-white/5 shadow-2xl animate-scale-in">
+            <Card className="max-w-sm w-full bg-card shadow-2xl animate-scale-in">
               <CardContent className="pt-6 space-y-6">
                 {/* Close button */}
                 <Button
@@ -622,7 +622,7 @@ export const MobileResultsView = ({
                   {/* Swipe Gesture */}
                   <div className="bg-gradient-to-r from-white/5 to-white/5 rounded-lg p-4 space-y-2">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center shadow-sm">
+                      <div className="w-10 h-10 bg-card rounded-full flex items-center justify-center shadow-sm">
                         <span className="text-lg">👈</span>
                       </div>
                       <div className="flex-1">
@@ -635,7 +635,7 @@ export const MobileResultsView = ({
                   {/* Next/Prev Buttons */}
                   <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 space-y-2">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center shadow-sm">
+                      <div className="w-10 h-10 bg-card rounded-full flex items-center justify-center shadow-sm">
                         <ChevronRight className="w-5 h-5 text-green-600" />
                       </div>
                       <div className="flex-1">
@@ -648,7 +648,7 @@ export const MobileResultsView = ({
                   {/* Available Screens */}
                   <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg p-4 space-y-2">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center shadow-sm">
+                      <div className="w-10 h-10 bg-card rounded-full flex items-center justify-center shadow-sm">
                         <FileText className="w-5 h-5 text-orange-600" />
                       </div>
                       <div className="flex-1">

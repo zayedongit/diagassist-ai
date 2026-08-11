@@ -22,13 +22,13 @@ import { ClinicalAssessmentHighlights } from "@/components/ClinicalAssessmentHig
 import { UnderstandingYourNumbers } from "@/components/UnderstandingYourNumbers";
 import { HealthRiskDashboardWithTimeline } from "@/components/HealthRiskDashboard";
 import { ConsolidatedHealthReport } from "@/components/ConsolidatedHealthReport";
-import { VoiceFollowUpAgent } from "@/components/VoiceFollowUpAgent";
 import { EnhancedAnalysisResult, extractAbnormalPanels } from "@/types/medicalAnalysis";
 import { parseClinicalContext } from "@/utils/parseClinicalContext";
 import heroBackground from "@/assets/hero-background.jpg";
 import readyBackground from "@/assets/ready-background.jpg";
 import daigassistLogo from "@/assets/daigasst-logo.png";
 import medicalReportIcon from "@/assets/medical-report-icon.png";
+import heroOrganic from "@/assets/hero-organic.svg";
 import { GlobalNav } from '@/components/GlobalNav';
 import { fetchUserAnalysisHistory } from '@/utils/fetchUserAnalysisHistory';
 import { PhoneAuth } from '@/components/PhoneAuth';
@@ -140,7 +140,7 @@ const Index = () => {
         
         // Add highlight effect
         section.style.transition = 'all 0.5s ease-out';
-        section.style.boxShadow = '0 0 0 4px rgba(0, 198, 255, 0.3)';
+        section.style.boxShadow = '0 0 0 1px rgba(38, 50, 31, 0.2)';
         
         // Scroll into view
         section.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -304,7 +304,7 @@ const Index = () => {
           }
         });
         
-        if (result.success && result.pdfBase64) {
+        if (false && result.success && result.pdfBase64) { // cloud auto-storage disabled (account-free)
           console.log('📤 AUTO-STORAGE: Storing comprehensive report');
           
           const { error: storageError } = await supabase.functions.invoke('store-analysis-report', {
@@ -676,11 +676,8 @@ RAW DATA: ${baseContext}`;
     if (result.success && result.pdfBase64 && analysisId) {
       console.log('✅ All conditions met - attempting to store comprehensive report');
       
-      if (!user) {
-        console.error('❌ User not authenticated - cannot store report');
-        toast.error('Please sign in to save your reports to the cloud');
-        return;
-      }
+      // Account-free build: cloud save disabled (users download their own copy).
+      return;
       
       try {
         console.log('📤 Invoking store-analysis-report for comprehensive...');
@@ -758,11 +755,8 @@ RAW DATA: ${baseContext}`;
     if (result.success && result.pdfBase64 && analysisId) {
       console.log('✅ All conditions met - attempting to store 30-day plan');
       
-      if (!user) {
-        console.error('❌ User not authenticated - cannot store plan');
-        toast.error('Please sign in to save your plan to the cloud');
-        return;
-      }
+      // Account-free build: cloud save disabled (users download their own copy).
+      return;
       
       try {
         console.log('📤 Invoking store-analysis-report for plan...');
@@ -812,7 +806,7 @@ RAW DATA: ${baseContext}`;
         
         // Add highlight animation
         summarySection.style.transition = 'box-shadow 0.5s ease-out';
-        summarySection.style.boxShadow = '0 0 30px rgba(59, 130, 246, 0.5)';
+        summarySection.style.boxShadow = '0 0 0 1px rgba(38, 50, 31, 0.2)';
         setTimeout(() => {
           summarySection.style.boxShadow = 'none';
         }, 2000);
@@ -1692,7 +1686,7 @@ RAW DATA: ${baseContext}`;
 
   const getProcessingMessage = () => {
     if (usedTextExtraction) {
-      return 'AI is analyzing your lab values... (Fast mode: 30-60s)';
+      return 'Making sense of your results.';
     }
     switch (processingStatus) {
       case 'starting':
@@ -1737,6 +1731,26 @@ RAW DATA: ${baseContext}`;
         <span className="orb orb--18" />
         <span className="orb orb--19" />
         <span className="orb orb--20" />
+        <span className="orb orb--21" />
+        <span className="orb orb--22" />
+        <span className="orb orb--23" />
+        <span className="orb orb--24" />
+        <span className="orb orb--25" />
+        <span className="orb orb--26" />
+        <span className="orb orb--27" />
+        <span className="orb orb--28" />
+        <span className="orb orb--29" />
+        <span className="orb orb--30" />
+        <span className="orb orb--31" />
+        <span className="orb orb--32" />
+        <span className="orb orb--33" />
+        <span className="orb orb--34" />
+        <span className="orb orb--35" />
+        <span className="orb orb--36" />
+        <span className="orb orb--37" />
+        <span className="orb orb--38" />
+        <span className="orb orb--39" />
+        <span className="orb orb--40" />
       </div>
       {/* Global Navigation */}
       <GlobalNav theme="dark" />
@@ -1745,7 +1759,7 @@ RAW DATA: ${baseContext}`;
         {/* 2. HERO SECTION - Premium Futuristic with Video Background */}
         {!selectedFile && !showResults && !error && (
           <>
-            <section className="relative min-h-screen flex items-center justify-center overflow-hidden py-24">
+            <section className="relative min-h-[88vh] flex items-center justify-center overflow-hidden pt-16 pb-10 md:pt-24 md:pb-16">
               {/* Full-width Background Video with Parallax */}
               <div className="absolute inset-0 z-0 overflow-hidden">
                 
@@ -1754,47 +1768,35 @@ RAW DATA: ${baseContext}`;
                 <div 
                   className="absolute inset-0 z-10"
                   style={{
-                    background: 'linear-gradient(180deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.45) 50%, rgba(0, 0, 0, 0.7) 100%)'
+                    background: 'transparent'
                   }}
                 />
               </div>
               
               {/* Hero Content - Centered and Mobile Optimized */}
-              <div className="relative z-20 container mx-auto px-4 sm:px-6 text-center">
-                <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8 md:space-y-10 animate-fade-up">
+              <div className="relative z-20 container mx-auto px-4 sm:px-6">
+                <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+                <div className="max-w-xl mx-auto lg:mx-0 text-center lg:text-left space-y-6 sm:space-y-8 md:space-y-10 animate-fade-up">
                   
                   {/* Headline - Mobile Optimized */}
-                  <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-poppins font-light text-white leading-tight tracking-tight opacity-0 animate-fade-in px-2" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-poppins font-light text-foreground leading-tight tracking-tight px-2">
                     Understand your medical reports
                   </h1>
-                  <p className="text-sm sm:text-base md:text-lg text-white/60 font-inter max-w-2xl mx-auto leading-relaxed opacity-0 animate-fade-in px-2 pt-4" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
+                  <p className="text-sm sm:text-base md:text-lg text-foreground font-inter max-w-2xl mx-auto leading-relaxed px-2 pt-4">
                     Upload a lab report and get an AI breakdown — health score, risk predictions, and a personalized 30-day plan.
                   </p>
                   
                   {/* Tagline - Mobile Optimized */}
                   
                   {/* CTA Buttons - Mobile Optimized */}
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 md:gap-6 pt-6 sm:pt-8 md:pt-10 opacity-0 animate-fade-in px-2" style={{ animationDelay: '0.8s', animationFillMode: 'forwards' }}>
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 md:gap-6 pt-6 sm:pt-8 md:pt-10 px-2">
                     {/* Primary CTA - Mobile Friendly */}
                     <button
                       onClick={() => {
                         const uploadSection = document.getElementById('upload-section');
                         uploadSection?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                       }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)';
-                        e.currentTarget.style.boxShadow = '0 8px 40px rgba(255, 255, 255, 0.18)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
-                        e.currentTarget.style.boxShadow = '0 8px 32px rgba(255, 255, 255, 0.10)';
-                      }}
-                      className="group relative px-5 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 rounded-full font-poppins font-light text-sm sm:text-base text-white transition-all duration-400 hover:scale-105 active:scale-95 w-full sm:w-auto overflow-hidden backdrop-blur-lg"
-                      style={{ 
-                        background: 'rgba(255, 255, 255, 0.15)',
-                        border: '1px solid rgba(255, 255, 255, 0.3)',
-                        boxShadow: '0 8px 32px rgba(255, 255, 255, 0.10)'
-                      }}
+                      className="group inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-lg font-poppins font-light text-sm sm:text-base text-foreground border border-foreground/30 bg-transparent transition-colors duration-300 hover:bg-primary hover:text-primary-foreground hover:border-primary w-full sm:w-auto"
                     >
                       <span className="flex items-center justify-center gap-2 relative z-10">
                         Start
@@ -1804,19 +1806,23 @@ RAW DATA: ${baseContext}`;
                   </div>
                   
                   {/* Sample Report Preview */}
-                  <div className="flex justify-center pt-6 opacity-0 animate-fade-in" style={{ animationDelay: '1s', animationFillMode: 'forwards' }}>
+                  <div className="flex justify-center pt-6">
                     <div className="flex flex-col items-center gap-2">
                       <SampleReportPreview />
-                      <p className="text-xs text-white/45">See the full analysis you'll get</p>
+                      <p className="text-xs text-foreground">See the full analysis you'll get</p>
                     </div>
                   </div>
+                </div>
+                <div className="relative mt-10 lg:mt-0">
+                  <img src={heroOrganic} alt="" loading="eager" className="w-full aspect-[4/5] object-cover rounded-3xl border border-foreground/10" />
+                </div>
                 </div>
               </div>
               
               {/* Scroll indicator with glow */}
               <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 animate-bounce opacity-60">
-                <div className="w-6 h-10 border-2 border-white/40 rounded-full flex items-start justify-center p-2" style={{ boxShadow: '0 0 20px rgba(255, 255, 255, 0.15)' }}>
-                  <div className="w-1 h-2 bg-white/80 rounded-full animate-pulse" />
+                <div className="w-6 h-10 border border-foreground/30 rounded-full flex items-start justify-center p-2">
+                  <div className="w-1 h-2 bg-foreground/50 rounded-full animate-pulse" />
                 </div>
               </div>
             </section>
@@ -1826,10 +1832,10 @@ RAW DATA: ${baseContext}`;
               <div className="container mx-auto px-4 sm:px-6">
                 {/* Header */}
                 <div className="reveal-on-scroll text-center mb-10 sm:mb-12 space-y-3">
-                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-light text-white">
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-light text-foreground">
                     How It Works
                   </h2>
-                  <p className="text-white/70 text-sm sm:text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
+                  <p className="text-foreground text-sm sm:text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
                     Your medical data deserves more than numbers — it deserves understanding.
                     Our intelligent system analyzes your reports, interprets results, and builds a personalized 30-day roadmap toward better health and lasting wellness.
                   </p>
@@ -1837,94 +1843,53 @@ RAW DATA: ${baseContext}`;
                 
                 {/* Compact Flow - Horizontal on Desktop, Vertical on Mobile */}
                 <div className="max-w-5xl mx-auto">
-                  <div className="reveal-on-scroll flex flex-col md:flex-row items-center justify-between gap-4 mb-12">
-                    {/* Step 1: Upload */}
-                    <div className="flex flex-col items-center text-center space-y-2 flex-1">
-                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center backdrop-blur-lg bg-white/5 border border-white/10">
-                        <Upload className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
-                      </div>
-                      <h3 className="text-sm sm:text-base font-poppins font-light text-white">Upload</h3>
-                      <p className="text-xs sm:text-sm text-white/70 max-w-[160px]">Secure PDF/Image upload</p>
+                                    <div className="reveal-on-scroll grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-border mb-16">
+                    <div className="px-0 sm:px-6 md:px-8 py-6 sm:py-4">
+                      <span className="block text-xs tracking-[0.25em] text-muted-foreground">01</span>
+                      <h3 className="mt-3 text-lg font-poppins font-light text-foreground">Upload</h3>
+                      <p className="mt-1 text-sm text-muted-foreground leading-relaxed">Secure PDF or image upload.</p>
                     </div>
-
-                    {/* Arrow */}
-                    <ArrowRight className="hidden md:block w-6 h-6 text-white/30" />
-                    <div className="md:hidden w-px h-8 bg-white/15" />
-
-                    {/* Step 2: AI Analysis */}
-                    <div className="flex flex-col items-center text-center space-y-2 flex-1">
-                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center backdrop-blur-lg bg-white/5 border border-white/10">
-                        <BarChart3 className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
-                      </div>
-                      <h3 className="text-sm sm:text-base font-poppins font-light text-white">AI Analysis</h3>
-                      <p className="text-xs sm:text-sm text-white/70 max-w-[160px]">Real-time parameter analysis</p>
+                    <div className="px-0 sm:px-6 md:px-8 py-6 sm:py-4">
+                      <span className="block text-xs tracking-[0.25em] text-muted-foreground">02</span>
+                      <h3 className="mt-3 text-lg font-poppins font-light text-foreground">AI Analysis</h3>
+                      <p className="mt-1 text-sm text-muted-foreground leading-relaxed">Real-time reading of every parameter.</p>
                     </div>
-
-                    {/* Arrow */}
-                    <ArrowRight className="hidden md:block w-6 h-6 text-white/30" />
-                    <div className="md:hidden w-px h-8 bg-white/15" />
-
-                    {/* Step 3: Clinical Chat */}
-                    <div className="flex flex-col items-center text-center space-y-2 flex-1">
-                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center backdrop-blur-lg bg-white/5 border border-white/10">
-                        <MessageCircle className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
-                      </div>
-                      <h3 className="text-sm sm:text-base font-poppins font-light text-white">Clinical Chat</h3>
-                      <p className="text-xs sm:text-sm text-white/70 max-w-[160px]">Personalized Q&A</p>
+                    <div className="px-0 sm:px-6 md:px-8 py-6 sm:py-4">
+                      <span className="block text-xs tracking-[0.25em] text-muted-foreground">03</span>
+                      <h3 className="mt-3 text-lg font-poppins font-light text-foreground">Clinical Chat</h3>
+                      <p className="mt-1 text-sm text-muted-foreground leading-relaxed">Personalized questions and answers.</p>
                     </div>
-
-                    {/* Arrow */}
-                    <ArrowRight className="hidden md:block w-6 h-6 text-white/30" />
-                    <div className="md:hidden w-px h-8 bg-white/15" />
-
-                    {/* Step 4: Results */}
-                    <div className="flex flex-col items-center text-center space-y-2 flex-1">
-                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center backdrop-blur-lg bg-white/5 border border-white/10">
-                        <FileText className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
-                      </div>
-                      <h3 className="text-sm sm:text-base font-poppins font-light text-white">Results</h3>
-                      <p className="text-xs sm:text-sm text-white/70 max-w-[160px]">Comprehensive insights</p>
+                    <div className="px-0 sm:px-6 md:px-8 py-6 sm:py-4">
+                      <span className="block text-xs tracking-[0.25em] text-muted-foreground">04</span>
+                      <h3 className="mt-3 text-lg font-poppins font-light text-foreground">Results</h3>
+                      <p className="mt-1 text-sm text-muted-foreground leading-relaxed">Comprehensive, readable insights.</p>
                     </div>
                   </div>
 
-                  {/* Outcomes Section - Single Row */}
-                  <div className="reveal-on-scroll backdrop-blur-xl bg-white/5 rounded-2xl p-6 sm:p-8 border border-white/10">
-                    <h3 className="text-lg sm:text-xl font-poppins font-light text-white mb-4 text-center">
-                      What You Get
-                    </h3>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {/* Outcome 1 */}
-                      <div className="text-center space-y-2">
-                        <div className="w-10 h-10 mx-auto rounded-lg bg-white/10 flex items-center justify-center">
-                          <Target className="w-5 h-5 text-white" />
-                        </div>
-                        <p className="text-xs sm:text-sm font-medium text-white">Health Score (0-100)</p>
-                      </div>
-                      
-                      {/* Outcome 2 */}
-                      <div className="text-center space-y-2">
-                        <div className="w-10 h-10 mx-auto rounded-lg bg-white/10 flex items-center justify-center">
-                          <TrendingUp className="w-5 h-5 text-white" />
-                        </div>
-                        <p className="text-xs sm:text-sm font-medium text-white">Risk Predictions</p>
-                      </div>
-                      
-                      {/* Outcome 3 */}
-                      <div className="text-center space-y-2">
-                        <div className="w-10 h-10 mx-auto rounded-lg bg-white/10 flex items-center justify-center">
-                          <Calendar className="w-5 h-5 text-white" />
-                        </div>
-                        <p className="text-xs sm:text-sm font-medium text-white">30-Day Plan</p>
-                      </div>
-                      
-                      {/* Outcome 4 */}
-                      <div className="text-center space-y-2">
-                        <div className="w-10 h-10 mx-auto rounded-lg bg-white/10 flex items-center justify-center">
-                          <Activity className="w-5 h-5 text-white" />
-                        </div>
-                        <p className="text-xs sm:text-sm font-medium text-white">Health Journey</p>
-                      </div>
-                    </div>
+                                  </div>
+              </div>
+            </section>
+
+            {/* What you get — olive editorial anchor section */}
+            <section data-nav-dark className="bg-primary text-primary-foreground py-20 sm:py-24 md:py-28">
+              <div className="container mx-auto px-6 max-w-4xl">
+                <p className="text-xs uppercase tracking-[0.2em] text-primary-foreground/55">What you get</p>
+                <div className="mt-8 divide-y divide-primary-foreground/15">
+                  <div className="py-6 grid md:grid-cols-2 gap-1 md:gap-10">
+                    <h3 className="text-2xl md:text-3xl font-poppins font-light">Health Score</h3>
+                    <p className="text-primary-foreground/70 leading-relaxed">A single 0-100 read on where you stand, benchmarked to your age group.</p>
+                  </div>
+                  <div className="py-6 grid md:grid-cols-2 gap-1 md:gap-10">
+                    <h3 className="text-2xl md:text-3xl font-poppins font-light">Risk Predictions</h3>
+                    <p className="text-primary-foreground/70 leading-relaxed">Cardiovascular and diabetes trajectories over the next ten years.</p>
+                  </div>
+                  <div className="py-6 grid md:grid-cols-2 gap-1 md:gap-10">
+                    <h3 className="text-2xl md:text-3xl font-poppins font-light">30-Day Plan</h3>
+                    <p className="text-primary-foreground/70 leading-relaxed">A personalized roadmap of diet, lifestyle and follow-up steps.</p>
+                  </div>
+                  <div className="py-6 grid md:grid-cols-2 gap-1 md:gap-10">
+                    <h3 className="text-2xl md:text-3xl font-poppins font-light">Health Journey</h3>
+                    <p className="text-primary-foreground/70 leading-relaxed">Track how your numbers move as you act on the plan.</p>
                   </div>
                 </div>
               </div>
@@ -1932,10 +1897,14 @@ RAW DATA: ${baseContext}`;
 
             {/* 4. UPLOAD SECTION - With Video Background */}
             {/* Brand statement */}
-            <section className="py-24 sm:py-32 md:py-40 text-center">
-              <div className="container mx-auto px-6">
-                <p className="reveal-on-scroll text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-poppins font-light tracking-tight text-white/90 max-w-3xl mx-auto leading-snug">
-                  Guided by Science. <span className="text-white/45">Driven by Compassion.</span>
+            <section className="py-24 sm:py-32 md:py-40">
+              <div className="container mx-auto px-6 max-w-3xl text-center">
+                <p className="reveal-on-scroll text-xs uppercase tracking-[0.25em] text-muted-foreground mb-5">Your privacy</p>
+                <p className="reveal-on-scroll text-3xl sm:text-4xl md:text-5xl font-poppins font-light tracking-tight text-foreground leading-tight">
+                  Your health information stays yours.
+                </p>
+                <p className="reveal-on-scroll mt-6 text-sm sm:text-base text-muted-foreground max-w-xl mx-auto leading-relaxed">
+                  Your report is used only to generate your analysis and is handled with privacy in mind.
                 </p>
               </div>
             </section>
@@ -1945,7 +1914,7 @@ RAW DATA: ${baseContext}`;
               <div className="absolute inset-0 z-0 overflow-hidden">
                 
                 {/* Darker overlay for better text readability */}
-                <div className="absolute inset-0 bg-black/60" />
+                <div className="absolute inset-0 bg-background" />
               </div>
 
               {/* Content over video - Enhanced text visibility */}
@@ -1953,14 +1922,12 @@ RAW DATA: ${baseContext}`;
                 {/* Title - Enhanced text shadow */}
                 <div className="reveal-on-scroll text-center mb-8 sm:mb-10 md:mb-12 space-y-2 sm:space-y-3">
                   <h2 
-                    className="text-2xl sm:text-3xl md:text-4xl font-poppins font-light text-white"
-                    style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.8), 0 4px 16px rgba(0, 0, 0, 0.6)' }}
+                    className="text-2xl sm:text-3xl md:text-4xl font-poppins font-light text-foreground"
                   >
                     Upload Your Test Report
                   </h2>
                   <p 
-                    className="text-white text-sm sm:text-base md:text-lg"
-                    style={{ textShadow: '0 2px 6px rgba(0, 0, 0, 0.8), 0 3px 12px rgba(0, 0, 0, 0.5)' }}
+                    className="text-foreground text-sm sm:text-base md:text-lg"
                   >
                     Supported formats: PDF, JPG, PNG. Get instant AI-powered analysis.
                   </p>
@@ -1978,8 +1945,7 @@ RAW DATA: ${baseContext}`;
                 {/* Privacy Notice - Enhanced visibility */}
                 <div className="max-w-4xl mx-auto mt-6 text-center">
                   <p 
-                    className="text-sm text-white leading-relaxed"
-                    style={{ textShadow: '0 2px 6px rgba(0, 0, 0, 0.8), 0 3px 12px rgba(0, 0, 0, 0.5)' }}
+                    className="text-sm text-foreground leading-relaxed"
                   >
                     <span className="font-semibold">Privacy Protected:</span> Your medical data is encrypted and automatically deleted after analysis. We never store your reports or personal health information permanently.
                   </p>
@@ -1990,13 +1956,13 @@ RAW DATA: ${baseContext}`;
         )}
 
         {/* DISCLAIMER - Bottom of Page */}
-        <section className="py-8 bg-white/5 backdrop-blur-xl border-t border-white/10">
+        <section className="py-8 bg-card backdrop-blur-xl border-t border-white/10">
           <div className="container mx-auto px-4 sm:px-6">
             <div className="max-w-4xl mx-auto text-center">
-              <h4 className="text-white font-poppins font-light text-sm sm:text-base mb-3">
+              <h4 className="text-foreground font-poppins font-light text-sm sm:text-base mb-3">
                 Important Disclaimer
               </h4>
-              <p className="text-white/70 text-xs sm:text-sm leading-relaxed">
+              <p className="text-foreground text-xs sm:text-sm leading-relaxed">
                 This report is generated using AI analysis and is intended for informational purposes only. It should not replace professional medical advice, diagnosis, or treatment. Always consult with qualified healthcare professionals for medical concerns.
               </p>
             </div>
@@ -2005,24 +1971,20 @@ RAW DATA: ${baseContext}`;
 
         {/* 4. AI ANALYSIS SECTION */}
         {isAnalyzing && (
-          <section ref={analysisRef} id="analysis-section" className="py-12 sm:py-16 md:py-24 bg-white/5 min-h-screen flex items-center justify-center transition-all duration-500">
+          <section ref={analysisRef} id="analysis-section" className="py-12 sm:py-16 md:py-24 bg-card min-h-screen flex items-center justify-center transition-all duration-500">
             <div className="container mx-auto px-4 sm:px-6 animate-fade-in">
               <div className="max-w-4xl mx-auto text-center space-y-6 sm:space-y-8">
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-light text-white/90 px-4">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-poppins font-light text-foreground px-4">
                   AI Analysis in Progress
                 </h2>
                 
-                {/* Status Chips */}
-                <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 md:gap-4 px-4">
-                  <div className={`px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-lg sm:rounded-xl border-2 ${selectedFile ? 'bg-green-50 border-green-500 text-green-800' : 'bg-white/10 border-white/30 text-white/60'}`}>
-                    <span className="font-inter font-medium text-xs sm:text-sm">File received</span>
-                  </div>
-                  <div className={`px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-lg sm:rounded-xl border-2 ${processingStatus === 'processing' ? 'bg-yellow-50 border-yellow-500 text-yellow-900 animate-pulse' : processingStatus === 'completed' ? 'bg-green-50 border-green-500 text-green-800' : 'bg-white/10 border-white/30 text-white/60'}`}>
-                    <span className="font-inter font-medium text-xs sm:text-sm">Parsing</span>
-                  </div>
-                  <div className={`px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-lg sm:rounded-xl border-2 ${processingStatus === 'completed' ? 'bg-green-50 border-green-500 text-green-800' : 'bg-white/10 border-white/30 text-white/60'}`}>
-                    <span className="font-inter font-medium text-xs sm:text-sm">Insights</span>
-                  </div>
+                {/* Status — editorial */}
+                <div className="flex items-center justify-center gap-3 sm:gap-4 text-[11px] sm:text-xs uppercase tracking-[0.18em]">
+                  <span className={selectedFile ? 'text-foreground' : 'text-muted-foreground/50'}>File received</span>
+                  <span className="w-5 sm:w-8 h-px bg-border" />
+                  <span className={processingStatus === 'processing' ? 'text-primary' : processingStatus === 'completed' ? 'text-foreground' : 'text-muted-foreground/50'}>Parsing</span>
+                  <span className="w-5 sm:w-8 h-px bg-border" />
+                  <span className={processingStatus === 'completed' ? 'text-foreground' : 'text-muted-foreground/50'}>Insights</span>
                 </div>
                 
                 {/* Stage Progress Indicator */}
@@ -2032,7 +1994,7 @@ RAW DATA: ${baseContext}`;
                 />
                 
                 {/* Animated Loader */}
-                <div className="bg-white/5 rounded-xl sm:rounded-2xl shadow-card p-6 sm:p-8 md:p-12">
+                <div className="glass-card rounded-xl sm:rounded-2xl p-6 sm:p-8 md:p-12">
                   {progressUpdate ? (
                     <div className="space-y-4">
                       <CompressionProgress 
@@ -2055,23 +2017,22 @@ RAW DATA: ${baseContext}`;
 
         {/* Error Section */}
         {error && (
-          <section className="py-24 bg-white/5 min-h-screen flex items-center justify-center">
+          <section className="py-24 bg-card min-h-screen flex items-center justify-center">
             <div className="container mx-auto px-4 sm:px-6">
               <div className="max-w-2xl mx-auto text-center space-y-8">
-                <div className="flex justify-center">
-                  <div className="bg-red-50 p-6 rounded-full">
-                    <AlertCircle className="w-16 h-16 text-red-500" />
-                  </div>
-                </div>
                 <div className="space-y-4">
-                  <h3 className="text-2xl font-poppins font-light text-white/90">Analysis Failed</h3>
-                  <p className="text-white/60 max-w-md mx-auto">{error}</p>
-                  <Button
-                    onClick={handleReset}
-                    className="bg-white/10 text-white/90 hover:bg-white/10 font-inter font-medium px-8 py-6 rounded-xl hover-scale-102"
-                  >
-                    Try Again
-                  </Button>
+                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Couldn&rsquo;t analyze</p>
+                  <h3 className="text-2xl sm:text-3xl font-poppins font-light text-foreground">We couldn&rsquo;t read that report</h3>
+                  <p className="text-muted-foreground max-w-md mx-auto leading-relaxed">{error}</p>
+                  <p className="text-sm text-muted-foreground/80 max-w-md mx-auto leading-relaxed">
+                    Try another PDF or a clear photo of your report &mdash; this works best with reports that contain numeric lab values (blood counts, chemistry panels, glucose, lipids, and the like).
+                  </p>
+                </div>
+                <div className="max-w-md mx-auto pt-2">
+                  <UploadZone
+                    onFileSelect={(f) => { setError(null); handleFileSelect(f); }}
+                    onImagesCapture={(imgs) => { setError(null); handleCameraImages(imgs); }}
+                  />
                 </div>
               </div>
             </div>
@@ -2097,19 +2058,19 @@ RAW DATA: ${baseContext}`;
               <>
                 {/* Desktop View - Keep all existing functionality */}
 
-                <section className="py-8 sm:py-12 md:py-16 bg-white/5">
+                <section className="py-8 sm:py-12 md:py-16 bg-card">
               <div className="container mx-auto px-4 sm:px-6">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 mb-6 sm:mb-8">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-xl sm:text-2xl font-poppins font-light text-white/90">Your Analysis Results</h3>
+                      <h3 className="text-xl sm:text-2xl font-poppins font-light text-foreground">Your Analysis Results</h3>
                       {analysisId && (
                         <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
                           ✓ Verified
                         </Badge>
                       )}
                     </div>
-                    <p className="text-sm sm:text-base text-white/60 truncate">Based on: {selectedFile?.name}</p>
+                    <p className="text-sm sm:text-base text-foreground truncate">Based on: {selectedFile?.name}</p>
                     {analysisTimestamp && (
                       <p className="text-xs text-muted-foreground mt-1">
                         Analysis completed: {new Date(analysisTimestamp).toLocaleString()}
@@ -2144,7 +2105,7 @@ RAW DATA: ${baseContext}`;
                     <Button
                       onClick={handleReset}
                       variant="outline"
-                      className="text-white border-white/15 hover:bg-white/10 w-full sm:w-auto text-sm sm:text-base"
+                      className="text-foreground border-white/15 hover:bg-card w-full sm:w-auto text-sm sm:text-base"
                       size="sm"
                     >
                       New Report
@@ -2157,7 +2118,7 @@ RAW DATA: ${baseContext}`;
             <ErrorBoundary>
               <div className="w-full">
                 {/* Patient Details */}
-                <section className="py-6 sm:py-8 bg-white/5">
+                <section className="py-6 sm:py-8 bg-card">
                     <div className="container mx-auto px-4 sm:px-6">
                       <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
                         <ReportHeader 
@@ -2170,22 +2131,22 @@ RAW DATA: ${baseContext}`;
                   </section>
 
                   {/* Clinical Chat - Moved before detailed analysis */}
-                  <section id="chat-section" className="py-8 sm:py-12 md:py-16 bg-white/5 transition-all duration-500 rounded-lg">
+                  <section id="chat-section" className="py-8 sm:py-12 md:py-16 bg-card transition-all duration-500 rounded-lg">
                       <div className="container mx-auto px-4 sm:px-6">
                         <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
                           <div className="text-center space-y-2 sm:space-y-3 px-4 animate-fade-in">
-                            <h2 className="text-2xl sm:text-3xl font-poppins font-light text-white/90">
+                            <h2 className="text-2xl sm:text-3xl font-poppins font-light text-foreground">
                               Clinical Chat on Your Report
                             </h2>
-                            <p className="text-xs sm:text-sm text-white/60">
+                            <p className="text-xs sm:text-sm text-foreground">
                               This chat is strictly about your uploaded test report. It does not replace medical diagnosis.
                             </p>
-                            <p className="text-xs sm:text-sm text-white/60 font-medium">
+                            <p className="text-xs sm:text-sm text-foreground font-medium">
                               Clinical chat makes the analysis more focused
                             </p>
                           </div>
                           
-                          <div className="bg-white/5 rounded-xl sm:rounded-2xl shadow-premium p-4 sm:p-6 animate-slide-in">
+                          <div className="bg-card rounded-xl sm:rounded-2xl shadow-premium p-4 sm:p-6 animate-slide-in">
                             <MedicalChatAgent
                               className="w-full"
                               analysisContext={createEnhancedAnalysisContext(analysisData)}
@@ -2209,10 +2170,10 @@ RAW DATA: ${baseContext}`;
                         <div className="container mx-auto px-4 sm:px-6 animate-fade-in">
                           <div className="max-w-6xl mx-auto space-y-4">
                             <div className="text-center mb-6">
-                              <h2 className="text-2xl sm:text-3xl font-poppins font-light text-white/90 mb-2">
+                              <h2 className="text-2xl sm:text-3xl font-poppins font-light text-foreground mb-2">
                                 Your Comprehensive Health Report
                               </h2>
-                              <p className="text-sm sm:text-base text-white/60">
+                              <p className="text-sm sm:text-base text-foreground">
                                 Complete analysis combining your lab results and clinical assessment
                               </p>
                             </div>
@@ -2220,19 +2181,6 @@ RAW DATA: ${baseContext}`;
                             <ConsolidatedHealthReport 
                               analysisData={enhancedData}
                               clinicalAssessmentData={clinicalAssessmentData}
-                            />
-                          </div>
-                        </div>
-                      </section>
-
-                      {/* Voice Follow-Up Agent */}
-                      <section className="py-6 sm:py-8 bg-background transition-all duration-500">
-                        <div className="container mx-auto px-4 sm:px-6 animate-fade-in">
-                          <div className="max-w-4xl mx-auto">
-                            <VoiceFollowUpAgent 
-                              analysisData={enhancedData}
-                              clinicalAssessmentData={clinicalAssessmentData}
-                              analysisId={analysisId || undefined}
                             />
                           </div>
                         </div>
@@ -2267,11 +2215,11 @@ RAW DATA: ${baseContext}`;
 
                   {/* Placeholder when clinical chat not complete */}
                   {enhancedData && !showPostChatSections && (
-                    <section className="py-6 sm:py-8 bg-white/5">
+                    <section className="py-6 sm:py-8 bg-card">
                       <div className="container mx-auto px-4 sm:px-6">
                         <div className="max-w-4xl mx-auto">
-                          <Alert className="bg-white/5 border-white/10">
-                            <AlertCircle className="h-5 w-5 text-white/80" />
+                          <Alert className="bg-card border-white/10">
+                            <AlertCircle className="h-5 w-5 text-foreground" />
                             <AlertTitle className="text-blue-900 font-semibold">Complete Clinical Assessment Above</AlertTitle>
                             <AlertDescription className="text-blue-800">
                               Complete the clinical chat assessment above to unlock personalized health risk predictions, 
@@ -2285,14 +2233,14 @@ RAW DATA: ${baseContext}`;
 
                   {/* Risk Prediction & Analysis Tools */}
                   {showPostChatSections && enhancedData && clinicalAssessmentData && (
-                    <section id="risk-analysis-section" className="py-6 sm:py-10 md:py-16 bg-white/5">
+                    <section id="risk-analysis-section" className="py-6 sm:py-10 md:py-16 bg-card">
                       <div className="container mx-auto px-3 sm:px-4 lg:px-6">
                         <div className="max-w-full lg:max-w-6xl mx-auto space-y-4 sm:space-y-6 lg:space-y-8">
                           <div className="text-center px-2">
-                            <h2 className="text-xl sm:text-2xl lg:text-3xl font-poppins font-light text-white/90 mb-3 sm:mb-4">
+                            <h2 className="text-xl sm:text-2xl lg:text-3xl font-poppins font-light text-foreground mb-3 sm:mb-4">
                               Risk Predictions & Interactive Analysis
                             </h2>
-                            <p className="text-sm sm:text-base text-white/60">
+                            <p className="text-sm sm:text-base text-foreground">
                               Understand your long-term health risks and explore interactive risk calculators
                             </p>
                           </div>
@@ -2337,7 +2285,7 @@ RAW DATA: ${baseContext}`;
                               <Button 
                                 onClick={handleDownloadComprehensiveReport}
                                 size="lg"
-                                className="bg-white/10 text-white/90 hover:bg-white/10 font-poppins font-light px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-6 text-sm sm:text-base rounded-xl hover-scale-102 shadow-premium w-full sm:w-auto gap-2 min-h-[44px]"
+                                className="bg-card text-foreground hover:bg-card font-poppins font-light px-4 sm:px-5 lg:px-6 py-3 sm:py-4 lg:py-6 text-sm sm:text-base rounded-xl hover-scale-102 shadow-premium w-full sm:w-auto gap-2 min-h-[44px]"
                               >
                                 <Download className="w-4 h-4 sm:w-5 sm:h-5" />
                                 Download Report
@@ -2371,8 +2319,8 @@ RAW DATA: ${baseContext}`;
 
                           {/* Disclaimer */}
                           <div className="mt-6 sm:mt-8 p-4 sm:p-6 bg-yellow-50 border-2 border-yellow-200 rounded-xl">
-                            <p className="text-xs sm:text-sm text-center text-white/60 leading-relaxed">
-                              <span className="font-semibold text-white/90">Disclaimer:</span> This is informational support only — not a medical diagnosis.
+                            <p className="text-xs sm:text-sm text-center text-foreground leading-relaxed">
+                              <span className="font-semibold text-foreground">Disclaimer:</span> This is informational support only — not a medical diagnosis.
                             </p>
                           </div>
                         </div>
@@ -2392,13 +2340,29 @@ RAW DATA: ${baseContext}`;
         <section id="faq-section" className="py-10 sm:py-14 md:py-20 bg-transparent">
           <div className="container mx-auto px-3 sm:px-4 md:px-6">
             <div className="max-w-3xl mx-auto">
-              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-poppins font-light text-white text-center mb-6 sm:mb-8 md:mb-10 px-2 sm:px-4">
+              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-poppins font-light text-foreground text-center mb-6 sm:mb-8 md:mb-10 px-2 sm:px-4">
                 Frequently Asked Questions
               </h2>
               
-              <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg sm:rounded-xl md:rounded-2xl p-3 sm:p-5 md:p-7 space-y-2 sm:space-y-3">
+              <div className="glass-card rounded-lg sm:rounded-xl md:rounded-2xl p-3 sm:p-5 md:p-7 space-y-2 sm:space-y-3">
                 <details className="group">
-                  <summary className="flex items-center justify-between cursor-pointer py-3 sm:py-4 font-inter font-medium text-white text-sm sm:text-base">
+                  <summary className="flex items-center justify-between cursor-pointer py-3 sm:py-4 font-inter font-medium text-foreground text-sm sm:text-base">
+                    Is my medical data private?
+                    <span className="transition group-open:rotate-180 flex-shrink-0 ml-2">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </span>
+                  </summary>
+                  <p className="pb-3 sm:pb-4 text-foreground text-xs sm:text-sm leading-relaxed">
+                    Your report is used to generate your analysis. We take care to protect your information, and uploaded files are removed after processing rather than kept indefinitely.
+                  </p>
+                </details>
+
+                <Separator />
+
+                <details className="group">
+                  <summary className="flex items-center justify-between cursor-pointer py-3 sm:py-4 font-inter font-medium text-foreground text-sm sm:text-base">
                     What file formats are supported?
                     <span className="transition group-open:rotate-180 flex-shrink-0 ml-2">
                       <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2406,7 +2370,7 @@ RAW DATA: ${baseContext}`;
                       </svg>
                     </span>
                   </summary>
-                  <p className="pb-3 sm:pb-4 text-white/70 text-xs sm:text-sm leading-relaxed">
+                  <p className="pb-3 sm:pb-4 text-foreground text-xs sm:text-sm leading-relaxed">
                     We support PDF, JPG, and PNG file formats for your medical reports. Files are processed securely and deleted after analysis.
                   </p>
                 </details>
@@ -2414,7 +2378,7 @@ RAW DATA: ${baseContext}`;
                 <Separator />
 
                 <details className="group">
-                  <summary className="flex items-center justify-between cursor-pointer py-3 sm:py-4 font-inter font-medium text-white text-sm sm:text-base">
+                  <summary className="flex items-center justify-between cursor-pointer py-3 sm:py-4 font-inter font-medium text-foreground text-sm sm:text-base">
                     How long does analysis take?
                     <span className="transition group-open:rotate-180 flex-shrink-0 ml-2">
                       <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2422,7 +2386,7 @@ RAW DATA: ${baseContext}`;
                       </svg>
                     </span>
                   </summary>
-                  <p className="pb-3 sm:pb-4 text-white/70 text-xs sm:text-sm leading-relaxed">
+                  <p className="pb-3 sm:pb-4 text-foreground text-xs sm:text-sm leading-relaxed">
                     Most analyses complete in 30-60 seconds. Complex reports may take slightly longer. You'll see real-time progress updates.
                   </p>
                 </details>
@@ -2430,7 +2394,7 @@ RAW DATA: ${baseContext}`;
                 <Separator />
 
                 <details className="group">
-                  <summary className="flex items-center justify-between cursor-pointer py-3 sm:py-4 font-inter font-medium text-white text-sm sm:text-base">
+                  <summary className="flex items-center justify-between cursor-pointer py-3 sm:py-4 font-inter font-medium text-foreground text-sm sm:text-base">
                     Is my data secure?
                     <span className="transition group-open:rotate-180 flex-shrink-0 ml-2">
                       <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2438,7 +2402,7 @@ RAW DATA: ${baseContext}`;
                       </svg>
                     </span>
                   </summary>
-                  <p className="pb-3 sm:pb-4 text-white/70 text-xs sm:text-sm leading-relaxed">
+                  <p className="pb-3 sm:pb-4 text-foreground text-xs sm:text-sm leading-relaxed">
                     Yes. All data is encrypted during transmission and automatically deleted after your session. We comply with healthcare data protection standards.
                   </p>
                 </details>
@@ -2446,7 +2410,7 @@ RAW DATA: ${baseContext}`;
                 <Separator />
 
                 <details className="group">
-                  <summary className="flex items-center justify-between cursor-pointer py-3 sm:py-4 font-inter font-medium text-white text-sm sm:text-base">
+                  <summary className="flex items-center justify-between cursor-pointer py-3 sm:py-4 font-inter font-medium text-foreground text-sm sm:text-base">
                     Can I save my results?
                     <span className="transition group-open:rotate-180 flex-shrink-0 ml-2">
                       <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2454,7 +2418,7 @@ RAW DATA: ${baseContext}`;
                       </svg>
                     </span>
                   </summary>
-                  <p className="pb-3 sm:pb-4 text-white/70 text-xs sm:text-sm leading-relaxed">
+                  <p className="pb-3 sm:pb-4 text-foreground text-xs sm:text-sm leading-relaxed">
                     Yes! After completing your clinical assessment, you can download a comprehensive PDF report with all findings and recommendations.
                   </p>
                 </details>
@@ -2462,7 +2426,7 @@ RAW DATA: ${baseContext}`;
                 <Separator />
 
                 <details className="group">
-                  <summary className="flex items-center justify-between cursor-pointer py-4 font-inter font-medium text-white">
+                  <summary className="flex items-center justify-between cursor-pointer py-4 font-inter font-medium text-foreground">
                     What if I don't understand something?
                     <span className="transition group-open:rotate-180">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2470,7 +2434,7 @@ RAW DATA: ${baseContext}`;
                       </svg>
                     </span>
                   </summary>
-                  <p className="pb-4 text-white/70 text-sm">
+                  <p className="pb-4 text-foreground text-sm">
                     Use our Clinical Chat feature to ask questions about your specific results. The AI will explain complex medical terms in simple language.
                   </p>
                 </details>

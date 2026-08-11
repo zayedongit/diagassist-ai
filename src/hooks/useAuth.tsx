@@ -1,6 +1,10 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
+
+// Login has been removed. The app runs as an anonymous, account-free session.
+// A stable per-browser id lets us correlate an in-flight analysis job without
+// collecting any personal information. Nothing here touches Supabase auth, so
+// the app needs no auth provider configured on the backend.
 
 interface AuthContextType {
   user: User | null;
@@ -10,95 +14,50 @@ interface AuthContextType {
   isAuthenticated: boolean;
 }
 
+const ANON_ID_KEY = 'diagassist_anon_id';
+
+function getAnonId(): string {
+  try {
+    let id = localStorage.getItem(ANON_ID_KEY);
+    if (!id) {
+      id =
+        (typeof crypto !== 'undefined' && crypto.randomUUID)
+          ? crypto.randomUUID()
+          : `anon-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      localStorage.setItem(ANON_ID_KEY, id);
+    }
+    return id;
+  } catch {
+    return 'anon-local';
+  }
+}
+
 const AuthContext = createContext<AuthContextType>({
   user: null,
   session: null,
-  isLoading: true,
+  isLoading: false,
   signOut: async () => {},
-  isAuthenticated: false,
+  isAuthenticated: true,
 });
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  return context;
-};
+export const useAuth = () => useContext(AuthContext);
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // Synthetic anonymous identity so existing gates (isAuthenticated / user)
+  // all pass with no login step. Only `id` is ever read downstream.
+  const anonUser = { id: getAnonId() } as unknown as User;
 
-  useEffect(() => {
-    const initAuth = async () => {
-      // Check if device should be remembered
-      const isRemembered = localStorage.getItem('daigassist_remember_device') === 'true';
-      
-      console.log('Auth check - isRemembered:', isRemembered);
-      
-      // If device is remembered, mark session as active and keep user signed in
-      if (isRemembered) {
-        sessionStorage.setItem('daigassist_session_active', 'true');
-        console.log('Device remembered - session will persist');
-        return; // Don't sign out, let session continue
-      }
-      
-      // If device is NOT remembered and there's no active session, clear auth
-      const sessionActive = sessionStorage.getItem('daigassist_session_active') === 'true';
-      if (!sessionActive) {
-        console.log('Device not remembered and no active session - clearing auth');
-        await supabase.auth.signOut();
-        setIsLoading(false);
-      }
-    };
-
-    // Run auth check first
-    initAuth();
-
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.id);
-        setSession(session);
-        setUser(session?.user ?? null);
-        setIsLoading(false);
-      }
-    );
-
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session check:', session?.user?.id ? 'User found' : 'No user');
-      setSession(session);
-      setUser(session?.user ?? null);
-      setIsLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error('Sign out error:', error);
-    }
+  const value: AuthContextType = {
+    user: anonUser,
+    session: null,
+    isLoading: false,
+    signOut: async () => {},
+    isAuthenticated: true,
   };
 
-  const isAuthenticated = !!user;
-
-  const value = {
-    user,
-    session,
-    isLoading,
-    signOut,
-    isAuthenticated
-  };
-
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

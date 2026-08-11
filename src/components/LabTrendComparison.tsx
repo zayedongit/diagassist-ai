@@ -83,7 +83,7 @@ function calculateTrend(previous: LabValue, current: LabValue, demographics?: En
 
 function getTrendIcon(direction: 'up' | 'down' | 'stable', severity: string) {
   if (direction === 'stable') {
-    return <Minus className="w-4 h-4 text-white/80" />;
+    return <Minus className="w-4 h-4 text-foreground" />;
   }
   
   const Icon = direction === 'up' ? TrendingUp : TrendingDown;
@@ -96,7 +96,7 @@ function getTrendIcon(direction: 'up' | 'down' | 'stable', severity: string) {
 
 function getTrendBadge(direction: 'up' | 'down' | 'stable', severity: string) {
   if (direction === 'stable') {
-    return <span className="text-xs text-white/80 font-medium">Stable</span>;
+    return <span className="text-xs text-foreground font-medium">Stable</span>;
   }
   
   const text = direction === 'up' ? 
@@ -150,37 +150,37 @@ export function LabTrendComparison({ currentAnalysis, previousAnalysis }: LabTre
   return (
     <Card className="p-6 bg-gradient-to-br from-white/5 to-white/5 border-white/10">
       <div className="flex items-center gap-2 mb-4">
-        <Activity className="w-5 h-5 text-white/80" />
-        <h3 className="text-lg font-semibold text-white">Lab Trend Analysis & Population Comparison</h3>
+        <Activity className="w-5 h-5 text-foreground" />
+        <h3 className="text-lg font-semibold text-foreground">Lab Trend Analysis & Population Comparison</h3>
       </div>
       
-      <p className="text-sm text-white/80 mb-4">
+      <p className="text-sm text-foreground mb-4">
         Comparing: <span className="font-medium">{previousDate}</span> vs <span className="font-medium">{currentDate}</span>
       </p>
       
-      <div className="bg-white/5 rounded-lg border border-white/10 overflow-hidden">
+      <div className="bg-card rounded-lg border border-white/10 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-white/10 border-b border-white/10">
+            <thead className="bg-card border-b border-white/10">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Parameter</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Previous</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Current</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Trend</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-white uppercase">Population</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-foreground uppercase">Parameter</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-foreground uppercase">Previous</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-foreground uppercase">Current</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-foreground uppercase">Trend</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-foreground uppercase">Population</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {trends.map((trend, index) => (
-                <tr key={index} className="hover:bg-white/5 transition-colors">
+                <tr key={index} className="hover:bg-card transition-colors">
                   <td className="px-4 py-3">
-                    <span className="text-sm font-medium text-white">{trend.parameter}</span>
+                    <span className="text-sm font-medium text-foreground">{trend.parameter}</span>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-sm text-white/80">{trend.previousValue}</span>
+                    <span className="text-sm text-foreground">{trend.previousValue}</span>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-sm font-medium text-white">{trend.currentValue}</span>
+                    <span className="text-sm font-medium text-foreground">{trend.currentValue}</span>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
@@ -188,7 +188,7 @@ export function LabTrendComparison({ currentAnalysis, previousAnalysis }: LabTre
                       <div className="flex flex-col">
                         {getTrendBadge(trend.trendDirection, trend.severity)}
                         {trend.trendDirection !== 'stable' && (
-                          <span className="text-xs text-white/60">
+                          <span className="text-xs text-foreground">
                             {trend.change > 0 ? '+' : ''}{trend.change.toFixed(1)}%
                           </span>
                         )}
@@ -197,9 +197,9 @@ export function LabTrendComparison({ currentAnalysis, previousAnalysis }: LabTre
                   </td>
                   <td className="px-4 py-3">
                     {trend.populationComparison ? (
-                      <span className="text-xs text-white/80">{trend.populationComparison}</span>
+                      <span className="text-xs text-foreground">{trend.populationComparison}</span>
                     ) : (
-                      <span className="text-xs text-white/50">N/A</span>
+                      <span className="text-xs text-foreground">N/A</span>
                     )}
                   </td>
                 </tr>
@@ -210,8 +210,8 @@ export function LabTrendComparison({ currentAnalysis, previousAnalysis }: LabTre
       </div>
       
       {currentAnalysis.demographics?.age && currentAnalysis.demographics?.gender && (
-        <div className="mt-4 p-3 bg-white/5 rounded-lg border border-white/10">
-          <p className="text-xs text-white/80">
+        <div className="mt-4 p-3 bg-card rounded-lg border border-white/10">
+          <p className="text-xs text-foreground">
             <span className="font-semibold">Population Reference:</span> Compared with Indian {currentAnalysis.demographics.gender === 'male' ? 'males' : 'females'} aged {currentAnalysis.demographics.age} based on ICMR-INDIAB studies
           </p>
         </div>

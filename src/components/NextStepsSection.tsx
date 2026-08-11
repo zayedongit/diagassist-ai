@@ -494,7 +494,7 @@ export const NextStepsSection = ({ analysisData, specialist }: NextStepsSectionP
           
           <div className="p-4 space-y-4">
             {/* Week 1-2 */}
-            <div className="bg-white/5 dark:bg-gray-800 rounded-lg p-4 border-l-4 border-l-destructive shadow-sm">
+            <div className="bg-card dark:bg-gray-800 rounded-lg p-4 border-l-4 border-l-destructive shadow-sm">
               <div className="flex items-center space-x-2 mb-2">
                 <Badge variant="destructive" className="font-bold">Week 1-2</Badge>
                 <span className="text-sm font-semibold text-foreground">Immediate Actions</span>
@@ -516,7 +516,7 @@ export const NextStepsSection = ({ analysisData, specialist }: NextStepsSectionP
             </div>
 
             {/* Week 2-4 */}
-            <div className="bg-white/5 dark:bg-gray-800 rounded-lg p-4 border-l-4 border-l-warning shadow-sm">
+            <div className="bg-card dark:bg-gray-800 rounded-lg p-4 border-l-4 border-l-warning shadow-sm">
               <div className="flex items-center space-x-2 mb-2">
                 <Badge variant="default" className="font-bold bg-warning text-warning-foreground">Week 2-4</Badge>
                 <span className="text-sm font-semibold text-foreground">Initial Management</span>
@@ -538,31 +538,31 @@ export const NextStepsSection = ({ analysisData, specialist }: NextStepsSectionP
             </div>
 
             {/* Week 4-8 */}
-            <div className="bg-white/5 dark:bg-gray-800 rounded-lg p-4 border-l-4 border-l-blue-500 shadow-sm">
+            <div className="bg-card dark:bg-gray-800 rounded-lg p-4 border-l-4 border-l-blue-500 shadow-sm">
               <div className="flex items-center space-x-2 mb-2">
-                <Badge variant="secondary" className="font-bold bg-white/50 text-white">Week 4-8</Badge>
+                <Badge variant="secondary" className="font-bold bg-card text-foreground">Week 4-8</Badge>
                 <span className="text-sm font-semibold text-foreground">Specialist Consultation</span>
               </div>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-start space-x-2">
-                  <ArrowRight className="w-4 h-4 text-white/70 mt-0.5 flex-shrink-0" />
+                  <ArrowRight className="w-4 h-4 text-foreground mt-0.5 flex-shrink-0" />
                   <span><strong>Week 4-5:</strong> Schedule specialist appointment (if recommended)</span>
                 </li>
                 <li className="flex items-start space-x-2">
-                  <ArrowRight className="w-4 h-4 text-white/70 mt-0.5 flex-shrink-0" />
+                  <ArrowRight className="w-4 h-4 text-foreground mt-0.5 flex-shrink-0" />
                   <span><strong>Week 6:</strong> Attend specialist consultation, review detailed management plan</span>
                 </li>
                 <li className="flex items-start space-x-2">
-                  <ArrowRight className="w-4 h-4 text-white/70 mt-0.5 flex-shrink-0" />
+                  <ArrowRight className="w-4 h-4 text-foreground mt-0.5 flex-shrink-0" />
                   <span><strong>Week 8:</strong> Follow-up blood work to assess initial response to treatment</span>
                 </li>
               </ul>
             </div>
 
             {/* Week 8-12 */}
-            <div className="bg-white/5 dark:bg-gray-800 rounded-lg p-4 border-l-4 border-l-success shadow-sm">
+            <div className="bg-card dark:bg-gray-800 rounded-lg p-4 border-l-4 border-l-success shadow-sm">
               <div className="flex items-center space-x-2 mb-2">
-                <Badge variant="secondary" className="font-bold bg-success text-white">Week 8-12</Badge>
+                <Badge variant="secondary" className="font-bold bg-success text-foreground">Week 8-12</Badge>
                 <span className="text-sm font-semibold text-foreground">Progress Monitoring</span>
               </div>
               <ul className="space-y-2 text-sm text-muted-foreground">

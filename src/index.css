@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&family=Space+Grotesk:wght@300..700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -38,49 +39,49 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* Light Mode - Clean & Readable */
-    --background: 240 6% 4%;  /* Pure white background */
-    --foreground: 0 0% 96%;  /* Dark blue-gray text */
+    --background: 45 30% 94%;  /* Pure white background */
+    --foreground: 0 0% 8%;  /* Dark blue-gray text */
 
     /* Clean White Cards */
-    --card: 240 5% 8%;  /* #FFFFFF */
-    --card-foreground: 0 0% 96%;  /* Dark text on cards */
+    --card: 45 33% 97%;  /* #FFFFFF */
+    --card-foreground: 0 0% 10%;  /* Dark text on cards */
 
-    --popover: 240 6% 7%;
-    --popover-foreground: 0 0% 96%;
+    --popover: 45 33% 97%;
+    --popover-foreground: 0 0% 10%;
 
     /* Electric Cyan Primary - Accent Color */
-    --primary: 0 0% 96%;  /* #9aa0aa Electric cyan */
-    --primary-foreground: 240 6% 6%;
+    --primary: 95 24% 16%;  /* #9aa0aa Electric cyan */
+    --primary-foreground: 45 33% 96%;
     --primary-glow: 0 0% 90%;  /* Aqua glow */
     --primary-mint: 0 0% 85%;  /* Mint accent */
 
     /* Soft Violet Secondary */
-    --secondary: 240 5% 16%;  /* #6B73FF Soft violet */
-    --secondary-foreground: 0 0% 96%;
+    --secondary: 44 20% 84%;  /* #6B73FF Soft violet */
+    --secondary-foreground: 0 0% 12%;
 
     /* Light Muted */
-    --muted: 240 5% 14%;  /* Light blue-gray */
-    --muted-foreground: 0 0% 62%;  /* Medium gray text */
+    --muted: 44 22% 90%;  /* Light blue-gray */
+    --muted-foreground: 48 6% 42%;  /* Medium gray text */
 
     /* Accent Gradient Colors */
-    --accent: 0 0% 90%;  /* Electric cyan */
-    --accent-foreground: 240 6% 6%;
+    --accent: 41 60% 45%;  /* Electric cyan */
+    --accent-foreground: 0 0% 10%;
 
     --success: 142 76% 45%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 55%;
+    --warning: 38 80% 46%;
     --warning-foreground: 0 0% 9%;
 
-    --destructive: 0 85% 60%;
+    --destructive: 18 68% 47%;
     --destructive-foreground: 0 0% 100%;
 
     /* Light Borders */
-    --border: 0 0% 100% / 0.10;  /* Light gray border */
-    --input: 0 0% 100% / 0.14;  /* Light gray input background */
-    --ring: 0 0% 80%;
+    --border: 44 14% 82%;  /* Light gray border */
+    --input: 44 16% 86%;  /* Light gray input background */
+    --ring: 41 60% 45%;
 
-    --radius: 20px;  /* Ultra-rounded for premium feel */
+    --radius: 14px;  /* Ultra-rounded for premium feel */
 
     /* App Specific - Premium Medical Theme */
     --app-blue: 0 0% 100%;  /* Electric cyan */
@@ -94,15 +95,15 @@ All colors MUST be HSL.
     /* Premium Gradient Definitions */
     --gradient-primary: linear-gradient(135deg, hsl(195, 100%, 50%) 0%, hsl(180, 100%, 60%) 50%, hsl(165, 100%, 65%) 100%);
     --gradient-cyan-aqua-mint: linear-gradient(135deg, #9aa0aa 0%, #c8ccd2 50%, #e6e8ec 100%);
-    --gradient-hero: radial-gradient(ellipse at top, hsl(210, 60%, 10%) 0%, hsl(210, 60%, 8%) 50%, hsl(210, 60%, 6%) 100%);
-    --gradient-subtle: linear-gradient(180deg, hsl(210, 60%, 10%), hsl(210, 60%, 8%));
-    --gradient-glow: radial-gradient(circle at center, hsl(0 0% 100% / 0.2), transparent 70%);
+    --gradient-hero: linear-gradient(180deg, hsl(45 33% 97%), hsl(45 30% 94%));
+    --gradient-subtle: linear-gradient(180deg, hsl(45 33% 97%), hsl(45 30% 94%));
+    --gradient-glow: none;
     --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
     
     /* Premium Shadows with Soft Glow */
-    --shadow-soft: 0 4px 24px -2px hsl(0 0% 100% / 0.12);
-    --shadow-glow: 0 0 50px hsl(0 0% 100% / 0.3), 0 8px 32px -4px hsl(0 0% 0% / 0.4);
-    --shadow-card: 0 10px 40px -8px hsl(0 0% 0% / 0.3), 0 0 0 1px hsl(0 0% 100% / 0.1);
+    --shadow-soft: 0 1px 3px hsl(0 0% 0% / 0.04);
+    --shadow-glow: 0 1px 3px hsl(0 0% 0% / 0.06);
+    --shadow-card: 0 1px 2px hsl(0 0% 0% / 0.05);
     --shadow-elegant: 0 12px 40px -10px hsl(0 0% 100% / 0.25);
     --shadow-float: 0 20px 60px -15px hsl(0 0% 0% / 0.4), 0 0 0 1px hsl(0 0% 100% / 0.15);
     
@@ -186,8 +187,8 @@ All colors MUST be HSL.
   }
   
   .hover-lift:hover {
-    box-shadow: 0 20px 60px -15px hsl(0 0% 0% / 0.4), 0 0 0 1px hsl(195 100% 50% / 0.15);
-    transform: translateY(-4px);
+    box-shadow: 0 8px 24px -14px hsl(0 0% 0% / 0.18);
+    transform: translateY(-2px);
   }
   
   .hover-glow {
@@ -196,39 +197,39 @@ All colors MUST be HSL.
   
   /* Premium Glassmorphism Effects */
   .glass {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(16px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: hsl(45 38% 96% / 0.6);
+    backdrop-filter: blur(12px) saturate(110%);
+    -webkit-backdrop-filter: blur(12px) saturate(110%);
+    border: 1px solid hsl(44 22% 68% / 0.4);
   }
   
   .glass-card {
-    background: rgba(255, 255, 255, 0.98);
-    backdrop-filter: blur(24px) saturate(180%);
-    border: 1px solid rgba(0, 198, 255, 0.15);
-    box-shadow: 0 10px 40px -8px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 198, 255, 0.1);
+    background: hsl(45 38% 96% / 0.72);
+    backdrop-filter: blur(14px) saturate(115%);
+    -webkit-backdrop-filter: blur(14px) saturate(115%);
+    border: 1px solid hsl(44 22% 68% / 0.45);
+    box-shadow: 0 10px 34px -18px hsl(30 20% 20% / 0.28);
   }
   
   .glass-dark {
-    background: rgba(7, 26, 44, 0.7);
-    backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(0, 198, 255, 0.2);
+    background: hsl(95 24% 16%);
+    backdrop-filter: none;
+    border: 1px solid hsl(45 33% 96% / 0.15);
   }
   
   /* Glow Ring Effect */
   .glow-ring {
-    box-shadow: 0 0 30px rgba(0, 198, 255, 0.5), 
-                inset 0 0 20px rgba(0, 198, 255, 0.15),
-                0 0 60px rgba(68, 255, 232, 0.3);
+    box-shadow: none;
   }
   
   .glow-border {
-    border: 1px solid rgba(0, 198, 255, 0.3);
-    box-shadow: 0 0 20px rgba(0, 198, 255, 0.2);
+    border: 1px solid hsl(44 14% 82%);
+    box-shadow: none;
   }
   
   /* Premium Gradient Text */
   .gradient-text {
-    background: linear-gradient(135deg, #9aa0aa 0%, #c8ccd2 50%, #e6e8ec 100%);
+    background: linear-gradient(135deg, hsl(95 24% 20%) 0%, hsl(41 55% 42%) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -424,11 +425,8 @@ All colors MUST be HSL.
     position: fixed;
     inset: 0;
     z-index: -10;
-    background-color: #060608;
-    background-image:
-      radial-gradient(1200px 760px at 18% -6%, rgba(72,74,86,0.22), transparent 58%),
-      radial-gradient(1000px 680px at 86% 12%, rgba(50,52,62,0.18), transparent 58%),
-      radial-gradient(1500px 1000px at 50% 110%, rgba(34,36,46,0.26), transparent 60%);
+    background-color: #F3F0E7;
+    background-image: none;
     background-repeat: no-repeat;
     background-size: 140% 180%, 140% 180%, 170% 210%;
     background-position: 0px 0px;
@@ -439,7 +437,7 @@ All colors MUST be HSL.
     position: absolute;
     inset: 0;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    opacity: 0.05;
+    opacity: 0;
     mix-blend-mode: overlay;
     pointer-events: none;
   }
@@ -447,7 +445,7 @@ All colors MUST be HSL.
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse at 50% 44%, transparent 46%, rgba(0,0,0,0.40) 100%);
+    background: none;
     pointer-events: none;
   }
   /* Scroll reveal (available for future use) */
@@ -536,3 +534,34 @@ All colors MUST be HSL.
 .orb--18{left:46%;width:150px;height:150px;animation:orbRise3 45s linear infinite; animation-delay:-34s;}
 .orb--19{left:12%;width:150px;height:150px;animation:orbRise2 50s linear infinite; animation-delay:-12s;}
 .orb--20{left:84%;width:60px; height:60px; animation:orbRise  26s linear infinite; animation-delay:-21s;}
+
+/* Denser bubble field */
+.orb--21{left:2%; width:60px; height:60px; animation:orbRise2 24s linear infinite; animation-delay:-3s;}
+.orb--22{left:18%;width:34px; height:34px; animation:orbRise  16s linear infinite; animation-delay:-9s;}
+.orb--23{left:29%;width:200px;height:200px;animation:orbRise3 58s linear infinite; animation-delay:-40s;}
+.orb--24{left:44%;width:72px; height:72px; animation:orbRise  31s linear infinite; animation-delay:-14s;}
+.orb--25{left:52%;width:26px; height:26px; animation:orbRise2 15s linear infinite; animation-delay:-2s;}
+.orb--26{left:62%;width:118px;height:118px;animation:orbRise3 41s linear infinite; animation-delay:-27s;}
+.orb--27{left:71%;width:46px; height:46px; animation:orbRise  22s linear infinite; animation-delay:-6s;}
+.orb--28{left:78%;width:240px;height:240px;animation:orbRise2 62s linear infinite; animation-delay:-50s;}
+.orb--29{left:86%;width:64px; height:64px; animation:orbRise3 28s linear infinite; animation-delay:-11s;}
+.orb--30{left:95%;width:90px; height:90px; animation:orbRise  36s linear infinite; animation-delay:-19s;}
+.orb--31{left:10%;width:150px;height:150px;animation:orbRise3 47s linear infinite; animation-delay:-33s;}
+.orb--32{left:35%;width:30px; height:30px; animation:orbRise  14s linear infinite; animation-delay:-5s;}
+.orb--33{left:48%;width:100px;height:100px;animation:orbRise2 39s linear infinite; animation-delay:-23s;}
+.orb--34{left:58%;width:54px; height:54px; animation:orbRise  20s linear infinite; animation-delay:-8s;}
+.orb--35{left:66%;width:170px;height:170px;animation:orbRise3 53s linear infinite; animation-delay:-37s;}
+.orb--36{left:74%;width:38px; height:38px; animation:orbRise2 18s linear infinite; animation-delay:-4s;}
+.orb--37{left:82%;width:110px;height:110px;animation:orbRise  43s linear infinite; animation-delay:-29s;}
+.orb--38{left:90%;width:28px; height:28px; animation:orbRise3 15s linear infinite; animation-delay:-7s;}
+.orb--39{left:24%;width:84px; height:84px; animation:orbRise  34s linear infinite; animation-delay:-16s;}
+.orb--40{left:40%;width:220px;height:220px;animation:orbRise2 60s linear infinite; animation-delay:-45s;}
+
+@layer base {
+  body { font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif; }
+  h1,h2,h3,h4,.font-display { font-family: 'Space Grotesk','Manrope',sans-serif; letter-spacing:-0.02em; }
+}
+
+@layer base {
+  button[role="checkbox"], button[role="radio"] { min-height: 0; min-width: 0; }
+}

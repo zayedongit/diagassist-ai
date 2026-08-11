@@ -180,7 +180,10 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
       toast.success('OTP sent to your mobile number');
     } catch (err: any) {
       console.error('Send OTP error:', err);
-      setError(err.message || 'Failed to send OTP. Please try again.');
+      const raw2 = err?.message || '';
+      setError(/non-2xx|Edge Function|FunctionsHttpError/i.test(raw2)
+        ? 'Could not send the code right now. Please try again in a moment.'
+        : (raw2 || 'Failed to send OTP. Please try again.'));
     } finally {
       setLoading(false);
     }
@@ -292,7 +295,10 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
       onAuthSuccess(data.user, data.session);
     } catch (err: any) {
       console.error('Verify OTP error:', err);
-      setError(err.message || 'Invalid OTP. Please try again.');
+      const raw = err?.message || '';
+      setError(/non-2xx|Edge Function|FunctionsHttpError/i.test(raw)
+        ? 'Invalid or expired code. Please check it and try again.'
+        : (raw || 'Invalid OTP. Please try again.'));
     } finally {
       setLoading(false);
     }
@@ -320,18 +326,9 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
   return (
     <div className="w-full">
       <div className="text-center space-y-3 sm:space-y-4 mb-4 sm:mb-6">
-        <div className="flex justify-center">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center">
-            {step === 'phone' ? (
-              <Phone className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-            ) : (
-              <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-            )}
-          </div>
-        </div>
         <div className="px-4">
-          <h3 className="text-lg sm:text-xl font-bold text-foreground">
-            {step === 'phone' ? 'Enter Mobile Number' : 'Verify OTP'}
+          <h3 className="text-xl sm:text-2xl font-poppins font-light text-foreground">
+            {step === 'phone' ? 'Login with Mobile Number' : 'Verify your number'}
           </h3>
           <p className="text-xs sm:text-sm text-muted-foreground">
             {step === 'phone' 
@@ -360,7 +357,7 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 disabled={loading}
-                className="bg-background border-2 border-border rounded-lg focus:border-primary"
+                className="bg-background border border-border rounded-lg focus:border-primary"
               />
             </div>
 
@@ -373,7 +370,7 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 disabled={loading}
-                className="bg-background border-2 border-border rounded-lg focus:border-primary"
+                className="bg-background border border-border rounded-lg focus:border-primary"
               />
             </div>
 
@@ -407,60 +404,20 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
               </div>
             </div>
 
-            {/* Terms and Conditions Section */}
-            <div className="space-y-3 p-4 bg-muted/50 rounded-lg border border-border">
-              <div className="flex items-start gap-3">
-                <FileText className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <div className="flex-1 space-y-2">
-                  <p className="text-sm font-medium text-foreground">
-                    Important: Please read our Terms and Conditions
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowTermsDialog(true);
-                    }}
-                    className="flex items-center gap-2 text-sm text-primary hover:underline font-medium"
-                  >
-                    <ScrollText className="w-4 h-4" />
-                    <span>PredLabs - Terms and Conditions for AI Medical Report Interpretation Service</span>
-                  </button>
-                  {termsClicked && (
-                    <div className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400">
-                      <CheckCircle className="w-3 h-3" />
-                      <span>Terms reviewed</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {termsClicked && (
-                <div className="flex items-start space-x-3 pt-2 border-t border-border mt-2">
-                  <Checkbox
-                    id="termsAccepted"
-                    checked={termsAccepted}
-                    onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
-                    disabled={loading}
-                    className="mt-0.5"
-                  />
-                  <div className="flex-1">
-                    <Label 
-                      htmlFor="termsAccepted" 
-                      className="text-sm font-medium leading-tight cursor-pointer"
-                    >
-                      I have read and agree to the Terms and Conditions
-                    </Label>
-                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                      By continuing, I acknowledge that:
-                    </p>
-                    <ul className="text-xs text-muted-foreground mt-1 space-y-0.5 list-disc list-inside">
-                      <li>Reports are for informational purposes only</li>
-                      <li>Reports cannot be used as medicolegal documents</li>
-                      <li>This does not replace professional medical advice</li>
-                    </ul>
-                  </div>
-                </div>
-              )}
+            {/* Terms and Conditions */}
+            <div className="flex items-center gap-3">
+              <Checkbox
+                id="termsAccepted"
+                checked={termsAccepted}
+                onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
+                disabled={loading}
+              />
+              <Label htmlFor="termsAccepted" className="text-sm text-foreground leading-tight cursor-pointer">
+                I agree to the{' '}
+                <button type="button" onClick={() => setShowTermsDialog(true)} className="text-foreground underline underline-offset-2 hover:text-foreground">
+                  Terms and Conditions
+                </button>
+              </Label>
             </div>
 
             {/* Terms Dialog */}
@@ -630,7 +587,7 @@ export const PhoneAuth = ({ onAuthSuccess }: PhoneAuthProps) => {
                 onChange={handleOtpChange}
                 disabled={loading}
                 maxLength={6}
-                className="text-center text-lg sm:text-xl md:text-2xl tracking-wider sm:tracking-widest"
+                className="text-center text-lg tracking-[0.35em] h-12"
               />
             </div>
 

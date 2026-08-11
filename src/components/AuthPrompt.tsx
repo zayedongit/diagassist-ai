@@ -52,48 +52,48 @@ export const AuthPrompt = ({ open, onOpenChange, onAuthSuccess }: AuthPromptProp
 
             <div className="space-y-4 py-6">
               <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-white/5 rounded-lg border border-white/10">
+                <div className="p-4 bg-card rounded-lg border border-white/10">
                   <div className="flex flex-col items-center text-center gap-2">
-                    <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
-                      <FileText className="w-5 h-5 text-white/80" />
+                    <div className="w-10 h-10 bg-card rounded-full flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-foreground" />
                     </div>
-                    <h4 className="font-semibold text-sm text-white/90">Report History</h4>
+                    <h4 className="font-semibold text-sm text-foreground">Report History</h4>
                     <p className="text-xs text-muted-foreground">
                       Access all your past reports
                     </p>
                   </div>
                 </div>
 
-                <div className="p-4 bg-white/5 rounded-lg border border-purple-100">
+                <div className="p-4 bg-card rounded-lg border border-white/10">
                   <div className="flex flex-col items-center text-center gap-2">
-                    <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                      <TrendingUp className="w-5 h-5 text-purple-600" />
+                    <div className="w-10 h-10 bg-card rounded-full flex items-center justify-center">
+                      <TrendingUp className="w-5 h-5 text-foreground" />
                     </div>
-                    <h4 className="font-semibold text-sm text-white/90">Score Timeline</h4>
+                    <h4 className="font-semibold text-sm text-foreground">Score Timeline</h4>
                     <p className="text-xs text-muted-foreground">
                       Track health score trends
                     </p>
                   </div>
                 </div>
 
-                <div className="p-4 bg-green-50 rounded-lg border border-green-100">
+                <div className="p-4 bg-card rounded-lg border border-white/10">
                   <div className="flex flex-col items-center text-center gap-2">
-                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                      <Calendar className="w-5 h-5 text-green-600" />
+                    <div className="w-10 h-10 bg-card rounded-full flex items-center justify-center">
+                      <Calendar className="w-5 h-5 text-foreground" />
                     </div>
-                    <h4 className="font-semibold text-sm text-white/90">30-Day Plan</h4>
+                    <h4 className="font-semibold text-sm text-foreground">30-Day Plan</h4>
                     <p className="text-xs text-muted-foreground">
                       Interactive health calendar
                     </p>
                   </div>
                 </div>
 
-                <div className="p-4 bg-orange-50 rounded-lg border border-orange-100">
+                <div className="p-4 bg-card rounded-lg border border-white/10">
                   <div className="flex flex-col items-center text-center gap-2">
-                    <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                      <Bell className="w-5 h-5 text-orange-600" />
+                    <div className="w-10 h-10 bg-card rounded-full flex items-center justify-center">
+                      <Bell className="w-5 h-5 text-foreground" />
                     </div>
-                    <h4 className="font-semibold text-sm text-white/90">Reminders</h4>
+                    <h4 className="font-semibold text-sm text-foreground">Reminders</h4>
                     <p className="text-xs text-muted-foreground">
                       Get activity notifications
                     </p>
@@ -131,14 +131,6 @@ export const AuthPrompt = ({ open, onOpenChange, onAuthSuccess }: AuthPromptProp
                 <DialogTitle className="text-xl font-bold">
                   Sign In
                 </DialogTitle>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowAuth(false)}
-                  className="h-8 w-8 p-0"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
               </div>
               <DialogDescription>
                 Enter your mobile number to continue

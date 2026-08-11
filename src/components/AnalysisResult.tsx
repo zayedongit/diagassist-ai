@@ -241,11 +241,11 @@ export const AnalysisResult = ({
                       </div>
                     </div>
                     <div className="flex-1 min-w-0 w-full">
-                      <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 flex items-center text-center sm:text-left text-white">
+                      <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 flex items-center text-center sm:text-left text-foreground">
                         📋 Summary in Simple Terms
                       </h3>
-                      <div className="bg-white/5 rounded-xl p-3 sm:p-4 md:p-5 border border-white/15">
-                        <p className="text-sm sm:text-base leading-relaxed font-medium text-white">
+                      <div className="bg-card rounded-xl p-3 sm:p-4 md:p-5 border border-white/15">
+                        <p className="text-sm sm:text-base leading-relaxed font-medium text-foreground">
                           {normalizedData.summary}
                         </p>
                       </div>
@@ -621,7 +621,7 @@ export const AnalysisResult = ({
                    <div className="bg-success/5 rounded-xl p-4 border border-success/20">
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                        {allNormalParameters.map((parameter, index) => (
-                         <div key={index} className="flex items-center space-x-2 p-2 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                         <div key={index} className="flex items-center space-x-2 p-2 bg-card dark:bg-gray-800/50 rounded-lg">
                            <CheckCircle className="w-4 h-4 text-success flex-shrink-0" />
                            <span className="text-sm text-foreground font-medium">{parameter}</span>
                          </div>

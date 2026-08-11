@@ -24,7 +24,7 @@ const getStatusInfo = (status: string) => {
     case 'critical':
       return { color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200', text: 'Requires Action' };
     default:
-      return { color: 'text-white/80', bg: 'bg-white/5', border: 'border-white/10', text: 'Review Required' };
+      return { color: 'text-foreground', bg: 'bg-card', border: 'border-white/10', text: 'Review Required' };
   }
 };
 

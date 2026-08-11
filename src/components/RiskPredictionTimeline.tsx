@@ -21,15 +21,15 @@ export const RiskPredictionTimeline = ({ cardiovascularRisk, diabetesRisk, clini
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white/5 p-3 border border-white/10 rounded-lg shadow-lg">
-          <p className="font-semibold text-white mb-2">
+        <div className="bg-card p-3 border border-white/10 rounded-lg shadow-lg">
+          <p className="font-semibold text-foreground mb-2">
             {label === 0 ? 'Today' : `Year ${label}`}
           </p>
           <p className="text-sm text-red-600">
-            Without changes: {Math.round(payload[0].value)}%
+            Relative risk index (without changes): {Math.round(payload[0].value)}/100
           </p>
           <p className="text-sm text-green-600">
-            With lifestyle changes: {Math.round(payload[1].value)}%
+            With lifestyle changes: {Math.round(payload[1].value)}/100
           </p>
         </div>
       );
@@ -49,7 +49,7 @@ export const RiskPredictionTimeline = ({ cardiovascularRisk, diabetesRisk, clini
               Risk Prediction Timeline
             </CardTitle>
             <CardDescription className="text-xs sm:text-sm">
-              How your health risks may evolve over the next 10 years
+              How your risk factors may trend over 10 years — a relative index, not a probability
             </CardDescription>
           </div>
         </div>
@@ -60,7 +60,7 @@ export const RiskPredictionTimeline = ({ cardiovascularRisk, diabetesRisk, clini
         <Alert className="bg-gradient-to-r from-green-50 to-white/5 border-2 border-green-200 p-3 sm:p-4">
           <TrendingDown className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
           <AlertTitle className="text-green-900 font-semibold text-sm sm:text-base">Take Action Now</AlertTitle>
-          <AlertDescription className="text-white/90 text-xs sm:text-sm">
+          <AlertDescription className="text-foreground text-xs sm:text-sm">
             The charts below compare two scenarios: continuing current habits vs making recommended lifestyle changes. 
             Small changes today can significantly reduce your health risks over time.
           </AlertDescription>
@@ -81,8 +81,8 @@ export const RiskPredictionTimeline = ({ cardiovascularRisk, diabetesRisk, clini
           </TabsList>
           
           <TabsContent value="cardiovascular" className="space-y-3 sm:space-y-4">
-            <div className="bg-white/60 rounded-lg p-3 sm:p-4 border border-primary/20">
-              <h3 className="font-semibold text-white mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base">
+            <div className="bg-card rounded-lg p-3 sm:p-4 border border-primary/20">
+              <h3 className="font-semibold text-foreground mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base">
                 <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
                 Cardiovascular Disease Risk Trajectory
               </h3>
@@ -98,7 +98,7 @@ export const RiskPredictionTimeline = ({ cardiovascularRisk, diabetesRisk, clini
                       tickFormatter={(value) => value === 0 ? 'Today' : `${value}y`}
                     />
                     <YAxis 
-                      label={{ value: 'Risk Level (%)', angle: -90, position: 'insideLeft' }}
+                      label={{ value: 'Relative risk index', angle: -90, position: 'insideLeft' }}
                       tick={{ fill: '#374151' }}
                       domain={[0, 100]}
                     />
@@ -133,9 +133,9 @@ export const RiskPredictionTimeline = ({ cardiovascularRisk, diabetesRisk, clini
               {/* 10-Year Impact Summary */}
               <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div className="bg-red-50 p-3 rounded border border-red-200">
-                  <p className="text-xs text-white/60 mb-1">Without Changes (10y)</p>
+                  <p className="text-xs text-foreground mb-1">Without Changes (10y)</p>
                   <p className="text-2xl font-bold text-red-600">
-                    {Math.round(timeline.cardiovascular[3].noChangesRisk)}%
+                    {Math.round(timeline.cardiovascular[3].noChangesRisk)}<span className="text-sm font-normal align-top"> /100</span>
                   </p>
                   <div className="flex items-center gap-1 mt-1">
                     <TrendingUp className="w-3 h-3 text-red-600" />
@@ -143,23 +143,23 @@ export const RiskPredictionTimeline = ({ cardiovascularRisk, diabetesRisk, clini
                   </div>
                 </div>
                 <div className="bg-green-50 p-3 rounded border border-green-200">
-                  <p className="text-xs text-white/60 mb-1">With Changes (10y)</p>
+                  <p className="text-xs text-foreground mb-1">With Changes (10y)</p>
                   <p className="text-2xl font-bold text-green-600">
-                    {Math.round(timeline.cardiovascular[3].withInterventionRisk)}%
+                    {Math.round(timeline.cardiovascular[3].withInterventionRisk)}<span className="text-sm font-normal align-top"> /100</span>
                   </p>
                   <div className="flex items-center gap-1 mt-1">
                     <TrendingDown className="w-3 h-3 text-green-600" />
                     <span className="text-xs text-green-600">Risk decreases</span>
                   </div>
                 </div>
-                <div className="bg-white/5 p-3 rounded border border-white/10">
-                  <p className="text-xs text-white/60 mb-1">Potential Reduction</p>
-                  <p className="text-2xl font-bold text-white/80">
-                    {Math.round(timeline.cardiovascular[3].noChangesRisk - timeline.cardiovascular[3].withInterventionRisk)}%
+                <div className="bg-card p-3 rounded border border-white/10">
+                  <p className="text-xs text-foreground mb-1">Potential Reduction</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {Math.round(timeline.cardiovascular[3].noChangesRisk - timeline.cardiovascular[3].withInterventionRisk)}<span className="text-sm font-normal align-top"> pts</span>
                   </p>
                   <div className="flex items-center gap-1 mt-1">
-                    <CheckCircle2 className="w-3 h-3 text-white/80" />
-                    <span className="text-xs text-white/80">With intervention</span>
+                    <CheckCircle2 className="w-3 h-3 text-foreground" />
+                    <span className="text-xs text-foreground">With intervention</span>
                   </div>
                 </div>
               </div>
@@ -167,8 +167,8 @@ export const RiskPredictionTimeline = ({ cardiovascularRisk, diabetesRisk, clini
           </TabsContent>
           
           <TabsContent value="diabetes" className="space-y-4">
-            <div className="bg-white/60 rounded-lg p-4 border border-primary/20">
-              <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+            <div className="bg-card rounded-lg p-4 border border-primary/20">
+              <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
                 <Activity className="w-5 h-5 text-orange-500" />
                 Type 2 Diabetes Risk Trajectory
               </h3>
@@ -184,7 +184,7 @@ export const RiskPredictionTimeline = ({ cardiovascularRisk, diabetesRisk, clini
                       tickFormatter={(value) => value === 0 ? 'Today' : `${value}y`}
                     />
                     <YAxis 
-                      label={{ value: 'Risk Level (%)', angle: -90, position: 'insideLeft' }}
+                      label={{ value: 'Relative risk index', angle: -90, position: 'insideLeft' }}
                       tick={{ fill: '#374151' }}
                       domain={[0, 100]}
                     />
@@ -219,9 +219,9 @@ export const RiskPredictionTimeline = ({ cardiovascularRisk, diabetesRisk, clini
               {/* 10-Year Impact Summary */}
               <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div className="bg-orange-50 p-3 rounded border border-orange-200">
-                  <p className="text-xs text-white/60 mb-1">Without Changes (10y)</p>
+                  <p className="text-xs text-foreground mb-1">Without Changes (10y)</p>
                   <p className="text-2xl font-bold text-orange-600">
-                    {Math.round(timeline.diabetes[3].noChangesRisk)}%
+                    {Math.round(timeline.diabetes[3].noChangesRisk)}<span className="text-sm font-normal align-top"> /100</span>
                   </p>
                   <div className="flex items-center gap-1 mt-1">
                     <TrendingUp className="w-3 h-3 text-orange-600" />
@@ -229,23 +229,23 @@ export const RiskPredictionTimeline = ({ cardiovascularRisk, diabetesRisk, clini
                   </div>
                 </div>
                 <div className="bg-green-50 p-3 rounded border border-green-200">
-                  <p className="text-xs text-white/60 mb-1">With Changes (10y)</p>
+                  <p className="text-xs text-foreground mb-1">With Changes (10y)</p>
                   <p className="text-2xl font-bold text-green-600">
-                    {Math.round(timeline.diabetes[3].withInterventionRisk)}%
+                    {Math.round(timeline.diabetes[3].withInterventionRisk)}<span className="text-sm font-normal align-top"> /100</span>
                   </p>
                   <div className="flex items-center gap-1 mt-1">
                     <TrendingDown className="w-3 h-3 text-green-600" />
                     <span className="text-xs text-green-600">Risk decreases</span>
                   </div>
                 </div>
-                <div className="bg-white/5 p-3 rounded border border-white/10">
-                  <p className="text-xs text-white/60 mb-1">Potential Reduction</p>
-                  <p className="text-2xl font-bold text-white/80">
-                    {Math.round(timeline.diabetes[3].noChangesRisk - timeline.diabetes[3].withInterventionRisk)}%
+                <div className="bg-card p-3 rounded border border-white/10">
+                  <p className="text-xs text-foreground mb-1">Potential Reduction</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {Math.round(timeline.diabetes[3].noChangesRisk - timeline.diabetes[3].withInterventionRisk)}<span className="text-sm font-normal align-top"> pts</span>
                   </p>
                   <div className="flex items-center gap-1 mt-1">
-                    <CheckCircle2 className="w-3 h-3 text-white/80" />
-                    <span className="text-xs text-white/80">With intervention</span>
+                    <CheckCircle2 className="w-3 h-3 text-foreground" />
+                    <span className="text-xs text-foreground">With intervention</span>
                   </div>
                 </div>
               </div>
@@ -254,14 +254,14 @@ export const RiskPredictionTimeline = ({ cardiovascularRisk, diabetesRisk, clini
         </Tabs>
         
         {/* Potential Benefits */}
-        <div className="bg-white/60 rounded-lg p-4 border border-primary/20">
-          <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
+        <div className="bg-card rounded-lg p-4 border border-primary/20">
+          <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
             <Lightbulb className="w-5 h-5 text-yellow-500" />
             Potential Benefits of Taking Action
           </h3>
           <div className="space-y-2">
             {timeline.potentialBenefits.map((benefit, index) => (
-              <div key={index} className="flex items-start gap-2 text-sm text-white/90">
+              <div key={index} className="flex items-start gap-2 text-sm text-foreground">
                 <CheckCircle2 className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
                 <span>{benefit}</span>
               </div>
@@ -271,23 +271,23 @@ export const RiskPredictionTimeline = ({ cardiovascularRisk, diabetesRisk, clini
         
         {/* Recommendations */}
         <div className="bg-gradient-to-r from-white/5 to-white/5 rounded-lg p-4 border-2 border-white/10">
-          <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
-            <CheckCircle2 className="w-5 h-5 text-white/80" />
+          <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+            <CheckCircle2 className="w-5 h-5 text-foreground" />
             Evidence-Based Recommendations
           </h3>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Lifestyle */}
             <div className="space-y-2">
-              <h4 className="text-sm font-semibold text-white flex items-center gap-2">
-                <Badge variant="outline" className="bg-white/10 text-blue-800 border-blue-300">
+              <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <Badge variant="outline" className="bg-card text-blue-800 border-blue-300">
                   Lifestyle
                 </Badge>
               </h4>
               <ul className="space-y-1.5">
                 {timeline.recommendations.lifestyle.map((rec, index) => (
-                  <li key={index} className="text-xs text-white/90 flex items-start gap-1.5">
-                    <span className="w-1 h-1 rounded-full bg-white/50 mt-1.5 flex-shrink-0"></span>
+                  <li key={index} className="text-xs text-foreground flex items-start gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-card mt-1.5 flex-shrink-0"></span>
                     {rec}
                   </li>
                 ))}
@@ -296,14 +296,14 @@ export const RiskPredictionTimeline = ({ cardiovascularRisk, diabetesRisk, clini
             
             {/* Dietary */}
             <div className="space-y-2">
-              <h4 className="text-sm font-semibold text-white flex items-center gap-2">
+              <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
                 <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">
                   Dietary
                 </Badge>
               </h4>
               <ul className="space-y-1.5">
                 {timeline.recommendations.dietary.map((rec, index) => (
-                  <li key={index} className="text-xs text-white/90 flex items-start gap-1.5">
+                  <li key={index} className="text-xs text-foreground flex items-start gap-1.5">
                     <span className="w-1 h-1 rounded-full bg-green-500 mt-1.5 flex-shrink-0"></span>
                     {rec}
                   </li>
@@ -313,15 +313,15 @@ export const RiskPredictionTimeline = ({ cardiovascularRisk, diabetesRisk, clini
             
             {/* Medical */}
             <div className="space-y-2">
-              <h4 className="text-sm font-semibold text-white flex items-center gap-2">
+              <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
                 <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-300">
                   Medical
                 </Badge>
               </h4>
               <ul className="space-y-1.5">
                 {timeline.recommendations.medical.map((rec, index) => (
-                  <li key={index} className="text-xs text-white/90 flex items-start gap-1.5">
-                    <span className="w-1 h-1 rounded-full bg-white/50 mt-1.5 flex-shrink-0"></span>
+                  <li key={index} className="text-xs text-foreground flex items-start gap-1.5">
+                    <span className="w-1 h-1 rounded-full bg-card mt-1.5 flex-shrink-0"></span>
                     {rec}
                   </li>
                 ))}
@@ -335,10 +335,10 @@ export const RiskPredictionTimeline = ({ cardiovascularRisk, diabetesRisk, clini
           <AlertCircle className="h-4 w-4 text-yellow-600" />
           <AlertTitle className="text-sm font-semibold text-yellow-900">Clinical Note</AlertTitle>
           <AlertDescription className="text-xs text-yellow-800">
-            These projections are statistical estimates based on population studies and your current lab values. 
-            Individual results vary based on genetics, adherence to recommendations, and other health factors. 
-            Always consult with your healthcare provider before making major lifestyle or medical changes. 
-            The "with intervention" scenario assumes consistent adherence to evidence-based lifestyle modifications.
+            This timeline is a <strong>relative risk index (0–100)</strong> that combines your current risk factors to
+            illustrate direction and the potential impact of lifestyle change. It is <strong>not</strong> a validated
+            probability of developing disease, and it is not a diagnosis. Real individual risk depends on blood pressure,
+            genetics, family history, and much more. For a personal risk estimate, please consult your healthcare provider.
           </AlertDescription>
         </Alert>
       </CardContent>

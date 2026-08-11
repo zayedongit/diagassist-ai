@@ -32,11 +32,42 @@ export interface HealthScoreBreakdown {
   comparisonToPopulation?: string;
 }
 
+// Convert a lab value to the US-conventional unit the thresholds below assume.
+// Handles the common non-US units seen on Indian reports (mmol/L, µmol/L, g/L,
+// raw platelet counts). Falls back to the value unchanged when the unit already
+// matches or is unknown.
+const normalizeUnit = (analyte: string | undefined, value: number, unit?: string): number => {
+  if (!analyte) return value;
+  const u = (unit || '').toLowerCase().replace(/\s+/g, '');
+  switch (analyte) {
+    case 'glucose':       return u.includes('mmol') ? value * 18.0182 : value;      // -> mg/dL
+    case 'cholesterol':   return u.includes('mmol') ? value * 38.67 : value;        // -> mg/dL
+    case 'triglycerides': return u.includes('mmol') ? value * 88.57 : value;        // -> mg/dL
+    case 'creatinine':    return u.includes('mol') ? value / 88.42 : value;         // µmol/L -> mg/dL
+    case 'bilirubin':     return u.includes('mol') ? value / 17.1 : value;          // µmol/L -> mg/dL
+    case 'vitaminD':      return u.includes('nmol') ? value / 2.496 : value;        // nmol/L -> ng/mL
+    case 'hemoglobin':
+      // g/L -> g/dL (e.g. 130 -> 13). Hb is never > 25 g/dL, so a big value is g/L.
+      if ((u.includes('g/l') && !u.includes('g/dl')) || value > 25) return value / 10;
+      return value;
+    case 'platelets':
+      // raw count (e.g. 250000) -> x10^3/µL (thresholds are 150-400).
+      return value > 1000 ? value / 1000 : value;
+    default: return value;
+  }
+};
+
 // Helper function to get lab value - check ALL labs, not just abnormalLabs
-const getLabValue = (analysisData: EnhancedAnalysisResult, possibleNames: string[]): number | null => {
+const getLabValue = (analysisData: EnhancedAnalysisResult, possibleNames: string[], analyte?: string): number | null => {
   // Helper: check if a lab name matches any of the possible names using word-boundary-aware matching
   const isNameMatch = (labName: string, searchNames: string[]): boolean => {
     const lower = labName.toLowerCase();
+    // HbA1c / glycosylated hemoglobin is NOT hemoglobin — never let it match the Hb search.
+    const hbSearch = searchNames.some(n => { const t = n.toLowerCase(); return t === 'hemoglobin' || t === 'hb'; });
+    if (hbSearch && /(a1c|glyc)/i.test(lower)) return false;
+    // "Urea" (Indian reports) must not match "Blood Urea Nitrogen" (BUN) and vice-versa.
+    const ureaOnly = searchNames.length === 1 && searchNames[0].toLowerCase() === 'urea';
+    if (ureaOnly && /(nitrogen|\bbun\b)/i.test(lower)) return false;
     return searchNames.some(name => {
       const searchLower = name.toLowerCase();
       // For short terms (≤3 chars like "alt", "ast", "bun"), require word boundary or exact segment match
@@ -56,8 +87,7 @@ const getLabValue = (analysisData: EnhancedAnalysisResult, possibleNames: string
       if (isNameMatch(lab.name, possibleNames)) {
         const value = parseFloat(lab.value);
         if (!isNaN(value)) {
-          console.log(`[HEALTH SCORE] Found ${possibleNames[0]}: ${value} in abnormalLabs`);
-          return value;
+          return normalizeUnit(analyte, value, lab.unit);
         }
       }
     }
@@ -72,8 +102,7 @@ const getLabValue = (analysisData: EnhancedAnalysisResult, possibleNames: string
           if (colonMatch) {
             const value = parseFloat(colonMatch[1]);
             if (!isNaN(value)) {
-              console.log(`[HEALTH SCORE] Found ${possibleNames[0]}: ${value} in normalParameters (after colon)`);
-              return value;
+              return normalizeUnit(analyte, value, '');
             }
           }
           // Fallback to first number
@@ -81,8 +110,7 @@ const getLabValue = (analysisData: EnhancedAnalysisResult, possibleNames: string
           if (valueMatch) {
             const value = parseFloat(valueMatch[1]);
             if (!isNaN(value)) {
-              console.log(`[HEALTH SCORE] Found ${possibleNames[0]}: ${value} in normalParameters (fallback)`);
-              return value;
+              return normalizeUnit(analyte, value, '');
             }
           }
         }
@@ -96,8 +124,7 @@ const getLabValue = (analysisData: EnhancedAnalysisResult, possibleNames: string
       if (isNameMatch(lab.name, possibleNames)) {
         const value = parseFloat(lab.value);
         if (!isNaN(value)) {
-          console.log(`[HEALTH SCORE] Found ${possibleNames[0]}: ${value} in legacy labs`);
-          return value;
+          return normalizeUnit(analyte, value, lab.unit);
         }
       }
     }
@@ -125,7 +152,7 @@ const scoreParameter = (status: string, value: number, referenceMin: number, ref
 // Calculate Metabolic Health Score (25% weight)
 const calculateMetabolicScore = (analysisData: EnhancedAnalysisResult): SystemScore => {
   const hba1c = getLabValue(analysisData, ['hba1c', 'glycosylated hemoglobin']);
-  const glucose = getLabValue(analysisData, ['fasting glucose', 'glucose', 'blood sugar']);
+  const glucose = getLabValue(analysisData, ['fasting glucose', 'glucose', 'blood sugar'], 'glucose');
   const insulin = getLabValue(analysisData, ['insulin']);
   
   const scores: number[] = [];
@@ -185,10 +212,10 @@ const calculateMetabolicScore = (analysisData: EnhancedAnalysisResult): SystemSc
 
 // Calculate Cardiovascular Health Score (25% weight)
 const calculateCardiovascularScore = (analysisData: EnhancedAnalysisResult): SystemScore => {
-  const totalChol = getLabValue(analysisData, ['total cholesterol', 'cholesterol']);
-  const ldl = getLabValue(analysisData, ['ldl', 'low density lipoprotein']);
-  const hdl = getLabValue(analysisData, ['hdl', 'high density lipoprotein']);
-  const triglycerides = getLabValue(analysisData, ['triglycerides', 'tg']);
+  const totalChol = getLabValue(analysisData, ['total cholesterol', 'cholesterol'], 'cholesterol');
+  const ldl = getLabValue(analysisData, ['ldl', 'low density lipoprotein'], 'cholesterol');
+  const hdl = getLabValue(analysisData, ['hdl', 'high density lipoprotein'], 'cholesterol');
+  const triglycerides = getLabValue(analysisData, ['triglycerides', 'tg'], 'triglycerides');
   const tchol_hdl_ratio = getLabValue(analysisData, ['tchol/hdl', 'cholesterol ratio']);
   
   const scores: number[] = [];
@@ -266,9 +293,10 @@ const calculateCardiovascularScore = (analysisData: EnhancedAnalysisResult): Sys
 };
 
 // Calculate Kidney Function Score (15% weight)
-const calculateKidneyScore = (analysisData: EnhancedAnalysisResult): SystemScore => {
-  const creatinine = getLabValue(analysisData, ['creatinine']);
-  const bun = getLabValue(analysisData, ['bun', 'blood urea nitrogen', 'urea']);
+const calculateKidneyScore = (analysisData: EnhancedAnalysisResult, demographics?: Demographics): SystemScore => {
+  const creatinine = getLabValue(analysisData, ['creatinine'], 'creatinine');
+  const bun = getLabValue(analysisData, ['bun', 'blood urea nitrogen'], 'bun');
+  const urea = getLabValue(analysisData, ['urea'], 'urea');
   const egfr = getLabValue(analysisData, ['egfr', 'gfr']);
   const sodium = getLabValue(analysisData, ['sodium', 'na']);
   const potassium = getLabValue(analysisData, ['potassium', 'k']);
@@ -280,7 +308,9 @@ const calculateKidneyScore = (analysisData: EnhancedAnalysisResult): SystemScore
   // Creatinine (KDIGO Guidelines)
   if (creatinine !== null) {
     parameters.push('Creatinine');
-    if (creatinine >= 0.6 && creatinine <= 1.2) scores.push(100);
+    const crSex = ((demographics as any)?.gender || (demographics as any)?.sex || '').toString().toLowerCase();
+    const creatUpper = crSex.startsWith('f') ? 1.1 : 1.3; // male normal extends higher
+    if (creatinine >= 0.6 && creatinine <= creatUpper) scores.push(100);
     else if (creatinine <= 1.5) scores.push(80);
     else if (creatinine <= 2.0) scores.push(60);
     else if (creatinine <= 3.0) scores.push(40);
@@ -311,6 +341,17 @@ const calculateKidneyScore = (analysisData: EnhancedAnalysisResult): SystemScore
     else scores.push(25);
     
     if (bun > 20) issues.push('Elevated BUN');
+  }
+
+  // Urea (Indian reports commonly report Blood Urea, not BUN; normal ~15-45 mg/dL)
+  if (urea !== null) {
+    parameters.push('Urea');
+    if (urea >= 15 && urea <= 45) scores.push(100);
+    else if (urea <= 60) scores.push(75);
+    else if (urea <= 100) scores.push(50);
+    else scores.push(25);
+
+    if (urea > 45) issues.push('Elevated blood urea');
   }
   
   // Electrolytes
@@ -351,7 +392,7 @@ const calculateKidneyScore = (analysisData: EnhancedAnalysisResult): SystemScore
 const calculateLiverScore = (analysisData: EnhancedAnalysisResult): SystemScore => {
   const alt = getLabValue(analysisData, ['alt', 'sgpt']);
   const ast = getLabValue(analysisData, ['ast', 'sgot']);
-  const bilirubin = getLabValue(analysisData, ['bilirubin', 'total bilirubin']);
+  const bilirubin = getLabValue(analysisData, ['bilirubin', 'total bilirubin'], 'bilirubin');
   const albumin = getLabValue(analysisData, ['albumin']);
   const alp = getLabValue(analysisData, ['alp', 'alkaline phosphatase']);
   
@@ -431,11 +472,11 @@ const calculateLiverScore = (analysisData: EnhancedAnalysisResult): SystemScore 
 };
 
 // Calculate Hematologic Health Score (10% weight)
-const calculateHematologicScore = (analysisData: EnhancedAnalysisResult): SystemScore => {
-  const hemoglobin = getLabValue(analysisData, ['hemoglobin', 'hb']);
+const calculateHematologicScore = (analysisData: EnhancedAnalysisResult, demographics?: Demographics): SystemScore => {
+  const hemoglobin = getLabValue(analysisData, ['hemoglobin', 'hb'], 'hemoglobin');
   const rbc = getLabValue(analysisData, ['rbc', 'red blood cell']);
   const wbc = getLabValue(analysisData, ['wbc', 'white blood cell']);
-  const platelets = getLabValue(analysisData, ['platelet']);
+  const platelets = getLabValue(analysisData, ['platelet'], 'platelets');
   const mcv = getLabValue(analysisData, ['mcv', 'mean corpuscular volume']);
   
   const scores: number[] = [];
@@ -445,20 +486,25 @@ const calculateHematologicScore = (analysisData: EnhancedAnalysisResult): System
   // Hemoglobin (WHO Guidelines)
   if (hemoglobin !== null) {
     parameters.push('Hemoglobin');
-    // Gender-specific ranges (assuming mixed or using conservative threshold)
-    if (hemoglobin >= 12 && hemoglobin <= 17) scores.push(100);
-    else if (hemoglobin >= 11 && hemoglobin < 12) {
-      scores.push(70);
-      issues.push('Mild anemia');
-    } else if (hemoglobin >= 9) {
-      scores.push(50);
-      issues.push('Moderate anemia');
-    } else if (hemoglobin < 9) {
-      scores.push(25);
-      issues.push('Severe anemia');
-    } else if (hemoglobin > 17) {
+    // Sex-specific WHO anemia cutoffs: <13 g/dL (men), <12 g/dL (women).
+    const hbSex = ((demographics as any)?.gender || (demographics as any)?.sex || '').toString().toLowerCase();
+    const isFemale = hbSex.startsWith('f');
+    const lowNormal = isFemale ? 12 : 13;
+    const highNormal = isFemale ? 15.5 : 17;
+    if (hemoglobin > highNormal) {
       scores.push(75);
       issues.push('Elevated hemoglobin');
+    } else if (hemoglobin >= lowNormal) {
+      scores.push(100);
+    } else if (hemoglobin >= lowNormal - 1) {
+      scores.push(70);
+      issues.push('Mild anemia');
+    } else if (hemoglobin >= 8) {
+      scores.push(50);
+      issues.push('Moderate anemia');
+    } else {
+      scores.push(25);
+      issues.push('Severe anemia');
     }
   }
   
@@ -529,9 +575,13 @@ const calculateHematologicScore = (analysisData: EnhancedAnalysisResult): System
 // Calculate Endocrine Health Score (10% weight)
 const calculateEndocrineScore = (analysisData: EnhancedAnalysisResult): SystemScore => {
   const tsh = getLabValue(analysisData, ['tsh', 'thyroid stimulating hormone']);
-  const t3 = getLabValue(analysisData, ['t3', 'triiodothyronine']);
-  const t4 = getLabValue(analysisData, ['t4', 'thyroxine']);
-  const vitaminD = getLabValue(analysisData, ['vitamin d', '25-oh vitamin d']);
+  const freeT3 = getLabValue(analysisData, ['free t3', 'ft3']);
+  const t3 = freeT3 ?? getLabValue(analysisData, ['t3', 'triiodothyronine']);
+  const t3IsFree = freeT3 !== null;
+  const freeT4 = getLabValue(analysisData, ['free t4', 'ft4', 'free thyroxine']);
+  const t4 = freeT4 ?? getLabValue(analysisData, ['t4', 'thyroxine']);
+  const t4IsFree = freeT4 !== null;
+  const vitaminD = getLabValue(analysisData, ['vitamin d', '25-oh vitamin d'], 'vitaminD');
   
   const scores: number[] = [];
   const parameters: string[] = [];
@@ -553,18 +603,18 @@ const calculateEndocrineScore = (analysisData: EnhancedAnalysisResult): SystemSc
     }
   }
   
-  // T3
+  // T3 (Free T3 ~2.3-4.2 pg/mL vs Total T3 ~80-200 ng/dL)
   if (t3 !== null) {
-    parameters.push('T3');
-    if (t3 >= 80 && t3 <= 200) scores.push(100);
-    else scores.push(75);
+    parameters.push(t3IsFree ? 'Free T3' : 'T3');
+    const t3ok = t3IsFree ? (t3 >= 2.3 && t3 <= 4.2) : (t3 >= 80 && t3 <= 200);
+    scores.push(t3ok ? 100 : 75);
   }
   
-  // T4
+  // T4 (Free T4 ~0.8-1.8 ng/dL vs Total T4 ~5.0-12.0 µg/dL)
   if (t4 !== null) {
-    parameters.push('T4');
-    if (t4 >= 5.0 && t4 <= 12.0) scores.push(100);
-    else scores.push(75);
+    parameters.push(t4IsFree ? 'Free T4' : 'T4');
+    const t4ok = t4IsFree ? (t4 >= 0.8 && t4 <= 1.8) : (t4 >= 5.0 && t4 <= 12.0);
+    scores.push(t4ok ? 100 : 75);
   }
   
   // Vitamin D
@@ -612,7 +662,7 @@ const applyRiskModifiers = (
   }
   
   // Smoking
-  if (clinicalContext?.smoking || clinicalContext?.isSmoker) {
+  if (clinicalContext?.lifestyle?.smoking) {
     finalScore -= 10;
     modifiers.push({
       factor: 'Smoking',
@@ -622,7 +672,7 @@ const applyRiskModifiers = (
   }
   
   // Family history
-  if (clinicalContext?.familyHistory) {
+  if (Array.isArray(clinicalContext?.familyHistory) && clinicalContext.familyHistory.length > 0) {
     finalScore -= 5;
     modifiers.push({
       factor: 'Family History',
@@ -632,10 +682,8 @@ const applyRiskModifiers = (
   }
   
   // Sedentary lifestyle
-  const isLifestyleString = typeof clinicalContext?.lifestyle === 'string';
-  const lifestyleIncludesSedentary = isLifestyleString && clinicalContext.lifestyle.toLowerCase().includes('sedentary');
-  
-  if (lifestyleIncludesSedentary || clinicalContext?.exerciseFrequency === 'none') {
+  const exercise = clinicalContext?.lifestyle?.exercise;
+  if (exercise === 'sedentary' || exercise === 'minimal') {
     finalScore -= 5;
     modifiers.push({
       factor: 'Sedentary Lifestyle',
@@ -656,10 +704,10 @@ const getScoreCategory = (score: number): {
   label: string;
   color: string;
 } => {
-  if (score >= 90) return { category: 'excellent', label: 'Excellent Health', color: 'text-green-600' };
-  if (score >= 75) return { category: 'good', label: 'Good Health', color: 'text-green-500' };
-  if (score >= 60) return { category: 'fair', label: 'Fair Health', color: 'text-yellow-500' };
-  if (score >= 40) return { category: 'needs-attention', label: 'Needs Attention', color: 'text-orange-500' };
+  if (score >= 92) return { category: 'excellent', label: 'Excellent Health', color: 'text-green-600' };
+  if (score >= 78) return { category: 'good', label: 'Good Health', color: 'text-green-500' };
+  if (score >= 62) return { category: 'fair', label: 'Fair Health', color: 'text-yellow-500' };
+  if (score >= 42) return { category: 'needs-attention', label: 'Needs Attention', color: 'text-orange-500' };
   return { category: 'critical', label: 'Critical Attention Required', color: 'text-red-600' };
 };
 
@@ -704,22 +752,49 @@ export const calculateHealthScore = (
   // Calculate all system scores
   const metabolic = calculateMetabolicScore(analysisData);
   const cardiovascular = calculateCardiovascularScore(analysisData);
-  const kidney = calculateKidneyScore(analysisData);
+  const kidney = calculateKidneyScore(analysisData, demographics);
   const liver = calculateLiverScore(analysisData);
-  const hematologic = calculateHematologicScore(analysisData);
+  const hematologic = calculateHematologicScore(analysisData, demographics);
   const endocrine = calculateEndocrineScore(analysisData);
   
-  // Calculate weighted overall score
-  const baseScore = 
-    (metabolic.score * metabolic.weight / 100) +
-    (cardiovascular.score * cardiovascular.weight / 100) +
-    (kidney.score * kidney.weight / 100) +
-    (liver.score * liver.weight / 100) +
-    (hematologic.score * hematologic.weight / 100) +
-    (endocrine.score * endocrine.weight / 100);
-  
-  // Apply risk modifiers
-  const { finalScore, modifiers } = applyRiskModifiers(baseScore, demographics, clinicalContext);
+  // Score only the systems we actually measured. An untested system must NOT
+  // contribute a free 100 — re-normalize the weights across measured systems.
+  const allSystems = [metabolic, cardiovascular, kidney, liver, hematologic, endocrine];
+  const measured = allSystems.filter(s => s.parametersEvaluated.length > 0);
+  const scored = measured.length > 0 ? measured : allSystems;
+  const totalWeight = scored.reduce((sum, s) => sum + s.weight, 0) || 1;
+  let baseScore = scored.reduce((sum, s) => sum + s.score * s.weight, 0) / totalWeight;
+
+  // Penalize each out-of-range result the analysis flagged, weighted by severity,
+  // so a report with abnormalities can't coast on untested systems.
+  const severityPenalty: Record<string, number> = {
+    critical: 12, high: 5, low: 4, borderline: 2, 'borderline high': 3, 'borderline low': 3,
+  };
+  let abnormalCount = 0;
+  let abnormalPenalty = 0;
+  for (const panel of analysisData.medicalPanels || []) {
+    for (const lab of panel.abnormalLabs || []) {
+      abnormalPenalty += severityPenalty[(lab.status || '').toLowerCase()] ?? 4;
+      abnormalCount++;
+    }
+  }
+  abnormalPenalty = Math.min(abnormalPenalty, 40);
+  baseScore = Math.max(0, baseScore - abnormalPenalty);
+
+  // Apply demographic / lifestyle risk modifiers
+  const { finalScore: modifiedScore, modifiers } = applyRiskModifiers(baseScore, demographics, clinicalContext);
+
+  // Surface the abnormality penalty as a visible modifier
+  if (abnormalPenalty > 0) {
+    modifiers.unshift({
+      factor: 'Flagged abnormalities',
+      impact: -abnormalPenalty,
+      description: `${abnormalCount} out-of-range result${abnormalCount === 1 ? '' : 's'} detected`,
+    });
+  }
+
+  // A clean report tops out at 98, not a perfect 100 — a top score must be earned.
+  const finalScore = Math.min(98, modifiedScore);
   
   // Get category
   const { category, label, color } = getScoreCategory(finalScore);

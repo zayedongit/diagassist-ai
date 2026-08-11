@@ -118,6 +118,35 @@ function safeParseJSON(content: string): any {
 }
 
 // Retry mechanism with exponential backoff and rate limit awareness
+async function llmChatCompletion(cerebrasBody: any, retries: number, baseDelay: number, context: string): Promise<Response> {
+  const CEREBRAS_API_KEY = Deno.env.get('CEREBRAS_API_KEY');
+  try {
+    return await retryWithBackoff(async () => {
+      const r = await fetch('https://api.cerebras.ai/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${CEREBRAS_API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(cerebrasBody),
+      });
+      if (!r.ok) { const t = await r.text(); throw new Error(`Cerebras ${r.status}: ${t}`); }
+      return r;
+    }, retries, baseDelay, context);
+  } catch (cerebrasErr) {
+    const geminiKey = Deno.env.get('GEMINI_API_KEY');
+    if (!geminiKey) throw cerebrasErr;
+    console.warn(`⚠️ ${context}: Cerebras exhausted, falling back to Gemini`);
+    const gBody: any = { ...cerebrasBody, model: 'gemini-2.0-flash' };
+    if ('max_completion_tokens' in gBody) { gBody.max_tokens = gBody.max_completion_tokens; delete gBody.max_completion_tokens; }
+    const gr = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${geminiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(gBody),
+    });
+    if (!gr.ok) { const t = await gr.text(); throw new Error(`Gemini fallback failed: ${gr.status}: ${t}`); }
+    console.warn(`✅ ${context}: Gemini fallback succeeded`);
+    return gr;
+  }
+}
+
 async function retryWithBackoff<T>(
   operation: () => Promise<T>,
   maxRetries: number = 4,
@@ -140,7 +169,7 @@ async function retryWithBackoff<T>(
       if (attempt === maxRetries) {
         console.error(`${context} - All ${maxRetries} attempts failed`);
         if (isRateLimit) {
-          throw new Error('OpenAI API is currently experiencing high traffic. Please try again in a few moments.');
+          throw new Error('Cerebras API is currently experiencing high traffic. Please try again in a few moments.');
         }
         throw error;
       }
@@ -236,15 +265,8 @@ async function analyzeWithVision(images: string[], apiKey: string): Promise<Anal
       }
     }));
 
-    const pass1Response = await retryWithBackoff(async () => {
-      return await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini', // Using cost-efficient vision model to reduce rate limiting
+    const pass1Body: any = {
+          model: 'gemma-4-31b', // Using cost-efficient vision model to reduce rate limiting
           messages: [
             {
               role: "system",
@@ -505,14 +527,13 @@ Analyze these medical images with complete thoroughness. Extract and prioritize 
             }
           }],
           tool_choice: { type: "function", function: { name: "analyze_medical_report" } }
-        })
-      });
-    }, 3, 1000, 'Pass 1 Analysis');
+        };
+    const pass1Response = await llmChatCompletion(pass1Body, 3, 1000, 'Pass 1 Analysis (camera)');
 
     if (!pass1Response.ok) {
       const errorText = await pass1Response.text();
       console.error('Pass 1 API call failed:', pass1Response.status, errorText);
-      throw new Error(`OpenAI API call failed: ${pass1Response.status}`);
+      throw new Error(`Cerebras API call failed: ${pass1Response.status}`);
     }
 
     const pass1Data = await pass1Response.json();
@@ -522,20 +543,20 @@ Analyze these medical images with complete thoroughness. Extract and prioritize 
     let pass1Args;
     
     if (!pass1Data.choices || !pass1Data.choices[0]) {
-      console.error('❌ Pass 1: No choices returned from OpenAI');
+      console.error('❌ Pass 1: No choices returned from Cerebras');
       console.error('Full response:', JSON.stringify(pass1Data, null, 2));
-      throw new Error('Pass 1: No response choices from OpenAI');
+      throw new Error('Pass 1: No response choices from Cerebras');
     }
     
     const message = pass1Data.choices[0].message;
-    console.log('📋 OpenAI response structure:', {
+    console.log('📋 Cerebras response structure:', {
       hasToolCalls: !!message.tool_calls,
       hasContent: !!message.content,
       toolCallsCount: message.tool_calls?.length || 0
     });
     
     if (!message.tool_calls || !message.tool_calls[0]) {
-      console.error('❌ Pass 1: No function call received from OpenAI');
+      console.error('❌ Pass 1: No function call received from Cerebras');
       console.error('Message content:', message.content);
       console.error('Full message:', JSON.stringify(message, null, 2));
       
@@ -556,7 +577,7 @@ Analyze these medical images with complete thoroughness. Extract and prioritize 
           throw new Error('Pass 1: Function calling failed and fallback parsing unsuccessful');
         }
       } else {
-        throw new Error('Pass 1: No function call or content received from OpenAI');
+        throw new Error('Pass 1: No function call or content received from Cerebras');
       }
     } else {
       // Normal function call processing
@@ -585,15 +606,8 @@ Analyze these medical images with complete thoroughness. Extract and prioritize 
             }
           }));
 
-          const response = await retryWithBackoff(async () => {
-            return await fetch('https://api.openai.com/v1/chat/completions', {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${apiKey}`,
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                model: 'gpt-4o-mini', // Using cost-efficient vision model to reduce rate limiting
+          const pass2Body: any = {
+                model: 'gemma-4-31b', // Using cost-efficient vision model to reduce rate limiting
                 messages: [
                   {
                     role: "system",
@@ -661,9 +675,8 @@ CRITICAL: Do NOT repeat any parameters already found. Only return NEW findings w
                   }
                 }],
                 tool_choice: { type: "function", function: { name: "extract_additional_parameters" } }
-              })
-            });
-          }, 2, 1000, `Pass 2 Chunk ${chunkIndex + 2}`);
+          };
+          const response = await llmChatCompletion(pass2Body, 2, 1000, `Pass 2 Chunk ${chunkIndex + 2}`);
 
           if (!response.ok) {
             console.warn(`Pass 2 Chunk ${chunkIndex + 2} failed:`, response.status);
@@ -1115,7 +1128,7 @@ async function processInBackground(analysisId: string, images: string[], openAIA
     const rawMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     const isRateLimit = typeof rawMessage === 'string' && (rawMessage.includes('429') || rawMessage.toLowerCase().includes('rate limit') || rawMessage.toLowerCase().includes('too many requests'));
     const friendlyMessage = isRateLimit
-      ? 'OpenAI API is currently experiencing high traffic. Please try again in a few moments.'
+      ? 'Cerebras API is currently experiencing high traffic. Please try again in a few moments.'
       : rawMessage;
     await supabase
       .from('pdf_analyses')
@@ -1141,12 +1154,12 @@ serve(async (req) => {
     // Environment validation
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    const openAIApiKey = Deno.env.get('CEREBRAS_API_KEY');
 
     console.log('Environment validation:', {
       hasSupabaseUrl: !!supabaseUrl,
       hasServiceKey: !!supabaseServiceKey,
-      hasOpenAIKey: !!openAIApiKey,
+      hasCerebrasKey: !!openAIApiKey,
       supabaseUrlLength: supabaseUrl?.length || 0,
       serviceKeyLength: supabaseServiceKey?.length || 0,
       openAIKeyLength: openAIApiKey?.length || 0

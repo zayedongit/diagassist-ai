@@ -98,8 +98,8 @@ export const SampleReportPreview = () => {
       const weekNum = Math.ceil(day / 7);
       
       schedule[dateKey] = [
-        { type: "exercise", activity: "30-min walk", icon: Activity, color: "text-white/80" },
-        { type: "monitoring", activity: "BP check (2x)", icon: CheckCircle2, color: "text-white/80" },
+        { type: "exercise", activity: "30-min walk", icon: Activity, color: "text-foreground" },
+        { type: "monitoring", activity: "BP check (2x)", icon: CheckCircle2, color: "text-foreground" },
         { type: "diet", activity: "Healthy meals", icon: Utensils, color: "text-orange-600" }
       ];
 
@@ -165,7 +165,7 @@ export const SampleReportPreview = () => {
             e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
             e.currentTarget.style.boxShadow = '0 8px 32px rgba(255,255,255,0.10)';
           }}
-          className="group relative px-5 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 rounded-full font-poppins font-semibold text-sm sm:text-base text-white transition-all duration-400 hover:scale-105 active:scale-95 overflow-hidden backdrop-blur-lg"
+          className="group relative px-5 sm:px-6 md:px-8 py-2.5 sm:py-3 md:py-4 rounded-full font-poppins font-semibold text-sm sm:text-base text-foreground transition-all duration-400 hover:scale-105 active:scale-95 overflow-hidden backdrop-blur-lg"
           style={{ 
             background: 'rgba(255, 255, 255, 0.15)',
             border: '1px solid rgba(255, 255, 255, 0.3)',
@@ -184,7 +184,7 @@ export const SampleReportPreview = () => {
             {/* Header */}
             <div className="text-center space-y-2 pb-4 border-b bg-gradient-to-r from-white/5 to-white/5 rounded-t-lg p-6">
               <Calendar className="w-12 h-12 mx-auto text-primary mb-2" />
-              <h2 className="text-2xl md:text-3xl font-poppins font-bold text-white/90">
+              <h2 className="text-2xl md:text-3xl font-poppins font-bold text-foreground">
                 30-Day Health Improvement Plan
               </h2>
               <p className="text-sm text-muted-foreground">
@@ -199,7 +199,7 @@ export const SampleReportPreview = () => {
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center animate-scale-in">
                     <Target className="w-5 h-5 text-primary" />
                   </div>
-                  <CardTitle className="text-xl font-poppins text-white/90">
+                  <CardTitle className="text-xl font-poppins text-foreground">
                     Focus Areas
                   </CardTitle>
                 </div>
@@ -222,8 +222,8 @@ export const SampleReportPreview = () => {
             <Card className="border-white/10 bg-gradient-to-br from-green-50/50 to-emerald-50/30 animate-fade-in">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <Activity className="w-5 h-5 text-white/80" />
-                  <CardTitle className="text-lg font-poppins text-white/90">
+                  <Activity className="w-5 h-5 text-foreground" />
+                  <CardTitle className="text-lg font-poppins text-foreground">
                     Daily Activities Overview
                   </CardTitle>
                 </div>
@@ -233,10 +233,10 @@ export const SampleReportPreview = () => {
                   {samplePlan.dailyActivities.map((activity, idx) => (
                     <div 
                       key={idx} 
-                      className="flex items-center justify-between p-3 bg-white/70 rounded-lg border border-green-100"
+                      className="flex items-center justify-between p-3 bg-card rounded-lg border border-green-100"
                     >
                       <div className="flex items-center gap-3">
-                        <CheckCircle2 className="w-4 h-4 text-white/80" />
+                        <CheckCircle2 className="w-4 h-4 text-foreground" />
                         <span className="font-medium text-sm">{activity.activity}</span>
                       </div>
                       <Badge variant="secondary" className="text-xs">
@@ -258,7 +258,7 @@ export const SampleReportPreview = () => {
               </CardHeader>
               <CardContent className="space-y-3">
                 {samplePlan.testsRequired.slice(0, 4).map((test, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-2 bg-white/70 rounded-lg">
+                  <div key={idx} className="flex items-center justify-between p-2 bg-card rounded-lg">
                     <div className="flex-1">
                       <p className="font-medium text-sm">{test.test}</p>
                       <p className="text-xs text-muted-foreground">{test.timing}</p>
@@ -284,7 +284,7 @@ export const SampleReportPreview = () => {
               </CardHeader>
               <CardContent className="space-y-3">
                 {samplePlan.specialistReferrals.map((referral, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-3 bg-white/70 rounded-lg">
+                  <div key={idx} className="flex items-center justify-between p-3 bg-card rounded-lg">
                     <div>
                       <p className="font-medium text-sm">{referral.specialty}</p>
                       <p className="text-xs text-muted-foreground">{referral.timeframe}</p>
@@ -351,10 +351,10 @@ export const SampleReportPreview = () => {
                                       key={aIdx}
                                       className={`w-1.5 h-1.5 rounded-full ${
                                         activity.type === 'test' ? 'bg-red-500' :
-                                        activity.type === 'appointment' ? 'bg-white/50' :
+                                        activity.type === 'appointment' ? 'bg-card' :
                                         activity.type === 'exercise' ? 'bg-green-500' :
                                         activity.type === 'diet' ? 'bg-orange-500' :
-                                        'bg-white/50'
+                                        'bg-card'
                                       }`}
                                     />
                                   ))}
@@ -406,7 +406,7 @@ export const SampleReportPreview = () => {
                         <span className="text-xs text-muted-foreground">Exercise</span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <div className="w-2 h-2 rounded-full bg-white/50" />
+                        <div className="w-2 h-2 rounded-full bg-card" />
                         <span className="text-xs text-muted-foreground">Monitoring</span>
                       </div>
                       <div className="flex items-center gap-1.5">
@@ -418,7 +418,7 @@ export const SampleReportPreview = () => {
                         <span className="text-xs text-muted-foreground">Tests</span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <div className="w-2 h-2 rounded-full bg-white/50" />
+                        <div className="w-2 h-2 rounded-full bg-card" />
                         <span className="text-xs text-muted-foreground">Appointments</span>
                       </div>
                     </div>
@@ -462,7 +462,7 @@ export const SampleReportPreview = () => {
             <Card className="animate-fade-in">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <Utensils className="w-5 h-5 text-white/80" />
+                  <Utensils className="w-5 h-5 text-foreground" />
                   Dietary Plan
                 </CardTitle>
               </CardHeader>
@@ -472,7 +472,7 @@ export const SampleReportPreview = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     {samplePlan.dietaryPlan.add.map((food, idx) => (
                       <div key={idx} className="flex items-center gap-2 text-xs bg-green-50/50 p-2 rounded">
-                        <span className="text-white/80">•</span>
+                        <span className="text-foreground">•</span>
                         <span>{food}</span>
                       </div>
                     ))}
@@ -493,7 +493,7 @@ export const SampleReportPreview = () => {
                   <h4 className="font-semibold text-primary mb-2 text-sm">Sample Meals</h4>
                   <div className="space-y-1">
                     {samplePlan.dietaryPlan.sampleMeals.map((meal, idx) => (
-                      <div key={idx} className="text-xs bg-white/5 p-2 rounded">
+                      <div key={idx} className="text-xs bg-card p-2 rounded">
                         {meal}
                       </div>
                     ))}
@@ -516,7 +516,7 @@ export const SampleReportPreview = () => {
                 </p>
                 <div className="space-y-2">
                   {samplePlan.trackingMetrics.map((metric, idx) => (
-                    <div key={idx} className="flex items-center gap-2 p-2 bg-white/70 rounded">
+                    <div key={idx} className="flex items-center gap-2 p-2 bg-card rounded">
                       <CheckCircle2 className="w-4 h-4 text-purple-600" />
                       <span className="text-xs">{metric}</span>
                     </div>

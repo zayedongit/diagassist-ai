@@ -53,7 +53,7 @@ export function ReportPreviewModal({ open, onOpenChange, reportData, onDownload 
       case 'critical':
         return 'bg-red-500';
       default:
-        return 'bg-white/[0.03]0';
+        return 'bg-card/[0.03]0';
     }
   };
 
@@ -64,7 +64,7 @@ export function ReportPreviewModal({ open, onOpenChange, reportData, onDownload 
       case 'low':
         return 'text-yellow-600 bg-yellow-50';
       default:
-        return 'text-white/60 bg-white/[0.03]';
+        return 'text-foreground bg-card/[0.03]';
     }
   };
 
@@ -117,7 +117,7 @@ export function ReportPreviewModal({ open, onOpenChange, reportData, onDownload 
             {reportData.overallStatus && (
               <div className="flex items-center gap-3">
                 <span className="text-sm text-muted-foreground">Overall Status:</span>
-                <Badge className={`${getStatusColor(reportData.overallStatus)} text-white`}>
+                <Badge className={`${getStatusColor(reportData.overallStatus)} text-foreground`}>
                   {reportData.overallStatus.toUpperCase()}
                 </Badge>
               </div>
@@ -223,7 +223,7 @@ export function ReportPreviewModal({ open, onOpenChange, reportData, onDownload 
 
             {/* Lifestyle Modifications */}
             {reportData.lifestyleModifications && reportData.lifestyleModifications.length > 0 && (
-              <Card className="border-white/10 bg-white/5">
+              <Card className="border-white/10 bg-card">
                 <CardContent className="pt-6">
                   <h3 className="font-semibold mb-3 flex items-center gap-2 text-blue-900">
                     <Heart className="w-4 h-4" />

@@ -23,7 +23,7 @@ export const HealthRiskDashboard = ({ analysisData, demographics, clinicalContex
       case 'moderate': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
       case 'high': return 'text-orange-600 bg-orange-50 border-orange-200';
       case 'very-high': return 'text-red-600 bg-red-50 border-red-200';
-      default: return 'text-white/60 bg-white/[0.03] border-white/10';
+      default: return 'text-foreground bg-card/[0.03] border-white/10';
     }
   };
   
@@ -43,7 +43,7 @@ export const HealthRiskDashboard = ({ analysisData, demographics, clinicalContex
       case 'moderate': return <AlertCircle className="w-5 h-5 text-yellow-600" />;
       case 'high': return <TrendingUp className="w-5 h-5 text-orange-600" />;
       case 'very-high': return <AlertCircle className="w-5 h-5 text-red-600" />;
-      default: return <Shield className="w-5 h-5 text-white/60" />;
+      default: return <Shield className="w-5 h-5 text-foreground" />;
     }
   };
   
@@ -82,11 +82,11 @@ export const HealthRiskDashboard = ({ analysisData, demographics, clinicalContex
         </Alert>
         
         {/* Cardiovascular Risk */}
-        <div className="bg-white/60 rounded-lg p-4 border border-primary/20 space-y-3">
+        <div className="bg-card rounded-lg p-4 border border-primary/20 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Heart className="w-5 h-5 text-red-500" />
-              <h3 className="font-semibold text-white">Cardiovascular Disease Risk</h3>
+              <h3 className="font-semibold text-foreground">Cardiovascular Disease Risk</h3>
             </div>
             <Badge variant={getRiskBadgeVariant(riskCalculation.cardiovascularRisk.level)}>
               {riskCalculation.cardiovascularRisk.level.toUpperCase().replace('-', ' ')}
@@ -95,8 +95,8 @@ export const HealthRiskDashboard = ({ analysisData, demographics, clinicalContex
           
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-white/80">Risk Score</span>
-              <span className="font-semibold text-white">{riskCalculation.cardiovascularRisk.score}/100</span>
+              <span className="text-foreground">Risk Score</span>
+              <span className="font-semibold text-foreground">{riskCalculation.cardiovascularRisk.score}/100</span>
             </div>
             <Progress 
               value={riskCalculation.cardiovascularRisk.score} 
@@ -104,16 +104,16 @@ export const HealthRiskDashboard = ({ analysisData, demographics, clinicalContex
             />
           </div>
           
-          <p className="text-sm text-white/90 bg-white/5 p-3 rounded border border-white/10">
+          <p className="text-sm text-foreground bg-card p-3 rounded border border-white/10">
             {riskCalculation.cardiovascularRisk.description}
           </p>
           
           {riskCalculation.cardiovascularRisk.contributingFactors.length > 0 && (
             <div className="space-y-2">
-              <h4 className="text-sm font-medium text-white">Contributing Factors:</h4>
+              <h4 className="text-sm font-medium text-foreground">Contributing Factors:</h4>
               <ul className="space-y-1">
                 {riskCalculation.cardiovascularRisk.contributingFactors.map((factor, index) => (
-                  <li key={index} className="text-sm text-white/90 flex items-start gap-2">
+                  <li key={index} className="text-sm text-foreground flex items-start gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 flex-shrink-0"></span>
                     {factor}
                   </li>
@@ -124,11 +124,11 @@ export const HealthRiskDashboard = ({ analysisData, demographics, clinicalContex
         </div>
         
         {/* Diabetes Risk */}
-        <div className="bg-white/60 rounded-lg p-4 border border-primary/20 space-y-3">
+        <div className="bg-card rounded-lg p-4 border border-primary/20 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Activity className="w-5 h-5 text-orange-500" />
-              <h3 className="font-semibold text-white">Type 2 Diabetes Risk</h3>
+              <h3 className="font-semibold text-foreground">Type 2 Diabetes Risk</h3>
             </div>
             <Badge variant={getRiskBadgeVariant(riskCalculation.diabetesRisk.level)}>
               {riskCalculation.diabetesRisk.level.toUpperCase().replace('-', ' ')}
@@ -137,8 +137,8 @@ export const HealthRiskDashboard = ({ analysisData, demographics, clinicalContex
           
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-white/80">Risk Score</span>
-              <span className="font-semibold text-white">{riskCalculation.diabetesRisk.score}/100</span>
+              <span className="text-foreground">Risk Score</span>
+              <span className="font-semibold text-foreground">{riskCalculation.diabetesRisk.score}/100</span>
             </div>
             <Progress 
               value={riskCalculation.diabetesRisk.score} 
@@ -146,16 +146,16 @@ export const HealthRiskDashboard = ({ analysisData, demographics, clinicalContex
             />
           </div>
           
-          <p className="text-sm text-white/90 bg-white/5 p-3 rounded border border-white/10">
+          <p className="text-sm text-foreground bg-card p-3 rounded border border-white/10">
             {riskCalculation.diabetesRisk.description}
           </p>
           
           {riskCalculation.diabetesRisk.contributingFactors.length > 0 && (
             <div className="space-y-2">
-              <h4 className="text-sm font-medium text-white">Contributing Factors:</h4>
+              <h4 className="text-sm font-medium text-foreground">Contributing Factors:</h4>
               <ul className="space-y-1">
                 {riskCalculation.diabetesRisk.contributingFactors.map((factor, index) => (
-                  <li key={index} className="text-sm text-white/90 flex items-start gap-2">
+                  <li key={index} className="text-sm text-foreground flex items-start gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-orange-500 mt-1.5 flex-shrink-0"></span>
                     {factor}
                   </li>
@@ -166,7 +166,7 @@ export const HealthRiskDashboard = ({ analysisData, demographics, clinicalContex
         </div>
         
         {/* Metabolic Syndrome Assessment */}
-        <div className={`bg-white/60 rounded-lg p-4 border-2 ${
+        <div className={`bg-card rounded-lg p-4 border-2 ${
           riskCalculation.metabolicSyndrome.hasSyndrome 
             ? 'border-red-300 bg-red-50/50' 
             : 'border-green-300 bg-green-50/50'
@@ -174,17 +174,17 @@ export const HealthRiskDashboard = ({ analysisData, demographics, clinicalContex
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Shield className="w-5 h-5 text-purple-600" />
-              <h3 className="font-semibold text-white">Metabolic Syndrome Assessment</h3>
+              <h3 className="font-semibold text-foreground">Metabolic Syndrome Assessment</h3>
             </div>
             <Badge variant={riskCalculation.metabolicSyndrome.hasSyndrome ? 'destructive' : 'outline'}>
               {riskCalculation.metabolicSyndrome.hasSyndrome ? 'LIKELY PRESENT' : 'NOT PRESENT'}
             </Badge>
           </div>
           
-          <div className="bg-white/5 p-3 rounded border border-white/10">
+          <div className="bg-card p-3 rounded border border-white/10">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-white">Lab Criteria Met</span>
-              <span className="text-lg font-bold text-white">
+              <span className="text-sm font-medium text-foreground">Lab Criteria Met</span>
+              <span className="text-lg font-bold text-foreground">
                 {riskCalculation.metabolicSyndrome.criteriaCount}/3
               </span>
             </div>
@@ -192,23 +192,23 @@ export const HealthRiskDashboard = ({ analysisData, demographics, clinicalContex
               value={(riskCalculation.metabolicSyndrome.criteriaCount / 3) * 100} 
               className="h-2"
             />
-            <p className="text-xs text-white/60 mt-2">
+            <p className="text-xs text-foreground mt-2">
               ≥3 criteria needed for diagnosis (from lab values only)
             </p>
           </div>
           
-          <p className="text-sm text-white/90 bg-white/5 p-3 rounded border border-white/10">
+          <p className="text-sm text-foreground bg-card p-3 rounded border border-white/10">
             {riskCalculation.metabolicSyndrome.description}
           </p>
           
           <div className="space-y-2">
-            <h4 className="text-sm font-medium text-white">Diagnostic Criteria:</h4>
+            <h4 className="text-sm font-medium text-foreground">Diagnostic Criteria:</h4>
             <div className="space-y-2">
               {riskCalculation.metabolicSyndrome.criteria.map((criterion, index) => (
                 <div 
                   key={index} 
                   className={`flex items-start gap-3 p-2 rounded ${
-                    criterion.met ? 'bg-red-50 border border-red-200' : 'bg-white/[0.03] border border-white/10'
+                    criterion.met ? 'bg-red-50 border border-red-200' : 'bg-card/[0.03] border border-white/10'
                   }`}
                 >
                   {criterion.met ? (
@@ -217,8 +217,8 @@ export const HealthRiskDashboard = ({ analysisData, demographics, clinicalContex
                     <CheckCircle2 className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white">{criterion.name}</p>
-                    <p className="text-xs text-white/60">
+                    <p className="text-sm font-medium text-foreground">{criterion.name}</p>
+                    <p className="text-xs text-foreground">
                       {criterion.value} {criterion.threshold && `(threshold: ${criterion.threshold})`}
                     </p>
                   </div>
@@ -232,8 +232,8 @@ export const HealthRiskDashboard = ({ analysisData, demographics, clinicalContex
         </div>
         
         {/* Important Note */}
-        <Alert className="bg-white/5 border-white/10">
-          <AlertCircle className="h-4 w-4 text-white/80" />
+        <Alert className="bg-card border-white/10">
+          <AlertCircle className="h-4 w-4 text-foreground" />
           <AlertTitle className="text-sm font-semibold text-blue-900">Important Note</AlertTitle>
           <AlertDescription className="text-xs text-blue-800">
             These risk assessments are based on laboratory values and available demographic information. 

@@ -39,7 +39,7 @@ export const UnderstandingYourNumbers = ({ analysisData }: UnderstandingYourNumb
       case 'critical':
         return <TrendingUp className="w-4 h-4 text-red-500" />;
       case 'low':
-        return <TrendingDown className="w-4 h-4 text-white/70" />;
+        return <TrendingDown className="w-4 h-4 text-foreground" />;
       default:
         return <BarChart3 className="w-4 h-4 text-muted-foreground" />;
     }
@@ -98,7 +98,7 @@ export const UnderstandingYourNumbers = ({ analysisData }: UnderstandingYourNumb
           return (
             <Collapsible key={index}>
               <CollapsibleTrigger className="w-full">
-                <div className="flex items-center justify-between p-4 bg-white/60 rounded-lg border border-primary/20 hover:bg-white/80 transition-colors">
+                <div className="flex items-center justify-between p-4 bg-card rounded-lg border border-primary/20 hover:bg-card transition-colors">
                   <div className="flex items-center gap-3">
                     {statusIcon}
                     <div className="text-left">
@@ -118,7 +118,7 @@ export const UnderstandingYourNumbers = ({ analysisData }: UnderstandingYourNumb
               </CollapsibleTrigger>
               
               <CollapsibleContent>
-                <div className="mt-2 p-3 sm:p-4 bg-white/40 rounded-lg border border-primary/10 space-y-3 sm:space-y-4">
+                <div className="mt-2 p-3 sm:p-4 bg-card rounded-lg border border-primary/10 space-y-3 sm:space-y-4">
                   {/* Lab Range Bar with Dynamic Positioning */}
                   {!isNaN(parseFloat(lab.value)) && parseFloat(lab.value) > 0 && (
                     <LabRangeBar
@@ -132,27 +132,27 @@ export const UnderstandingYourNumbers = ({ analysisData }: UnderstandingYourNumb
                 
                 {/* What It Means */}
                 <div>
-                  <h5 className="font-medium text-white mb-1.5 sm:mb-2 text-sm sm:text-base">What It Means</h5>
-                  <p className="text-xs sm:text-sm text-white/90 bg-white/5 p-2.5 sm:p-3 rounded border border-white/10 leading-relaxed">
+                  <h5 className="font-medium text-foreground mb-1.5 sm:mb-2 text-sm sm:text-base">What It Means</h5>
+                  <p className="text-xs sm:text-sm text-foreground bg-card p-2.5 sm:p-3 rounded border border-white/10 leading-relaxed">
                     {context.whatItMeans}
                   </p>
                 </div>
                 
                 {/* Body Connection */}
                 <div>
-                  <h5 className="font-medium text-white mb-1.5 sm:mb-2 text-sm sm:text-base">Body Connection</h5>
-                  <p className="text-xs sm:text-sm text-white/90 bg-green-50 p-2.5 sm:p-3 rounded border border-green-200 leading-relaxed">
+                  <h5 className="font-medium text-foreground mb-1.5 sm:mb-2 text-sm sm:text-base">Body Connection</h5>
+                  <p className="text-xs sm:text-sm text-foreground bg-green-50 p-2.5 sm:p-3 rounded border border-green-200 leading-relaxed">
                     {context.bodyConnection}
                   </p>
                 </div>
                 
                 {/* Possible Contributing Factors */}
                 <div>
-                    <h5 className="font-medium text-white mb-2">Possible Contributing Factors</h5>
+                    <h5 className="font-medium text-foreground mb-2">Possible Contributing Factors</h5>
                     <div className="bg-yellow-50 p-3 rounded border border-yellow-200">
                       <ul className="space-y-1">
                         {context.possibleCauses.map((cause, causeIndex) => (
-                          <li key={causeIndex} className="text-sm text-white/90 flex items-start gap-2">
+                          <li key={causeIndex} className="text-sm text-foreground flex items-start gap-2">
                             <span className="w-1 h-1 rounded-full bg-yellow-500 mt-2 flex-shrink-0"></span>
                             {cause}
                           </li>
@@ -168,7 +168,7 @@ export const UnderstandingYourNumbers = ({ analysisData }: UnderstandingYourNumb
         
         {/* Special Note for AUTO-DETECTED values */}
         <div className="mt-4 p-3 bg-muted/10 rounded-lg border border-border/20">
-          <p className="text-xs text-white/80">
+          <p className="text-xs text-foreground">
             <strong>Note:</strong> These explanations are for educational purposes. 
             Always discuss your results with your healthcare provider for proper interpretation and treatment recommendations.
           </p>

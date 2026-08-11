@@ -296,27 +296,27 @@ export const ParameterContextSection = ({ abnormalLabs }: ParameterContextSectio
                     )}
                     
                     {/* What It Means */}
-                    <div className="bg-white/5 rounded-lg p-3 border border-white/10">
-                      <h5 className="font-semibold text-white mb-2 flex items-center space-x-1">
-                        <Info className="w-4 h-4 text-white/80" />
+                    <div className="bg-card rounded-lg p-3 border border-white/10">
+                      <h5 className="font-semibold text-foreground mb-2 flex items-center space-x-1">
+                        <Info className="w-4 h-4 text-foreground" />
                         <span>What This Means</span>
                       </h5>
-                      <p className="text-sm text-white/90 leading-relaxed">{context.whatItMeans}</p>
+                      <p className="text-sm text-foreground leading-relaxed">{context.whatItMeans}</p>
                     </div>
                     
                     {/* Body Connection */}
                     <div className="bg-green-50 rounded-lg p-3 border border-green-200">
-                      <h5 className="font-semibold text-white mb-2">How It Relates to Your Body</h5>
-                      <p className="text-sm text-white/90 leading-relaxed">{context.bodyConnection}</p>
+                      <h5 className="font-semibold text-foreground mb-2">How It Relates to Your Body</h5>
+                      <p className="text-sm text-foreground leading-relaxed">{context.bodyConnection}</p>
                     </div>
                     
                     {/* Possible Causes */}
                     <div className="bg-yellow-50 rounded-lg p-3 border border-yellow-200">
-                      <h5 className="font-semibold text-white mb-2 flex items-center space-x-1">
+                      <h5 className="font-semibold text-foreground mb-2 flex items-center space-x-1">
                         <User className="w-4 h-4 text-yellow-700" />
                         <span>Possible Contributing Factors</span>
                       </h5>
-                      <ul className="text-sm text-white/90 space-y-1">
+                      <ul className="text-sm text-foreground space-y-1">
                         {context.possibleCauses.map((cause, causeIndex) => (
                           <li key={causeIndex} className="flex items-start space-x-2">
                             <span className="text-yellow-700 mt-1.5 text-xs">•</span>

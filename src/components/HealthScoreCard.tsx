@@ -129,7 +129,7 @@ export const HealthScoreCard = ({ breakdown }: HealthScoreCardProps) => {
     <Card className="border-2 border-primary/20 bg-gradient-to-br from-white/5 to-primary/5 overflow-hidden">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-2xl font-poppins text-white/90 flex items-center gap-2">
+          <CardTitle className="text-2xl font-poppins text-foreground flex items-center gap-2">
             <Activity className="w-6 h-6 text-primary" />
             Your Health Score
           </CardTitle>
@@ -180,7 +180,7 @@ export const HealthScoreCard = ({ breakdown }: HealthScoreCardProps) => {
 
           {/* Population Comparison */}
           {comparisonToPopulation && (
-            <div className="mt-4 px-4 py-2 bg-white/5 rounded-lg border border-white/10 max-w-md">
+            <div className="mt-4 px-4 py-2 bg-card rounded-lg border border-white/10 max-w-md">
               <p className="text-sm text-blue-800 text-center flex items-start gap-2">
                 <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
                 <span>{comparisonToPopulation}</span>
@@ -191,7 +191,7 @@ export const HealthScoreCard = ({ breakdown }: HealthScoreCardProps) => {
 
         {/* System Scores Grid */}
         <div className="space-y-4">
-          <h4 className="font-semibold text-white/90 text-lg">Body Systems Breakdown</h4>
+          <h4 className="font-semibold text-foreground text-lg">Body Systems Breakdown</h4>
           <div className="grid gap-4">
             {Object.entries(systemScores).map(([systemName, systemData]: [string, SystemScore]) => {
               const Icon = getSystemIcon(systemName);
@@ -200,7 +200,7 @@ export const HealthScoreCard = ({ breakdown }: HealthScoreCardProps) => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Icon className={`w-5 h-5 ${getScoreColor(systemData.score)}`} />
-                      <span className="font-medium text-white/60">{getSystemLabel(systemName)}</span>
+                      <span className="font-medium text-foreground">{getSystemLabel(systemName)}</span>
                       <span className="text-xs text-muted-foreground">({systemData.weight}%)</span>
                     </div>
                     <span className={`font-bold ${getScoreColor(systemData.score)}`}>
@@ -246,12 +246,12 @@ export const HealthScoreCard = ({ breakdown }: HealthScoreCardProps) => {
 
         {/* Key Recommendations */}
         {recommendations.length > 0 && (
-          <div className="bg-white/5 border border-white/10 rounded-lg p-4 space-y-2">
+          <div className="bg-card border border-white/10 rounded-lg p-4 space-y-2">
             <h5 className="font-semibold text-blue-800 text-sm">Key Improvement Areas</h5>
             <ul className="space-y-2">
               {recommendations.map((recommendation, index) => (
-                <li key={index} className="text-xs text-white/80 flex items-start gap-2">
-                  <span className="text-white/70 mt-0.5">▶</span>
+                <li key={index} className="text-xs text-foreground flex items-start gap-2">
+                  <span className="text-foreground mt-0.5">▶</span>
                   <span>{recommendation}</span>
                 </li>
               ))}

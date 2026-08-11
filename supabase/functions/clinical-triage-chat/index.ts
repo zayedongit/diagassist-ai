@@ -8,6 +8,69 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// --- LLM helper: Cerebras (primary) with Gemini fallback + robust JSON extraction ---
+async function chatComplete(systemPrompt: string, userPrompt: string, maxTokens: number): Promise<string> {
+  const cerebrasKey = Deno.env.get('CEREBRAS_API_KEY');
+  const geminiKey = Deno.env.get('GEMINI_API_KEY');
+  const messages = [
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: userPrompt },
+  ];
+
+  if (cerebrasKey) {
+    try {
+      const r = await fetch('https://api.cerebras.ai/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${cerebrasKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: 'gemma-4-31b', messages, max_completion_tokens: maxTokens }),
+      });
+      if (r.ok) {
+        const d = await r.json();
+        const c = d.choices?.[0]?.message?.content;
+        if (c && c.trim()) return c;
+        console.warn('Cerebras returned empty content; falling back to Gemini');
+      } else {
+        const t = await r.text();
+        console.warn(`Cerebras ${r.status}: ${t.slice(0, 200)}; falling back to Gemini`);
+      }
+    } catch (e) {
+      console.warn('Cerebras request failed; falling back to Gemini:', e);
+    }
+  }
+
+  if (geminiKey) {
+    const r = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${geminiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'gemini-2.0-flash',
+        messages,
+        max_tokens: maxTokens,
+        response_format: { type: 'json_object' },
+      }),
+    });
+    if (!r.ok) {
+      const t = await r.text();
+      throw new Error(`Gemini error ${r.status}: ${t.slice(0, 300)}`);
+    }
+    const d = await r.json();
+    const c = d.choices?.[0]?.message?.content;
+    if (c && c.trim()) return c;
+    throw new Error('Gemini returned empty content');
+  }
+
+  throw new Error('No LLM provider configured (CEREBRAS_API_KEY / GEMINI_API_KEY)');
+}
+
+function extractJson(text: string): string {
+  let s = (text || '').trim();
+  s = s.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+  const a = s.indexOf('{');
+  const b = s.lastIndexOf('}');
+  if (a !== -1 && b > a) s = s.slice(a, b + 1);
+  return s;
+}
+
 // Input validation schema
 const ChatRequestSchema = z.object({
   message: z.string()
@@ -99,9 +162,9 @@ serve(async (req) => {
     // Extract all fields from validated body
     const { sessionId, isInitialization, analysisContext, demographics, abnormalPanels, state, selections, message, forceReport, maxQuestions } = body;
 
-    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
+    const openaiApiKey = Deno.env.get('CEREBRAS_API_KEY');
     if (!openaiApiKey) {
-      throw new Error('OpenAI API key not configured');
+      throw new Error('Cerebras API key not configured');
     }
 
     console.log('Clinical triage request:', { sessionId, isInitialization, hasAnalysis: !!analysisContext, demographics, abnormalPanelsCount: abnormalPanels?.length || 0 });
@@ -166,6 +229,9 @@ serve(async (req) => {
 CORE MISSION: Analyze THIS PATIENT'S actual condition, not textbook complications they DON'T have.
 
 PATIENT DEMOGRAPHICS: ${demographics ? JSON.stringify(demographics) : 'Demographics not available'}
+
+🚫 ALREADY-KNOWN INFORMATION — NEVER ASK FOR IT:
+You ALREADY have this patient's gender (${demographics?.gender || demographics?.sex || 'unknown'}) and age (${demographics?.age || 'unknown'}) from their report above. You must NEVER ask the patient to state their gender, sex, age, name, or any demographic detail already present in the report — doing so is a critical error. Use these facts silently to tailor questions. EVERY question you ask must be about the patient's SYMPTOMS, MEDICAL HISTORY, MEDICATIONS, or LIFESTYLE — never about information already provided.
 BLOOD ANALYSIS CONTEXT: ${analysisContext || 'No initial analysis available'}
 ABNORMAL PANELS: ${abnormalPanels ? JSON.stringify(abnormalPanels) : 'No panel-specific data available'}
 
@@ -341,7 +407,7 @@ CRITICAL OPERATIONAL GUIDELINES:
 
     console.log('Calling OpenAI for triage response...');
     console.log('OpenAI request body:', {
-      model: 'gpt-4.1-2025-04-14',
+      model: 'gemma-4-31b',
       messages: [
         { role: 'system', content: 'System prompt length: ' + systemPrompt.length },
         { role: 'user', content: userPrompt }
@@ -349,45 +415,14 @@ CRITICAL OPERATIONAL GUIDELINES:
         max_completion_tokens: 2500,
     });
     
-    const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openaiApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4.1-2025-04-14',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        max_completion_tokens: 2500,
-      }),
-    });
-
-    console.log('OpenAI response status:', openaiResponse.status);
-
-    if (!openaiResponse.ok) {
-      const errorText = await openaiResponse.text();
-      console.error('OpenAI API error response:', errorText);
-      throw new Error(`OpenAI API error: ${openaiResponse.status} - ${errorText}`);
-    }
-
-    const openaiData = await openaiResponse.json();
-    console.log('OpenAI successful response structure:', {
-      choices: openaiData.choices?.length || 0,
-      hasContent: !!openaiData.choices?.[0]?.message?.content,
-      contentLength: openaiData.choices?.[0]?.message?.content?.length || 0
-    });
-    
-    const aiResponse = openaiData.choices[0].message.content;
+    const aiResponse = await chatComplete(systemPrompt, userPrompt, 2500);
     
     console.log('AI response content preview:', aiResponse?.substring(0, 200) + '...');
 
     let parsedResponse;
     try {
       // Clean the AI response to handle potential JSON issues
-      const cleanedResponse = aiResponse.trim();
+      const cleanedResponse = extractJson(aiResponse);
       
       // Try to parse the JSON
       parsedResponse = JSON.parse(cleanedResponse);

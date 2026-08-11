@@ -143,7 +143,7 @@ export const InteractiveRiskCalculator = ({
               onValueChange={(value) => setExercise(value[0])}
               min={0}
               max={100}
-              step={25}
+              step={1}
               className="w-full touch-none"
             />
           </div>
@@ -163,7 +163,7 @@ export const InteractiveRiskCalculator = ({
               onValueChange={(value) => setDiet(value[0])}
               min={0}
               max={100}
-              step={25}
+              step={1}
               className="w-full touch-none"
             />
           </div>

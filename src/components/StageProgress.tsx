@@ -16,26 +16,19 @@ export const StageProgress = ({ currentStage, wasCompressed = false }: StageProg
     { id: 'results' as Stage, label: 'Results', show: true },
   ].filter(stage => stage.show);
 
-  const getCurrentStageIndex = () => {
-    return stages.findIndex(s => s.id === currentStage);
-  };
-
-  const currentIndex = getCurrentStageIndex();
+  const currentIndex = stages.findIndex(s => s.id === currentStage);
 
   return (
-    <div className="w-full max-w-2xl mx-auto py-6">
+    <div className="w-full max-w-xl mx-auto py-4">
       <div className="relative">
-        {/* Progress Line */}
-        <div className="absolute top-5 left-0 w-full h-0.5 bg-secondary">
-          <div 
+        {/* thin track */}
+        <div className="absolute top-[13px] left-0 w-full h-px bg-border">
+          <div
             className="h-full bg-primary transition-all duration-500 ease-out"
-            style={{ 
-              width: `${(currentIndex / (stages.length - 1)) * 100}%` 
-            }}
+            style={{ width: `${(currentIndex / (stages.length - 1)) * 100}%` }}
           />
         </div>
 
-        {/* Stages */}
         <div className="relative flex justify-between">
           {stages.map((stage, index) => {
             const isCompleted = index < currentIndex;
@@ -44,34 +37,22 @@ export const StageProgress = ({ currentStage, wasCompressed = false }: StageProg
 
             return (
               <div key={stage.id} className="flex flex-col items-center gap-2">
-                {/* Circle */}
                 <div
                   className={cn(
-                    "w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300",
-                    "relative z-10",
+                    "w-7 h-7 rounded-full flex items-center justify-center border transition-all duration-300 relative z-10",
                     isCompleted && "bg-primary border-primary",
                     isCurrent && "bg-background border-primary",
                     isPending && "bg-background border-muted"
                   )}
                 >
-                  {isCompleted && (
-                    <Check className="w-5 h-5 text-primary-foreground" />
-                  )}
-                  {isCurrent && (
-                    <Loader2 className="w-5 h-5 text-primary animate-spin" />
-                  )}
-                  {isPending && (
-                    <div className="w-2 h-2 rounded-full bg-muted" />
-                  )}
+                  {isCompleted && <Check className="w-3.5 h-3.5 text-primary-foreground" />}
+                  {isCurrent && <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />}
+                  {isPending && <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40" />}
                 </div>
-
-                {/* Label */}
                 <p
                   className={cn(
-                    "text-xs font-medium text-center transition-colors duration-300",
-                    "max-w-[80px] sm:max-w-none",
-                    (isCompleted || isCurrent) && "text-foreground",
-                    isPending && "text-muted-foreground"
+                    "text-[11px] tracking-wide text-center transition-colors duration-300 max-w-[80px] sm:max-w-none",
+                    (isCompleted || isCurrent) ? "text-foreground" : "text-muted-foreground"
                   )}
                 >
                   {stage.label}

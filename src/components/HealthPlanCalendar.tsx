@@ -97,15 +97,15 @@ export const HealthPlanCalendar = ({
   const getActivityColor = (type: string) => {
     switch (type) {
       case 'activity':
-        return 'bg-white/50';
+        return 'bg-card';
       case 'diet':
         return 'bg-green-500';
       case 'test':
         return 'bg-red-500';
       case 'specialist':
-        return 'bg-white/50';
+        return 'bg-card';
       default:
-        return 'bg-white/[0.03]0';
+        return 'bg-card/[0.03]0';
     }
   };
 

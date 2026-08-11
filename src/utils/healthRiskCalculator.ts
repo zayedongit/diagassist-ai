@@ -28,15 +28,34 @@ export interface HealthRiskCalculation {
 }
 
 // Helper to extract lab value
-function getLabValue(analysisData: EnhancedAnalysisResult, labNames: string[]): number | null {
+// Normalize common non-US units (mmol/L, µmol/L) to the units the risk thresholds assume.
+function normalizeUnit(analyte: string | undefined, value: number, unit?: string): number {
+  if (!analyte) return value;
+  const u = (unit || '').toLowerCase().replace(/\s+/g, '');
+  switch (analyte) {
+    case 'glucose':       return u.includes('mmol') ? value * 18.0182 : value;
+    case 'cholesterol':   return u.includes('mmol') ? value * 38.67 : value;
+    case 'triglycerides': return u.includes('mmol') ? value * 88.57 : value;
+    case 'creatinine':    return u.includes('mol') ? value / 88.42 : value;
+    default: return value;
+  }
+}
+
+function getLabValue(analysisData: EnhancedAnalysisResult, labNames: string[], analyte?: string): number | null {
   if (!analysisData.medicalPanels) return null;
   
   for (const panel of analysisData.medicalPanels) {
     for (const lab of panel.abnormalLabs) {
       const labNameLower = lab.name.toLowerCase();
-      if (labNames.some(name => labNameLower.includes(name.toLowerCase()))) {
+      if (labNames.some(name => {
+        const n = name.toLowerCase();
+        if (!labNameLower.includes(n)) return false;
+        if (n === 'ldl' && labNameLower.includes('vldl')) return false;      // LDL !== VLDL
+        if ((n === 'hemoglobin' || n === 'hb') && /(a1c|glyc)/i.test(labNameLower)) return false; // Hb !== HbA1c
+        return true;
+      })) {
         const numValue = parseFloat(lab.value);
-        if (!isNaN(numValue)) return numValue;
+        if (!isNaN(numValue)) return normalizeUnit(analyte, numValue, lab.unit);
       }
     }
   }
@@ -67,10 +86,10 @@ function calculateCardiovascularRisk(
   }
   
   // Lipid profile
-  const totalChol = getLabValue(analysisData, ['total cholesterol', 'cholesterol']);
-  const ldl = getLabValue(analysisData, ['ldl', 'ldl cholesterol']);
-  const hdl = getLabValue(analysisData, ['hdl', 'hdl cholesterol']);
-  const triglycerides = getLabValue(analysisData, ['triglyceride']);
+  const totalChol = getLabValue(analysisData, ['total cholesterol', 'cholesterol'], 'cholesterol');
+  const ldl = getLabValue(analysisData, ['ldl', 'ldl cholesterol'], 'cholesterol');
+  const hdl = getLabValue(analysisData, ['hdl', 'hdl cholesterol'], 'cholesterol');
+  const triglycerides = getLabValue(analysisData, ['triglyceride'], 'triglycerides');
   
   if (totalChol !== null) {
     if (totalChol >= 240) {
@@ -116,7 +135,7 @@ function calculateCardiovascularRisk(
   
   // Blood sugar / Diabetes
   const hba1c = getLabValue(analysisData, ['hba1c', 'hemoglobin a1c']);
-  const glucose = getLabValue(analysisData, ['glucose', 'fasting glucose']);
+  const glucose = getLabValue(analysisData, ['glucose', 'fasting glucose'], 'glucose');
   
   if (hba1c !== null) {
     if (hba1c >= 7.0) {
@@ -142,7 +161,7 @@ function calculateCardiovascularRisk(
   }
   
   // Kidney function
-  const creatinine = getLabValue(analysisData, ['creatinine']);
+  const creatinine = getLabValue(analysisData, ['creatinine'], 'creatinine');
   if (creatinine !== null && creatinine > 1.5) {
     riskPoints += 12;
     factors.push(`Impaired kidney function (Creatinine ${creatinine} mg/dL)`);
@@ -235,14 +254,11 @@ function calculateDiabetesRisk(
     } else if (hba1c >= 5.7) {
       riskPoints += 20;
       factors.push(`Pre-diabetes (HbA1c ${hba1c}%)`);
-    } else if (hba1c >= 5.4) {
-      riskPoints += 10;
-      factors.push(`Borderline HbA1c ${hba1c}%`);
     }
   }
   
   // Fasting glucose
-  const glucose = getLabValue(analysisData, ['glucose', 'fasting glucose']);
+  const glucose = getLabValue(analysisData, ['glucose', 'fasting glucose'], 'glucose');
   if (glucose !== null) {
     if (glucose >= 126) {
       riskPoints += 40;
@@ -263,8 +279,8 @@ function calculateDiabetesRisk(
   }
   
   // Lipid abnormalities (insulin resistance markers)
-  const triglycerides = getLabValue(analysisData, ['triglyceride']);
-  const hdl = getLabValue(analysisData, ['hdl', 'hdl cholesterol']);
+  const triglycerides = getLabValue(analysisData, ['triglyceride'], 'triglycerides');
+  const hdl = getLabValue(analysisData, ['hdl', 'hdl cholesterol'], 'cholesterol');
   
   if (triglycerides !== null && triglycerides >= 150) {
     riskPoints += 10;
@@ -356,7 +372,7 @@ function assessMetabolicSyndrome(
   // We skip this as it requires physical measurement
   
   // 2. Elevated triglycerides (≥150 mg/dL)
-  const triglycerides = getLabValue(analysisData, ['triglyceride']);
+  const triglycerides = getLabValue(analysisData, ['triglyceride'], 'triglycerides');
   const triglyceridesMet = triglycerides !== null && triglycerides >= 150;
   if (triglyceridesMet) metCount++;
   criteria.push({
@@ -367,7 +383,7 @@ function assessMetabolicSyndrome(
   });
   
   // 3. Reduced HDL cholesterol
-  const hdl = getLabValue(analysisData, ['hdl', 'hdl cholesterol']);
+  const hdl = getLabValue(analysisData, ['hdl', 'hdl cholesterol'], 'cholesterol');
   const hdlMet = hdl !== null && (
     (demographics?.gender === 'male' && hdl < 40) ||
     (demographics?.gender === 'female' && hdl < 50) ||
@@ -383,7 +399,7 @@ function assessMetabolicSyndrome(
   
   // 4. Elevated blood pressure (cannot be determined from labs alone, but kidney function suggests it)
   // We use creatinine as a proxy
-  const creatinine = getLabValue(analysisData, ['creatinine']);
+  const creatinine = getLabValue(analysisData, ['creatinine'], 'creatinine');
   const bpSuspected = creatinine !== null && creatinine > 1.2;
   // Don't count this definitively without actual BP measurement
   criteria.push({
@@ -394,7 +410,7 @@ function assessMetabolicSyndrome(
   });
   
   // 5. Elevated fasting glucose (≥100 mg/dL) or HbA1c
-  const glucose = getLabValue(analysisData, ['glucose', 'fasting glucose']);
+  const glucose = getLabValue(analysisData, ['glucose', 'fasting glucose'], 'glucose');
   const hba1c = getLabValue(analysisData, ['hba1c', 'hemoglobin a1c']);
   const glucoseMet = (glucose !== null && glucose >= 100) || (hba1c !== null && hba1c >= 5.7);
   if (glucoseMet) metCount++;

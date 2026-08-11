@@ -60,7 +60,7 @@ export const ValuesNeedingAttention = ({ analysisData }: ValuesNeedingAttentionP
     if (statusLower.includes('high')) {
       return <TrendingUp className="w-4 h-4 text-red-500" />;
     } else if (statusLower.includes('low')) {
-      return <TrendingDown className="w-4 h-4 text-white/70" />;
+      return <TrendingDown className="w-4 h-4 text-foreground" />;
     }
     return <AlertCircle className="w-4 h-4 text-orange-500" />;
   };
@@ -70,7 +70,7 @@ export const ValuesNeedingAttention = ({ analysisData }: ValuesNeedingAttentionP
     if (statusLower.includes('high')) {
       return 'border-red-200 bg-red-50/50';
     } else if (statusLower.includes('low')) {
-      return 'border-white/10 bg-white/5';
+      return 'border-white/10 bg-card';
     }
     return 'border-orange-200 bg-orange-50/50';
   };
@@ -97,11 +97,11 @@ export const ValuesNeedingAttention = ({ analysisData }: ValuesNeedingAttentionP
               <div className="flex items-start gap-3 flex-1 min-w-0">
                 {getStatusIcon(lab.status)}
                 <div className="space-y-1 flex-1 min-w-0">
-                  <p className="font-inter font-semibold text-white/90">{lab.name}</p>
-                  <div className="text-sm text-white/60 space-y-1">
+                  <p className="font-inter font-semibold text-foreground">{lab.name}</p>
+                  <div className="text-sm text-foreground space-y-1">
                     <div className="font-medium">{lab.value} {lab.unit}</div>
                     {lab.referenceRange && (
-                      <div className="text-white/70 text-xs break-words">
+                      <div className="text-foreground text-xs break-words">
                         Normal: {lab.referenceRange}
                       </div>
                     )}

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.2" y2="1">
+      <stop offset="0" stop-color="#F5F1E6"/>
+      <stop offset="0.5" stop-color="#EAD6AE"/>
+      <stop offset="1" stop-color="#C07C3C"/>
+    </linearGradient>
+    <radialGradient id="core" cx="0.62" cy="0.4" r="0.52">
+      <stop offset="0" stop-color="#EFA83E"/>
+      <stop offset="0.45" stop-color="#C85A25"/>
+      <stop offset="1" stop-color="#C85A25" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="olive" cx="0.15" cy="0.9" r="0.7">
+      <stop offset="0" stop-color="#26321F" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#26321F" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="plum" cx="0.9" cy="0.92" r="0.45">
+      <stop offset="0" stop-color="#5F4463" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#5F4463" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+  </defs>
+  <rect width="800" height="1000" fill="url(#bg)"/>
+  <rect width="800" height="1000" fill="url(#olive)"/>
+  <rect width="800" height="1000" fill="url(#plum)"/>
+  <circle cx="500" cy="400" r="300" fill="url(#core)"/>
+  <g fill="none" stroke="#8A3F1C" stroke-opacity="0.35">
+    <circle cx="500" cy="400" r="120" stroke-width="1.4"/>
+    <circle cx="500" cy="400" r="166" stroke-width="1.4"/>
+    <circle cx="500" cy="400" r="212" stroke-width="1.4"/>
+    <circle cx="500" cy="400" r="260" stroke-width="1.4"/>
+    <circle cx="500" cy="400" r="312" stroke-width="1.4"/>
+  </g>
+  <g fill="none" stroke="#B88A28" stroke-opacity="0.5" stroke-width="1.4">
+    <path d="M-20 250 C 160 190, 300 310, 480 250 S 820 190, 840 250"/>
+    <path d="M-20 190 C 160 130, 300 250, 480 190 S 820 130, 840 190"/>
+    <path d="M-20 130 C 160 70, 300 190, 480 130 S 820 70, 840 130"/>
+  </g>
+  <g fill="none" stroke="#26321F" stroke-opacity="0.30" stroke-width="1.5">
+    <path d="M-20 700 C 200 640, 340 800, 540 720 S 860 660, 840 720"/>
+    <path d="M-20 770 C 200 710, 340 870, 540 790 S 860 730, 840 790"/>
+    <path d="M-20 840 C 220 780, 360 940, 560 860 S 860 800, 840 860"/>
+    <path d="M-20 910 C 220 850, 360 1010, 560 930 S 860 870, 840 930"/>
+  </g>
+  <rect width="800" height="1000" filter="url(#grain)" opacity="0.06"/>
+</svg>

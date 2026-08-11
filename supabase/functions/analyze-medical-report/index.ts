@@ -145,9 +145,11 @@ function validateClinicalData(analysisResult: any): any {
           console.log(`🚨 Critical diabetes detected: ${lab.name} = ${value}`);
         }
         
-        // Iron deficiency detection
-        if ((labName.includes('iron') && !labName.includes('binding')) || 
-            (labName.includes('hemoglobin') && value < 12)) {
+        // Iron deficiency detection — require an actually LOW iron/ferritin value.
+        // (Low hemoglobin alone is anemia, not necessarily iron deficiency, and must
+        //  never be inferred from HbA1c, which also contains "hemoglobin".)
+        if ((labName.includes('ferritin') && value < 30) ||
+            (labName.includes('iron') && !labName.includes('binding') && !labName.includes('saturation') && value < 50)) {
           hasIronDeficiency = true;
           criticalConditions.push(`Iron deficiency (${lab.name}: ${lab.value}${lab.unit || ''})`);
           console.log(`🔴 Iron deficiency detected: ${lab.name} = ${value}`);
@@ -281,7 +283,44 @@ async function retryWithBackoff<T>(
 }
 
 // Enhanced helper function to check if value is within reference range
-function checkIfValueWithinRange(value: number, referenceRange: string): boolean {
+// Cerebras (primary) with retry/backoff, then Gemini (free-tier) as a worst-case
+// fallback if every Cerebras attempt fails (sustained outage or hard rate-limit).
+async function llmChatCompletion(cerebrasBody: any, retries: number, baseDelay: number, context: string): Promise<Response> {
+  const CEREBRAS_API_KEY = Deno.env.get('CEREBRAS_API_KEY');
+  try {
+    return await retryWithBackoff(async () => {
+      const r = await fetch('https://api.cerebras.ai/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${CEREBRAS_API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(cerebrasBody),
+      });
+      if (!r.ok) {
+        const t = await r.text();
+        throw new Error(`Cerebras ${r.status}: ${t}`);
+      }
+      return r;
+    }, retries, baseDelay, context);
+  } catch (cerebrasErr) {
+    const geminiKey = Deno.env.get('GEMINI_API_KEY');
+    if (!geminiKey) throw cerebrasErr;
+    console.warn(`⚠️ ${context}: Cerebras exhausted, falling back to Gemini —`, (cerebrasErr as Error).message);
+    const gBody: any = { ...cerebrasBody, model: 'gemini-2.0-flash' };
+    if ('max_completion_tokens' in gBody) { gBody.max_tokens = gBody.max_completion_tokens; delete gBody.max_completion_tokens; }
+    const gr = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${geminiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(gBody),
+    });
+    if (!gr.ok) {
+      const t = await gr.text();
+      throw new Error(`Gemini fallback failed: ${gr.status}: ${t}`);
+    }
+    console.warn(`✅ ${context}: Gemini fallback succeeded`);
+    return gr;
+  }
+}
+
+function checkIfValueWithinRange(value: number, referenceRange: string, gender?: string): boolean {
   try {
     // Normalize the reference range string
     const normalized = referenceRange.toLowerCase().trim();
@@ -290,6 +329,26 @@ function checkIfValueWithinRange(value: number, referenceRange: string): boolean
     // e.g., "Male 8-42 Female 6-27" or "Males: 0.62 – 1.10 Females: 0.45– 0.75"
     const hasGenderSpecific = /(?:male|female|men|women)/i.test(referenceRange);
     if (hasGenderSpecific) {
+      // Prefer the sub-range matching the patient's sex, if we know it, instead of
+      // accepting a value that fits EITHER sex (which hides true abnormals).
+      const g = (gender || '').toLowerCase();
+      if (g === 'male' || g === 'female') {
+        const wantFemale = g === 'female';
+        const re = /(male|female|men|women)[^0-9]*?(\d+\.?\d*)\s*[-–—]\s*(\d+\.?\d*)/gi;
+        let m: RegExpExecArray | null;
+        while ((m = re.exec(referenceRange)) !== null) {
+          const label = m[1].toLowerCase();
+          const femaleLabel = label === 'female' || label === 'women';
+          const maleLabel = label === 'male' || label === 'men';
+          if ((wantFemale && femaleLabel) || (!wantFemale && maleLabel)) {
+            const lo = Math.min(parseFloat(m[2]), parseFloat(m[3]));
+            const hi = Math.max(parseFloat(m[2]), parseFloat(m[3]));
+            const within = value >= lo && value <= hi;
+            console.log(`🔍 Sex-specific range (${g}): ${lo} <= ${value} <= ${hi} = ${within}`);
+            return within;
+          }
+        }
+      }
       // Extract all numeric ranges from the string
       const rangeMatches = referenceRange.match(/(\d+\.?\d*)\s*[-–—]\s*(\d+\.?\d*)/g);
       if (rangeMatches && rangeMatches.length > 0) {
@@ -417,6 +476,7 @@ function applyMedicalSignificanceFilter(analysisResult: any): any {
   
   if (!analysisResult.medicalPanels) return analysisResult;
   
+  const patientGender = (analysisResult.demographics?.gender || '').toLowerCase();
   const filteredPanels: any[] = [];
   let removedCount = 0;
   
@@ -442,7 +502,7 @@ function applyMedicalSignificanceFilter(analysisResult: any): any {
       
       // Check if value is within reference range (if provided) - THIS IS THE PRIMARY CHECK
       if (lab.referenceRange) {
-        const isWithinRange = checkIfValueWithinRange(value, lab.referenceRange);
+        const isWithinRange = checkIfValueWithinRange(value, lab.referenceRange, patientGender);
         if (isWithinRange) {
           console.log(`🩺 [MEDICAL FILTER] Removing ${lab.name}: Within lab's reference range (NORMAL)`);
           if (!panel.normalParameters) panel.normalParameters = [];
@@ -496,12 +556,12 @@ serve(async (req) => {
   try {
     console.log('🏥 Starting medical analysis...');
     
-    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-    if (!OPENAI_API_KEY) {
-      console.error('Missing OpenAI API key');
-      throw new Error('OpenAI API key not configured');
+    const CEREBRAS_API_KEY = Deno.env.get('CEREBRAS_API_KEY');
+    if (!CEREBRAS_API_KEY) {
+      console.error('Missing Cerebras API key');
+      throw new Error('Cerebras API key not configured');
     }
-    console.log('✅ OpenAI API key found');
+    console.log('✅ Cerebras API key found');
 
     // Declare variables at function scope
     let text = '';
@@ -513,206 +573,7 @@ serve(async (req) => {
     const contentType = req.headers.get('content-type') || '';
     console.log('📥 Content-Type:', contentType);
     
-    if (contentType.includes('multipart/form-data')) {
-      // Handle FormData with images
-      console.log('📄 Processing FormData with images...');
-      const formData = await req.formData();
-      const userId = formData.get('userId') as string;
-      requestUserId = userId;
-      const imagesJson = formData.get('images') as string;
-      
-      console.log('👤 User ID:', userId);
-      
-      if (!imagesJson) {
-        throw new Error('No images provided in FormData');
-      }
-      
-      // Validate and parse images JSON
-      try {
-        console.log('📝 Images JSON length:', imagesJson.length);
-        images = JSON.parse(imagesJson);
-      } catch (parseError) {
-        const errorMessage = parseError instanceof Error ? parseError.message : 'Unknown error';
-        console.error('❌ Failed to parse images JSON:', errorMessage);
-        throw new Error(`Invalid images data format: ${errorMessage}`);
-      }
-      
-      if (!Array.isArray(images) || images.length === 0) {
-        throw new Error('Images must be a non-empty array');
-      }
-      
-      console.log(`📸 Received ${images.length} images`);
-      
-      // Use OpenAI Vision to extract text from images
-      console.log('🔍 Extracting text from images using AI vision...');
-      console.log(`📊 Processing ${images.length} pages for comprehensive analysis`);
-      const visionPrompt = `You are analyzing a ${images.length}-page medical laboratory report. Extract ALL text from EVERY page sequentially.
-
-CRITICAL INSTRUCTIONS:
-- Process EVERY image in order (page 1, page 2, page 3, etc.)
-- Extract EVERY test parameter name, value, unit, and reference range
-- Pay special attention to abnormal values (marked with *, H, L, or outside reference range)
-- Include patient demographics (name, age, gender, date)
-- Include all section headers and panel names
-- Do NOT skip any pages or test results
-- Prioritize test results over headers/footers
-
-IMPORTANT: Many medical reports have test values on multiple pages. Extract from ALL pages, not just the first few.
-
-Return the complete extracted text maintaining the original structure and organization.`;
-      
-      // Process images in small batches to avoid token/size limits
-      const BATCH_SIZE = 4;
-      const segments: string[] = [];
-
-      for (let start = 0; start < images.length; start += BATCH_SIZE) {
-        const end = Math.min(start + BATCH_SIZE, images.length);
-        const batch = images.slice(start, end);
-        console.log(`📦 Vision batch ${start + 1}-${end} of ${images.length}`);
-
-        const visionResponse = await retryWithBackoff(async () => {
-          console.log('🔑 API Key configured:', !!OPENAI_API_KEY);
-          console.log('📡 Calling OpenAI Vision API with GPT-4o for batch...');
-          
-          const response = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${OPENAI_API_KEY}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              model: 'gpt-4o',
-              messages: [
-                {
-                  role: 'user',
-                  content: [
-                    { type: 'text', text: `${visionPrompt}\n\nProcess ONLY pages ${start + 1}-${end}. Return plain text, preserve structure.` },
-                    ...batch.map((img: string) => ({
-                      type: 'image_url',
-                      image_url: { url: img }
-                    }))
-                  ]
-                }
-              ],
-              max_tokens: 4000,
-              temperature: 0.1,
-            }),
-          });
-  
-          console.log('📡 Vision API response status:', response.status);
-          
-          if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Vision API error response:', errorText);
-            let errorData = errorText;
-            try { errorData = JSON.parse(errorText); } catch {}
-            if (response.status === 401) {
-              throw new Error('Authentication failed: OpenAI API key is invalid. Please check your API key.');
-            }
-            if (response.status === 402) {
-              throw new Error('Payment required: Please add credits to your OpenAI account.');
-            }
-            if (response.status === 429) {
-              throw new Error('Rate limit exceeded: Please try again in a few moments.');
-            }
-            const errorMessage = typeof errorData === 'object' ? JSON.stringify(errorData) : errorData;
-            throw new Error(`Vision API call failed: ${response.status} - ${errorMessage}`);
-          }
-  
-          return response;
-        }, 4, 2000, 'Vision Text Extraction');
-  
-        const visionData = await visionResponse.json();
-        const segment = visionData.choices?.[0]?.message?.content?.trim?.() ?? '';
-        console.log(`✅ Batch extracted length: ${segment.length}`);
-        segments.push(segment);
-      }
-
-      text = segments.join('\n\n---\n\n');
-      console.log('✅ Text extracted from images');
-      console.log('📝 Extracted text length:', text.length);
-      console.log('📝 Text preview:', text.substring(0, 500));
-      
-      // Validate extracted text contains actual medical data
-      if (text.length < 500 && images.length > 1) {
-        console.error('❌ Extracted text is suspiciously short for a multi-page report');
-        throw new Error(`Text extraction may be incomplete. Only ${text.length} characters extracted from ${images.length} pages. Please try again or contact support if the issue persists.`);
-      }
-      
-      // Check if text contains common medical report markers
-      const hasLabValues = /\d+\.?\d*\s*(?:mg\/dL|mmol\/L|g\/dL|%|cells\/μL|U\/L|mIU\/L)/i.test(text);
-      if (!hasLabValues && text.length < 1000) {
-        console.warn('⚠️ Extracted text may not contain valid lab values');
-        throw new Error('Unable to find valid laboratory values in the extracted text. Please ensure the uploaded file contains a medical lab report.');
-      }
-      
-      // ENHANCED VALIDATION: Check for non-medical document indicators
-      console.log('🔍 Enhanced medical report validation...');
-
-      // Check for invoice/receipt keywords
-      const invoiceKeywords = /invoice|receipt|bill|payment|amount due|subtotal|total amount|tax|gst|discount|purchase/i;
-      const hasInvoiceContent = invoiceKeywords.test(text);
-
-      // Check for bank/financial transaction keywords
-      const financialKeywords = /transfer funds|transaction type|transaction details|transaction id|UTR|NEFT|IMPS|RTGS|UPI|account number|debit|credit|bank statement|total debit|from account|to account|IFSC code|fund transfer|remittance|beneficiary|sender|receiver account/i;
-      const hasFinancialContent = financialKeywords.test(text);
-
-      // Check for appointment slip keywords
-      const appointmentKeywords = /appointment|booking|scheduled|time slot|clinic visit|consultation date|next visit/i;
-      const hasAppointmentContent = appointmentKeywords.test(text);
-
-      // Check for prescription keywords (without lab values)
-      const prescriptionKeywords = /prescription|prescribed|dosage|take.*times.*day|medication|tablet|capsule|syrup/i;
-      const hasPrescriptionContent = prescriptionKeywords.test(text);
-
-      // Check for medical report indicators (must have at least 2 of these)
-      const medicalIndicators = [
-        /complete blood count|cbc|hemogram/i.test(text),
-        /lipid profile|cholesterol/i.test(text),
-        /blood sugar|glucose|hba1c|diabetes/i.test(text),
-        /liver function|sgpt|sgot|alt|ast/i.test(text),
-        /kidney function|creatinine|urea|bun/i.test(text),
-        /thyroid|tsh|t3|t4/i.test(text),
-        /reference range|normal range|range:/i.test(text)
-      ];
-      const medicalIndicatorCount = medicalIndicators.filter(Boolean).length;
-
-      // Reject if clearly not a medical lab report
-      if (hasFinancialContent && medicalIndicatorCount === 0) {
-        console.error('❌ Document is a bank/financial transaction');
-        throw new Error('This appears to be a bank transaction or financial document, not a medical laboratory report. Please upload a document containing blood test results.');
-      }
-
-      if (hasInvoiceContent && medicalIndicatorCount === 0) {
-        console.error('❌ Document appears to be an invoice/receipt');
-        throw new Error('This appears to be an invoice or receipt, not a medical laboratory report. Please upload a document containing blood test results, chemistry panels, or other diagnostic test results.');
-      }
-
-      if (hasAppointmentContent && medicalIndicatorCount === 0) {
-        console.error('❌ Document appears to be an appointment slip');
-        throw new Error('This appears to be an appointment confirmation. Please upload a medical laboratory report containing your blood test results.');
-      }
-
-      if (hasPrescriptionContent && !hasLabValues && medicalIndicatorCount === 0) {
-        console.error('❌ Document appears to be a prescription note');
-        throw new Error('This appears to be a prescription. Please upload a medical laboratory report with blood test results and diagnostic values.');
-      }
-
-      if (medicalIndicatorCount < 2 && !hasLabValues) {
-        console.error('❌ Document does not contain sufficient medical report indicators');
-        throw new Error('Unable to identify this as a medical laboratory report. Please ensure you are uploading a document with blood test results, chemistry panels, or other diagnostic laboratory values.');
-      }
-
-      // Classify document type for logging
-      let documentType = 'Medical Report';
-      if (hasFinancialContent) documentType = 'Bank/Financial Transaction';
-      else if (hasInvoiceContent) documentType = 'Invoice/Bill';
-      else if (hasAppointmentContent) documentType = 'Appointment Slip';
-      else if (hasPrescriptionContent) documentType = 'Prescription';
-      
-      console.log(`✅ Document validation passed - classified as: ${documentType}`);
-      
-    } else {
+    {  // single JSON path (legacy multipart branch removed)
       // Handle JSON with images array or pre-extracted text
       console.log('📄 Processing JSON request...');
       const requestBody = await req.json();
@@ -745,7 +606,7 @@ CRITICAL INSTRUCTIONS:
 
 Return the complete extracted text maintaining the original structure and organization.`;
         
-        const BATCH_SIZE = 4;
+        const BATCH_SIZE = 1;
         const segments: string[] = [];
         const MAX_OCR_PAGES = 25; // Cap for very long PDFs
         const imagesToProcess = images.length > MAX_OCR_PAGES ? images.slice(0, MAX_OCR_PAGES) : images;
@@ -754,8 +615,8 @@ Return the complete extracted text maintaining the original structure and organi
           console.log(`⚠️ PDF has ${images.length} pages, processing first ${MAX_OCR_PAGES} for OCR`);
         }
 
-        // Process batches in parallel with concurrency of 2
-        const CONCURRENCY = 2;
+        // Process batches in parallel with concurrency of 6
+        const CONCURRENCY = 6;
         
         for (let start = 0; start < imagesToProcess.length; start += BATCH_SIZE * CONCURRENCY) {
           const batchPromises = [];
@@ -770,45 +631,30 @@ Return the complete extracted text maintaining the original structure and organi
             console.log(`📦 Starting OCR batch ${batchStart + 1}-${end} of ${imagesToProcess.length}`);
             
             batchPromises.push(
-              retryWithBackoff(async () => {
-                console.log(`📡 OCR batch ${batchStart + 1}-${end} with gpt-4o-mini (faster)...`);
-                
-                const response = await fetch('https://api.openai.com/v1/chat/completions', {
-                  method: 'POST',
-                  headers: {
-                    'Authorization': `Bearer ${OPENAI_API_KEY}`,
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({
-                    model: 'gpt-4o-mini',
-                    messages: [
-                      {
-                        role: 'user',
-                        content: [
-                          { type: 'text', text: `${visionPrompt}\n\nProcess ONLY pages ${batchStart + 1}-${end}. Return plain text, preserve structure.` },
-                          ...batch.map((img: string) => ({
-                            type: 'image_url',
-                            image_url: { url: img }
-                          }))
-                        ]
-                      }
-                    ],
-                    max_tokens: 2048,
-                  }),
-                });
-
-                if (!response.ok) {
-                  const errorText = await response.text();
-                  console.error('❌ OpenAI Vision API error:', response.status, errorText);
-                  throw new Error(`Vision API failed: ${response.status} ${errorText}`);
-                }
-
+              (async () => {
+                console.log(`📡 OCR batch ${batchStart + 1}-${end} with gemma-4-31b on Cerebras...`);
+                const ocrBody = {
+                  model: 'gemma-4-31b',
+                  messages: [
+                    {
+                      role: 'user',
+                      content: [
+                        { type: 'text', text: `${visionPrompt}\n\nProcess ONLY pages ${batchStart + 1}-${end}. Return plain text, preserve structure.` },
+                        ...batch.map((img: string) => ({
+                          type: 'image_url',
+                          image_url: { url: img }
+                        }))
+                      ]
+                    }
+                  ],
+                  max_completion_tokens: 2048,
+                };
+                const response = await llmChatCompletion(ocrBody, 3, 2000, `OCR batch ${batchStart + 1}-${end}`);
                 const visionData = await response.json();
                 const segment = visionData.choices?.[0]?.message?.content?.trim?.() ?? '';
                 console.log(`✅ Batch ${batchStart + 1}-${end} extracted: ${segment.length} chars`);
-                
                 return { batchStart, segment };
-              }, 3, 2000, `OCR batch ${batchStart + 1}-${end}`)
+              })()
             );
           }
           
@@ -883,7 +729,7 @@ Return the complete extracted text maintaining the original structure and organi
     console.log('✅ Analysis record created, processing in background');
     
     // Process analysis in background - just start the async function without awaiting
-    (async () => {
+    const __bgTask = (async () => {
       try {
         console.log('🔄 Background analysis started for:', analysisId);
 
@@ -1256,50 +1102,17 @@ CRITICAL SUCCESS CRITERIA:
 
 Respond ONLY with valid JSON matching the structure above - no markdown, no explanations:`;
 
-      const pass1Response: Response = await retryWithBackoff(async (): Promise<Response> => {
-        console.log('📡 Calling OpenAI API with GPT-4o-mini...');
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${OPENAI_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: 'gpt-4o-mini',
-            messages: [
-              {
-                role: 'user',
-                content: pass1Prompt
-              }
-            ],
-            response_format: { type: "json_object" },
-            max_tokens: 16000,
-            temperature: 0.3,
-          }),
-        });
-
-      console.log('📡 Pass 1 API response status:', response.status);
-
-      if (!response.ok) {
-        const errorData = await response.text();
-        console.error('❌ OpenAI API error:', response.status, errorData);
-        
-        if (response.status === 401) {
-          throw new Error('Authentication failed: OpenAI API key is invalid. Please check your API key.');
-        }
-        if (response.status === 402) {
-          throw new Error('Payment required: Please add credits to your OpenAI account.');
-        }
-        if (response.status === 429) {
-          throw new Error('Rate limit exceeded: Please try again in a few moments.');
-        }
-        
-        const errorMessage = typeof errorData === 'string' ? errorData : JSON.stringify(errorData);
-        throw new Error(`AI API call failed: ${response.status} - ${errorMessage}`);
-      }
-
-      return response;
-    }, 4, 2000, 'Pass 1 Analysis');
+      const pass1Response: Response = await llmChatCompletion({
+        model: 'gemma-4-31b',
+        messages: [
+          {
+            role: 'user',
+            content: pass1Prompt
+          }
+        ],
+        max_completion_tokens: 16000,
+        temperature: 0.3,
+      }, 4, 2000, 'Pass 1 Analysis');
 
     const pass1Data = await pass1Response.json();
     const pass1Text = pass1Data.choices[0].message.content.trim();
@@ -1499,7 +1312,15 @@ Respond ONLY with valid JSON matching the structure above - no markdown, no expl
           console.log('⏭️ Admin already notified of failure, skipping SMS');
         }
       }
-    })(); // Execute background task immediately
+    })();
+    // Keep the isolate alive until the background analysis finishes.
+    // Without this, Supabase can terminate the function right after the
+    // response is returned, leaving analyses stuck on 'processing'.
+    // @ts-ignore - EdgeRuntime is provided by the Supabase Edge runtime
+    if (typeof EdgeRuntime !== 'undefined' && EdgeRuntime && typeof EdgeRuntime.waitUntil === 'function') {
+      // @ts-ignore
+      EdgeRuntime.waitUntil(__bgTask);
+    }
     
     // Return immediately with the analysis ID
     return new Response(JSON.stringify({

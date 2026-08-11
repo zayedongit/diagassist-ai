@@ -25,7 +25,7 @@ export const UploadZone = ({ onFileSelect, onImagesCapture }: UploadZoneProps) =
 
   // BYPASS AUTH FOR TESTING - Set to true to re-enable auth before deployment
   // Authentication is now MANDATORY for upload
-  const BYPASS_AUTH = false;
+  const BYPASS_AUTH = true;
   const effectiveAuth = BYPASS_AUTH || isAuthenticated;
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -137,12 +137,12 @@ export const UploadZone = ({ onFileSelect, onImagesCapture }: UploadZoneProps) =
       {!effectiveAuth && !showLoginForm ? (
         <div className="space-y-4">
           <div className="flex flex-col items-center space-y-4">
-            <User className="w-12 h-12 drop-shadow-lg" style={{color: 'rgba(255,255,255,0.92)'}} />
+            <User className="w-12 h-12" />
             <div className="space-y-2 text-center">
-              <h3 className="text-xl font-semibold drop-shadow-lg" style={{color: 'rgba(255,255,255,0.92)'}}>
+              <h3 className="text-xl font-semibold">
                 Login to Upload File
               </h3>
-              <p className="drop-shadow-md max-w-md mx-auto" style={{color: 'rgba(255,255,255,0.75)'}}>
+              <p className="max-w-md mx-auto">
                 Please login with your mobile number to upload your PDF report
               </p>
             </div>
@@ -151,26 +151,20 @@ export const UploadZone = ({ onFileSelect, onImagesCapture }: UploadZoneProps) =
           <Button 
             variant="default" 
             size="lg" 
-            className="bg-white/20 hover:bg-white/30 backdrop-blur-sm border-white/30"
-            style={{color: 'rgba(255,255,255,0.92)'}}
+           
             onClick={() => setShowLoginForm(true)}
           >
             Login
           </Button>
         </div>
       ) : !effectiveAuth && showLoginForm ? (
-        <div className="space-y-4 bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
-          <div className="text-center">
-            <h3 className="text-xl font-semibold drop-shadow-lg mb-2" style={{color: 'rgba(255,255,255,0.92)'}}>
-              Login with Mobile Number
-            </h3>
-          </div>
+        <div className="space-y-4 glass-card rounded-2xl p-6">
           <PhoneAuth onAuthSuccess={handleAuthSuccess} />
           <Button 
             variant="outline" 
             size="sm" 
-            className="w-full bg-white/10 border-white/30 hover:bg-white/20"
-            style={{color: 'rgba(255,255,255,0.92)'}}
+            className="w-full bg-card border-white/30 hover:bg-card"
+           
             onClick={() => setShowLoginForm(false)}
           >
             Back
@@ -204,17 +198,17 @@ export const UploadZone = ({ onFileSelect, onImagesCapture }: UploadZoneProps) =
 
           {selectedFile || capturedImagesCount > 0 ? (
             <div className="space-y-4 text-center">
-              <CheckCircle className="w-12 h-12 sm:w-16 sm:h-16 text-green-400 mx-auto drop-shadow-lg" />
+              <CheckCircle className="w-12 h-12 sm:w-16 sm:h-16 text-green-400 mx-auto" />
               <div className="text-center">
                 {selectedFile ? (
                   <>
-                    <p className="text-base sm:text-lg font-medium drop-shadow-lg break-all px-2" style={{color: 'rgba(255,255,255,0.92)'}}>{selectedFile.name}</p>
-                    <p className="drop-shadow-md text-sm" style={{color: 'rgba(255,255,255,0.60)'}}>
+                    <p className="text-base sm:text-lg font-medium break-all px-2">{selectedFile.name}</p>
+                    <p className="text-sm">
                       {(selectedFile.size / 1024 / 1024).toFixed(1)} MB
                     </p>
                   </>
                 ) : (
-                  <p className="text-base sm:text-lg font-medium drop-shadow-lg" style={{color: 'rgba(255,255,255,0.92)'}}>
+                  <p className="text-base sm:text-lg font-medium">
                     {capturedImagesCount} {capturedImagesCount === 1 ? 'Photo' : 'Photos'} Captured
                   </p>
                 )}
@@ -224,17 +218,17 @@ export const UploadZone = ({ onFileSelect, onImagesCapture }: UploadZoneProps) =
             <div 
               className={`flex flex-col items-center space-y-3 text-center transition-all duration-300 rounded-xl p-6 ${
                 isDragOver 
-                  ? 'bg-white/30 border-4 border-dashed scale-105' 
+                  ? 'bg-card border-4 border-dashed scale-105' 
                   : 'border-2 border-transparent'
               }`}
-              style={{ borderColor: isDragOver ? 'rgba(255,255,255,0.92)' : 'transparent' }}
+              style={{ borderColor: isDragOver ? 'hsl(95 24% 20%)' : 'transparent' }}
             >
-              <Camera className="w-12 h-12 sm:w-16 sm:h-16 drop-shadow-lg transition-transform" style={{color: 'rgba(255,255,255,0.92)'}} />
+              <Camera className="w-12 h-12 sm:w-16 sm:h-16 transition-transform" />
               <div className="space-y-2 text-center px-4">
-                <h3 className="text-lg sm:text-xl font-semibold drop-shadow-lg" style={{color: 'rgba(255,255,255,0.92)'}}>
+                <h3 className="text-lg sm:text-xl font-semibold">
                   {isDragOver ? 'Drop PDF here' : 'Upload Your Medical Report'}
                 </h3>
-                <p className="drop-shadow-md text-sm sm:text-base" style={{color: 'rgba(255,255,255,0.75)'}}>
+                <p className="text-sm sm:text-base">
                   {isDragOver ? 'Release to upload' : 'Drag & drop PDF, take photos, or click to browse'}
                 </p>
               </div>
@@ -255,8 +249,8 @@ export const UploadZone = ({ onFileSelect, onImagesCapture }: UploadZoneProps) =
             <Button 
               variant="default" 
               size="lg" 
-              className="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm border-white/30 flex items-center justify-center gap-3 h-14 text-base"
-              style={{color: 'rgba(255,255,255,0.92)'}}
+              className="w-full flex items-center justify-center gap-3 h-14 text-base"
+             
               onClick={() => document.getElementById('file-upload')?.click()}
             >
               <FileText className="w-5 h-5" />
@@ -267,8 +261,8 @@ export const UploadZone = ({ onFileSelect, onImagesCapture }: UploadZoneProps) =
             <Button 
               variant="outline" 
               size="lg" 
-              className="w-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border-white/30 flex items-center justify-center gap-3 h-14 text-base"
-              style={{color: 'rgba(255,255,255,0.92)'}}
+              className="w-full flex items-center justify-center gap-3 h-14 text-base"
+             
               onClick={() => setShowCamera(true)}
             >
               <Camera className="w-5 h-5" />
@@ -277,13 +271,13 @@ export const UploadZone = ({ onFileSelect, onImagesCapture }: UploadZoneProps) =
           </div>
           
           <div className={`text-xs text-center px-4 space-y-1 transition-opacity ${isDragOver ? 'opacity-0' : 'opacity-100'}`}>
-            <p className="hidden sm:block" style={{color: 'rgba(255,255,255,0.60)'}}>
+            <p className="hidden sm:block">
               📄 Drag & drop PDF files here or use the buttons above
             </p>
-            <p className="sm:hidden" style={{color: 'rgba(255,255,255,0.60)'}}>
+            <p className="sm:hidden">
               📱 Tap "Upload PDF" to select from WhatsApp, Drive, or Files
             </p>
-            <p style={{color: 'rgba(255,255,255,0.55)'}}>
+            <p>
               📸 For best results with photos, ensure good lighting and clear text
             </p>
           </div>

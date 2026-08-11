@@ -216,53 +216,24 @@ function generateRecommendations(
 function generatePotentialBenefits(
   cvRisk: RiskScore,
   diabetesRisk: RiskScore,
-  projections: { cardiovascular: RiskProjection[]; diabetes: RiskProjection[] }
+  _projections: { cardiovascular: RiskProjection[]; diabetes: RiskProjection[] }
 ): string[] {
+  // Honest, evidence-based framing. We do NOT emit personalized percentage
+  // reductions because the underlying score is a relative index, not a
+  // validated probability.
   const benefits: string[] = [];
-  
-  // Calculate 10-year improvements
-  const cv10Year = projections.cardiovascular[3];
-  const diabetes10Year = projections.diabetes[3];
-  
-  const cvReduction = cv10Year.noChangesRisk - cv10Year.withInterventionRisk;
-  const diabetesReduction = diabetes10Year.noChangesRisk - diabetes10Year.withInterventionRisk;
-  
-  // Cardiovascular benefits
-  if (cvReduction > 20) {
-    benefits.push(`Reduce cardiovascular disease risk by ${Math.round(cvReduction)}% over 10 years with lifestyle changes`);
-    benefits.push('Lower risk of heart attack and stroke by up to 30-40%');
-  } else if (cvReduction > 10) {
-    benefits.push(`Reduce cardiovascular disease risk by ${Math.round(cvReduction)}% over 10 years`);
+  const cvNotable = cvRisk.level === 'high' || cvRisk.level === 'very-high' || cvRisk.level === 'moderate';
+  const dmNotable = diabetesRisk.level === 'high' || diabetesRisk.level === 'very-high' || diabetesRisk.level === 'moderate';
+
+  if (cvNotable) {
+    benefits.push('Regular aerobic activity and a heart-healthy (e.g. Mediterranean-style) diet are well established to lower cardiovascular risk over time.');
   }
-  
-  // Diabetes benefits
-  if (diabetesReduction > 20) {
-    benefits.push(`Reduce diabetes risk by ${Math.round(diabetesReduction)}% over 10 years with intervention`);
-    benefits.push('Weight loss of 7-10% can reduce diabetes risk by 58%');
-  } else if (diabetesReduction > 10) {
-    benefits.push(`Reduce diabetes risk by ${Math.round(diabetesReduction)}% over 10 years`);
+  if (dmNotable) {
+    benefits.push('In large prevention trials, modest weight loss (~7% of body weight) plus regular activity cut progression to type 2 diabetes by roughly 58%.');
   }
-  
-  // General benefits
-  if (cvRisk.level === 'high' || diabetesRisk.level === 'high') {
-    benefits.push('Improved energy levels and quality of life within weeks');
-    benefits.push('Better sleep quality and mental health');
-    benefits.push('Reduced need for medications in the future');
-  }
-  
-  // Life expectancy
-  if (cvRisk.level === 'very-high' || diabetesRisk.level === 'very-high') {
-    benefits.push('Potentially add 5-10 years of healthy life expectancy');
-  } else if (cvRisk.level === 'high' || diabetesRisk.level === 'high') {
-    benefits.push('Potentially add 3-7 years of healthy life expectancy');
-  }
-  
-  // Default message if no specific benefits
-  if (benefits.length === 0) {
-    benefits.push('Maintain optimal health and prevent disease progression');
-    benefits.push('Build strong foundation for long-term wellness');
-  }
-  
+  benefits.push('Not smoking, staying active, sleeping well, and routine check-ups are consistently linked to better long-term health.');
+  benefits.push('These are general, evidence-based findings — not a personalized prediction. Your own outcome depends on many factors; discuss a plan with your doctor.');
+
   return benefits;
 }
 

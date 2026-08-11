@@ -385,7 +385,7 @@ export const ComprehensiveReport = ({
             {showDownloadButton && (
               <Button 
                 onClick={handleDownloadReport}
-                className="bg-report-primary hover:bg-report-primary/90 text-white w-full sm:w-auto text-sm sm:text-base"
+                className="bg-report-primary hover:bg-report-primary/90 text-foreground w-full sm:w-auto text-sm sm:text-base"
                 size="sm"
               >
                 <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
@@ -395,7 +395,7 @@ export const ComprehensiveReport = ({
           </div>
           
           {/* Patient Details */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mt-3 sm:mt-4 p-3 sm:p-4 bg-white/50 rounded-lg">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mt-3 sm:mt-4 p-3 sm:p-4 bg-card rounded-lg">
             {patientName && (
               <div className="flex items-center gap-2">
                 <User className="h-3 w-3 sm:h-4 sm:w-4 text-report-text/70 flex-shrink-0" />
@@ -535,7 +535,7 @@ export const ComprehensiveReport = ({
                   })()}
                   
                   {/* Panel Interpretation */}
-                  <div className="bg-white/5 p-3 rounded-lg">
+                  <div className="bg-card p-3 rounded-lg">
                     <h4 className="font-medium text-report-text mb-2">Clinical Interpretation:</h4>
                     <p className="text-sm text-report-text/80">
                       {(() => {
@@ -700,7 +700,7 @@ export const ComprehensiveReport = ({
       </div>
 
       {/* 4. Patient-Friendly Summary */}
-      <Card className="border-report-border bg-white/5">
+      <Card className="border-report-border bg-card">
         <CardHeader>
           <CardTitle className="flex items-center gap-2" style={{color: 'hsl(220, 74%, 42%)'}}>
             <FileText className="h-5 w-5" />

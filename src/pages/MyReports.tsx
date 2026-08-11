@@ -109,7 +109,7 @@ const CalendarWithPlan = ({ analysis }: { analysis: AnalysisRecord }) => {
 
         <Card className="p-3 sm:p-4">
           <div className="flex items-center gap-2 mb-1">
-            <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-white/70" />
+            <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-foreground" />
             <span className="text-xs sm:text-sm text-muted-foreground">Left</span>
           </div>
           <div className="text-lg sm:text-2xl font-bold">
@@ -234,7 +234,7 @@ export default function MyReports() {
                 Home
               </Button>
               <Separator orientation="vertical" className="h-6" />
-              <h1 className="text-2xl font-bold text-white/90">My Health Reports</h1>
+              <h1 className="text-2xl font-bold text-foreground">My Health Reports</h1>
             </div>
             <Badge variant="default" className="text-sm">
               {analyses.length} {analyses.length === 1 ? "Report" : "Reports"}
@@ -395,7 +395,7 @@ export default function MyReports() {
 
                             <div>
                               <h4 className="font-semibold mb-2">Summary</h4>
-                              <p className="text-sm text-white/60 leading-relaxed">
+                              <p className="text-sm text-foreground leading-relaxed">
                                 {selectedAnalysis.result?.summary}
                               </p>
                             </div>

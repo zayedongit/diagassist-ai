@@ -118,7 +118,7 @@ export default function MyHealthJourney() {
 
           <Card className="p-4">
             <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-white/70" />
+              <TrendingUp className="w-4 h-4 text-foreground" />
               <span className="text-sm text-muted-foreground">Score</span>
             </div>
             <div className="text-2xl font-bold">

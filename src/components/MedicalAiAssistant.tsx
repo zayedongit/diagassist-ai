@@ -33,7 +33,7 @@ export const MedicalAiAssistant = () => {
             <p className="text-sm text-muted-foreground mb-4">
               Have questions about your report? Our AI assistant is here to help explain your results in simple terms.
             </p>
-            <div className="bg-white/5 rounded-lg p-4 border border-border">
+            <div className="bg-card rounded-lg p-4 border border-border">
               <elevenlabs-convai agent-id="agent_7101k4sw7k0tfmpb2cxkrem0kna2"></elevenlabs-convai>
             </div>
             <p className="text-xs text-muted-foreground mt-3 italic">

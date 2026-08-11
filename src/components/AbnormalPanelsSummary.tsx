@@ -21,7 +21,7 @@ export const AbnormalPanelsSummary = ({ analysisData }: AbnormalPanelsSummaryPro
           <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center animate-scale-in">
             <AlertTriangle className="w-5 h-5 text-orange-600" />
           </div>
-          <CardTitle className="text-xl font-poppins text-white/90">
+          <CardTitle className="text-xl font-poppins text-foreground">
             I found abnormalities in {panelCount} panel{panelCount !== 1 ? 's' : ''}
           </CardTitle>
         </div>
@@ -29,7 +29,7 @@ export const AbnormalPanelsSummary = ({ analysisData }: AbnormalPanelsSummaryPro
       <CardContent>
         <ul className="space-y-3 stagger-fade-in">
           {abnormalPanels.map((panel, index) => (
-            <li key={index} className="flex items-start gap-3 text-white/60">
+            <li key={index} className="flex items-start gap-3 text-foreground">
               <span className="w-2 h-2 rounded-full bg-orange-500 mt-2 flex-shrink-0"></span>
               <span className="font-inter text-base">{panel.name}</span>
             </li>

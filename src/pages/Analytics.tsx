@@ -197,7 +197,7 @@ const Analytics = () => {
               onClick={() => navigate('/')}
             >
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-accentCyan to-primary rounded-lg flex items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
-                <Activity className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                <Activity className="w-5 h-5 sm:w-6 sm:h-6 text-foreground" />
               </div>
               <div>
                 <h1 className="text-base sm:text-xl font-poppins font-semibold text-foreground">
