@@ -68,6 +68,10 @@ The experience is four steps, front to back.
   <img src="docs/screenshots/07-risk.png" alt="Risk trajectory" width="49%">
 </p>
 
+<p align="center">
+  <img src="docs/screenshots/08-interactive-analysis.png" alt="Interactive risk calculator" width="80%">
+</p>
+
 ## Tech stack
 
 | Layer | Technology | Purpose |
