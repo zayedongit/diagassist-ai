@@ -87,13 +87,46 @@ The experience is four steps, front to back.
 
 ## Architecture
 
-The app is a static frontend backed by a managed serverless backend.
+Diagassist is a static frontend backed by a serverless backend on Supabase. The browser never calls an AI provider directly; every model call runs inside a Supabase Edge Function, which keeps API keys off the client and lets the pipeline retry and fail over on the server side.
 
-1. The browser sends the report to a Supabase Edge Function.
-2. The function reads each page with a vision model (OCR), runs a clinical-grade analysis pass, and writes the structured result to PostgreSQL.
-3. The frontend polls for completion, then renders the score, risk trajectories, and plan entirely on the client.
-4. Every model call is wrapped with retry and backoff, and falls back from Cerebras to Google Gemini if the primary provider is unavailable, so the pipeline stays up.
-5. There is no login and no long-term storage. Analyses are ephemeral, and users download their own copy.
+```mermaid
+flowchart TD
+    subgraph Client["Client - React + Vite (static, no login)"]
+      A["Upload PDF or photo"]
+      R["Render health score, risk,<br/>and 30-day plan"]
+    end
+
+    subgraph Backend["Supabase - serverless backend"]
+      EF["Edge Functions (Deno)<br/>analyze-medical-report<br/>process-pdf-report<br/>clinical-triage-chat"]
+      DB[("PostgreSQL<br/>pdf_analyses")]
+      ST[("Storage<br/>medical-reports")]
+    end
+
+    subgraph AI["AI providers"]
+      C["Cerebras - gemma-4-31b<br/>(primary)"]
+      G["Google Gemini - gemini-2.0-flash<br/>(fallback)"]
+    end
+
+    A -->|report| EF
+    EF -->|vision OCR + clinical analysis| C
+    C -. retry / fail over .-> G
+    EF -->|structured result| DB
+    R -->|poll for completion| DB
+    EF -. camera images .-> ST
+```
+
+**Request flow.** The browser turns the report into page images and calls an Edge Function. The function runs a two-pass pipeline - a vision OCR pass that reads every value, then a clinical-grade analysis pass that structures and interprets them - and writes the result to a `pdf_analyses` row. Because analysis can outlast a single request, this is an asynchronous job: the function returns an id immediately, does the work in the background, and the frontend polls the row until it is complete, then renders everything on the client.
+
+**Edge Functions (Deno).**
+
+- `analyze-medical-report` - the PDF path: vision OCR plus the main clinical analysis.
+- `process-pdf-report` - the camera path: structured extraction from photos via tool-calling.
+- `clinical-triage-chat` - the adaptive symptom assessment that adds clinical context.
+- `get-analysis-result` - result retrieval for polling.
+
+**Reliability.** Every model call is wrapped in retry with exponential backoff, and if Cerebras is rate-limited or unavailable it fails over automatically to Google Gemini, so a single provider outage does not take the pipeline down.
+
+**Privacy by design.** There is no authentication and no long-term storage of personal health data. Analyses are ephemeral job records, access is scoped to the anonymous role, and users simply download their own copy.
 
 ## Getting started
 
