@@ -8,6 +8,12 @@ Diagassist turns a raw lab report into a clear, personalized health briefing. A 
 
 Developed for **PredLabs Pvt. Ltd.**
 
+
+> **Provenance.** This project began as a Lovable-built prototype by PredLabs. I adopted the
+> repository with its history intact and rebuilt it — the analysis pipeline, the async job model, and
+> the privacy-first backend — before handing it back. The commit history therefore includes the
+> original build, and the earliest commits are not mine.
+
 ![React](https://img.shields.io/badge/React-18-20232A?logo=react&logoColor=61DAFB)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)
