@@ -39,6 +39,7 @@ import { StageProgress, Stage } from '@/components/StageProgress';
 import { extractPdfText } from '@/utils/extractPdfText';
 import { ReportPreviewModal } from '@/components/ReportPreviewModal';
 import { MobileResultsView } from '@/components/MobileResultsView';
+import { ReportChatWidget } from '@/components/ReportChatWidget';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { SampleReportPreview } from '@/components/SampleReportPreview';
@@ -2047,6 +2048,9 @@ RAW DATA: ${baseContext}`;
         {/* 5. CLINICAL CHAT SECTION + 6. INTERPRETATION SECTION */}
         {showResults && !isAnalyzing && analysisData && (
           <>
+            {/* Floating glassy report assistant — ask questions about your own report in plain words */}
+            <ReportChatWidget analysisContext={createEnhancedAnalysisContext(analysisData)} />
+
             {/* Mobile Swipeable Results View */}
             {isMobile ? (
               <MobileResultsView
