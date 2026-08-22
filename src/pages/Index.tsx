@@ -50,6 +50,7 @@ import { calculateHealthScore } from '@/utils/healthScoreCalculator';
 import { calculateHealthRisks } from '@/utils/healthRiskCalculator';
 import { RiskPredictionTimeline } from '@/components/RiskPredictionTimeline';
 import { InteractiveRiskCalculator } from '@/components/InteractiveRiskCalculator';
+import { ExploreAspects } from '@/components/ExploreAspects';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -2252,32 +2253,38 @@ RAW DATA: ${baseContext}`;
                             const showCardiovascular = cardioTerms.test(abnormalNames) || isElevated(healthRisks.cardiovascularRisk);
                             const showDiabetes = diabetesTerms.test(abnormalNames) || isElevated(healthRisks.diabetesRisk);
 
-                            if (!showCardiovascular && !showDiabetes) {
-                              return (
-                                <div className="bg-card border border-white/10 rounded-xl p-6 text-center animate-fade-in">
-                                  <p className="text-sm sm:text-base text-foreground">
-                                    Based on these particular results, no elevated long-term cardiovascular or diabetes risk was flagged. Keep up your current habits and re-test as advised by your doctor.
-                                  </p>
-                                </div>
-                              );
-                            }
-
                             return (
-                              <div className="space-y-6 animate-fade-in">
-                                <RiskPredictionTimeline
-                                  cardiovascularRisk={healthRisks.cardiovascularRisk}
-                                  diabetesRisk={healthRisks.diabetesRisk}
-                                  clinicalContext={clinicalContext}
-                                  showCardiovascular={showCardiovascular}
-                                  showDiabetes={showDiabetes}
-                                />
+                              <div className="space-y-8 animate-fade-in">
+                                {(showCardiovascular || showDiabetes) ? (
+                                  <>
+                                    <RiskPredictionTimeline
+                                      cardiovascularRisk={healthRisks.cardiovascularRisk}
+                                      diabetesRisk={healthRisks.diabetesRisk}
+                                      clinicalContext={clinicalContext}
+                                      showCardiovascular={showCardiovascular}
+                                      showDiabetes={showDiabetes}
+                                    />
 
-                                <InteractiveRiskCalculator
-                                  cardiovascularRisk={healthRisks.cardiovascularRisk}
-                                  diabetesRisk={healthRisks.diabetesRisk}
+                                    <InteractiveRiskCalculator
+                                      cardiovascularRisk={healthRisks.cardiovascularRisk}
+                                      diabetesRisk={healthRisks.diabetesRisk}
+                                      clinicalContext={clinicalContext}
+                                      showCardiovascular={showCardiovascular}
+                                      showDiabetes={showDiabetes}
+                                    />
+                                  </>
+                                ) : (
+                                  <div className="bg-card border border-white/10 rounded-xl p-5 text-center">
+                                    <p className="text-sm sm:text-base text-foreground">
+                                      Good news — based on these results, no elevated long-term heart or diabetes risk was flagged. Explore any area of your health below to learn what keeps it that way.
+                                    </p>
+                                  </div>
+                                )}
+
+                                {/* Everyone gets to explore — pick any aspect and see how habits shape it */}
+                                <ExploreAspects
+                                  enhancedData={enhancedData}
                                   clinicalContext={clinicalContext}
-                                  showCardiovascular={showCardiovascular}
-                                  showDiabetes={showDiabetes}
                                 />
                               </div>
                             );
