@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -184,30 +185,54 @@ export const ExploreAspects = ({ enhancedData, clinicalContext }: ExploreAspects
   const relatedNormal = selected.markers.test(normalNames);
   const hasIssue = relatedAbnormal.length > 0;
 
-  // Compute a simple 0-100 outlook from the chosen factors.
+  // Compute a simple 0-100 outlook from the chosen factors, plus a projection
+  // of how it could trend if habits stay the same vs. if they improve.
   const outlook = useMemo(() => {
-    let score = hasIssue ? 62 : 82; // start lower if the report already flags this area
+    const base = hasIssue ? 62 : 82; // start lower if the report already flags this area
+
+    const scoreFrom = (get: (f: Factor) => number | boolean): number => {
+      let s = base;
+      for (const f of selected.factors) {
+        const v = get(f);
+        if (f.type === 'toggle') {
+          if (f.badWhenOn && (v as boolean)) s -= f.weight;
+        } else {
+          const n = (v as number) / 100; // 0..1
+          s += (f.good === 'more' ? n - 0.5 : 0.5 - n) * f.weight * 2;
+        }
+      }
+      return Math.max(4, Math.min(98, Math.round(s)));
+    };
+
+    // Tips for whatever is currently in the unhealthy zone.
     const tips: string[] = [];
     for (const f of selected.factors) {
       const v = valueOf(f);
       if (f.type === 'toggle') {
-        const on = v as boolean;
-        if (f.badWhenOn && on) { score -= f.weight; tips.push(f.tip); }
+        if (f.badWhenOn && (v as boolean)) tips.push(f.tip);
       } else {
-        const n = (v as number) / 100; // 0..1
-        if (f.good === 'more') {
-          score += (n - 0.5) * f.weight * 2;
-          if (n < 0.45) tips.push(f.tip);
-        } else {
-          score += (0.5 - n) * f.weight * 2;
-          if (n > 0.55) tips.push(f.tip);
-        }
+        const n = (v as number) / 100;
+        if (f.good === 'more' && n < 0.45) tips.push(f.tip);
+        if (f.good === 'less' && n > 0.55) tips.push(f.tip);
       }
     }
-    score = Math.max(4, Math.min(98, Math.round(score)));
+
+    const score = scoreFrom((f) => valueOf(f));
+    // The best this area could look with healthy habits (all factors at their best).
+    const potential = scoreFrom((f) => (f.type === 'toggle' ? false : f.good === 'less' ? 0 : 100));
+    const gap = potential - score;
+
+    // Projection: "same habits" stays flat; "better habits" eases up toward potential.
+    const chart = [
+      { t: 'Now', same: score, better: score },
+      { t: '1 yr', same: score, better: Math.round(score + gap * 0.5) },
+      { t: '3 yr', same: score, better: Math.round(score + gap * 0.82) },
+      { t: '5 yr', same: score, better: potential },
+    ];
+
     const label = score >= 82 ? 'Looking great' : score >= 66 ? 'Doing well' : score >= 48 ? 'Room to improve' : 'Needs some care';
     const color = score >= 82 ? 'hsl(142 45% 40%)' : score >= 66 ? 'hsl(95 32% 34%)' : score >= 48 ? 'hsl(38 80% 45%)' : 'hsl(4 65% 48%)';
-    return { score, label, color, tips: tips.slice(0, 3) };
+    return { score, potential, label, color, tips: tips.slice(0, 3), chart };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected, values, hasIssue]);
 
@@ -347,6 +372,50 @@ export const ExploreAspects = ({ enhancedData, clinicalContext }: ExploreAspects
                   style={{ width: `${outlook.score}%`, background: outlook.color }}
                 />
               </div>
+
+              {/* Projection chart: how this area could trend over the next few years */}
+              <div className="mt-4 h-40">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={outlook.chart} margin={{ top: 6, right: 10, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
+                    <XAxis dataKey="t" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <YAxis domain={[0, 100]} tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} width={30} />
+                    <Tooltip
+                      formatter={(val: any, name: any) => [`${val}/100`, name]}
+                      contentStyle={{ fontSize: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.6)', background: 'rgba(255,253,247,0.95)' }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="same"
+                      name="If habits stay the same"
+                      stroke="hsl(95 12% 58%)"
+                      strokeWidth={2}
+                      strokeDasharray="5 5"
+                      dot={{ r: 3 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="better"
+                      name="If you build better habits"
+                      stroke="hsl(142 45% 40%)"
+                      strokeWidth={3}
+                      dot={{ r: 4 }}
+                      activeDot={{ r: 6 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="mt-1 flex items-center justify-center gap-4 text-[11px] text-muted-foreground">
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="inline-block h-0 w-4 border-t-2 border-dashed" style={{ borderColor: 'hsl(95 12% 58%)' }} />
+                  Same habits
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="inline-block h-0 w-4 border-t-2" style={{ borderColor: 'hsl(142 45% 40%)' }} />
+                  Better habits
+                </span>
+              </div>
+
               <p className="mt-2 text-[11px] text-muted-foreground">
                 A simple guide based on the habits above — not a medical score. Move the sliders to see how changes could help.
               </p>
