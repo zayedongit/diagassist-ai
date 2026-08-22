@@ -12,10 +12,14 @@ interface RiskPredictionTimelineProps {
   cardiovascularRisk: RiskScore;
   diabetesRisk: RiskScore;
   clinicalContext?: ClinicalContext;
+  // When false, that trajectory is not relevant to this patient and is hidden.
+  showCardiovascular?: boolean;
+  showDiabetes?: boolean;
 }
 
-export const RiskPredictionTimeline = ({ cardiovascularRisk, diabetesRisk, clinicalContext }: RiskPredictionTimelineProps) => {
+export const RiskPredictionTimeline = ({ cardiovascularRisk, diabetesRisk, clinicalContext, showCardiovascular = true, showDiabetes = true }: RiskPredictionTimelineProps) => {
   const timeline: TimelineProjections = generateRiskTimeline(cardiovascularRisk, diabetesRisk, clinicalContext);
+  const defaultTab = showCardiovascular ? 'cardiovascular' : 'diabetes';
   
   // Custom tooltip for charts
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -67,19 +71,24 @@ export const RiskPredictionTimeline = ({ cardiovascularRisk, diabetesRisk, clini
         </Alert>
         
         {/* Timeline Charts */}
-        <Tabs defaultValue="cardiovascular" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 h-auto">
+        <Tabs defaultValue={defaultTab} className="w-full">
+          <TabsList className={`grid w-full ${showCardiovascular && showDiabetes ? 'grid-cols-2' : 'grid-cols-1'} h-auto`}>
+            {showCardiovascular && (
             <TabsTrigger value="cardiovascular" className="flex items-center gap-1.5 sm:gap-2 px-3 py-2.5 sm:px-4 sm:py-3 text-xs sm:text-sm min-h-[44px]">
               <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span className="hidden xs:inline">Cardiovascular</span>
               <span className="xs:hidden">Cardio</span>
             </TabsTrigger>
+            )}
+            {showDiabetes && (
             <TabsTrigger value="diabetes" className="flex items-center gap-1.5 sm:gap-2 px-3 py-2.5 sm:px-4 sm:py-3 text-xs sm:text-sm min-h-[44px]">
               <Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               Diabetes
             </TabsTrigger>
+            )}
           </TabsList>
-          
+
+          {showCardiovascular && (
           <TabsContent value="cardiovascular" className="space-y-3 sm:space-y-4">
             <div className="bg-card rounded-lg p-3 sm:p-4 border border-primary/20">
               <h3 className="font-semibold text-foreground mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base">
@@ -165,7 +174,9 @@ export const RiskPredictionTimeline = ({ cardiovascularRisk, diabetesRisk, clini
               </div>
             </div>
           </TabsContent>
-          
+          )}
+
+          {showDiabetes && (
           <TabsContent value="diabetes" className="space-y-4">
             <div className="bg-card rounded-lg p-4 border border-primary/20">
               <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
@@ -251,6 +262,7 @@ export const RiskPredictionTimeline = ({ cardiovascularRisk, diabetesRisk, clini
               </div>
             </div>
           </TabsContent>
+          )}
         </Tabs>
         
         {/* Potential Benefits */}

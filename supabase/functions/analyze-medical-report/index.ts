@@ -942,6 +942,9 @@ Extract EVERY parameter from ALL sections:
 - Start with the most serious finding
 - Explain clinical significance in layman terms
 - End with hope and actionable steps
+- Write for an ordinary person with no medical background. Prefer everyday words; when a medical term is unavoidable, immediately explain it in plain words (e.g. "LDL, the 'bad' cholesterol").
+- Keep sentences short and simple.
+- Do NOT use emojis, emoticons, or decorative symbols anywhere in any field of the output.
 
 **LANGUAGE GUIDELINES**:
 - For ACUTE LIVER DAMAGE: "Your liver enzyme levels are significantly elevated, indicating active liver inflammation that needs prompt medical evaluation"
@@ -1058,7 +1061,7 @@ ONLY use "Anonymous Patient" if absolutely no name found after thorough search.
     }
   ],
   "nextSteps": [
-    "string - Specific, actionable clinical recommendations"
+    "string - Specific, actionable next steps written in plain, simple layman language a non-medical person can act on. Explain any medical term in everyday words. No emojis. Example: 'See a heart doctor or your regular doctor about your high bad cholesterol — they may suggest medicine to bring it down.'"
   ],
   "diet": {
     "avoid": ["string - Specific foods to avoid with clinical reasoning"],

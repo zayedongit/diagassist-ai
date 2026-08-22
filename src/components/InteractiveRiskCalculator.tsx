@@ -12,12 +12,17 @@ interface InteractiveRiskCalculatorProps {
   cardiovascularRisk: RiskScore;
   diabetesRisk: RiskScore;
   clinicalContext?: ClinicalContext;
+  // When false, that risk is not relevant to this patient and is hidden.
+  showCardiovascular?: boolean;
+  showDiabetes?: boolean;
 }
 
 export const InteractiveRiskCalculator = ({
   cardiovascularRisk,
   diabetesRisk,
   clinicalContext,
+  showCardiovascular = true,
+  showDiabetes = true,
 }: InteractiveRiskCalculatorProps) => {
   const [smoking, setSmoking] = useState(clinicalContext?.lifestyle?.smoking || false);
   const [exercise, setExercise] = useState(
@@ -170,8 +175,9 @@ export const InteractiveRiskCalculator = ({
         </div>
 
         {/* Risk Predictions */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+        <div className={`grid grid-cols-1 ${showCardiovascular && showDiabetes ? 'sm:grid-cols-2' : ''} gap-3 sm:gap-4`}>
           {/* Cardiovascular Risk */}
+          {showCardiovascular && (
           <div className="bg-card p-3 sm:p-4 rounded-lg border space-y-2 sm:space-y-3">
             <h4 className="font-semibold text-xs sm:text-sm flex items-center justify-between">
               <span>10-Year Cardiovascular Risk</span>
@@ -197,8 +203,10 @@ export const InteractiveRiskCalculator = ({
               )}
             </div>
           </div>
+          )}
 
           {/* Diabetes Risk */}
+          {showDiabetes && (
           <div className="bg-card p-4 rounded-lg border space-y-3">
             <h4 className="font-semibold text-sm flex items-center justify-between">
               <span>10-Year Diabetes Risk</span>
@@ -224,12 +232,13 @@ export const InteractiveRiskCalculator = ({
               )}
             </div>
           </div>
+          )}
         </div>
 
         {/* Insights */}
         {(cvAdjusted.change !== 0 || diabetesAdjusted.change !== 0) && (
           <div className="bg-primary/5 p-4 rounded-lg border border-primary/20">
-            <p className="text-sm font-medium text-primary mb-2">💡 Impact of Lifestyle Changes</p>
+            <p className="text-sm font-medium text-primary mb-2">Impact of Lifestyle Changes</p>
             <ul className="text-sm text-muted-foreground space-y-1">
               {!smoking && clinicalContext?.lifestyle?.smoking && (
                 <li>• Quitting smoking could reduce your risk by up to 25%</li>
@@ -240,7 +249,7 @@ export const InteractiveRiskCalculator = ({
               {diet > (clinicalContext?.lifestyle?.diet === 'healthy' ? 75 : 25) && (
                 <li>• Improving diet quality contributes to lower health risks</li>
               )}
-              {cvAdjusted.change < -15 && (
+              {showCardiovascular && cvAdjusted.change < -15 && (
                 <li>• These combined changes could substantially lower your cardiovascular risk</li>
               )}
             </ul>

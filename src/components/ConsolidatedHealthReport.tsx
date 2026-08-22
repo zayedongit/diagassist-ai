@@ -261,8 +261,15 @@ export const ConsolidatedHealthReport = ({
           </div>
         )}
 
-        {/* SECTION 3: Clinical Context & Findings */}
+        {/* SECTION 3: Clinical Context & Findings — only render when there is
+            actual content (the questioning step was removed, so an empty object
+            should not produce an empty collapsible). */}
         {clinicalAssessmentData && (
+          (clinicalAssessmentData.possibleConditions?.length > 0) ||
+          (clinicalAssessmentData.investigations?.length > 0) ||
+          (clinicalAssessmentData.referrals?.length > 0) ||
+          (clinicalAssessmentData.redFlags?.length > 0)
+        ) && (
           <div className="space-y-3">
             <button
               onClick={() => toggleSection('clinical')}
@@ -514,7 +521,7 @@ export const ConsolidatedHealthReport = ({
             <ul className="space-y-2">
               {analysisData.nextSteps.map((step, index) => (
                 <li key={index} className="text-sm text-foreground flex items-start gap-2">
-                  <span className="w-6 h-6 rounded-full bg-primary text-foreground flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
+                  <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
                     {index + 1}
                   </span>
                   {step}

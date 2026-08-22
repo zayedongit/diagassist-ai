@@ -2210,19 +2210,46 @@ RAW DATA: ${baseContext}`;
                               analysisData.demographics,
                               clinicalContext
                             );
-                            
+
+                            // Personalize: only surface a risk category that is actually
+                            // relevant to THIS patient — they have a related abnormal
+                            // finding, or a non-low computed risk in that category.
+                            const abnormalNames = extractAbnormalPanels(enhancedData)
+                              .flatMap((p: any) => (p.abnormalLabs || []).map((l: any) => (l.name || '').toLowerCase()))
+                              .join(' | ');
+                            const cardioTerms = /(ldl|hdl|cholesterol|triglyceride|vldl|non-hdl|apob|apo b|lipoprotein|lp\(a\)|homocysteine)/;
+                            const diabetesTerms = /(glucose|hba1c|glycated|glycosylated|a1c|insulin|c-peptide|blood sugar|fasting sugar)/;
+                            const levelOrder = ['low', 'moderate', 'high', 'very-high'];
+                            const isElevated = (r: any) => levelOrder.indexOf(r?.level) >= 1;
+                            const showCardiovascular = cardioTerms.test(abnormalNames) || isElevated(healthRisks.cardiovascularRisk);
+                            const showDiabetes = diabetesTerms.test(abnormalNames) || isElevated(healthRisks.diabetesRisk);
+
+                            if (!showCardiovascular && !showDiabetes) {
+                              return (
+                                <div className="bg-card border border-white/10 rounded-xl p-6 text-center animate-fade-in">
+                                  <p className="text-sm sm:text-base text-foreground">
+                                    Based on these particular results, no elevated long-term cardiovascular or diabetes risk was flagged. Keep up your current habits and re-test as advised by your doctor.
+                                  </p>
+                                </div>
+                              );
+                            }
+
                             return (
                               <div className="space-y-6 animate-fade-in">
                                 <RiskPredictionTimeline
                                   cardiovascularRisk={healthRisks.cardiovascularRisk}
                                   diabetesRisk={healthRisks.diabetesRisk}
                                   clinicalContext={clinicalContext}
+                                  showCardiovascular={showCardiovascular}
+                                  showDiabetes={showDiabetes}
                                 />
-                                
+
                                 <InteractiveRiskCalculator
                                   cardiovascularRisk={healthRisks.cardiovascularRisk}
                                   diabetesRisk={healthRisks.diabetesRisk}
                                   clinicalContext={clinicalContext}
+                                  showCardiovascular={showCardiovascular}
+                                  showDiabetes={showDiabetes}
                                 />
                               </div>
                             );
