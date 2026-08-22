@@ -349,11 +349,13 @@ const Index = () => {
   // and tolerates empty clinical data, so this makes the full report render immediately
   // after the scan with no questions asked.
   useEffect(() => {
-    if (showResults && analysisData && !showPostChatSections) {
-      setClinicalAssessmentData({});
-      setShowPostChatSections(true);
+    if (showResults && analysisData && (!showPostChatSections || !clinicalAssessmentData)) {
+      // Keep an empty placeholder in place even after a "Refresh" clears it, so the
+      // risk/explore sections (which read clinical context) never disappear.
+      if (!clinicalAssessmentData) setClinicalAssessmentData({});
+      if (!showPostChatSections) setShowPostChatSections(true);
     }
-  }, [showResults, analysisData, showPostChatSections]);
+  }, [showResults, analysisData, showPostChatSections, clinicalAssessmentData]);
 
   // Auto-scroll: when results are ready, land the user straight on their report.
   useEffect(() => {
@@ -1682,6 +1684,7 @@ RAW DATA: ${baseContext}`;
     setAnalysisData(null);
     setShowResults(false);
     setClinicalAssessmentData(null);
+    setShowPostChatSections(false);
     
     // Clear localStorage
     localStorage.clear();
@@ -2219,7 +2222,7 @@ RAW DATA: ${baseContext}`;
 
 
                   {/* Risk Prediction & Analysis Tools */}
-                  {showPostChatSections && enhancedData && clinicalAssessmentData && (
+                  {showPostChatSections && enhancedData && (
                     <section id="risk-analysis-section" className="py-6 sm:py-10 md:py-16 bg-card">
                       <div className="container mx-auto px-3 sm:px-4 lg:px-6">
                         <div className="max-w-full lg:max-w-6xl mx-auto space-y-4 sm:space-y-6 lg:space-y-8">
