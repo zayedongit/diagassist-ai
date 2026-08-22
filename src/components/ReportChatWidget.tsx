@@ -25,6 +25,8 @@ export const ReportChatWidget = ({ analysisContext }: ReportChatWidgetProps) => 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  // Tappable multiple-choice follow-ups suggested by the assistant (user can still type freely).
+  const [options, setOptions] = useState<string[]>(SUGGESTIONS);
   const sessionIdRef = useRef<string>('');
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -50,7 +52,7 @@ export const ReportChatWidget = ({ analysisContext }: ReportChatWidgetProps) => 
     message: string;
     isInitialization?: boolean;
     history?: ChatMessage[];
-  }): Promise<string> => {
+  }): Promise<{ reply: string; options: string[] }> => {
     const { data, error } = await supabase.functions.invoke('voiceflow-chat', {
       body: {
         message: payload.message,
@@ -61,7 +63,10 @@ export const ReportChatWidget = ({ analysisContext }: ReportChatWidgetProps) => 
       },
     });
     if (error) throw error;
-    return data?.response || "I'm here to help you understand your report. What would you like to know?";
+    return {
+      reply: data?.response || "I'm here to help you understand your report. What would you like to know?",
+      options: Array.isArray(data?.options) ? data.options : [],
+    };
   };
 
   const initialize = async () => {
@@ -69,8 +74,9 @@ export const ReportChatWidget = ({ analysisContext }: ReportChatWidgetProps) => 
     setInitialized(true);
     setIsTyping(true);
     try {
-      const greeting = await callChat({ message: '', isInitialization: true });
-      setMessages([{ role: 'assistant', content: greeting }]);
+      const { reply, options: opts } = await callChat({ message: '', isInitialization: true });
+      setMessages([{ role: 'assistant', content: reply }]);
+      if (opts.length) setOptions(opts);
     } catch {
       setMessages([{
         role: 'assistant',
@@ -96,10 +102,12 @@ export const ReportChatWidget = ({ analysisContext }: ReportChatWidgetProps) => 
     const history = messages.slice(-10);
     setMessages((prev) => [...prev, { role: 'user', content: trimmed }]);
     setInput('');
+    setOptions([]); // hide old suggestions while the next answer is prepared
     setIsTyping(true);
     try {
-      const reply = await callChat({ message: trimmed, history });
+      const { reply, options: opts } = await callChat({ message: trimmed, history });
       setMessages((prev) => [...prev, { role: 'assistant', content: reply }]);
+      setOptions(opts);
     } catch {
       setMessages((prev) => [...prev, {
         role: 'assistant',
@@ -208,10 +216,10 @@ export const ReportChatWidget = ({ analysisContext }: ReportChatWidgetProps) => 
               </div>
             )}
 
-            {/* Suggested prompts (only before the user has asked anything) */}
-            {messages.length <= 1 && !isTyping && (
+            {/* Tappable multiple-choice follow-ups (the user can also type their own). */}
+            {options.length > 0 && !isTyping && (
               <div className="flex flex-wrap gap-2 pt-1">
-                {SUGGESTIONS.map((s) => (
+                {options.map((s) => (
                   <button
                     key={s}
                     onClick={() => send(s)}

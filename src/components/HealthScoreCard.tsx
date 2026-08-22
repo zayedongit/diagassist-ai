@@ -13,7 +13,8 @@ import {
   ChevronDown,
   ChevronUp,
   Info,
-  Calendar
+  Calendar,
+  AlertCircle
 } from "lucide-react";
 import { HealthScoreBreakdown, SystemScore } from "@/utils/healthScoreCalculator";
 import { SystemScoreBreakdown } from "./SystemScoreBreakdown";
@@ -218,8 +219,8 @@ export const HealthScoreCard = ({ breakdown }: HealthScoreCardProps) => {
                     />
                   </div>
                   {systemData.keyIssues.length > 0 && (
-                    <div className="ml-7 text-xs text-orange-600 flex items-start gap-1">
-                      <span>⚠</span>
+                    <div className="ml-7 text-sm text-orange-600 flex items-start gap-1.5">
+                      <AlertCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
                       <span>{systemData.keyIssues[0]}</span>
                     </div>
                   )}
@@ -250,8 +251,8 @@ export const HealthScoreCard = ({ breakdown }: HealthScoreCardProps) => {
             <h5 className="font-semibold text-blue-800 text-sm">Key Improvement Areas</h5>
             <ul className="space-y-2">
               {recommendations.map((recommendation, index) => (
-                <li key={index} className="text-xs text-foreground flex items-start gap-2">
-                  <span className="text-foreground mt-0.5">▶</span>
+                <li key={index} className="text-sm text-foreground flex items-start gap-2">
+                  <span className="text-foreground mt-0.5">•</span>
                   <span>{recommendation}</span>
                 </li>
               ))}

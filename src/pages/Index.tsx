@@ -2048,8 +2048,32 @@ RAW DATA: ${baseContext}`;
         {/* 5. CLINICAL CHAT SECTION + 6. INTERPRETATION SECTION */}
         {showResults && !isAnalyzing && analysisData && (
           <>
-            {/* Floating glassy report assistant — ask questions about your own report in plain words */}
-            <ReportChatWidget analysisContext={createEnhancedAnalysisContext(analysisData)} />
+            {/* Floating glassy report assistant — ask questions about your own report in plain words.
+                Context includes the raw analysis plus the computed health score and risk levels so
+                the assistant can answer questions like "explain my health score" accurately. */}
+            <ReportChatWidget
+              analysisContext={(() => {
+                const base = createEnhancedAnalysisContext(analysisData);
+                if (!enhancedData) return base;
+                try {
+                  const cc = parseClinicalContext(clinicalAssessmentData);
+                  const score = calculateHealthScore(enhancedData, analysisData.demographics, cc);
+                  const risks = calculateHealthRisks(enhancedData, analysisData.demographics, cc);
+                  const systemLine = Object.entries(score.systemScores)
+                    .map(([k, v]: [string, any]) => `${k}: ${v.score}/100`)
+                    .join(', ');
+                  const summary =
+                    `\n\nComputed results (use these for questions about the score or risk):\n` +
+                    `Overall health score: ${score.overallScore}/100 (${score.categoryLabel}).\n` +
+                    `Body-system scores: ${systemLine}.\n` +
+                    `10-year cardiovascular risk level: ${risks.cardiovascularRisk.level}. ` +
+                    `10-year diabetes risk level: ${risks.diabetesRisk.level}.`;
+                  return base + summary;
+                } catch {
+                  return base;
+                }
+              })()}
+            />
 
             {/* Mobile Swipeable Results View */}
             {isMobile ? (

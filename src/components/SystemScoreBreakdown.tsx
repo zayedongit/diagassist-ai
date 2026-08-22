@@ -155,7 +155,7 @@ export const SystemScoreBreakdown = ({ breakdown }: SystemScoreBreakdownProps) =
                     </h5>
                     <ul className="space-y-1">
                       {systemData.keyIssues.map((issue, index) => (
-                        <li key={index} className="text-xs text-orange-700 flex items-start gap-2">
+                        <li key={index} className="text-sm text-orange-700 flex items-start gap-2">
                           <span className="text-orange-500 mt-0.5">•</span>
                           <span>{issue}</span>
                         </li>
@@ -170,8 +170,8 @@ export const SystemScoreBreakdown = ({ breakdown }: SystemScoreBreakdownProps) =
                     <h5 className="text-sm font-semibold text-blue-800 mb-2">Recommendations</h5>
                     <ul className="space-y-1">
                       {systemRecommendations.map((rec, index) => (
-                        <li key={index} className="text-xs text-foreground flex items-start gap-2">
-                          <span className="text-foreground mt-0.5">▶</span>
+                        <li key={index} className="text-sm text-foreground flex items-start gap-2">
+                          <span className="text-foreground mt-0.5">•</span>
                           <span>{rec}</span>
                         </li>
                       ))}
@@ -181,12 +181,12 @@ export const SystemScoreBreakdown = ({ breakdown }: SystemScoreBreakdownProps) =
 
                 {/* Status Explanation */}
                 <div className="bg-card/[0.03] rounded-lg p-3">
-                  <p className="text-xs text-foreground">
-                    {systemData.status === 'optimal' && `Your ${getSystemLabel(systemName).toLowerCase()} is performing optimally. Continue maintaining your current health habits.`}
-                    {systemData.status === 'good' && `Your ${getSystemLabel(systemName).toLowerCase()} is performing well. Minor improvements could enhance your health further.`}
-                    {systemData.status === 'borderline' && `Your ${getSystemLabel(systemName).toLowerCase()} shows borderline values. Consider lifestyle modifications and monitor regularly.`}
-                    {systemData.status === 'abnormal' && `Your ${getSystemLabel(systemName).toLowerCase()} requires attention. Consult your healthcare provider for personalized guidance.`}
-                    {systemData.status === 'critical' && `Your ${getSystemLabel(systemName).toLowerCase()} requires immediate medical attention. Schedule a consultation with your doctor promptly.`}
+                  <p className="text-sm text-foreground">
+                    {systemData.status === 'optimal' && `Your ${getSystemLabel(systemName).toLowerCase()} is looking great. Keep up your current habits.`}
+                    {systemData.status === 'good' && `Your ${getSystemLabel(systemName).toLowerCase()} is doing well. A few small changes could make it even better.`}
+                    {systemData.status === 'borderline' && `Your ${getSystemLabel(systemName).toLowerCase()} is slightly off. Small everyday changes and keeping an eye on it can help.`}
+                    {systemData.status === 'abnormal' && `Your ${getSystemLabel(systemName).toLowerCase()} needs some attention. It is worth checking in with your doctor about it.`}
+                    {systemData.status === 'critical' && `Your ${getSystemLabel(systemName).toLowerCase()} needs attention soon. Please see your doctor about this.`}
                   </p>
                 </div>
               </AccordionContent>

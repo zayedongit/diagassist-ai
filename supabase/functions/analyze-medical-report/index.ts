@@ -1037,7 +1037,7 @@ ONLY use "Anonymous Patient" if absolutely no name found after thorough search.
 {
   "patientName": "string - Full name extracted from report or 'Anonymous Patient'",
   "overallStatus": "good" | "moderate" | "concerning",
-  "summary": "string - Clinically accurate, patient-friendly summary prioritizing most serious findings",
+  "summary": "string - Accurate summary in the simplest everyday words a non-medical person understands, most important finding first. Explain any medical term in plain words. No jargon, no emojis.",
   "demographics": {
     "gender": "male" | "female" | "other",
     "age": number
@@ -1057,7 +1057,7 @@ ONLY use "Anonymous Patient" if absolutely no name found after thorough search.
         }
       ],
       "normalParameters": ["string - List of normal parameter values in this panel with values"],
-      "interpretation": "string - Medical-grade clinical interpretation with specific condition names"
+      "interpretation": "string - Plain-language explanation of what this panel means for the person, in simple everyday words as if explaining to a friend with no medical background. If a medical term is unavoidable, immediately explain it in plain words. No jargon dumps, no emojis."
     }
   ],
   "nextSteps": [
@@ -1072,7 +1072,7 @@ ONLY use "Anonymous Patient" if absolutely no name found after thorough search.
     "recommendations": ["string - Specific lifestyle changes"],
     "detailed": ["string - Detailed lifestyle guidance with clinical rationale"]
   },
-  "patientFriendlySummary": "string - Simple, reassuring explanation",
+  "patientFriendlySummary": "string - Simple, reassuring explanation in the simplest everyday words, like talking to a friend with no medical background. No jargon, no emojis.",
   "specialist": "string - Specific specialist type for PRIMARY concern",
   "populationSource": "Clinical laboratory reference ranges and population health data",
   "healthRisks": [
