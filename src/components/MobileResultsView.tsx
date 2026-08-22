@@ -69,13 +69,6 @@ export const MobileResultsView = ({
 
   const cards = [
     {
-      id: 'chat',
-      title: 'Clinical Chat',
-      icon: MessageCircle,
-      color: 'text-cyan-500',
-      bgColor: 'bg-cyan-50'
-    },
-    {
       id: 'report',
       title: 'Your Report',
       icon: FileText,
@@ -165,19 +158,8 @@ export const MobileResultsView = ({
     swipeHandlers.onTouchEnd();
   };
 
-  // Auto-advance to Comprehensive Report after clinical chat completes
-  useEffect(() => {
-    if (clinicalAssessmentData && currentCard === 0) {
-      const timer = setTimeout(() => {
-        setCurrentCard(1); // Move to report card
-        toast({
-          title: "Report Ready",
-          description: "Your comprehensive health report is ready",
-        });
-      }, 1500);
-      return () => clearTimeout(timer);
-    }
-  }, [clinicalAssessmentData, currentCard]);
+  // Questioning step removed: the report is now the first card, shown immediately.
+  // (No auto-advance past a clinical-chat card is needed anymore.)
 
   const renderCardContent = () => {
     const card = cards[currentCard];

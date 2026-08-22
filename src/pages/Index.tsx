@@ -341,19 +341,24 @@ const Index = () => {
     }, 2000);
   };
 
-  // Auto-scroll: When analysis completes, skip summary and scroll to clinical chat
+  // Questioning step removed: as soon as the analysis is ready, auto-complete the
+  // (now-skipped) clinical assessment with an empty clinical context. Every downstream
+  // section (report, health score, risk predictions) is gated on showPostChatSections
+  // and tolerates empty clinical data, so this makes the full report render immediately
+  // after the scan with no questions asked.
+  useEffect(() => {
+    if (showResults && analysisData && !showPostChatSections) {
+      setClinicalAssessmentData({});
+      setShowPostChatSections(true);
+    }
+  }, [showResults, analysisData, showPostChatSections]);
+
+  // Auto-scroll: when results are ready, land the user straight on their report.
   useEffect(() => {
     if (showResults && !isAnalyzing && !isMobile) {
-      scrollToSection('chat-section', 500);
+      scrollToSection('comprehensive-report-section', 700);
     }
   }, [showResults, isAnalyzing, isMobile]);
-
-  // Auto-scroll: When clinical chat completes, scroll to health score section
-  useEffect(() => {
-    if (showPostChatSections && !isMobile) {
-      scrollToSection('health-score-section', 500);
-    }
-  }, [showPostChatSections, isMobile]);
 
   // Handle single report processing
   const handleDriveSync = async () => {
@@ -2130,39 +2135,10 @@ RAW DATA: ${baseContext}`;
                     </div>
                   </section>
 
-                  {/* Clinical Chat - Moved before detailed analysis */}
-                  <section id="chat-section" className="py-8 sm:py-12 md:py-16 bg-card transition-all duration-500 rounded-lg">
-                      <div className="container mx-auto px-4 sm:px-6">
-                        <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
-                          <div className="text-center space-y-2 sm:space-y-3 px-4 animate-fade-in">
-                            <h2 className="text-2xl sm:text-3xl font-poppins font-light text-foreground">
-                              Clinical Chat on Your Report
-                            </h2>
-                            <p className="text-xs sm:text-sm text-foreground">
-                              This chat is strictly about your uploaded test report. It does not replace medical diagnosis.
-                            </p>
-                            <p className="text-xs sm:text-sm text-foreground font-medium">
-                              Clinical chat makes the analysis more focused
-                            </p>
-                          </div>
-                          
-                          <div className="bg-card rounded-xl sm:rounded-2xl shadow-premium p-4 sm:p-6 animate-slide-in">
-                            <MedicalChatAgent
-                              className="w-full"
-                              analysisContext={createEnhancedAnalysisContext(analysisData)}
-                              demographics={analysisData.demographics}
-                              abnormalPanels={enhancedData ? extractAbnormalPanels(enhancedData) : []}
-                              mode="clinical-triage"
-                              onClinicalAssessmentComplete={handleClinicalAssessmentComplete}
-                              analysisId={analysisId || undefined}
-                              analysisTimestamp={analysisTimestamp || undefined}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </section>
+                  {/* Clinical Chat questioning step removed — the report is shown
+                      directly after the scan. See the auto-complete effect above. */}
 
-                  {/* New Sections After Clinical Chat Completion */}
+                  {/* New Sections (shown immediately after the scan) */}
                   {enhancedData && showPostChatSections && (
                     <>
                       {/* CONSOLIDATED COMPREHENSIVE HEALTH REPORT - ALL IN ONE SECTION */}
@@ -2174,7 +2150,7 @@ RAW DATA: ${baseContext}`;
                                 Your Comprehensive Health Report
                               </h2>
                               <p className="text-sm sm:text-base text-foreground">
-                                Complete analysis combining your lab results and clinical assessment
+                                Complete analysis of your lab results
                               </p>
                             </div>
                             
@@ -2212,24 +2188,6 @@ RAW DATA: ${baseContext}`;
                     </>
                   )}
 
-
-                  {/* Placeholder when clinical chat not complete */}
-                  {enhancedData && !showPostChatSections && (
-                    <section className="py-6 sm:py-8 bg-card">
-                      <div className="container mx-auto px-4 sm:px-6">
-                        <div className="max-w-4xl mx-auto">
-                          <Alert className="bg-card border-white/10">
-                            <AlertCircle className="h-5 w-5 text-foreground" />
-                            <AlertTitle className="text-blue-900 font-semibold">Complete Clinical Assessment Above</AlertTitle>
-                            <AlertDescription className="text-blue-800">
-                              Complete the clinical chat assessment above to unlock personalized health risk predictions, 
-                              10-year risk projections, and tailored recommendations based on both your lab values and clinical context.
-                            </AlertDescription>
-                          </Alert>
-                        </div>
-                      </div>
-                    </section>
-                  )}
 
                   {/* Risk Prediction & Analysis Tools */}
                   {showPostChatSections && enhancedData && clinicalAssessmentData && (
