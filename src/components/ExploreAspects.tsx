@@ -376,10 +376,18 @@ export const ExploreAspects = ({ enhancedData, clinicalContext }: ExploreAspects
               {/* Projection chart: how this area could trend over the next few years */}
               <div className="mt-4 h-40">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={outlook.chart} margin={{ top: 6, right: 10, left: -20, bottom: 0 }}>
+                  <LineChart data={outlook.chart} margin={{ top: 6, right: 12, left: 4, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
                     <XAxis dataKey="t" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
-                    <YAxis domain={[0, 100]} tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} width={30} />
+                    <YAxis
+                      domain={[0, 100]}
+                      ticks={[0, 25, 50, 75, 100]}
+                      tick={{ fill: '#6b7280', fontSize: 11 }}
+                      axisLine={false}
+                      tickLine={false}
+                      width={32}
+                      label={{ value: 'Outlook', angle: -90, position: 'insideLeft', offset: 14, style: { fill: '#9ca3af', fontSize: 10 } }}
+                    />
                     <Tooltip
                       formatter={(val: any, name: any) => [`${val}/100`, name]}
                       contentStyle={{ fontSize: '12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.6)', background: 'rgba(255,253,247,0.95)' }}
