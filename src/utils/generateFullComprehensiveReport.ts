@@ -600,8 +600,9 @@ export async function generateFullComprehensiveReport(data: ComprehensiveReportD
       pdf.text(line, margin, yPosition + 4 + (index * 3));
     });
 
-    // Save PDF
-    const fileName = `Comprehensive-Health-Report-${data.patientInfo?.name || 'Patient'}-${new Date().toISOString().split('T')[0]}.pdf`;
+    // Save PDF — named "<PatientName>.Diagassist.Report.pdf"
+    const safeName = (data.patientInfo?.name || 'Patient').replace(/[\\/:*?"<>|]+/g, '').trim() || 'Patient';
+    const fileName = `${safeName}.Diagassist.Report.pdf`;
     pdf.save(fileName);
 
     // Return PDF as base64 for backend storage

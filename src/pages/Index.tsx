@@ -51,6 +51,7 @@ import { calculateHealthRisks } from '@/utils/healthRiskCalculator';
 import { RiskPredictionTimeline } from '@/components/RiskPredictionTimeline';
 import { InteractiveRiskCalculator } from '@/components/InteractiveRiskCalculator';
 import { ExploreAspects } from '@/components/ExploreAspects';
+import { ResultsDashboard } from '@/components/ResultsDashboard';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -90,6 +91,7 @@ const Index = () => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [capturedImages, setCapturedImages] = useState<string[]>([]);
   
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -1117,146 +1119,106 @@ RAW DATA: ${baseContext}`;
   // Simplified processing - client-side only
 
   // Process the PDF on the client-side: try text extraction first, fallback to images
-  const processClientSide = async (file: File) => {
+  // Extract one report's payload locally — fast text path, or images for server OCR. No network.
+  const extractReport = async (
+    file: File,
+    idx: number,
+    total: number
+  ): Promise<{ filename: string; text?: string; images?: string[] }> => {
+    setCurrentStage('conversion');
+    setExtractionStep(total > 1 ? `Reading report ${idx + 1} of ${total}: ${file.name}...` : 'Extracting text locally...');
+
+    const textResult = await extractPdfText(file);
+    if (textResult.success && textResult.isSelectableText && textResult.text && textResult.text.length > 1000) {
+      setUsedTextExtraction(true);
+      return { filename: file.name, text: textResult.text };
+    }
+
+    // Scanned/photo PDF → render pages to images for server-side OCR.
+    const { convertPdfToImages } = await import('@/utils/pdfToImages');
+    setProgressUpdate({ message: total > 1 ? `Scanning report ${idx + 1} of ${total}...` : 'Converting scanned pages to images...', percentage: 0 });
+    const conversionResult = await convertPdfToImages(file, (update) => {
+      if (update.message.toLowerCase().includes('compress') || update.message.toLowerCase().includes('optim')) {
+        setCurrentStage('optimization');
+      }
+      setProgressUpdate(update);
+    });
+    if (!conversionResult.success) {
+      throw new Error(conversionResult.error || 'Failed to convert PDF');
+    }
+    setWasCompressed(conversionResult.wasCompressed || false);
+    setProgressUpdate(null);
+    return { filename: file.name, images: conversionResult.images || [] };
+  };
+
+  // Send one or more extracted reports to the backend for a single combined analysis.
+  const sendReportsForAnalysis = async (
+    reports: Array<{ filename: string; text?: string; images?: string[] }>,
+    userId: string
+  ) => {
+    setCurrentStage('analysis');
+    const requestBody: any = { userId, reports, filename: reports[0]?.filename || 'report.pdf' };
+
+    const invokeOnce = async () => {
+      const { data, error } = await supabase.functions.invoke('analyze-medical-report', { body: requestBody });
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || 'Failed to start analysis');
+      return data;
+    };
+
     try {
-      console.log('🔄 Starting PDF analysis process...');
-      console.log('📄 File details:', { name: file.name, size: file.size, type: file.type });
-      
-      // STEP 1: Try fast text extraction first
-      console.log('🚀 Attempting fast text extraction...');
-      setExtractionStep("Extracting text locally...");
-      setCurrentStage('conversion');
-      
-      const textResult = await extractPdfText(file);
-      
-      let images: string[] = [];
-      let extractedTextContent = '';
-      
-      // STEP 2: Check if we have selectable text (fast path)
-      if (textResult.success && textResult.isSelectableText && textResult.text && textResult.text.length > 1000) {
-        console.log('✅ Fast path: Using extracted text (no OCR needed)');
-        extractedTextContent = textResult.text;
-        setUsedTextExtraction(true);
-        setExtractionStep(`Extracted text from ${textResult.pagesAnalyzed} pages. Uploading for analysis...`);
-        setCurrentStage('analysis');
-      } else {
-        // STEP 3: Fallback to image conversion for scanned PDFs
-        console.log('📸 Scanned PDF detected, converting to images for OCR...');
-        setExtractionStep("Scanning pages for text...");
-        
-        const { convertPdfToImages } = await import('@/utils/pdfToImages');
-        
-        setProgressUpdate({ message: "Converting scanned pages to images...", percentage: 0 });
-        
-        const conversionResult = await convertPdfToImages(file, (update) => {
-          if (update.message.toLowerCase().includes('compress') || update.message.toLowerCase().includes('optim')) {
-            setCurrentStage('optimization');
-          }
-          setProgressUpdate(update);
-        });
-        
-        if (!conversionResult.success) {
-          throw new Error(conversionResult.error || 'Failed to convert PDF');
-        }
-        
-        setWasCompressed(conversionResult.wasCompressed || false);
-        images = conversionResult.images || [];
-        console.log(`✅ Converted ${images.length} pages to images`);
-        
-        setExtractionStep(`Converted ${images.length} pages. Uploading for OCR analysis...`);
-        setProgressUpdate(null);
-        setCurrentStage('analysis');
-      }
-      
-      // STEP 4: Send to backend for analysis
-      console.log('📤 Sending to backend for analysis...');
-      setCurrentStage('analysis');
-      
-      // CRITICAL: Authentication is MANDATORY - use authenticated user ID only
-      if (!user) {
-        throw new Error('Authentication required. Please sign in to analyze reports.');
-      }
-      
-      const userId = user.id;
-      setCurrentUserId(userId);
-      
-      console.log('👤 Using authenticated userId:', userId);
-      
-      const requestBody: any = {
-        userId,
-        filename: file.name
-      };
-      
-      if (extractedTextContent) {
-        requestBody.text = extractedTextContent;
-      } else {
-        requestBody.images = images;
-      }
-      
-      try {
-        const { data, error } = await supabase.functions.invoke('analyze-medical-report', {
-          body: requestBody
-        });
-
-        if (error) {
-          console.error('❌ Backend function error:', error);
-          throw error;
-        }
-
-        if (!data?.success) {
-          console.error('❌ Backend function returned failure:', data);
-          throw new Error(data?.error || 'Failed to start analysis');
-        }
-
-        console.log('✅ Analysis started successfully, ID:', data.analysisId);
-        
-        // Clear progress once response is received
-        setProgressUpdate(null);
-        
-        return {
-          analysisId: data.analysisId,
-          status: data.status,
-          message: data.message || 'Processing started successfully',
-          userId: data.userId || userId,
-        };
-      } catch (e: any) {
-        // Retry once on transient browser network errors
-        const msg = typeof e?.message === 'string' ? e.message : '';
-        if (msg && /load failed|network/i.test(msg)) {
-          console.warn('⚠️ Transient network error, retrying once...');
-          const { data, error } = await supabase.functions.invoke('analyze-medical-report', {
-            body: requestBody,
-          });
-          if (error || !data?.success) {
-            throw new Error(error?.message || data?.error || 'Failed to start analysis');
-          }
-          setProgressUpdate(null);
-          return { 
-            analysisId: data.analysisId, 
-            status: data.status, 
-            message: data.message || 'Processing started successfully', 
-            userId: data.userId || userId 
-          };
-        }
-        throw e;
-      }
-    } catch (error) {
-      console.error('Client-side processing failed:', error);
+      const data = await invokeOnce();
       setProgressUpdate(null);
-      throw new Error(`PDF processing failed. ${error instanceof Error ? error.message : 'Please ensure your PDF is readable and try again.'}`);
+      return { analysisId: data.analysisId, status: data.status, message: data.message || 'Processing started successfully', userId: data.userId || userId };
+    } catch (e: any) {
+      const msg = typeof e?.message === 'string' ? e.message : '';
+      if (msg && /load failed|network/i.test(msg)) {
+        console.warn('⚠️ Transient network error, retrying once...');
+        const data = await invokeOnce();
+        setProgressUpdate(null);
+        return { analysisId: data.analysisId, status: data.status, message: data.message || 'Processing started successfully', userId: data.userId || userId };
+      }
+      throw e;
     }
   };
 
-  const handleFileSelect = async (file: File) => {
-    console.log('📁 File selected:', file.name);
-    
+  // Extract every selected report, then submit them together for combined analysis.
+  const processMultipleReports = async (files: File[]) => {
+    if (!user) {
+      throw new Error('Authentication required. Please sign in to analyze reports.');
+    }
+    const userId = user.id;
+    setCurrentUserId(userId);
+    try {
+      const reports: Array<{ filename: string; text?: string; images?: string[] }> = [];
+      for (let i = 0; i < files.length; i++) {
+        reports.push(await extractReport(files[i], i, files.length));
+      }
+      setExtractionStep(files.length > 1 ? `Analyzing ${files.length} reports together...` : 'Uploading for analysis...');
+      return await sendReportsForAnalysis(reports, userId);
+    } catch (error) {
+      console.error('Client-side processing failed:', error);
+      setProgressUpdate(null);
+      throw new Error(`PDF processing failed. ${error instanceof Error ? error.message : 'Please ensure your PDFs are readable and try again.'}`);
+    }
+  };
+
+  const processClientSide = (file: File) => processMultipleReports([file]);
+
+  const handleFilesSelect = async (filesInput: File[]) => {
+    const files = (filesInput || []).slice(0, 5); // cap at 5 reports
+    if (files.length === 0) return;
+    const primary = files[0];
+    const label = files.length > 1 ? `${files.length} reports` : primary.name;
+    console.log('📁 File(s) selected:', files.map((f) => f.name).join(', '));
+
     // CRITICAL: Clear all previous state and cancel any ongoing polling FIRST
-    console.log('🧹 Clearing previous analysis state and cancelling active polling');
     pollingActiveRef.current = false;
     currentPollingIdRef.current = null;
     localStorage.clear();
-    
-    setSelectedFile(file);
+
+    setSelectedFile(primary);
+    setSelectedFiles(files);
     setCapturedImages([]);
     setError(null);
     setIsAnalyzing(true);
@@ -1266,60 +1228,54 @@ RAW DATA: ${baseContext}`;
     setShowResults(false);
     setAnalysisData(null);
     setClinicalAssessmentData(null);
+    setShowPostChatSections(false);
     setProcessingStatus('starting');
     setCurrentStage('conversion');
     setWasCompressed(false);
-    
+
     toast.info("Starting New Analysis", {
-      description: "Clearing previous data and processing your new report...",
+      description: files.length > 1
+        ? `Reading and combining ${files.length} reports for a richer analysis...`
+        : "Clearing previous data and processing your new report...",
     });
 
     // Auto-scroll to analysis section on mobile after a short delay
     if (isMobile && analysisRef.current) {
       setTimeout(() => {
-        analysisRef.current?.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'start' 
-        });
+        analysisRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 800);
     }
 
     try {
-      // Process PDF on client side only
-      const response = await processClientSide(file);
-      
+      const response = await processMultipleReports(files);
+
       if (response.analysisId) {
-        // Background processing started successfully
         const returnedUserId = response.userId || currentUserId;
-        
+
         setAnalysisId(response.analysisId);
         setCurrentUserId(returnedUserId);
-        
-        // Store analysis state in localStorage for persistence with timestamp - use returned userId
+
         localStorage.setItem('analysisId', response.analysisId);
         localStorage.setItem('currentUserId', returnedUserId);
         localStorage.setItem('processingStatus', 'processing');
         localStorage.setItem('analysisTimestamp', Date.now().toString());
-        
+
         if (usedTextExtraction) {
-          setExtractedText(`Processing started for ${file.name}. Fast mode: typically completes in 30-60 seconds.`);
+          setExtractedText(`Processing started for ${label}. Fast mode: typically completes in 30-60 seconds.`);
         } else {
-          setExtractedText(`Processing started for ${file.name}. OCR mode: typically completes in 1-2 minutes.`);
+          setExtractedText(`Processing started for ${label}. OCR mode: typically completes in 1-2 minutes.`);
         }
         setProcessingStatus('processing');
         setExtractionStep("Analysis in progress... Results will appear automatically.");
-        
-        // Start polling for results with correct userId
+
         pollForResults(response.analysisId, returnedUserId);
       } else {
-        // Fallback for old response format (shouldn't happen with new implementation)
-        setExtractedText(`Analysis completed successfully for ${file.name}`);
+        setExtractedText(`Analysis completed successfully for ${label}`);
         setAnalysisData(response);
         setCurrentStage('results');
         setShowResults(true);
         setIsAnalyzing(false);
       }
-      
     } catch (err) {
       console.error('Analysis error:', err);
       setError(err instanceof Error ? err.message : 'Analysis failed. Please try again.');
@@ -1328,6 +1284,8 @@ RAW DATA: ${baseContext}`;
       setProgressUpdate(null);
     }
   };
+
+  const handleFileSelect = (file: File) => handleFilesSelect([file]);
 
   // Handle camera-captured images
   const handleCameraImages = async (images: string[]) => {
@@ -1946,12 +1904,13 @@ RAW DATA: ${baseContext}`;
 
                 {/* Upload zone - No box wrapper */}
                 <div className="max-w-4xl mx-auto">
-                  <UploadZone 
+                  <UploadZone
                     onFileSelect={handleFileSelect}
+                    onFilesSelect={handleFilesSelect}
                     onImagesCapture={handleCameraImages}
                   />
                 </div>
-                
+
                 {/* Privacy Notice - Enhanced visibility */}
                 <div className="max-w-4xl mx-auto mt-6 text-center">
                   <p 
@@ -2041,6 +2000,7 @@ RAW DATA: ${baseContext}`;
                 <div className="max-w-md mx-auto pt-2">
                   <UploadZone
                     onFileSelect={(f) => { setError(null); handleFileSelect(f); }}
+                    onFilesSelect={(fs) => { setError(null); handleFilesSelect(fs); }}
                     onImagesCapture={(imgs) => { setError(null); handleCameraImages(imgs); }}
                   />
                 </div>
@@ -2173,6 +2133,15 @@ RAW DATA: ${baseContext}`;
                   {/* New Sections (shown immediately after the scan) */}
                   {enhancedData && showPostChatSections && (
                     <>
+                      {/* Quick-nav dashboard widgets — jump to any section */}
+                      <section className="pt-4 pb-2 animate-fade-in">
+                        <ResultsDashboard
+                          enhancedData={enhancedData}
+                          demographics={analysisData.demographics}
+                          clinicalContext={parseClinicalContext(clinicalAssessmentData)}
+                        />
+                      </section>
+
                       {/* CONSOLIDATED COMPREHENSIVE HEALTH REPORT - ALL IN ONE SECTION */}
                       <section id="comprehensive-report-section" className="py-6 sm:py-8 bg-gradient-to-br from-slate-50 to-white/5 transition-all duration-500">
                         <div className="container mx-auto px-4 sm:px-6 animate-fade-in">
@@ -2285,10 +2254,12 @@ RAW DATA: ${baseContext}`;
                                 )}
 
                                 {/* Everyone gets to explore — pick any aspect and see how habits shape it */}
-                                <ExploreAspects
-                                  enhancedData={enhancedData}
-                                  clinicalContext={clinicalContext}
-                                />
+                                <div id="explore-health-section" className="scroll-mt-4">
+                                  <ExploreAspects
+                                    enhancedData={enhancedData}
+                                    clinicalContext={clinicalContext}
+                                  />
+                                </div>
                               </div>
                             );
                           })()}

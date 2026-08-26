@@ -444,8 +444,9 @@ export async function generate30DayPlanPdf(plan: HealthImprovementPlan, patientN
       pdf.text(line, margin, yPosition + 4 + (index * 3));
     });
 
-    // Save PDF
-    const fileName = `30-Day-Health-Plan-${patientName || 'Patient'}-${new Date().toISOString().split('T')[0]}.pdf`;
+    // Save PDF — named "<PatientName>.Diagassist.Report.pdf"
+    const safeName = (patientName || 'Patient').replace(/[\\/:*?"<>|]+/g, '').trim() || 'Patient';
+    const fileName = `${safeName}.Diagassist.Report.pdf`;
     pdf.save(fileName);
 
     // Return PDF as base64 for backend storage

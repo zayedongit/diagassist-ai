@@ -346,8 +346,9 @@ export async function generateEssentialReportPdf(data: ReportData) {
       pdf.text(line, margin, yPosition + 5 + (index * 3));
     });
 
-    // Save PDF
-    const fileName = `Essential-Health-Report-${data.patientInfo?.name || 'Patient'}-${new Date().toISOString().split('T')[0]}.pdf`;
+    // Save PDF — named "<PatientName>.Diagassist.Report.pdf"
+    const safeName = (data.patientInfo?.name || 'Patient').replace(/[\\/:*?"<>|]+/g, '').trim() || 'Patient';
+    const fileName = `${safeName}.Diagassist.Report.pdf`;
     pdf.save(fileName);
 
     toast.success('Essential report downloaded successfully!');

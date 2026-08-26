@@ -705,7 +705,8 @@ export const generateComprehensiveReportPdf = async ({
     pdf.setFont(undefined, 'normal');
     yPosition += renderWrappedText(disclaimerText, 20, yPosition, 9, pageWidth - 40);
 
-    pdf.save(`comprehensive-health-report-${patientName || 'patient'}-${new Date().toISOString().split('T')[0]}.pdf`);
+    const safeReportName = (patientName || 'Patient').replace(/[\\/:*?"<>|]+/g, '').trim() || 'Patient';
+    pdf.save(`${safeReportName}.Diagassist.Report.pdf`);
     
     toast.success('Comprehensive report downloaded successfully!');
   } catch (error) {
