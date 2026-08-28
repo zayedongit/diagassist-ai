@@ -511,25 +511,63 @@ export const ConsolidatedHealthReport = ({
           </div>
         )}
 
-        {/* Next Steps Footer */}
-        {analysisData.nextSteps && analysisData.nextSteps.length > 0 && (
-          <div className="bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 rounded-xl p-4">
-            <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-              <FileText className="w-5 h-5 text-primary" />
-              Important Next Steps
-            </h4>
-            <ul className="space-y-2">
-              {analysisData.nextSteps.map((step, index) => (
-                <li key={index} className="text-sm text-foreground flex items-start gap-2">
-                  <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
-                    {index + 1}
-                  </span>
-                  {step}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        {/* Next Steps Footer — grouped into consultation / investigation / lifestyle.
+            Only non-empty groups render; falls back to the flat list if the model
+            didn't return the structured version. */}
+        {(() => {
+          const structured = (analysisData as any).nextStepsStructured || {};
+          const groups = [
+            { key: 'consultation', label: 'Further consultation required', icon: Stethoscope, items: (structured.consultation || []) as string[] },
+            { key: 'investigation', label: 'Further investigation required', icon: FileText, items: (structured.investigation || []) as string[] },
+            { key: 'lifestyle', label: 'Dietary & lifestyle changes', icon: Heart, items: (structured.lifestyle || []) as string[] },
+          ].filter((g) => Array.isArray(g.items) && g.items.length > 0);
+
+          const flat = analysisData.nextSteps || [];
+          if (groups.length === 0 && flat.length === 0) return null;
+
+          return (
+            <div className="bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 rounded-xl p-4 space-y-4">
+              <h4 className="font-semibold text-foreground flex items-center gap-2">
+                <FileText className="w-5 h-5 text-primary" />
+                Important Next Steps
+              </h4>
+
+              {groups.length > 0 ? (
+                <div className="space-y-4">
+                  {groups.map((g) => (
+                    <div key={g.key}>
+                      <h5 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
+                        <g.icon className="w-4 h-4 text-primary" />
+                        {g.label}
+                      </h5>
+                      <ul className="space-y-2">
+                        {g.items.map((item, i) => (
+                          <li key={i} className="text-sm text-foreground flex items-start gap-2">
+                            <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
+                              {i + 1}
+                            </span>
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <ul className="space-y-2">
+                  {flat.map((step, index) => (
+                    <li key={index} className="text-sm text-foreground flex items-start gap-2">
+                      <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
+                        {index + 1}
+                      </span>
+                      {step}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          );
+        })()}
       </CardContent>
     </Card>
   );

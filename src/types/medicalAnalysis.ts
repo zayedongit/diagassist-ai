@@ -51,6 +51,11 @@ export interface EnhancedAnalysisResult {
   demographics?: Demographics;
   medicalPanels: MedicalPanel[];
   nextSteps: string[];
+  nextStepsStructured?: {
+    consultation?: string[];
+    investigation?: string[];
+    lifestyle?: string[];
+  };
   diet: {
     avoid: string[];
     increase: string[];

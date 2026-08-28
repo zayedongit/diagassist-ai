@@ -320,6 +320,68 @@ async function llmChatCompletion(cerebrasBody: any, retries: number, baseDelay: 
   }
 }
 
+// OCR a set of page images to text using the vision model (Cerebras -> Gemini fallback).
+// Extracted into a reusable helper so it can run per-report when several reports are uploaded.
+async function ocrImagesToText(images: string[]): Promise<string> {
+  const visionPrompt = `You are analyzing a ${images.length}-page medical laboratory report. Extract ALL text from EVERY page sequentially.
+
+CRITICAL INSTRUCTIONS:
+- Process EVERY image in order (page 1, page 2, page 3, etc.)
+- Extract EVERY test parameter name, value, unit, and reference range
+- Pay special attention to abnormal values (marked with *, H, L, or outside reference range)
+- Include patient demographics (name, age, gender, date)
+- Include all section headers and panel names
+- Do NOT skip any pages or test results
+- Prioritize test results over headers/footers
+
+Return the complete extracted text maintaining the original structure and organization.`;
+
+  const BATCH_SIZE = 1;
+  const segments: string[] = [];
+  const MAX_OCR_PAGES = 25;
+  const imagesToProcess = images.length > MAX_OCR_PAGES ? images.slice(0, MAX_OCR_PAGES) : images;
+  if (images.length > MAX_OCR_PAGES) {
+    console.log(`⚠️ Report has ${images.length} pages, processing first ${MAX_OCR_PAGES} for OCR`);
+  }
+
+  const CONCURRENCY = 6;
+  for (let start = 0; start < imagesToProcess.length; start += BATCH_SIZE * CONCURRENCY) {
+    const batchPromises: Promise<{ batchStart: number; segment: string }>[] = [];
+    for (let c = 0; c < CONCURRENCY; c++) {
+      const batchStart = start + (c * BATCH_SIZE);
+      if (batchStart >= imagesToProcess.length) break;
+      const end = Math.min(batchStart + BATCH_SIZE, imagesToProcess.length);
+      const batch = imagesToProcess.slice(batchStart, end);
+      batchPromises.push(
+        (async () => {
+          const ocrBody = {
+            model: 'gemma-4-31b',
+            messages: [
+              {
+                role: 'user',
+                content: [
+                  { type: 'text', text: `${visionPrompt}\n\nProcess ONLY pages ${batchStart + 1}-${end}. Return plain text, preserve structure.` },
+                  ...batch.map((img: string) => ({ type: 'image_url', image_url: { url: img } })),
+                ],
+              },
+            ],
+            max_completion_tokens: 2048,
+          };
+          const response = await llmChatCompletion(ocrBody, 3, 2000, `OCR batch ${batchStart + 1}-${end}`);
+          const visionData = await response.json();
+          const segment = visionData.choices?.[0]?.message?.content?.trim?.() ?? '';
+          return { batchStart, segment };
+        })()
+      );
+    }
+    const results = await Promise.all(batchPromises);
+    for (const result of results.sort((a, b) => a.batchStart - b.batchStart)) {
+      segments.push(result.segment);
+    }
+  }
+  return segments.join('\n\n---\n\n');
+}
+
 function checkIfValueWithinRange(value: number, referenceRange: string, gender?: string): boolean {
   try {
     // Normalize the reference range string
@@ -566,7 +628,8 @@ serve(async (req) => {
     // Declare variables at function scope
     let text = '';
     let filename = 'report.pdf';
-    
+    let isMultiReport = false;
+
     // Parse request body - handle both JSON and FormData
     let images: string[] = [];
     
@@ -574,110 +637,51 @@ serve(async (req) => {
     console.log('📥 Content-Type:', contentType);
     
     {  // single JSON path (legacy multipart branch removed)
-      // Handle JSON with images array or pre-extracted text
+      // Handle JSON with a `reports` array (one or more reports), or legacy single images/text.
       console.log('📄 Processing JSON request...');
       const requestBody = await req.json();
       requestUserId = requestBody.userId;
       filename = requestBody.filename || filename;
-      
+
       console.log('👤 User ID:', requestUserId);
-      
-      if (requestBody.images && Array.isArray(requestBody.images)) {
-        // Process images array
+
+      if (Array.isArray(requestBody.reports) && requestBody.reports.length > 0) {
+        // Multi-report path: OCR/collect each report, then combine with clear separators.
+        const reports = requestBody.reports.slice(0, 5); // cap at 5
+        isMultiReport = reports.length > 1;
+        console.log(`🧾 Received ${reports.length} report(s) to combine`);
+
+        const parts: string[] = [];
+        for (let i = 0; i < reports.length; i++) {
+          const r = reports[i] || {};
+          let rtext = '';
+          if (typeof r.text === 'string' && r.text.trim()) {
+            rtext = r.text;
+          } else if (Array.isArray(r.images) && r.images.length > 0) {
+            console.log(`🔍 OCR for report ${i + 1} (${r.images.length} pages)...`);
+            rtext = await ocrImagesToText(r.images);
+          }
+          const label = (r.filename && String(r.filename)) || `Report ${i + 1}`;
+          parts.push(`===== REPORT ${i + 1} — ${label} =====\n${rtext}`);
+        }
+        text = parts.join('\n\n');
+        console.log(`✅ Combined ${reports.length} report(s); total length ${text.length}`);
+
+      } else if (requestBody.images && Array.isArray(requestBody.images)) {
         images = requestBody.images;
         console.log(`📸 Received ${images.length} images via JSON`);
-        
         if (images.length === 0) {
           throw new Error('Images array is empty');
         }
-        
-        // Use vision API to extract text from images
         console.log('🔍 Extracting text from images using AI vision...');
-        const visionPrompt = `You are analyzing a ${images.length}-page medical laboratory report. Extract ALL text from EVERY page sequentially.
+        text = await ocrImagesToText(images);
+        console.log('✅ Text extracted from images via OCR, length:', text.length);
 
-CRITICAL INSTRUCTIONS:
-- Process EVERY image in order (page 1, page 2, page 3, etc.)
-- Extract EVERY test parameter name, value, unit, and reference range
-- Pay special attention to abnormal values (marked with *, H, L, or outside reference range)
-- Include patient demographics (name, age, gender, date)
-- Include all section headers and panel names
-- Do NOT skip any pages or test results
-- Prioritize test results over headers/footers
-
-Return the complete extracted text maintaining the original structure and organization.`;
-        
-        const BATCH_SIZE = 1;
-        const segments: string[] = [];
-        const MAX_OCR_PAGES = 25; // Cap for very long PDFs
-        const imagesToProcess = images.length > MAX_OCR_PAGES ? images.slice(0, MAX_OCR_PAGES) : images;
-        
-        if (images.length > MAX_OCR_PAGES) {
-          console.log(`⚠️ PDF has ${images.length} pages, processing first ${MAX_OCR_PAGES} for OCR`);
-        }
-
-        // Process batches in parallel with concurrency of 6
-        const CONCURRENCY = 6;
-        
-        for (let start = 0; start < imagesToProcess.length; start += BATCH_SIZE * CONCURRENCY) {
-          const batchPromises = [];
-          
-          for (let c = 0; c < CONCURRENCY; c++) {
-            const batchStart = start + (c * BATCH_SIZE);
-            if (batchStart >= imagesToProcess.length) break;
-            
-            const end = Math.min(batchStart + BATCH_SIZE, imagesToProcess.length);
-            const batch = imagesToProcess.slice(batchStart, end);
-            
-            console.log(`📦 Starting OCR batch ${batchStart + 1}-${end} of ${imagesToProcess.length}`);
-            
-            batchPromises.push(
-              (async () => {
-                console.log(`📡 OCR batch ${batchStart + 1}-${end} with gemma-4-31b on Cerebras...`);
-                const ocrBody = {
-                  model: 'gemma-4-31b',
-                  messages: [
-                    {
-                      role: 'user',
-                      content: [
-                        { type: 'text', text: `${visionPrompt}\n\nProcess ONLY pages ${batchStart + 1}-${end}. Return plain text, preserve structure.` },
-                        ...batch.map((img: string) => ({
-                          type: 'image_url',
-                          image_url: { url: img }
-                        }))
-                      ]
-                    }
-                  ],
-                  max_completion_tokens: 2048,
-                };
-                const response = await llmChatCompletion(ocrBody, 3, 2000, `OCR batch ${batchStart + 1}-${end}`);
-                const visionData = await response.json();
-                const segment = visionData.choices?.[0]?.message?.content?.trim?.() ?? '';
-                console.log(`✅ Batch ${batchStart + 1}-${end} extracted: ${segment.length} chars`);
-                return { batchStart, segment };
-              })()
-            );
-          }
-          
-          // Wait for current parallel batches to complete
-          const results = await Promise.all(batchPromises);
-          
-          // Sort by batch start to maintain page order
-          for (const result of results.sort((a, b) => a.batchStart - b.batchStart)) {
-            segments.push(result.segment);
-          }
-        }
-
-        text = segments.join('\n\n---\n\n');
-        console.log('✅ Text extracted from images via OCR');
-        console.log('📝 Extracted text length:', text.length);
-        console.log('📝 Text preview:', text.substring(0, 500));
-        
       } else if (requestBody.text) {
-        // Use pre-extracted text
         text = requestBody.text;
         console.log('📝 Using pre-extracted text, length:', text.length);
       } else {
-        throw new Error('No images or extracted text provided');
+        throw new Error('No reports, images, or extracted text provided');
       }
     }
     
@@ -737,9 +741,19 @@ Return the complete extracted text maintaining the original structure and organi
 
     // PASS 1: MEDICAL-GRADE Structured Analysis with Clinical Precision
     console.log('📋 PASS 1: Medical-grade comprehensive analysis...');
+    const multiReportNote = isMultiReport
+      ? `IMPORTANT — MULTIPLE REPORTS: The text below contains SEVERAL lab reports (separated by "===== REPORT N =====" headers). They may be from different visits, different dates, or different labs for the SAME person. When you analyze:
+- Build ONE combined picture of the person's health using all reports together.
+- If the SAME test appears in more than one report, do NOT list it twice — use the most recent value, and if the dates differ, briefly note the trend in plain words (for example, "your sugar has come down since the earlier report").
+- If patient names or demographics clearly differ between reports, still analyze them but note that the reports may belong to different people.
+- Treat all reports as context; the goal is a single, unified analysis.
+
+`
+      : '';
+
     const pass1Prompt = `You are a board-certified clinical pathologist with 20+ years of experience analyzing laboratory reports. Perform MEDICAL-GRADE analysis with ABSOLUTE ACCURACY.
 
-Medical Report Text:
+${multiReportNote}Medical Report Text:
 ${text}
 
 === CRITICAL MEDICAL ACCURACY REQUIREMENTS ===
@@ -1063,6 +1077,11 @@ ONLY use "Anonymous Patient" if absolutely no name found after thorough search.
   "nextSteps": [
     "string - Specific, actionable next steps written in plain, simple layman language a non-medical person can act on. Explain any medical term in everyday words. No emojis. Example: 'See a heart doctor or your regular doctor about your high bad cholesterol — they may suggest medicine to bring it down.'"
   ],
+  "nextStepsStructured": {
+    "consultation": ["string - ONLY if truly needed: which doctor/specialist the person should see and why, in plain words. Include ONLY mandatory, essential consultations. Leave this array EMPTY if none is genuinely required. Do not pad."],
+    "investigation": ["string - ONLY if truly needed: further tests or repeat tests the person should get, in plain words. Include ONLY mandatory, essential investigations. Leave EMPTY if none is genuinely required. Do not pad."],
+    "lifestyle": ["string - ONLY the most important dietary and lifestyle changes that matter for THIS person's results, in plain everyday words. Keep it minimal (at most a few) so the patient is not confused. Leave EMPTY only if the report is completely normal."]
+  },
   "diet": {
     "avoid": ["string - Specific foods to avoid with clinical reasoning"],
     "increase": ["string - Specific foods to increase with clinical benefits"],
