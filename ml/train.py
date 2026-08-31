@@ -19,13 +19,15 @@ Outputs: src/ml/<task>.json, src/ml/<task>_class.json, ml/report/charts/*.png
 import json, sys, os
 import numpy as np
 from datetime import datetime, timezone
-from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV, cross_val_predict
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV, cross_val_predict, learning_curve
 from sklearn.linear_model import Ridge, Lasso, LinearRegression, LogisticRegression
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.metrics import (r2_score, mean_squared_error, mean_absolute_error, roc_auc_score,
     roc_curve, confusion_matrix, precision_score, recall_score, f1_score, accuracy_score,
     brier_score_loss)
 from sklearn.calibration import calibration_curve
+from sklearn.inspection import permutation_importance
+from sklearn.metrics import precision_recall_curve, average_precision_score
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
 
 RNG = 42
@@ -47,11 +49,27 @@ def load_diabetes_progression():
                          "target_name":"diabetes disease progression, 1 year after baseline","task":"diabetes_progression"}
 
 
-MODELS = {"diabetes": load_diabetes_progression}
+def load_breast_cancer_diag():
+    from sklearn.datasets import load_breast_cancer
+    d = load_breast_cancer(as_frame=True)
+    X = d.data.to_numpy(float)
+    y = (d.target.to_numpy(int) == 0).astype(int)  # sklearn: 0=malignant -> positive class = malignant
+    feats = [(c, c.replace("mean ", "").replace("worst ", "worst-").title(), "", c) for c in d.data.columns]
+    return X, y, feats, {"dataset": "scikit-learn breast cancer Wisconsin (569 samples, 30 features; UCI/Street et al. 1993)",
+                         "target_name": "malignant tumour (from fine-needle-aspirate cell measurements)",
+                         "task": "breast_cancer_malignant"}
+
+
+# registry: (loader, kind). Adding a disease = one entry.
+MODELS = {"diabetes": (load_diabetes_progression, "regression"),
+          "breast_cancer": (load_breast_cancer_diag, "classification")}
 
 
 def train_one(key):
-    X, y, feats, meta = MODELS[key](); task = meta["task"]
+    loader, kind = MODELS[key]
+    if kind == "classification":
+        return train_classification(key, loader)
+    X, y, feats, meta = loader(); task = meta["task"]
     Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=0.25, random_state=RNG)
     mean = Xtr.mean(0); std = Xtr.std(0); std[std == 0] = 1
     Ztr, Zte, Zall = (Xtr-mean)/std, (Xte-mean)/std, (X-mean)/std
@@ -153,8 +171,106 @@ def train_one(key):
     plt.plot(mean_cal,frac_cal,"o-",color="#27ae60",label=f"calibrated (Brier {brier_after:.2f})")
     plt.xlabel("Predicted probability"); plt.ylabel("Observed frequency"); plt.title(f"{key}: reliability curve")
     plt.legend(loc="upper left"); plt.tight_layout(); plt.savefig(os.path.join(CHART_OUT,f"{task}_class_calibration.png"),dpi=120); plt.close()
-    print(f"        wrote src/ml/{task}.json + {task}_class.json + 5 charts")
+    # ---- diagnostic charts (study material) ----
+    # 1) learning curve: does more data help? train vs CV R^2
+    ts, tr_sc, cv_sc = learning_curve(Ridge(alpha=best_alpha), Zall, y, cv=5, scoring="r2",
+                                      train_sizes=np.linspace(0.25, 1.0, 6), random_state=RNG)
+    plt.figure(figsize=(4.8, 3.8))
+    plt.plot(ts, tr_sc.mean(1), "o-", color="#c0392b", label="training R²")
+    plt.plot(ts, cv_sc.mean(1), "o-", color="#27ae60", label="cross-val R²")
+    plt.fill_between(ts, cv_sc.mean(1)-cv_sc.std(1), cv_sc.mean(1)+cv_sc.std(1), color="#27ae60", alpha=0.15)
+    plt.xlabel("training examples"); plt.ylabel("R²"); plt.title(f"{key}: learning curve"); plt.legend(loc="best")
+    plt.tight_layout(); plt.savefig(os.path.join(CHART_OUT, f"{task}_learning_curve.png"), dpi=120); plt.close()
+
+    # 2) permutation importance: model-agnostic, more robust than raw coefficients
+    pi = permutation_importance(reg, Zte, yte, n_repeats=30, random_state=RNG, scoring="r2")
+    order = np.argsort(pi.importances_mean)
+    labels = [feats[i][1] for i in order]
+    plt.figure(figsize=(5.2, 3.6))
+    plt.barh(labels, pi.importances_mean[order], xerr=pi.importances_std[order], color="#2c7fb8")
+    plt.xlabel("drop in R² when feature is shuffled"); plt.title(f"{key}: permutation importance")
+    plt.tight_layout(); plt.savefig(os.path.join(CHART_OUT, f"{task}_permutation_importance.png"), dpi=120); plt.close()
+
+    # 3) residual plot: are errors patternless (good) or structured (bad)?
+    resid = yte - pte
+    plt.figure(figsize=(4.8, 3.8)); plt.scatter(pte, resid, s=18, alpha=0.6, edgecolor="none")
+    plt.axhline(0, color="k", lw=1); plt.xlabel("predicted"); plt.ylabel("residual (actual − predicted)")
+    plt.title(f"{key}: residuals"); plt.tight_layout()
+    plt.savefig(os.path.join(CHART_OUT, f"{task}_residuals.png"), dpi=120); plt.close()
+
+    # 4) precision-recall curve for the classifier (complements ROC on imbalanced framing)
+    prec, rec, _ = precision_recall_curve(cyte, proba_cal); ap = average_precision_score(cyte, proba_cal)
+    plt.figure(figsize=(4.4, 4.4)); plt.plot(rec, prec, color="#d35400", lw=2, label=f"AP={ap:.2f}")
+    plt.xlabel("recall"); plt.ylabel("precision"); plt.title(f"{key}: precision-recall"); plt.legend(loc="lower left")
+    plt.tight_layout(); plt.savefig(os.path.join(CHART_OUT, f"{task}_class_pr.png"), dpi=120); plt.close()
+
+    print(f"        wrote src/ml/{task}.json + {task}_class.json + 9 charts")
     return reg_json, clf_json
+
+
+def train_classification(key, loader):
+    """Classification-native dataset (no regression target): tune C, calibrate,
+    full metrics + ROC/confusion/calibration/PR/permutation-importance/learning charts."""
+    X, y, feats, meta = loader(); task = meta["task"]
+    Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=0.25, random_state=RNG, stratify=y)
+    mean = Xtr.mean(0); std = Xtr.std(0); std[std == 0] = 1
+    Ztr, Zte, Zall = (Xtr-mean)/std, (Xte-mean)/std, (X-mean)/std
+    grid = GridSearchCV(LogisticRegression(max_iter=5000), {"C": [0.03,0.1,0.3,1,3,10]}, cv=5, scoring="roc_auc")
+    grid.fit(Ztr, ytr); best_C = grid.best_params_["C"]
+    base = LogisticRegression(C=best_C, max_iter=5000).fit(Ztr, ytr)
+    f_te = base.decision_function(Zte); proba_raw = sig(f_te)
+    f_oof = cross_val_predict(LogisticRegression(C=best_C, max_iter=5000), Ztr, ytr, cv=5, method="decision_function")
+    platt = LogisticRegression().fit(f_oof.reshape(-1,1), ytr); A=float(platt.coef_[0][0]); B=float(platt.intercept_[0])
+    proba = sig(A*f_te + B); pred = (proba >= 0.5).astype(int)
+    auc = roc_auc_score(yte, proba); cvauc = cross_val_score(LogisticRegression(C=best_C, max_iter=5000), Zall, y, cv=5, scoring="roc_auc")
+    brier_before = brier_score_loss(yte, proba_raw); brier_after = brier_score_loss(yte, proba)
+    cm = confusion_matrix(yte, pred)
+    cmetrics = {"auc":round(auc,4),"accuracy":round(accuracy_score(yte,pred),4),"precision":round(precision_score(yte,pred),4),
+                "recall":round(recall_score(yte,pred),4),"f1":round(f1_score(yte,pred),4),
+                "cv_auc_mean":round(cvauc.mean(),4),"cv_auc_std":round(cvauc.std(),4),
+                "brier_before_cal":round(brier_before,4),"brier_after_cal":round(brier_after,4)}
+    print(f"[{key}] CLASSIFY-native  best_C={best_C}  AUC={auc:.3f} CV-AUC={cvauc.mean():.3f}±{cvauc.std():.3f}  acc={cmetrics['accuracy']:.3f}  Brier {brier_before:.3f}->{brier_after:.3f}")
+    cfinal = LogisticRegression(C=best_C, max_iter=5000).fit(Zall, y)
+    imp = sorted([{"feature":feats[i][3],"label":feats[i][1],"std_coef":float(cfinal.coef_[0][i])} for i in range(len(feats))],
+                 key=lambda d: abs(d["std_coef"]), reverse=True)
+    clf_json = {"task":task,"model":f"logistic_regression(C={best_C}) + Platt calibration","dataset":meta["dataset"],
+        "positive_class":meta["target_name"],"features":[{"key":f[3],"label":f[1],"unit":f[2]} for f in feats],
+        "standardize":{"mean":mean.round(6).tolist(),"std":std.round(6).tolist()},
+        "coef":cfinal.coef_[0].round(6).tolist(),"intercept":float(round(cfinal.intercept_[0],6)),
+        "calibration":{"A":round(A,6),"B":round(B,6),"method":"platt_sigmoid"},
+        "impute_with":mean.round(6).tolist(),"feature_importance":imp[:12],"selection":{"best_C":best_C},"metrics":cmetrics,
+        "n_train":int(len(ytr)),"n_test":int(len(yte)),"trained_at":datetime.now(timezone.utc).isoformat()}
+    os.makedirs(MODEL_OUT, exist_ok=True); json.dump(clf_json, open(os.path.join(MODEL_OUT,f"{task}.json"),"w"), indent=2)
+    os.makedirs(CHART_OUT, exist_ok=True)
+    fpr,tpr,_ = roc_curve(yte, proba)
+    plt.figure(figsize=(4.4,4.4)); plt.plot(fpr,tpr,color="#8e44ad",lw=2,label=f"AUC={auc:.2f}"); plt.plot([0,1],[0,1],"k--",lw=1)
+    plt.xlabel("False positive rate"); plt.ylabel("True positive rate"); plt.title(f"{key}: ROC"); plt.legend(loc="lower right")
+    plt.tight_layout(); plt.savefig(os.path.join(CHART_OUT,f"{task}_roc.png"),dpi=120); plt.close()
+    plt.figure(figsize=(3.8,3.6)); plt.imshow(cm,cmap="Purples")
+    for i in range(2):
+        for j in range(2): plt.text(j,i,cm[i,j],ha="center",va="center",fontsize=14,color="white" if cm[i,j]>cm.max()/2 else "black")
+    plt.xticks([0,1],["Pred benign","Pred malignant"]); plt.yticks([0,1],["Actual benign","Actual malignant"])
+    plt.title(f"{key}: confusion matrix"); plt.tight_layout(); plt.savefig(os.path.join(CHART_OUT,f"{task}_confusion.png"),dpi=120); plt.close()
+    frac,meanp = calibration_curve(yte, proba, n_bins=6)
+    plt.figure(figsize=(4.4,4.4)); plt.plot([0,1],[0,1],"k--",lw=1,label="perfect"); plt.plot(meanp,frac,"o-",color="#27ae60",label=f"calibrated (Brier {brier_after:.2f})")
+    plt.xlabel("Predicted probability"); plt.ylabel("Observed frequency"); plt.title(f"{key}: reliability"); plt.legend(loc="upper left")
+    plt.tight_layout(); plt.savefig(os.path.join(CHART_OUT,f"{task}_calibration.png"),dpi=120); plt.close()
+    prec,rec,_ = precision_recall_curve(yte, proba); ap = average_precision_score(yte, proba)
+    plt.figure(figsize=(4.4,4.4)); plt.plot(rec,prec,color="#d35400",lw=2,label=f"AP={ap:.2f}")
+    plt.xlabel("recall"); plt.ylabel("precision"); plt.title(f"{key}: precision-recall"); plt.legend(loc="lower left")
+    plt.tight_layout(); plt.savefig(os.path.join(CHART_OUT,f"{task}_pr.png"),dpi=120); plt.close()
+    pi = permutation_importance(base, Zte, yte, n_repeats=20, random_state=RNG, scoring="roc_auc")
+    top = np.argsort(pi.importances_mean)[-12:]
+    plt.figure(figsize=(6.0,4.2)); plt.barh([feats[i][1] for i in top], pi.importances_mean[top], xerr=pi.importances_std[top], color="#2c7fb8")
+    plt.xlabel("drop in AUC when shuffled"); plt.title(f"{key}: permutation importance (top 12)"); plt.tight_layout()
+    plt.savefig(os.path.join(CHART_OUT,f"{task}_permutation_importance.png"),dpi=120); plt.close()
+    ts,tr_sc,cv_sc = learning_curve(LogisticRegression(C=best_C,max_iter=5000), Zall, y, cv=5, scoring="roc_auc",
+                                    train_sizes=np.linspace(0.25,1.0,6), random_state=RNG)
+    plt.figure(figsize=(4.8,3.8)); plt.plot(ts,tr_sc.mean(1),"o-",color="#c0392b",label="training AUC"); plt.plot(ts,cv_sc.mean(1),"o-",color="#27ae60",label="cross-val AUC")
+    plt.xlabel("training examples"); plt.ylabel("AUC"); plt.title(f"{key}: learning curve"); plt.legend(loc="best"); plt.tight_layout()
+    plt.savefig(os.path.join(CHART_OUT,f"{task}_learning_curve.png"),dpi=120); plt.close()
+    print(f"        wrote src/ml/{task}.json + 6 charts")
+    return clf_json, None
 
 
 if __name__ == "__main__":

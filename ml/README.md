@@ -2,9 +2,11 @@
 
 A classical machine-learning layer that sits **alongside** the LLM report. The
 LLM explains a report in plain language; these models add a **quantitative,
-explainable risk estimate** trained on a real patient dataset. Today: diabetes disease-progression, as BOTH a **regression** (how fast) and a
-**classification** (faster-than-typical or not). The trainer is a registry, so
-adding a disease is one entry.
+explainable risk estimate** trained on a real patient dataset. Today: **diabetes** disease-progression (BOTH a **regression** — how fast — and a
+**classification** — faster-than-typical or not) and a second disease, **breast
+cancer** (classification, a standalone demo). The trainer is a registry keyed by
+`(loader, kind)`, so adding a disease is one entry — regression-native or
+classification-native.
 
 ## What's here
 

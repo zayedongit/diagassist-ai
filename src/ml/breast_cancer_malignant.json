@@ -1,0 +1,373 @@
+{
+  "task": "breast_cancer_malignant",
+  "model": "logistic_regression(C=1) + Platt calibration",
+  "dataset": "scikit-learn breast cancer Wisconsin (569 samples, 30 features; UCI/Street et al. 1993)",
+  "positive_class": "malignant tumour (from fine-needle-aspirate cell measurements)",
+  "features": [
+    {
+      "key": "mean radius",
+      "label": "Radius",
+      "unit": ""
+    },
+    {
+      "key": "mean texture",
+      "label": "Texture",
+      "unit": ""
+    },
+    {
+      "key": "mean perimeter",
+      "label": "Perimeter",
+      "unit": ""
+    },
+    {
+      "key": "mean area",
+      "label": "Area",
+      "unit": ""
+    },
+    {
+      "key": "mean smoothness",
+      "label": "Smoothness",
+      "unit": ""
+    },
+    {
+      "key": "mean compactness",
+      "label": "Compactness",
+      "unit": ""
+    },
+    {
+      "key": "mean concavity",
+      "label": "Concavity",
+      "unit": ""
+    },
+    {
+      "key": "mean concave points",
+      "label": "Concave Points",
+      "unit": ""
+    },
+    {
+      "key": "mean symmetry",
+      "label": "Symmetry",
+      "unit": ""
+    },
+    {
+      "key": "mean fractal dimension",
+      "label": "Fractal Dimension",
+      "unit": ""
+    },
+    {
+      "key": "radius error",
+      "label": "Radius Error",
+      "unit": ""
+    },
+    {
+      "key": "texture error",
+      "label": "Texture Error",
+      "unit": ""
+    },
+    {
+      "key": "perimeter error",
+      "label": "Perimeter Error",
+      "unit": ""
+    },
+    {
+      "key": "area error",
+      "label": "Area Error",
+      "unit": ""
+    },
+    {
+      "key": "smoothness error",
+      "label": "Smoothness Error",
+      "unit": ""
+    },
+    {
+      "key": "compactness error",
+      "label": "Compactness Error",
+      "unit": ""
+    },
+    {
+      "key": "concavity error",
+      "label": "Concavity Error",
+      "unit": ""
+    },
+    {
+      "key": "concave points error",
+      "label": "Concave Points Error",
+      "unit": ""
+    },
+    {
+      "key": "symmetry error",
+      "label": "Symmetry Error",
+      "unit": ""
+    },
+    {
+      "key": "fractal dimension error",
+      "label": "Fractal Dimension Error",
+      "unit": ""
+    },
+    {
+      "key": "worst radius",
+      "label": "Worst-Radius",
+      "unit": ""
+    },
+    {
+      "key": "worst texture",
+      "label": "Worst-Texture",
+      "unit": ""
+    },
+    {
+      "key": "worst perimeter",
+      "label": "Worst-Perimeter",
+      "unit": ""
+    },
+    {
+      "key": "worst area",
+      "label": "Worst-Area",
+      "unit": ""
+    },
+    {
+      "key": "worst smoothness",
+      "label": "Worst-Smoothness",
+      "unit": ""
+    },
+    {
+      "key": "worst compactness",
+      "label": "Worst-Compactness",
+      "unit": ""
+    },
+    {
+      "key": "worst concavity",
+      "label": "Worst-Concavity",
+      "unit": ""
+    },
+    {
+      "key": "worst concave points",
+      "label": "Worst-Concave Points",
+      "unit": ""
+    },
+    {
+      "key": "worst symmetry",
+      "label": "Worst-Symmetry",
+      "unit": ""
+    },
+    {
+      "key": "worst fractal dimension",
+      "label": "Worst-Fractal Dimension",
+      "unit": ""
+    }
+  ],
+  "standardize": {
+    "mean": [
+      14.167697,
+      19.399671,
+      92.192864,
+      660.076056,
+      0.095997,
+      0.102962,
+      0.088765,
+      0.048934,
+      0.181377,
+      0.062628,
+      0.41163,
+      1.206742,
+      2.901583,
+      41.424002,
+      0.006906,
+      0.02503,
+      0.031991,
+      0.011621,
+      0.020309,
+      0.003747,
+      16.366113,
+      25.844437,
+      107.900493,
+      892.952817,
+      0.13224,
+      0.252615,
+      0.273823,
+      0.115279,
+      0.290763,
+      0.083864
+    ],
+    "std": [
+      3.577202,
+      4.279843,
+      24.637731,
+      361.004663,
+      0.014356,
+      0.052835,
+      0.080958,
+      0.039286,
+      0.027455,
+      0.007048,
+      0.294628,
+      0.545134,
+      2.131093,
+      49.283849,
+      0.002859,
+      0.017526,
+      0.032216,
+      0.006183,
+      0.008328,
+      0.002634,
+      4.923743,
+      6.045676,
+      34.274068,
+      587.01066,
+      0.02348,
+      0.154275,
+      0.207943,
+      0.065989,
+      0.063212,
+      0.017852
+    ]
+  },
+  "coef": [
+    0.397497,
+    0.368108,
+    0.382018,
+    0.454748,
+    0.181847,
+    -0.558279,
+    0.854546,
+    0.972981,
+    -0.0658,
+    -0.332985,
+    1.328708,
+    -0.266359,
+    0.729715,
+    0.99232,
+    0.277228,
+    -0.740085,
+    -0.10218,
+    0.328617,
+    -0.281392,
+    -0.679622,
+    1.048065,
+    1.309559,
+    0.837662,
+    1.000096,
+    0.658011,
+    -0.047759,
+    0.878709,
+    0.916317,
+    0.88932,
+    0.496233
+  ],
+  "intercept": -0.004588,
+  "calibration": {
+    "A": 1.298726,
+    "B": 0.263348,
+    "method": "platt_sigmoid"
+  },
+  "impute_with": [
+    14.167697,
+    19.399671,
+    92.192864,
+    660.076056,
+    0.095997,
+    0.102962,
+    0.088765,
+    0.048934,
+    0.181377,
+    0.062628,
+    0.41163,
+    1.206742,
+    2.901583,
+    41.424002,
+    0.006906,
+    0.02503,
+    0.031991,
+    0.011621,
+    0.020309,
+    0.003747,
+    16.366113,
+    25.844437,
+    107.900493,
+    892.952817,
+    0.13224,
+    0.252615,
+    0.273823,
+    0.115279,
+    0.290763,
+    0.083864
+  ],
+  "feature_importance": [
+    {
+      "feature": "radius error",
+      "label": "Radius Error",
+      "std_coef": 1.3287077020682632
+    },
+    {
+      "feature": "worst texture",
+      "label": "Worst-Texture",
+      "std_coef": 1.3095592178610327
+    },
+    {
+      "feature": "worst radius",
+      "label": "Worst-Radius",
+      "std_coef": 1.0480652229274643
+    },
+    {
+      "feature": "worst area",
+      "label": "Worst-Area",
+      "std_coef": 1.0000955939449232
+    },
+    {
+      "feature": "area error",
+      "label": "Area Error",
+      "std_coef": 0.9923202515402905
+    },
+    {
+      "feature": "mean concave points",
+      "label": "Concave Points",
+      "std_coef": 0.972980877068422
+    },
+    {
+      "feature": "worst concave points",
+      "label": "Worst-Concave Points",
+      "std_coef": 0.9163173642150824
+    },
+    {
+      "feature": "worst symmetry",
+      "label": "Worst-Symmetry",
+      "std_coef": 0.8893204920305173
+    },
+    {
+      "feature": "worst concavity",
+      "label": "Worst-Concavity",
+      "std_coef": 0.8787085695206889
+    },
+    {
+      "feature": "mean concavity",
+      "label": "Concavity",
+      "std_coef": 0.8545455216530793
+    },
+    {
+      "feature": "worst perimeter",
+      "label": "Worst-Perimeter",
+      "std_coef": 0.8376622092109389
+    },
+    {
+      "feature": "compactness error",
+      "label": "Compactness Error",
+      "std_coef": -0.7400848112781834
+    }
+  ],
+  "selection": {
+    "best_C": 1
+  },
+  "metrics": {
+    "auc": 0.9962,
+    "accuracy": 0.972,
+    "precision": 0.9804,
+    "recall": 0.9434,
+    "f1": 0.9615,
+    "cv_auc_mean": 0.9954,
+    "cv_auc_std": 0.004,
+    "brier_before_cal": 0.0224,
+    "brier_after_cal": 0.0212
+  },
+  "n_train": 426,
+  "n_test": 143,
+  "trained_at": "2026-08-31T19:09:58.342498+00:00"
+}
