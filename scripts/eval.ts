@@ -41,6 +41,7 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const CEREBRAS_API_KEY = process.env.CEREBRAS_API_KEY;
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
 
 const argLimit = (() => {
   const i = process.argv.indexOf('--limit');
@@ -59,7 +60,7 @@ const supabase = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSessio
 const num = (v: string | undefined, d: number) => (v && !isNaN(+v) ? +v : d);
 const PRICES: Record<string, { in: number; out: number }> = {
   'gemma-4-31b':      { in: num(process.env.PRICE_CEREBRAS_IN, 0.10), out: num(process.env.PRICE_CEREBRAS_OUT, 0.10) },
-  'gemini-2.0-flash': { in: num(process.env.PRICE_GEMINI_IN, 0.10),  out: num(process.env.PRICE_GEMINI_OUT, 0.40) },
+  [GEMINI_MODEL]: { in: num(process.env.PRICE_GEMINI_IN, 0.10), out: num(process.env.PRICE_GEMINI_OUT, 0.40) },
 };
 const costUSD = (model: string, pt: number, ct: number) => {
   const p = PRICES[model] || { in: 0, out: 0 };
@@ -148,7 +149,7 @@ async function callLLM(messages: any[], maxTokens: number): Promise<LLMOut> {
       console.warn('  Cerebras error, falling back to Gemini:', (e as Error).message);
     }
   }
-  const gBody = { model: 'gemini-2.0-flash', messages, max_tokens: maxTokens, temperature: 0.2 };
+  const gBody = { model: GEMINI_MODEL, messages, max_tokens: maxTokens, temperature: 0.2 };
   const gr = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
     method: 'POST',
     headers: { Authorization: `Bearer ${GEMINI_API_KEY}`, 'Content-Type': 'application/json' },
@@ -158,7 +159,7 @@ async function callLLM(messages: any[], maxTokens: number): Promise<LLMOut> {
   const d = await gr.json();
   return {
     text: d.choices?.[0]?.message?.content ?? '',
-    model: 'gemini-2.0-flash',
+    model: GEMINI_MODEL,
     promptTokens: d.usage?.prompt_tokens ?? 0,
     completionTokens: d.usage?.completion_tokens ?? 0,
   };
@@ -212,7 +213,7 @@ async function judge(explanationJSON: any, block?: string): Promise<{ claims: nu
     method: 'POST',
     headers: { Authorization: `Bearer ${GEMINI_API_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: 'gemini-2.0-flash', temperature: 0, max_tokens: 200,
+      model: GEMINI_MODEL, temperature: 0, max_tokens: 200,
       messages: [{ role: 'system', content: sys }, { role: 'user', content: `EXPLANATION:\n${findings}${refs}` }],
     }),
   });

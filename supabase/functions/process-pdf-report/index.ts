@@ -134,7 +134,7 @@ async function llmChatCompletion(cerebrasBody: any, retries: number, baseDelay: 
     const geminiKey = Deno.env.get('GEMINI_API_KEY');
     if (!geminiKey) throw cerebrasErr;
     console.warn(`⚠️ ${context}: Cerebras exhausted, falling back to Gemini`);
-    const gBody: any = { ...cerebrasBody, model: 'gemini-2.0-flash' };
+    const gBody: any = { ...cerebrasBody, model: (Deno.env.get('GEMINI_MODEL') || 'gemini-3.6-flash') };
     if ('max_completion_tokens' in gBody) { gBody.max_tokens = gBody.max_completion_tokens; delete gBody.max_completion_tokens; }
     const gr = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
       method: 'POST',

@@ -36,7 +36,7 @@ async function chatComplete(messages: any[], wantJson: boolean): Promise<string>
     const geminiKey = Deno.env.get('GEMINI_API_KEY');
     if (!geminiKey) throw cerebrasErr;
     console.warn('voiceflow-chat: Cerebras failed, falling back to Gemini —', (cerebrasErr as Error).message);
-    const gBody: any = { ...baseBody, model: 'gemini-2.0-flash', max_tokens: baseBody.max_completion_tokens };
+    const gBody: any = { ...baseBody, model: (Deno.env.get('GEMINI_MODEL') || 'gemini-3.6-flash'), max_tokens: baseBody.max_completion_tokens };
     delete gBody.max_completion_tokens;
     if (wantJson) gBody.response_format = { type: 'json_object' };
     const resp = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {

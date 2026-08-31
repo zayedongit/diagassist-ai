@@ -43,7 +43,7 @@ async function chatComplete(systemPrompt: string, userPrompt: string, maxTokens:
       method: 'POST',
       headers: { 'Authorization': `Bearer ${geminiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'gemini-2.0-flash',
+        model: (Deno.env.get('GEMINI_MODEL') || 'gemini-3.6-flash'),
         messages,
         max_tokens: maxTokens,
         response_format: { type: 'json_object' },
