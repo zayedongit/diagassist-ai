@@ -2,7 +2,7 @@
  * DiagAssist RAG — corpus ingestion + retrieval precompute.
  *
  * Reads corpus/analytes.jsonl, embeds each chunk with Google
- * text-embedding-004 (reusing GEMINI_API_KEY), upserts them into `kb_chunks`,
+ * gemini-embedding-001 at 768 dims (reusing GEMINI_API_KEY), upserts them into `kb_chunks`,
  * then PRECOMPUTES the top-k retrieval for every known (analyte, direction)
  * key into `retrieval_cache` — so the online path is a lookup, not a live
  * vector search.
@@ -33,8 +33,12 @@ if (!SUPABASE_URL || !SERVICE_KEY || !GEMINI_API_KEY) {
 
 const supabase = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } });
 
+// Current Google embedding model. Override with EMBED_MODEL if your key exposes a
+// different one (e.g. text-embedding-004). Must produce EMBED_DIM dimensions.
+const EMBED_MODEL = process.env.EMBED_MODEL || 'gemini-embedding-001';
+const EMBED_DIM = 768; // must match the vector(768) column in the kb_rag migration
 const EMBED_URL =
-  'https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key=' + GEMINI_API_KEY;
+  `https://generativelanguage.googleapis.com/v1beta/models/${EMBED_MODEL}:embedContent?key=${GEMINI_API_KEY}`;
 
 type Chunk = {
   content: string;
@@ -72,16 +76,22 @@ const ANALYTES: { analyte: string; directions: string[] }[] = [
 
 const TOP_K = 3; // compact context: ~2 threshold/implication chunks + 1 plain-language
 
-async function embed(text: string): Promise<number[]> {
+async function embed(
+  text: string,
+  taskType: 'RETRIEVAL_DOCUMENT' | 'RETRIEVAL_QUERY' = 'RETRIEVAL_DOCUMENT'
+): Promise<number[]> {
   const res = await fetch(EMBED_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model: 'models/text-embedding-004', content: { parts: [{ text }] } }),
+    body: JSON.stringify({ content: { parts: [{ text }] }, taskType, outputDimensionality: EMBED_DIM }),
   });
   if (!res.ok) throw new Error(`Embedding failed ${res.status}: ${await res.text()}`);
   const data = await res.json();
   const values = data?.embedding?.values;
   if (!Array.isArray(values)) throw new Error('Embedding response missing values');
+  if (values.length !== EMBED_DIM) {
+    throw new Error(`Expected ${EMBED_DIM} dims but got ${values.length}. Set EMBED_DIM / the vector() column to match.`);
+  }
   return values;
 }
 
@@ -141,7 +151,7 @@ async function main() {
   for (const { analyte, directions } of ANALYTES) {
     for (const dir of directions) {
       const q = `${analyte} ${dir}: what it means, health implications, and Indian dietary and lifestyle advice`;
-      const qEmb = await embed(q);
+      const qEmb = await embed(q, 'RETRIEVAL_QUERY');
 
       // candidate chunks: those tagged for this analyte (+ general lifestyle chunks)
       const scored = chunks

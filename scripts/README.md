@@ -33,7 +33,7 @@ npx tsx scripts/ingest.ts --sanity
 
 What it does:
 1. Reads `corpus/analytes.jsonl`.
-2. Embeds each chunk with Google `text-embedding-004` (768-dim) using your Gemini key.
+2. Embeds each chunk with Google `gemini-embedding-001` (768-dim) using your Gemini key.
 3. Rebuilds `kb_chunks` (full idempotent refresh).
 4. Precomputes `retrieval_cache` — the top chunks for every known
    `(analyte, direction)` key — so the live analysis path is a lookup, not a
