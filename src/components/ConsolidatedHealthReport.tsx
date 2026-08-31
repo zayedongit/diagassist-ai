@@ -13,7 +13,9 @@ import {
   Users,
   ChevronDown,
   ChevronUp,
-  AlertCircle
+  AlertCircle,
+  BookOpen,
+  ExternalLink
 } from "lucide-react";
 import { EnhancedAnalysisResult, extractAbnormalPanels, MedicalPanel } from "@/types/medicalAnalysis";
 import { useState } from "react";
@@ -565,6 +567,59 @@ export const ConsolidatedHealthReport = ({
                   ))}
                 </ul>
               )}
+            </div>
+          );
+        })()}
+
+        {/* Grounding sources — the references these explanations are based on (RAG) */}
+        {(() => {
+          const sources = (analysisData as any).sources as any[] | undefined;
+          const cited = (analysisData as any).citedSourceIds as string[] | undefined;
+          if (!sources || !Array.isArray(cited) || cited.length === 0) return null;
+          const used = sources.filter((s) => cited.includes(s.id));
+          if (used.length === 0) return null;
+          // de-duplicate by source name + url
+          const seen = new Set<string>();
+          const uniq = used.filter((s) => {
+            const k = `${s.source}|${s.url || ''}`;
+            if (seen.has(k)) return false;
+            seen.add(k);
+            return true;
+          });
+          return (
+            <div className="bg-card border border-white/10 rounded-xl p-4">
+              <h4 className="font-semibold text-foreground mb-1 flex items-center gap-2 text-sm">
+                <BookOpen className="w-4 h-4 text-primary" />
+                Grounded in trusted sources
+              </h4>
+              <p className="text-xs text-muted-foreground mb-3">
+                These explanations are based on Indian and global medical references.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {uniq.map((s, i) =>
+                  s.url ? (
+                    <a
+                      key={i}
+                      href={s.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-white/60 px-3 py-1.5 text-xs text-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
+                    >
+                      {s.source}
+                      {s.tier === 1 && <span className="text-[10px] opacity-70">· India</span>}
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  ) : (
+                    <span
+                      key={i}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-white/60 px-3 py-1.5 text-xs text-foreground"
+                    >
+                      {s.source}
+                      {s.tier === 1 && <span className="text-[10px] opacity-70">· India</span>}
+                    </span>
+                  )
+                )}
+              </div>
             </div>
           );
         })()}

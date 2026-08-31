@@ -56,6 +56,10 @@ export interface EnhancedAnalysisResult {
     investigation?: string[];
     lifestyle?: string[];
   };
+  // RAG grounding: reference sources used to ground the explanations
+  sources?: { id: string; source: string; tier?: number; title?: string; url?: string }[];
+  citedSourceIds?: string[];
+  grounded?: boolean;
   diet: {
     avoid: string[];
     increase: string[];

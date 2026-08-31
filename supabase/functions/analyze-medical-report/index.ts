@@ -382,6 +382,66 @@ Return the complete extracted text maintaining the original structure and organi
   return segments.join('\n\n---\n\n');
 }
 
+// ============================ RAG GROUNDING ============================
+// Detect which analytes appear in the report, pull their precomputed India-first
+// reference passages from retrieval_cache, and return a compact grounding block.
+const ANALYTE_MATCHERS: { key: string; re: RegExp }[] = [
+  { key: 'hba1c', re: /hba1c|glycated|glycosylated|\ba1c\b/i },
+  { key: 'glucose', re: /glucose|fasting sugar|\bfbs\b|\bfpg\b|blood sugar/i },
+  { key: 'ldl', re: /\bldl\b/i },
+  { key: 'hdl', re: /\bhdl\b/i },
+  { key: 'triglycerides', re: /triglyceride/i },
+  { key: 'total cholesterol', re: /total cholesterol/i },
+  { key: 'hemoglobin', re: /h(a)?emoglobin|\bhb\b/i },
+  { key: 'ferritin', re: /ferritin/i },
+  { key: 'vitamin d', re: /vitamin\s*d|25[-\s]?oh|25[-\s]?hydroxy/i },
+  { key: 'vitamin b12', re: /\bb12\b|cobalamin/i },
+  { key: 'tsh', re: /\btsh\b|thyroid[-\s]?stimulating/i },
+  { key: 'creatinine', re: /creatinine/i },
+  { key: 'egfr', re: /egfr|\bgfr\b/i },
+  { key: 'uric acid', re: /uric acid/i },
+  { key: 'alt', re: /\balt\b|\bsgpt\b/i },
+  { key: 'ast', re: /\bast\b|\bsgot\b/i },
+  { key: 'bilirubin', re: /bilirubin/i },
+  { key: 'wbc', re: /\bwbc\b|white blood|leukocyte|leucocyte/i },
+  { key: 'platelets', re: /platelet/i },
+];
+
+async function gatherGrounding(supabase: any, reportText: string): Promise<{ block: string; sources: any[] }> {
+  try {
+    const lower = (reportText || '').toLowerCase();
+    const matched = ANALYTE_MATCHERS.filter((m) => m.re.test(lower)).map((m) => m.key);
+    if (matched.length === 0) return { block: '', sources: [] };
+
+    // Precomputed cache: union of chunk ids for every matched analyte (both directions).
+    const { data: cacheRows } = await supabase.from('retrieval_cache').select('key,chunk_ids');
+    const idSet = new Set<number>();
+    for (const row of cacheRows || []) {
+      const analyte = String(row.key).split(':')[0];
+      if (matched.includes(analyte)) (row.chunk_ids || []).forEach((id: number) => idSet.add(id));
+    }
+    if (idSet.size === 0) return { block: '', sources: [] };
+
+    const ids = Array.from(idSet).slice(0, 14); // cap context tokens
+    const { data: chunks } = await supabase
+      .from('kb_chunks')
+      .select('id,content,source,source_tier,title,url')
+      .in('id', ids);
+    if (!chunks || chunks.length === 0) return { block: '', sources: [] };
+
+    chunks.sort((a: any, b: any) => (a.source_tier || 9) - (b.source_tier || 9)); // India-first ordering
+    const block = chunks.map((c: any, i: number) => `[S${i + 1}] (${c.source}) ${c.content}`).join('\n');
+    const sources = chunks.map((c: any, i: number) => ({
+      id: `S${i + 1}`, source: c.source, tier: c.source_tier, title: c.title, url: c.url,
+    }));
+    console.log(`📚 Grounding: matched ${matched.length} analyte(s), using ${chunks.length} reference chunk(s)`);
+    return { block, sources };
+  } catch (e) {
+    console.warn('Grounding retrieval failed (continuing ungrounded):', (e as Error).message);
+    return { block: '', sources: [] };
+  }
+}
+
 function checkIfValueWithinRange(value: number, referenceRange: string, gender?: string): boolean {
   try {
     // Normalize the reference range string
@@ -751,12 +811,23 @@ serve(async (req) => {
 `
       : '';
 
+    // RAG: pull India-first grounding references for the analytes in this report.
+    const grounding = await gatherGrounding(supabase, text);
+    const groundingNote = grounding.block
+      ? `GROUNDING REFERENCES — base your explanations on these trusted sources, and PREFER Indian sources (ICMR, NIN) when present:
+${grounding.block}
+
+Rules for using the references: explain the abnormal findings grounded in the references above; in the output JSON include "citedSourceIds" listing the [S#] ids you actually relied on; never cite an id that is not listed; do NOT put [S#] markers in the patient-facing text — keep that plain and simple.
+
+`
+      : '';
+
     const pass1Prompt = `You are a board-certified clinical pathologist with 20+ years of experience analyzing laboratory reports. Perform MEDICAL-GRADE analysis with ABSOLUTE ACCURACY.
 
 ${multiReportNote}Medical Report Text:
 ${text}
 
-=== CRITICAL MEDICAL ACCURACY REQUIREMENTS ===
+${groundingNote}=== CRITICAL MEDICAL ACCURACY REQUIREMENTS ===
 
 🎯 ZERO TOLERANCE FOR ERRORS:
 - Every number must be EXACT from the report
@@ -1074,6 +1145,7 @@ ONLY use "Anonymous Patient" if absolutely no name found after thorough search.
       "interpretation": "string - Plain-language explanation of what this panel means for the person, in simple everyday words as if explaining to a friend with no medical background. If a medical term is unavoidable, immediately explain it in plain words. No jargon dumps, no emojis."
     }
   ],
+  "citedSourceIds": ["string - the [S#] ids from the GROUNDING REFERENCES you actually relied on, e.g. 'S1'. Empty array [] if no references were provided or used. Never include an id that was not listed."],
   "nextSteps": [
     "string - Specific, actionable next steps written in plain, simple layman language a non-medical person can act on. Explain any medical term in everyday words. No emojis. Example: 'See a heart doctor or your regular doctor about your high bad cholesterol — they may suggest medicine to bring it down.'"
   ],
@@ -1172,6 +1244,16 @@ Respond ONLY with valid JSON matching the structure above - no markdown, no expl
     // Then apply clinical validation to remove invalid data
     console.log('🏥 Applying minimal clinical validation...');
     analysisResult = validateClinicalData(analysisResult);
+
+    // RAG: attach the grounding sources and strip any fabricated citations.
+    (analysisResult as any).sources = grounding.sources;
+    const validSourceIds = new Set((grounding.sources || []).map((s: any) => s.id));
+    const cited = (analysisResult as any).citedSourceIds;
+    (analysisResult as any).citedSourceIds = Array.isArray(cited)
+      ? cited.filter((id: any) => validSourceIds.has(id))
+      : [];
+    (analysisResult as any).grounded = (grounding.sources || []).length > 0;
+    console.log(`📚 Grounded: ${(analysisResult as any).grounded}, citations kept: ${(analysisResult as any).citedSourceIds.length}`);
 
     // Extract patient name for admin notifications
     patientName = analysisResult.patientName;
