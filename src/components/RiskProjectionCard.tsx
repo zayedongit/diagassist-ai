@@ -78,17 +78,17 @@ export const RiskProjectionCard = ({ analysisData }: { analysisData: EnhancedAna
             Classifier: {p.classLabel === "faster" ? "faster" : "slower"}-than-typical progression
           </span>
           <span className="text-[11px] text-muted-foreground">
-            {Math.round(p.probFaster * 100)}% confidence · logistic regression, AUC {p.classAuc}
+            {Math.round(p.probFaster * 100)}% confidence · calibrated logistic regression, AUC {p.classAuc}
           </span>
         </div>
 
         <div className="flex items-start gap-2 rounded-lg bg-white/60 border border-white/40 p-2.5">
           <Info className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
           <p className="text-[11px] leading-relaxed text-muted-foreground">
-            Ridge linear regression · {p.dataset} · test R²={p.metrics.r2}, RMSE {p.metrics.rmse} (vs{" "}
-            {p.metrics.baseline_rmse} for a no-model baseline). Based on {p.foundKeys.length} of {total} inputs
-            found in your report; the rest use population averages. This is a research/education estimate of a
-            progression index, <span className="font-medium">not a diagnosis</span>.
+            Cross-validated Ridge regression · {p.dataset} · test R²={p.metrics.r2}, RMSE {p.metrics.rmse} (vs{" "}
+            {p.metrics.baseline_rmse} baseline); probability calibrated (Brier {p.brier}). Based on{" "}
+            {p.foundKeys.length} of {total} inputs found in your report; the rest use population averages. A
+            research/education estimate of a progression index, <span className="font-medium">not a diagnosis</span>.
           </p>
         </div>
       </CardContent>

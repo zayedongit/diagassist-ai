@@ -26,6 +26,8 @@ export interface RiskModelJSON {
   impute_with: number[];
   feature_importance: { feature: string; label: string; std_coef: number }[];
   metrics: { r2: number; rmse: number; mae: number; cv_r2_mean: number; cv_r2_std: number; baseline_rmse: number };
+  uncertainty?: { resid_std: number; index_band: number };
+  selection?: { best_alpha: number; cv_r2_by_family: Record<string, number> };
   n_train: number;
   n_test: number;
   trained_at: string;
@@ -40,8 +42,10 @@ export interface ClassModelJSON {
   standardize: { mean: number[]; std: number[] };
   coef: number[];
   intercept: number;
+  calibration?: { A: number; B: number; method: string };
   impute_with: number[];
-  metrics: { auc: number; accuracy: number; precision: number; recall: number; f1: number; cv_auc_mean: number; cv_auc_std: number };
+  selection?: { best_C: number };
+  metrics: { auc: number; accuracy: number; precision: number; recall: number; f1: number; cv_auc_mean: number; cv_auc_std: number; brier_before_cal?: number; brier_after_cal?: number };
   n_train: number;
   n_test: number;
 }
@@ -60,9 +64,11 @@ export interface RiskPrediction {
   dataset: string;
   targetName: string;
   // classification head (logistic regression on the same features)
-  probFaster: number;          // P(faster-than-typical progression), 0-1
+  probFaster: number;          // P(faster-than-typical progression), 0-1, CALIBRATED
   classLabel: "faster" | "slower";
   classAuc: number;            // validation AUC of the classifier
+  brier: number;               // calibration quality (lower is better)
+  residStd: number;            // typical prediction error, raw score units
 }
 
 const M = diabetesModel as RiskModelJSON;
@@ -137,7 +143,10 @@ export function predictDiabetesProgression(result: EnhancedAnalysisResult): Risk
   C.features.forEach((_f, i) => {
     logit += C.coef[i] * ((xVals[i] - C.standardize.mean[i]) / (C.standardize.std[i] || 1));
   });
-  const probFaster = 1 / (1 + Math.exp(-logit));
+  // Platt calibration (A,B ~ identity here since logistic regression is already
+  // well-calibrated) keeps the probability trustworthy and future-proof.
+  const cal = C.calibration ?? { A: 1, B: 0, method: "none" };
+  const probFaster = 1 / (1 + Math.exp(-(cal.A * logit + cal.B)));
   const classLabel: RiskPrediction["classLabel"] = probFaster >= 0.5 ? "faster" : "slower";
 
   return {
@@ -154,5 +163,7 @@ export function predictDiabetesProgression(result: EnhancedAnalysisResult): Risk
     probFaster,
     classLabel,
     classAuc: C.metrics.auc,
+    brier: C.metrics.brier_after_cal ?? C.metrics.brier_before_cal ?? 0,
+    residStd: M.uncertainty?.resid_std ?? M.metrics.rmse,
   };
 }

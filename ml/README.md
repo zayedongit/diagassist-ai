@@ -57,9 +57,15 @@ a linear regression, so inference is a dot product done in the browser.
    memorises training data but fails on new data).
 2. **Standardize** each input (subtract mean, divide by std) so features on
    different scales are comparable.
-3. Fit Ridge regression; read off a coefficient per feature.
-4. Score on the test set and with **5-fold cross-validation** (rotate which fifth
+3. **Tune, don't guess:** a grid search picks the Ridge penalty (and the
+   logistic-regression C) by cross-validation, and the winner is compared against
+   random forest / gradient boosting so the model choice is evidence-backed.
+4. Fit the selected model; read off a coefficient per feature.
+5. Score on the test set and with **5-fold cross-validation** (rotate which fifth
    is held out, five times — a more robust estimate than a single split).
+6. **Calibrate the classifier:** apply out-of-fold Platt scaling and check the
+   probabilities with the Brier score + a reliability curve, so a "70%" behaves
+   like 70%.
 
 ## Reading the metrics
 
@@ -70,6 +76,8 @@ a linear regression, so inference is a dot product done in the browser.
 - **ROC-AUC (classifier, 0.5–1):** how well the classifier ranks a faster case
   above a slower one. 0.5 = random, 1 = perfect. Ours ≈ **0.78** (CV ≈ 0.80).
 - **Confusion matrix:** counts of correct/incorrect calls on held-out patients.
+- **Brier score (0–1, lower better):** probability quality/calibration. Ours ≈ **0.19**,
+  unchanged by calibration → the logistic model was already well-calibrated.
 - **Feature importance (standardized coefficients):** how strongly each input
   moves the estimate, on a comparable scale. Positive = raises the estimate.
   Here: **BMI** and **blood pressure** raise it most, **HDL** lowers it (protective),

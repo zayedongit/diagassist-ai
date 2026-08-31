@@ -1,6 +1,6 @@
 {
   "task": "diabetes_progression_class",
-  "model": "logistic_regression",
+  "model": "logistic_regression(C=1) + Platt calibration",
   "dataset": "scikit-learn diabetes dataset (442 patients; Efron, Hastie, Johnstone & Tibshirani, 2004)",
   "positive_class": "faster-than-typical diabetes disease progression, 1 year after baseline (target above the cohort median)",
   "threshold_target": 140.5,
@@ -55,6 +55,11 @@
     0.107065
   ],
   "intercept": 0.003954,
+  "calibration": {
+    "A": 0.959141,
+    "B": -0.007829,
+    "method": "platt_sigmoid"
+  },
   "impute_with": [
     47.966767,
     26.330514,
@@ -62,6 +67,9 @@
     49.912387,
     90.646526
   ],
+  "selection": {
+    "best_C": 1
+  },
   "metrics": {
     "auc": 0.7799,
     "accuracy": 0.7117,
@@ -69,9 +77,11 @@
     "recall": 0.7091,
     "f1": 0.7091,
     "cv_auc_mean": 0.8012,
-    "cv_auc_std": 0.0454
+    "cv_auc_std": 0.0454,
+    "brier_before_cal": 0.1914,
+    "brier_after_cal": 0.1908
   },
   "n_train": 331,
   "n_test": 111,
-  "trained_at": "2026-08-31T18:49:33.378993+00:00"
+  "trained_at": "2026-08-31T19:02:13.287234+00:00"
 }

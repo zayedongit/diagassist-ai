@@ -1,14 +1,14 @@
 {
   "task": "diabetes_progression",
-  "model": "ridge_linear_regression",
+  "model": "ridge_linear_regression(alpha=30)",
   "dataset": "scikit-learn diabetes dataset (442 patients; Efron, Hastie, Johnstone & Tibshirani, 2004)",
   "target": {
     "name": "diabetes disease progression, 1 year after baseline",
     "min": 25.0,
     "max": 346.0,
     "mean": 152.13348416289594,
-    "p05": 72.87938732579336,
-    "p95": 241.71529081692086
+    "p05": 74.78444118918027,
+    "p95": 238.01048217872696
   },
   "features": [
     {
@@ -54,13 +54,13 @@
     ]
   },
   "coef": [
-    0.029961,
-    30.254398,
-    16.605188,
-    -14.075309,
-    7.192953
+    0.423519,
+    28.541459,
+    16.003202,
+    -13.795169,
+    7.558033
   ],
-  "intercept": 154.747671,
+  "intercept": 154.676988,
   "impute_with": [
     48.797583,
     26.591541,
@@ -72,38 +72,51 @@
     {
       "feature": "bmi",
       "label": "BMI",
-      "std_coef": 30.254398002356
+      "std_coef": 28.54145850311124
     },
     {
       "feature": "bp",
       "label": "Blood pressure",
-      "std_coef": 16.6051878837808
+      "std_coef": 16.003201787463386
     },
     {
       "feature": "hdl",
       "label": "HDL cholesterol",
-      "std_coef": -14.075309129058121
+      "std_coef": -13.795169264523443
     },
     {
       "feature": "glucose",
       "label": "Blood glucose",
-      "std_coef": 7.19295347706771
+      "std_coef": 7.5580325110970135
     },
     {
       "feature": "age",
       "label": "Age",
-      "std_coef": 0.02996104705189764
+      "std_coef": 0.42351905877731516
     }
   ],
+  "uncertainty": {
+    "resid_std": 58.62,
+    "index_band": 35.9
+  },
+  "selection": {
+    "best_alpha": 30,
+    "cv_r2_by_family": {
+      "Ridge(tuned)": 0.4057,
+      "Lasso": 0.4055,
+      "RandomForest": 0.347,
+      "GradientBoosting": 0.3312
+    }
+  },
   "metrics": {
-    "r2": 0.3694,
-    "rmse": 59.05,
-    "mae": 46.6,
-    "cv_r2_mean": 0.4053,
-    "cv_r2_std": 0.092,
+    "r2": 0.3783,
+    "rmse": 58.63,
+    "mae": 46.07,
+    "cv_r2_mean": 0.4057,
+    "cv_r2_std": 0.089,
     "baseline_rmse": 74.88
   },
   "n_train": 331,
   "n_test": 111,
-  "trained_at": "2026-08-31T18:39:38.337702+00:00"
+  "trained_at": "2026-08-31T19:02:12.761821+00:00"
 }

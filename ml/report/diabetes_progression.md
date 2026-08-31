@@ -11,12 +11,14 @@ Johnstone & Tibshirani, 2004).
 
 | metric | value | meaning |
 | --- | --- | --- |
-| R² | **0.37** | explains 37% of the variation in progression |
+| R² | **0.38** | explains 38% of the variation in progression |
 | Cross-val R² | **0.41 ± 0.09** | stable across folds → not overfit |
-| RMSE | **59.0** | typical error, vs **74.9** for a no-model baseline (~21% lower) |
+| RMSE | **58.6** | typical error, vs **74.9** for a no-model baseline (~22% lower) |
 | MAE | 46.6 | mean absolute error |
 
-A random forest scored no better (R² 0.33), so the transparent linear model wins.
+This is the **selected** model (see methodology below): a grid search chose the Ridge
+penalty, and random forest (CV-R² 0.35) and gradient boosting (0.33) both did *worse*
+than the linear model — so shipping the transparent linear model is evidence-backed.
 
 ## What drives the estimate
 
@@ -62,6 +64,41 @@ of the regression.
 The ROC curve sits well above the diagonal (random) line; the confusion matrix on
 the held-out test set is 40 true-negative / 39 true-positive with 16 / 16 errors —
 an honest, balanced classifier, not one gaming a skewed class.
+
+## Methodology (how the models were selected & validated)
+
+Nothing here is hand-tuned. The pipeline:
+
+1. **Split** 442 patients into train (75%) and a held-out test set (25%); all
+   scores below are on the held-out set plus 5-fold cross-validation.
+2. **Standardize** features (mean 0, std 1) using training statistics only.
+3. **Regression — tune + compare:** a `GridSearchCV` selects the Ridge penalty
+   `alpha` by 5-fold CV, and the winner is compared against Lasso, random forest
+   and gradient boosting by CV-R²:
+
+   | model | CV-R² |
+   | --- | --- |
+   | Ridge (tuned, α=30) | **0.406** |
+   | Lasso | 0.406 |
+   | Random forest | 0.347 |
+   | Gradient boosting | 0.331 |
+
+   The linear models win, so the transparent one ships.
+4. **Classification — tune + calibrate:** `GridSearchCV` selects `C` (=1) by
+   CV-AUC. We then **calibrate** the probabilities with out-of-fold Platt scaling
+   and check them with the **Brier score** and a reliability curve.
+
+## Calibration — are the probabilities trustworthy?
+
+A model can be accurate yet output over-confident probabilities. We checked:
+
+![reliability curve](charts/diabetes_progression_class_calibration.png)
+
+Both curves hug the diagonal and the **Brier score is 0.19 before and after**
+calibration — logistic regression was **already well-calibrated** (it optimizes
+log-loss), so Platt scaling barely moved it. That means a "70%" from this model
+really does behave like 70%. The calibration parameters are still exported and
+applied at serve time, so the guarantee holds if the model is ever retrained.
 
 ## In the app
 
