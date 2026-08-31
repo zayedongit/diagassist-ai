@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  ml-model-contract:
+    name: ML model contract test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      # No dependencies needed — verify_inference.mjs is pure Node and reads the
+      # exported model JSONs, asserting metrics haven't regressed and predictions
+      # behave sanely. Fails the build (exit 1) on any regression.
+      - name: Verify exported models
+        run: node ml/verify_inference.mjs
+
+  typecheck:
+    name: Frontend typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: TypeScript typecheck
+        run: npx tsc --noEmit -p tsconfig.app.json
