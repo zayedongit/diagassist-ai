@@ -1,0 +1,123 @@
+{
+  "task": "diabetes_progression",
+  "model": "ridge_linear_regression",
+  "dataset": "scikit-learn diabetes dataset (442 patients; Efron, Hastie, Johnstone & Tibshirani, 2004)",
+  "target": {
+    "name": "diabetes disease progression, 1 year after baseline",
+    "min": 25.0,
+    "max": 346.0,
+    "mean": 152.13348416289594,
+    "p05": 73.04811409659298,
+    "p95": 242.03270285438205
+  },
+  "features": [
+    {
+      "key": "age",
+      "label": "Age",
+      "unit": "years"
+    },
+    {
+      "key": "bmi",
+      "label": "BMI",
+      "unit": "kg/m2"
+    },
+    {
+      "key": "bp",
+      "label": "Blood pressure",
+      "unit": "mmHg"
+    },
+    {
+      "key": "ldl",
+      "label": "LDL cholesterol",
+      "unit": "mg/dL"
+    },
+    {
+      "key": "hdl",
+      "label": "HDL cholesterol",
+      "unit": "mg/dL"
+    },
+    {
+      "key": "glucose",
+      "label": "Blood glucose",
+      "unit": "mg/dL"
+    }
+  ],
+  "standardize": {
+    "mean": [
+      48.797583,
+      26.591541,
+      95.023112,
+      115.469789,
+      49.626888,
+      92.045317
+    ],
+    "std": [
+      12.77051,
+      4.37365,
+      13.891902,
+      30.80401,
+      12.76823,
+      11.445169
+    ]
+  },
+  "coef": [
+    0.411458,
+    30.644989,
+    16.618018,
+    -2.956901,
+    -14.33172,
+    7.69038
+  ],
+  "intercept": 154.810061,
+  "impute_with": [
+    48.797583,
+    26.591541,
+    95.023112,
+    115.469789,
+    49.626888,
+    92.045317
+  ],
+  "feature_importance": [
+    {
+      "feature": "bmi",
+      "label": "BMI",
+      "std_coef": 30.644989488473
+    },
+    {
+      "feature": "bp",
+      "label": "Blood pressure",
+      "std_coef": 16.618018164104605
+    },
+    {
+      "feature": "hdl",
+      "label": "HDL cholesterol",
+      "std_coef": -14.33172021284494
+    },
+    {
+      "feature": "glucose",
+      "label": "Blood glucose",
+      "std_coef": 7.6903800150459825
+    },
+    {
+      "feature": "ldl",
+      "label": "LDL cholesterol",
+      "std_coef": -2.9569010457473897
+    },
+    {
+      "feature": "age",
+      "label": "Age",
+      "std_coef": 0.41145848185780853
+    }
+  ],
+  "metrics": {
+    "r2": 0.3604,
+    "rmse": 59.47,
+    "mae": 46.62,
+    "cv_r2_mean": 0.4001,
+    "cv_r2_std": 0.0933,
+    "baseline_rmse": 74.88
+  },
+  "n_train": 331,
+  "n_test": 111,
+  "trained_at": "2026-08-31T18:32:17.771103+00:00"
+}

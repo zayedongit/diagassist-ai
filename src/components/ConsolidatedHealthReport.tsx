@@ -18,6 +18,7 @@ import {
   ExternalLink
 } from "lucide-react";
 import { EnhancedAnalysisResult, extractAbnormalPanels, MedicalPanel } from "@/types/medicalAnalysis";
+import { RiskProjectionCard } from "@/components/RiskProjectionCard";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -183,6 +184,9 @@ export const ConsolidatedHealthReport = ({
             {analysisData.patientFriendlySummary || analysisData.summary}
           </p>
         </div>
+
+        {/* ML risk projection (classical model, alongside the LLM report) */}
+        <RiskProjectionCard analysisData={analysisData} />
 
         {/* SECTION 2: Abnormalities That Need Attention */}
         {abnormalPanels.length > 0 && (
