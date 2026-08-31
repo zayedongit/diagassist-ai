@@ -72,7 +72,6 @@ const EXTRACTORS: Record<string, (r: EnhancedAnalysisResult) => number | null> =
   age: (r) => (typeof r.demographics?.age === "number" ? (r.demographics!.age as number) : null),
   bmi: (r) => findLab(r, [/\bbmi\b/, /body mass/]),
   bp: (r) => findLab(r, [/blood pressure/, /\bbp\b/, /systolic/]),
-  ldl: (r) => findLab(r, [/\bldl\b/]),
   hdl: (r) => findLab(r, [/\bhdl\b/]),
   glucose: (r) => findLab(r, [/glucose/, /fasting sugar/, /\bfbs\b/, /blood sugar/]),
 };

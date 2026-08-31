@@ -39,7 +39,7 @@ a linear regression, so inference is a dot product done in the browser.
 - **Task:** *regression* — predict a continuous "disease progression one year
   later" score from baseline measurements. (Regression = predict a number, vs
   classification = predict a category.)
-- **Inputs (features):** age, BMI, blood pressure, LDL, HDL, blood glucose — all
+- **Inputs (features):** age, BMI, blood pressure, HDL, blood glucose — all
   values a lab report provides, so the model plugs straight into DiagAssist.
 - **Model:** Ridge linear regression. Ridge = linear regression with a penalty
   that keeps the coefficients small and stable (helps when inputs are correlated,
@@ -63,7 +63,7 @@ a linear regression, so inference is a dot product done in the browser.
 ## Reading the metrics
 
 - **R² (0–1):** share of the variation in progression the model explains. 0 = no
-  better than guessing the average; 1 = perfect. Ours ≈ **0.36** (CV ≈ 0.40).
+  better than guessing the average; 1 = perfect. Ours ≈ **0.37** (CV ≈ 0.41).
 - **RMSE / MAE:** typical prediction error in the target's own units — lower is
   better. Ours RMSE ≈ **59** vs a no-model baseline of **75**, i.e. ~21% less error.
 - **Feature importance (standardized coefficients):** how strongly each input
@@ -73,11 +73,12 @@ a linear regression, so inference is a dot product done in the browser.
 
 ## Honesty notes (say these in a viva — examiners respect them)
 
-- We dropped *total cholesterol* as an input: it's ≈ LDL + HDL + …, so keeping it
-  made the coefficients unstable and flipped LDL's sign the wrong way
-  (**multicollinearity**). Removing it lowered R² slightly but made every driver
+- We dropped *total cholesterol* and *LDL* as inputs: total cholesterol ≈ LDL + HDL
+  + …, and LDL is correlated with HDL, so keeping them made the coefficients
+  unstable and gave LDL a backwards (protective) sign — **multicollinearity**.
+  Removing them actually *raised* R² slightly and made every remaining driver
   clinically correct. Interpretability over a vanity number.
-- R² ≈ 0.36 is honest for this dataset — its known linear ceiling is ~0.5. We
+- R² ≈ 0.37 is honest for this dataset — its known linear ceiling is ~0.5. We
   report the held-out and cross-validated scores, not the training score.
 - Training uses only this **public** dataset. No patient data from DiagAssist is
   used to train — which is also the ethically correct choice.

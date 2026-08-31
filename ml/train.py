@@ -33,14 +33,14 @@ CHART_OUT = os.path.join(HERE, "report", "charts")
 def load_diabetes_progression():
     from sklearn.datasets import load_diabetes
     raw = load_diabetes(scaled=False, as_frame=True).frame
-    # Clinically-interpretable subset. Total cholesterol dropped (collinear with
-    # LDL+HDL -> unstable, backwards signs); sex dropped (unknown 1/2 coding);
-    # s4 ratio + s5 log-trig dropped (ambiguous units for serving).
+    # Clinically-interpretable subset. Total cholesterol AND LDL dropped (collinear
+    # -> unstable coefficients; LDL got a backwards protective sign); sex dropped
+    # (unknown 1/2 coding); s4 ratio + s5 log-trig dropped (ambiguous units).
+    # Every remaining driver has a clinically correct sign.
     feats = [
         ("age", "Age", "years", "age"),
         ("bmi", "BMI", "kg/m2", "bmi"),
         ("bp",  "Blood pressure", "mmHg", "bp"),
-        ("s2",  "LDL cholesterol", "mg/dL", "ldl"),
         ("s3",  "HDL cholesterol", "mg/dL", "hdl"),
         ("s6",  "Blood glucose", "mg/dL", "glucose"),
     ]
