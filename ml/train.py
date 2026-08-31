@@ -16,9 +16,10 @@ import json, sys, os
 import numpy as np
 from datetime import datetime, timezone
 from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.linear_model import Ridge, LinearRegression
+from sklearn.linear_model import Ridge, LinearRegression, LogisticRegression
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
+from sklearn.metrics import (r2_score, mean_squared_error, mean_absolute_error,
+    roc_auc_score, roc_curve, confusion_matrix, precision_score, recall_score, f1_score, accuracy_score)
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -33,10 +34,9 @@ CHART_OUT = os.path.join(HERE, "report", "charts")
 def load_diabetes_progression():
     from sklearn.datasets import load_diabetes
     raw = load_diabetes(scaled=False, as_frame=True).frame
-    # Clinically-interpretable subset. Total cholesterol AND LDL dropped (collinear
-    # -> unstable coefficients; LDL got a backwards protective sign); sex dropped
-    # (unknown 1/2 coding); s4 ratio + s5 log-trig dropped (ambiguous units).
-    # Every remaining driver has a clinically correct sign.
+    # Clinically-interpretable subset. Total cholesterol dropped (collinear with
+    # LDL+HDL -> unstable, backwards signs); sex dropped (unknown 1/2 coding);
+    # s4 ratio + s5 log-trig dropped (ambiguous units for serving).
     feats = [
         ("age", "Age", "years", "age"),
         ("bmi", "BMI", "kg/m2", "bmi"),
@@ -115,7 +115,45 @@ def train_one(key):
     plt.axvline(0, color="k", lw=0.8); plt.xlabel("Standardized coefficient (red=raises, blue=lowers)")
     plt.title(f"{key}: feature importance"); plt.tight_layout()
     plt.savefig(os.path.join(CHART_OUT, f"{meta['task']}_feature_importance.png"), dpi=120); plt.close()
-    print(f"       wrote src/ml/{meta['task']}.json + 2 charts")
+    # ---- classification head: faster-than-typical progression (target > median) ----
+    thr = float(np.median(y)); yb = (y > thr).astype(int)
+    cXtr, cXte, cytr, cyte = train_test_split(X, yb, test_size=0.25, random_state=RNG, stratify=yb)
+    cmean = cXtr.mean(0); cstd = cXtr.std(0); cstd[cstd == 0] = 1
+    cZtr, cZte, cZall = (cXtr - cmean) / cstd, (cXte - cmean) / cstd, (X - cmean) / cstd
+    lg = LogisticRegression(max_iter=1000).fit(cZtr, cytr)
+    proba = lg.predict_proba(cZte)[:, 1]; cpred = (proba >= 0.5).astype(int)
+    auc = roc_auc_score(cyte, proba)
+    cvauc = cross_val_score(LogisticRegression(max_iter=1000), cZall, yb, cv=5, scoring="roc_auc")
+    cm = confusion_matrix(cyte, cpred)
+    cmetrics = {"auc": round(auc, 4), "accuracy": round(accuracy_score(cyte, cpred), 4),
+                "precision": round(precision_score(cyte, cpred), 4), "recall": round(recall_score(cyte, cpred), 4),
+                "f1": round(f1_score(cyte, cpred), 4), "cv_auc_mean": round(cvauc.mean(), 4), "cv_auc_std": round(cvauc.std(), 4)}
+    print(f"       [clf] AUC={auc:.3f} CV-AUC={cvauc.mean():.3f}±{cvauc.std():.3f} acc={cmetrics['accuracy']:.3f}")
+    clf_final = LogisticRegression(max_iter=1000).fit(cZall, yb)
+    clf_json = {"task": meta["task"] + "_class", "model": "logistic_regression", "dataset": meta["dataset"],
+        "positive_class": "faster-than-typical " + meta["target_name"] + " (target above the cohort median)",
+        "threshold_target": thr, "features": [{"key": f[3], "label": f[1], "unit": f[2]} for f in feats],
+        "standardize": {"mean": cmean.round(6).tolist(), "std": cstd.round(6).tolist()},
+        "coef": clf_final.coef_[0].round(6).tolist(), "intercept": float(round(clf_final.intercept_[0], 6)),
+        "impute_with": cmean.round(6).tolist(), "metrics": cmetrics,
+        "n_train": int(len(cytr)), "n_test": int(len(cyte)), "trained_at": datetime.now(timezone.utc).isoformat()}
+    with open(os.path.join(MODEL_OUT, f"{meta['task']}_class.json"), "w") as fh:
+        json.dump(clf_json, fh, indent=2)
+    fpr, tpr, _ = roc_curve(cyte, proba)
+    plt.figure(figsize=(4.4, 4.4)); plt.plot(fpr, tpr, color="#8e44ad", lw=2, label=f"AUC={auc:.2f}")
+    plt.plot([0, 1], [0, 1], "k--", lw=1); plt.xlabel("False positive rate"); plt.ylabel("True positive rate")
+    plt.title(f"{key}: classification ROC"); plt.legend(loc="lower right"); plt.tight_layout()
+    plt.savefig(os.path.join(CHART_OUT, f"{meta['task']}_class_roc.png"), dpi=120); plt.close()
+    plt.figure(figsize=(3.8, 3.6)); plt.imshow(cm, cmap="Purples")
+    for i in range(2):
+        for j in range(2):
+            plt.text(j, i, cm[i, j], ha="center", va="center", fontsize=14,
+                     color="white" if cm[i, j] > cm.max() / 2 else "black")
+    plt.xticks([0, 1], ["Pred slower", "Pred faster"]); plt.yticks([0, 1], ["Actual slower", "Actual faster"])
+    plt.title(f"{key}: confusion matrix"); plt.tight_layout()
+    plt.savefig(os.path.join(CHART_OUT, f"{meta['task']}_class_confusion.png"), dpi=120); plt.close()
+
+    print(f"       wrote src/ml/{meta['task']}.json (regression) + classification + 4 charts")
     return model_json
 
 

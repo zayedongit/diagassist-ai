@@ -42,6 +42,27 @@ progression; higher HDL ("good" cholesterol) predicts slower.
 Points cluster around the diagonal (perfect prediction) with real scatter — an
 honest R²≈0.37 model, not an overfit one claiming to be perfect.
 
+## Classification head (logistic regression)
+
+The same six— now five— features also train a **classifier**: is this patient's
+progression **faster than the cohort median** (target > 140.5) or not? This adds
+the classification paradigm (probabilities, a decision threshold, ROC-AUC) on top
+of the regression.
+
+| metric | value | meaning |
+| --- | --- | --- |
+| ROC-AUC | **0.78** | ranks a random faster case above a random slower one 78% of the time |
+| Cross-val AUC | **0.80 ± 0.05** | stable across folds |
+| Accuracy | 0.71 | correct 71% of the time at the 0.5 threshold |
+| Precision / Recall / F1 | 0.71 / 0.71 / 0.71 | balanced (classes are 50/50 by the median split) |
+
+![ROC curve](charts/diabetes_progression_class_roc.png)
+![confusion matrix](charts/diabetes_progression_class_confusion.png)
+
+The ROC curve sits well above the diagonal (random) line; the confusion matrix on
+the held-out test set is 40 true-negative / 39 true-positive with 16 / 16 errors —
+an honest, balanced classifier, not one gaming a skewed class.
+
 ## In the app
 
 When a report yields at least two of the five inputs, DiagAssist shows a

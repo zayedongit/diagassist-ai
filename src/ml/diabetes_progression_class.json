@@ -1,0 +1,77 @@
+{
+  "task": "diabetes_progression_class",
+  "model": "logistic_regression",
+  "dataset": "scikit-learn diabetes dataset (442 patients; Efron, Hastie, Johnstone & Tibshirani, 2004)",
+  "positive_class": "faster-than-typical diabetes disease progression, 1 year after baseline (target above the cohort median)",
+  "threshold_target": 140.5,
+  "features": [
+    {
+      "key": "age",
+      "label": "Age",
+      "unit": "years"
+    },
+    {
+      "key": "bmi",
+      "label": "BMI",
+      "unit": "kg/m2"
+    },
+    {
+      "key": "bp",
+      "label": "Blood pressure",
+      "unit": "mmHg"
+    },
+    {
+      "key": "hdl",
+      "label": "HDL cholesterol",
+      "unit": "mg/dL"
+    },
+    {
+      "key": "glucose",
+      "label": "Blood glucose",
+      "unit": "mg/dL"
+    }
+  ],
+  "standardize": {
+    "mean": [
+      47.966767,
+      26.330514,
+      94.945559,
+      49.912387,
+      90.646526
+    ],
+    "std": [
+      13.165532,
+      4.328463,
+      13.553347,
+      12.929329,
+      11.371726
+    ]
+  },
+  "coef": [
+    0.013838,
+    0.793617,
+    0.516534,
+    -0.51393,
+    0.107065
+  ],
+  "intercept": 0.003954,
+  "impute_with": [
+    47.966767,
+    26.330514,
+    94.945559,
+    49.912387,
+    90.646526
+  ],
+  "metrics": {
+    "auc": 0.7799,
+    "accuracy": 0.7117,
+    "precision": 0.7091,
+    "recall": 0.7091,
+    "f1": 0.7091,
+    "cv_auc_mean": 0.8012,
+    "cv_auc_std": 0.0454
+  },
+  "n_train": 331,
+  "n_test": 111,
+  "trained_at": "2026-08-31T18:49:33.378993+00:00"
+}

@@ -73,6 +73,15 @@ export const RiskProjectionCard = ({ analysisData }: { analysisData: EnhancedAna
           </div>
         )}
 
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium border bg-purple-50 border-purple-200 text-purple-700">
+            Classifier: {p.classLabel === "faster" ? "faster" : "slower"}-than-typical progression
+          </span>
+          <span className="text-[11px] text-muted-foreground">
+            {Math.round(p.probFaster * 100)}% confidence · logistic regression, AUC {p.classAuc}
+          </span>
+        </div>
+
         <div className="flex items-start gap-2 rounded-lg bg-white/60 border border-white/40 p-2.5">
           <Info className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
           <p className="text-[11px] leading-relaxed text-muted-foreground">

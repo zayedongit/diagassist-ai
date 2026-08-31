@@ -2,9 +2,9 @@
 
 A classical machine-learning layer that sits **alongside** the LLM report. The
 LLM explains a report in plain language; these models add a **quantitative,
-explainable risk estimate** trained on a real patient dataset. Today: diabetes
-disease-progression (regression). The trainer is a registry, so adding a disease
-is one entry.
+explainable risk estimate** trained on a real patient dataset. Today: diabetes disease-progression, as BOTH a **regression** (how fast) and a
+**classification** (faster-than-typical or not). The trainer is a registry, so
+adding a disease is one entry.
 
 ## What's here
 
@@ -13,9 +13,10 @@ ml/
   train.py                 # trains + evaluates every registered model, exports weights
   report/
     charts/                # predicted-vs-actual + feature-importance PNGs
-    diabetes_progression.md# written-up results + how to read them
+    diabetes_progression.md# written-up results (regression + classification) + how to read them
 src/ml/
-  diabetes_progression.json# exported model (weights + metrics) the app imports
+  diabetes_progression.json      # regression model (weights + metrics), imported by the app
+  diabetes_progression_class.json# classification model (logistic regression)
 src/lib/riskModel.ts       # browser inference (standardize -> dot product -> 0-100 index)
 src/components/RiskProjectionCard.tsx  # the UI card
 ```
@@ -66,6 +67,9 @@ a linear regression, so inference is a dot product done in the browser.
   better than guessing the average; 1 = perfect. Ours ≈ **0.37** (CV ≈ 0.41).
 - **RMSE / MAE:** typical prediction error in the target's own units — lower is
   better. Ours RMSE ≈ **59** vs a no-model baseline of **75**, i.e. ~21% less error.
+- **ROC-AUC (classifier, 0.5–1):** how well the classifier ranks a faster case
+  above a slower one. 0.5 = random, 1 = perfect. Ours ≈ **0.78** (CV ≈ 0.80).
+- **Confusion matrix:** counts of correct/incorrect calls on held-out patients.
 - **Feature importance (standardized coefficients):** how strongly each input
   moves the estimate, on a comparable scale. Positive = raises the estimate.
   Here: **BMI** and **blood pressure** raise it most, **HDL** lowers it (protective),

@@ -12,6 +12,7 @@
  */
 import type { EnhancedAnalysisResult } from "@/types/medicalAnalysis";
 import diabetesModel from "@/ml/diabetes_progression.json";
+import diabetesClassModel from "@/ml/diabetes_progression_class.json";
 
 export interface RiskModelJSON {
   task: string;
@@ -30,6 +31,21 @@ export interface RiskModelJSON {
   trained_at: string;
 }
 
+export interface ClassModelJSON {
+  task: string;
+  model: string;
+  positive_class: string;
+  threshold_target: number;
+  features: { key: string; label: string; unit: string }[];
+  standardize: { mean: number[]; std: number[] };
+  coef: number[];
+  intercept: number;
+  impute_with: number[];
+  metrics: { auc: number; accuracy: number; precision: number; recall: number; f1: number; cv_auc_mean: number; cv_auc_std: number };
+  n_train: number;
+  n_test: number;
+}
+
 export interface RiskDriver { label: string; contribution: number; direction: "up" | "down"; }
 
 export interface RiskPrediction {
@@ -43,9 +59,14 @@ export interface RiskPrediction {
   metrics: RiskModelJSON["metrics"];
   dataset: string;
   targetName: string;
+  // classification head (logistic regression on the same features)
+  probFaster: number;          // P(faster-than-typical progression), 0-1
+  classLabel: "faster" | "slower";
+  classAuc: number;            // validation AUC of the classifier
 }
 
 const M = diabetesModel as RiskModelJSON;
+const C = diabetesClassModel as ClassModelJSON;
 
 function parseNum(v: unknown): number | null {
   if (v == null) return null;
@@ -81,6 +102,7 @@ export function predictDiabetesProgression(result: EnhancedAnalysisResult): Risk
   const foundKeys: string[] = [];
   const imputedKeys: string[] = [];
   let score = M.intercept;
+  const xVals: number[] = [];
   const contribs: { label: string; c: number }[] = [];
 
   M.features.forEach((f, i) => {
@@ -93,6 +115,7 @@ export function predictDiabetesProgression(result: EnhancedAnalysisResult): Risk
       x = raw;
       foundKeys.push(f.key);
     }
+    xVals[i] = x;
     const z = (x - mean[i]) / (std[i] || 1);
     const c = M.coef[i] * z;
     score += c;
@@ -109,6 +132,14 @@ export function predictDiabetesProgression(result: EnhancedAnalysisResult): Risk
     .slice(0, 4)
     .map((c) => ({ label: c.label, contribution: c.c, direction: c.c >= 0 ? "up" : "down" }));
 
+  // classification head: P(faster-than-typical progression) via logistic regression
+  let logit = C.intercept;
+  C.features.forEach((_f, i) => {
+    logit += C.coef[i] * ((xVals[i] - C.standardize.mean[i]) / (C.standardize.std[i] || 1));
+  });
+  const probFaster = 1 / (1 + Math.exp(-logit));
+  const classLabel: RiskPrediction["classLabel"] = probFaster >= 0.5 ? "faster" : "slower";
+
   return {
     available: foundKeys.length >= 2,
     index,
@@ -120,5 +151,8 @@ export function predictDiabetesProgression(result: EnhancedAnalysisResult): Risk
     metrics: M.metrics,
     dataset: M.dataset,
     targetName: M.target.name,
+    probFaster,
+    classLabel,
+    classAuc: C.metrics.auc,
   };
 }
