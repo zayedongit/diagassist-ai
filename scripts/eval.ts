@@ -236,7 +236,7 @@ async function main() {
     .map((l) => JSON.parse(l)).slice(0, argLimit);
   console.log(`Loaded ${golden.length} golden reports`);
   console.log(`Rate table (USD / 1M tok): ${JSON.stringify(PRICES)}  [approximate — override with PRICE_* env]`);
-  console.log(NO_JUDGE ? 'Judge: OFF (--no-judge)' : 'Judge: ON (Gemini 2.0 Flash)');
+  console.log(NO_JUDGE ? 'Judge: OFF (--no-judge)' : `Judge: ON (${GEMINI_MODEL})`);
 
   const haveCache = await cacheAnalytes();
   const rows: Row[] = [];
