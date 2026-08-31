@@ -13,6 +13,7 @@
 import type { EnhancedAnalysisResult } from "@/types/medicalAnalysis";
 import diabetesModel from "@/ml/diabetes_progression.json";
 import diabetesClassModel from "@/ml/diabetes_progression_class.json";
+import breastCancerModel from "@/ml/breast_cancer_malignant.json";
 
 export interface RiskModelJSON {
   task: string;
@@ -166,4 +167,68 @@ export function predictDiabetesProgression(result: EnhancedAnalysisResult): Risk
     brier: C.metrics.brier_after_cal ?? C.metrics.brier_before_cal ?? 0,
     residStd: M.uncertainty?.resid_std ?? M.metrics.rmse,
   };
+}
+
+
+// ============================================================================
+// Direct-value inference for the interactive Model Explorer page.
+// Same math as above, but taking raw feature values instead of a lab report.
+// ============================================================================
+
+export const diabetesMeta = {
+  features: M.features,
+  metrics: M.metrics,
+  target: M.target,
+  classAuc: C.metrics.auc,
+  brier: C.metrics.brier_after_cal ?? C.metrics.brier_before_cal ?? 0,
+  bestAlpha: M.selection?.best_alpha,
+  bestC: C.selection?.best_C,
+};
+
+export interface DirectPrediction {
+  index: number;
+  band: "Lower" | "Moderate" | "Higher";
+  probFaster: number;
+  classLabel: "faster" | "slower";
+  drivers: { label: string; direction: "up" | "down" }[];
+}
+
+export function predictDiabetesFromValues(values: Record<string, number>): DirectPrediction {
+  const { mean, std } = M.standardize;
+  let score = M.intercept;
+  const xVals: number[] = [];
+  const contribs: { label: string; c: number }[] = [];
+  M.features.forEach((f, i) => {
+    const x = Number(values[f.key]);
+    xVals[i] = x;
+    const c = M.coef[i] * ((x - mean[i]) / (std[i] || 1));
+    score += c;
+    contribs.push({ label: f.label, c });
+  });
+  const { p05, p95 } = M.target;
+  const index = Math.max(0, Math.min(100, (100 * (score - p05)) / (p95 - p05)));
+  const band: DirectPrediction["band"] = index < 40 ? "Lower" : index < 70 ? "Moderate" : "Higher";
+  let logit = C.intercept;
+  C.features.forEach((_f, i) => { logit += C.coef[i] * ((xVals[i] - C.standardize.mean[i]) / (C.standardize.std[i] || 1)); });
+  const cal = C.calibration ?? { A: 1, B: 0, method: "none" };
+  const probFaster = 1 / (1 + Math.exp(-(cal.A * logit + cal.B)));
+  const drivers = contribs
+    .filter((c) => Math.abs(c.c) > 0.5)
+    .sort((a, b) => Math.abs(b.c) - Math.abs(a.c))
+    .slice(0, 4)
+    .map((c) => ({ label: c.label, direction: (c.c >= 0 ? "up" : "down") as "up" | "down" }));
+  return { index, band, probFaster, classLabel: probFaster >= 0.5 ? "faster" : "slower", drivers };
+}
+
+const BC = breastCancerModel as unknown as ClassModelJSON & { features: { key: string; label: string; unit: string }[]; positive_class: string };
+export const breastCancerMeta = { metrics: BC.metrics, features: BC.features, positiveClass: BC.positive_class };
+
+export function predictBreastCancer(values: number[]): { prob: number; label: "malignant" | "benign" } {
+  let logit = BC.intercept;
+  for (let i = 0; i < BC.coef.length; i++) {
+    logit += BC.coef[i] * ((values[i] - BC.standardize.mean[i]) / (BC.standardize.std[i] || 1));
+  }
+  const cal = BC.calibration ?? { A: 1, B: 0, method: "none" };
+  const prob = 1 / (1 + Math.exp(-(cal.A * logit + cal.B)));
+  return { prob, label: prob >= 0.5 ? "malignant" : "benign" };
 }

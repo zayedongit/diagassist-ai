@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
+import ModelExplorer from "./pages/ModelExplorer";
 import Analytics from "./pages/Analytics";
 import MyHealthJourney from "./pages/MyHealthJourney";
 import MyReports from "./pages/MyReports";
@@ -27,6 +28,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/analytics" element={<Analytics />} />
+            <Route path="/models" element={<ModelExplorer />} />
             <Route path="/my-health-journey" element={<MyHealthJourney />} />
             <Route path="/shared-report/:token" element={<SharedReport />} />
             <Route 
