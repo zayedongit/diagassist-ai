@@ -43,6 +43,10 @@ with `python ml/train.py`. Grouped by model.
   average-precision (AP) score.
 - **diabetes_progression_class_threshold.png** — Precision / recall / specificity / F1 across
   decision thresholds, with a high-sensitivity operating point marked. Shows 0.5 is a choice.
+- **diabetes_progression_bootstrap_r2.png** — Distribution of R² over 2000 test-set resamples; the
+  red lines are the 95% confidence interval.
+- **diabetes_progression_class_bootstrap_auc.png** — Bootstrap distribution and 95% CI for the
+  classifier AUC.
 
 ## Breast cancer (classification) — scikit-learn breast cancer Wisconsin, 569 samples
 
@@ -59,3 +63,5 @@ same trainer generalizes to a new disease. Near-perfect separation.
   converged → strong, stable model.
 - **breast_cancer_malignant_threshold.png** — Threshold sweep; a high-sensitivity operating
   point reaches ~98% recall at ~96% specificity — the medically relevant way to set the cutoff.
+- **breast_cancer_malignant_bootstrap_auc.png** — Bootstrap distribution and 95% CI for AUC; tight,
+  reflecting a well-separated dataset.

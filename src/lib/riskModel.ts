@@ -26,7 +26,7 @@ export interface RiskModelJSON {
   intercept: number;
   impute_with: number[];
   feature_importance: { feature: string; label: string; std_coef: number }[];
-  metrics: { r2: number; rmse: number; mae: number; cv_r2_mean: number; cv_r2_std: number; baseline_rmse: number };
+  metrics: { r2: number; rmse: number; mae: number; cv_r2_mean: number; cv_r2_std: number; baseline_rmse: number; r2_ci95?: [number, number] };
   uncertainty?: { resid_std: number; index_band: number };
   selection?: { best_alpha: number; cv_r2_by_family: Record<string, number> };
   n_train: number;
@@ -46,7 +46,7 @@ export interface ClassModelJSON {
   calibration?: { A: number; B: number; method: string };
   impute_with: number[];
   selection?: { best_C: number };
-  metrics: { auc: number; accuracy: number; precision: number; recall: number; f1: number; cv_auc_mean: number; cv_auc_std: number; brier_before_cal?: number; brier_after_cal?: number };
+  metrics: { auc: number; accuracy: number; precision: number; recall: number; f1: number; cv_auc_mean: number; cv_auc_std: number; brier_before_cal?: number; brier_after_cal?: number; auc_ci95?: [number, number] };
   n_train: number;
   n_test: number;
 }
@@ -72,8 +72,8 @@ export interface RiskPrediction {
   residStd: number;            // typical prediction error, raw score units
 }
 
-const M = diabetesModel as RiskModelJSON;
-const C = diabetesClassModel as ClassModelJSON;
+const M = diabetesModel as unknown as RiskModelJSON;
+const C = diabetesClassModel as unknown as ClassModelJSON;
 
 function parseNum(v: unknown): number | null {
   if (v == null) return null;
@@ -180,6 +180,8 @@ export const diabetesMeta = {
   metrics: M.metrics,
   target: M.target,
   classAuc: C.metrics.auc,
+  r2Ci: M.metrics.r2_ci95,
+  classAucCi: C.metrics.auc_ci95,
   brier: C.metrics.brier_after_cal ?? C.metrics.brier_before_cal ?? 0,
   bestAlpha: M.selection?.best_alpha,
   bestC: C.selection?.best_C,

@@ -87,6 +87,29 @@ def load_breast_cancer_diag():
 
 
 # registry: (loader, kind). Adding a disease = one entry.
+
+def bootstrap_ci(y, pred, metric, n=2000, seed=RNG):
+    """Non-parametric 95% CI for a metric by resampling the test set with replacement.
+    Turns a point estimate into an honest interval that reflects the small test size."""
+    rng = np.random.default_rng(seed); y = np.asarray(y); pred = np.asarray(pred); m = len(y); vals = []
+    for _ in range(n):
+        idx = rng.integers(0, m, m)
+        try:
+            v = metric(y[idx], pred[idx])
+            if v == v: vals.append(float(v))  # skip NaN (e.g. one-class resample)
+        except Exception:
+            pass
+    lo, hi = np.percentile(vals, [2.5, 97.5])
+    return round(float(lo), 4), round(float(hi), 4), vals
+
+
+def boot_hist(fname, title, vals, lo, hi, xlabel):
+    plt.figure(figsize=(4.8, 3.6)); plt.hist(vals, bins=30, color="#4c72b0", alpha=0.85)
+    plt.axvline(lo, color="#c0392b", lw=1.5); plt.axvline(hi, color="#c0392b", lw=1.5)
+    plt.xlabel(xlabel); plt.ylabel("bootstrap resamples"); plt.title(f"{title}: 95% CI [{lo:.2f}, {hi:.2f}]")
+    plt.tight_layout(); plt.savefig(os.path.join(CHART_OUT, fname), dpi=120); plt.close()
+
+
 MODELS = {"diabetes": (load_diabetes_progression, "regression"),
           "breast_cancer": (load_breast_cancer_diag, "classification")}
 
@@ -113,6 +136,8 @@ def train_one(key):
     cvr2 = cross_val_score(Ridge(alpha=best_alpha), Zall, y, cv=5, scoring="r2")
     base_rmse = mean_squared_error(yte, np.full_like(yte, ytr.mean())) ** 0.5
     resid_std = float(np.std(yte - pte))
+    r2_lo, r2_hi, r2_boot = bootstrap_ci(yte, pte, r2_score)
+    boot_hist(f"{meta['task']}_bootstrap_r2.png", f"{key} R2", r2_boot, r2_lo, r2_hi, "R2 (bootstrap)")
     print(f"[{key}] REGRESSION  best_alpha={best_alpha}  test R2={r2:.3f} RMSE={rmse:.1f} (baseline {base_rmse:.1f})  CV-R2={cvr2.mean():.3f}±{cvr2.std():.3f}")
     print("        CV-R2 by family:", {k: round(v,3) for k,v in cmp.items()})
 
@@ -129,7 +154,7 @@ def train_one(key):
         "uncertainty":{"resid_std":round(resid_std,2),"index_band":round(100*resid_std/(p95-p05),1)},
         "selection":{"best_alpha":best_alpha,"cv_r2_by_family":{k:round(v,4) for k,v in cmp.items()}},
         "metrics":{"r2":round(r2,4),"rmse":round(rmse,2),"mae":round(mae,2),"cv_r2_mean":round(cvr2.mean(),4),
-                   "cv_r2_std":round(cvr2.std(),4),"baseline_rmse":round(base_rmse,2)},
+                   "cv_r2_std":round(cvr2.std(),4),"baseline_rmse":round(base_rmse,2),"r2_ci95":[r2_lo,r2_hi]},
         "n_train":int(len(ytr)),"n_test":int(len(yte)),"trained_at":datetime.now(timezone.utc).isoformat()}
     os.makedirs(MODEL_OUT, exist_ok=True); json.dump(reg_json, open(os.path.join(MODEL_OUT,f"{task}.json"),"w"), indent=2)
 
@@ -163,7 +188,9 @@ def train_one(key):
     cvauc = cross_val_score(LogisticRegression(C=best_C, max_iter=1000), cZall, yb, cv=5, scoring="roc_auc")
     brier_before=brier_score_loss(cyte, proba_raw); brier_after=brier_score_loss(cyte, proba_cal)
     cm=confusion_matrix(cyte, cpred)
-    cmetrics={"auc":round(auc,4),"accuracy":round(accuracy_score(cyte,cpred),4),"precision":round(precision_score(cyte,cpred),4),
+    auc_lo,auc_hi,auc_boot=bootstrap_ci(cyte, proba_cal, roc_auc_score)
+    boot_hist(f"{meta['task']}_class_bootstrap_auc.png", f"{key} AUC", auc_boot, auc_lo, auc_hi, "ROC-AUC (bootstrap)")
+    cmetrics={"auc":round(auc,4),"auc_ci95":[auc_lo,auc_hi],"accuracy":round(accuracy_score(cyte,cpred),4),"precision":round(precision_score(cyte,cpred),4),
               "recall":round(recall_score(cyte,cpred),4),"f1":round(f1_score(cyte,cpred),4),
               "cv_auc_mean":round(cvauc.mean(),4),"cv_auc_std":round(cvauc.std(),4),
               "brier_before_cal":round(brier_before,4),"brier_after_cal":round(brier_after,4)}
@@ -231,7 +258,7 @@ def train_one(key):
     plt.xlabel("recall"); plt.ylabel("precision"); plt.title(f"{key}: precision-recall"); plt.legend(loc="lower left")
     plt.tight_layout(); plt.savefig(os.path.join(CHART_OUT, f"{task}_class_pr.png"), dpi=120); plt.close()
 
-    print(f"        wrote src/ml/{task}.json + {task}_class.json + 10 charts")
+    print(f"        wrote src/ml/{task}.json + {task}_class.json + 12 charts")
     return reg_json, clf_json
 
 
@@ -252,7 +279,9 @@ def train_classification(key, loader):
     auc = roc_auc_score(yte, proba); cvauc = cross_val_score(LogisticRegression(C=best_C, max_iter=5000), Zall, y, cv=5, scoring="roc_auc")
     brier_before = brier_score_loss(yte, proba_raw); brier_after = brier_score_loss(yte, proba)
     cm = confusion_matrix(yte, pred)
-    cmetrics = {"auc":round(auc,4),"accuracy":round(accuracy_score(yte,pred),4),"precision":round(precision_score(yte,pred),4),
+    auc_lo,auc_hi,auc_boot=bootstrap_ci(yte, proba, roc_auc_score)
+    boot_hist(f"{task}_bootstrap_auc.png", f"{key} AUC", auc_boot, auc_lo, auc_hi, "ROC-AUC (bootstrap)")
+    cmetrics = {"auc":round(auc,4),"auc_ci95":[auc_lo,auc_hi],"accuracy":round(accuracy_score(yte,pred),4),"precision":round(precision_score(yte,pred),4),
                 "recall":round(recall_score(yte,pred),4),"f1":round(f1_score(yte,pred),4),
                 "cv_auc_mean":round(cvauc.mean(),4),"cv_auc_std":round(cvauc.std(),4),
                 "brier_before_cal":round(brier_before,4),"brier_after_cal":round(brier_after,4)}
@@ -297,7 +326,7 @@ def train_classification(key, loader):
     plt.figure(figsize=(4.8,3.8)); plt.plot(ts,tr_sc.mean(1),"o-",color="#c0392b",label="training AUC"); plt.plot(ts,cv_sc.mean(1),"o-",color="#27ae60",label="cross-val AUC")
     plt.xlabel("training examples"); plt.ylabel("AUC"); plt.title(f"{key}: learning curve"); plt.legend(loc="best"); plt.tight_layout()
     plt.savefig(os.path.join(CHART_OUT,f"{task}_learning_curve.png"),dpi=120); plt.close()
-    print(f"        wrote src/ml/{task}.json + 7 charts")
+    print(f"        wrote src/ml/{task}.json + 8 charts")
     return clf_json, None
 
 

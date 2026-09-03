@@ -13,7 +13,7 @@ its inputs are biopsy measurements, not blood tests.
 
 | metric | value |
 | --- | --- |
-| ROC-AUC | **0.996** |
+| ROC-AUC | **0.996** [95% CI 0.989–1.00] |
 | Cross-val AUC | **0.995 ± 0.004** |
 | Accuracy | 0.97 |
 | Brier score | 0.02 (excellent calibration) |

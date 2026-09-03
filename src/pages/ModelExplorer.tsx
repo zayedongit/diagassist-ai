@@ -111,9 +111,9 @@ export default function ModelExplorer() {
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
-              <Chip v={diabetesMeta.metrics.r2} k="Regression R² (test)" />
+              <Chip v={diabetesMeta.metrics.r2} k={diabetesMeta.r2Ci ? `R² · 95% CI ${diabetesMeta.r2Ci[0]}–${diabetesMeta.r2Ci[1]}` : "Regression R² (test)"} />
               <Chip v={`${diabetesMeta.metrics.rmse}`} k={`RMSE (vs ${diabetesMeta.metrics.baseline_rmse})`} />
-              <Chip v={diabetesMeta.classAuc} k="Classifier AUC" />
+              <Chip v={diabetesMeta.classAuc} k={diabetesMeta.classAucCi ? `AUC · 95% CI ${diabetesMeta.classAucCi[0]}–${diabetesMeta.classAucCi[1]}` : "Classifier AUC"} />
               <Chip v={diabetesMeta.brier} k="Brier (calibration)" />
             </div>
             <p className="text-[11px] text-muted-foreground flex items-start gap-1.5">
@@ -158,7 +158,7 @@ export default function ModelExplorer() {
               </div>
             )}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              <Chip v={breastCancerMeta.metrics.auc} k="ROC-AUC (test)" />
+              <Chip v={breastCancerMeta.metrics.auc} k={breastCancerMeta.metrics.auc_ci95 ? `AUC · 95% CI ${breastCancerMeta.metrics.auc_ci95[0]}–${breastCancerMeta.metrics.auc_ci95[1]}` : "ROC-AUC (test)"} />
               <Chip v={breastCancerMeta.metrics.cv_auc_mean} k="CV-AUC" />
               <Chip v={breastCancerMeta.metrics.accuracy} k="Accuracy" />
               <Chip v={breastCancerMeta.metrics.brier_after_cal ?? 0} k="Brier (calibration)" />

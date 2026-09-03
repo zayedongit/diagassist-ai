@@ -172,13 +172,13 @@ risk estimate - the right tool for a numeric prediction. Models are trained offl
 
 | Model | Type | Dataset | Held-out performance |
 | --- | --- | --- | --- |
-| Diabetes progression | Regression | scikit-learn diabetes (442) | R² 0.38 (CV 0.41), RMSE 59 vs 75 baseline |
-| Diabetes - faster than typical | Classification | scikit-learn diabetes (442) | ROC-AUC 0.78 (CV 0.80), Brier 0.19 |
-| Breast cancer (malignant) | Classification | Wisconsin (569) | ROC-AUC 0.996 (CV 0.995), Brier 0.02 |
+| Diabetes progression | Regression | scikit-learn diabetes (442) | R² 0.38 [95% CI 0.21–0.51], RMSE 59 vs 75 baseline |
+| Diabetes - faster than typical | Classification | scikit-learn diabetes (442) | ROC-AUC 0.78 [95% CI 0.69–0.86], Brier 0.19 |
+| Breast cancer (malignant) | Classification | Wisconsin (569) | ROC-AUC 0.996 [95% CI 0.99–1.00], Brier 0.02 |
 
 Every model is **hyperparameter-tuned by cross-validation** (`GridSearchCV`), **probability-
 calibrated** (Platt scaling, checked with the Brier score and a reliability curve), and
-**explainable** (per-feature contributions in the app; permutation-importance charts offline).
+**explainable** (per-feature contributions in the app; permutation-importance charts offline). Every headline metric carries a **bootstrap 95% confidence interval**, and each classifier ships a **threshold / operating-point** analysis.
 The trainer is a one-file registry - adding a disease is one loader entry. See
 [`ml/README.md`](ml/README.md), the described chart index at
 [`ml/report/charts/INDEX.md`](ml/report/charts/INDEX.md), and the self-contained study page

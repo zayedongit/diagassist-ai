@@ -14,6 +14,7 @@ Johnstone & Tibshirani, 2004).
 | R² | **0.38** | explains 38% of the variation in progression |
 | Cross-val R² | **0.41 ± 0.09** | stable across folds → not overfit |
 | RMSE | **58.6** | typical error, vs **74.9** for a no-model baseline (~22% lower) |
+| R² 95% CI | **[0.21, 0.51]** | 2000-sample bootstrap of the test set |
 | MAE | 46.6 | mean absolute error |
 
 This is the **selected** model (see methodology below): a grid search chose the Ridge
