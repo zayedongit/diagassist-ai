@@ -179,7 +179,7 @@ risk estimate - the right tool for a numeric prediction. Models are trained offl
 Every model is **hyperparameter-tuned by cross-validation** (`GridSearchCV`), **probability-
 calibrated** (Platt scaling, checked with the Brier score and a reliability curve), and
 **explainable** (per-feature contributions in the app; permutation-importance charts offline). Every headline metric carries a **bootstrap 95% confidence interval**, and each classifier ships a **threshold / operating-point** analysis.
-The trainer is a one-file registry - adding a disease is one loader entry. See
+The trainer is a one-file registry - adding a disease is one loader entry. See the [model card](ml/MODEL_CARD.md) for intended use, ethics and limitations,
 [`ml/README.md`](ml/README.md), the described chart index at
 [`ml/report/charts/INDEX.md`](ml/report/charts/INDEX.md), and the self-contained study page
 [`ml/report/ml_model_cards.html`](ml/report/ml_model_cards.html). Try the models live at the

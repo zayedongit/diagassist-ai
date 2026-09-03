@@ -23,6 +23,12 @@ src/lib/riskModel.ts       # browser inference (standardize -> dot product -> 0-
 src/components/RiskProjectionCard.tsx  # the UI card
 ```
 
+## Responsible ML
+
+See [`MODEL_CARD.md`](MODEL_CARD.md) for intended use, out-of-scope use, ethical
+considerations, and honest limitations (population representativeness, small test sets,
+research-only).
+
 ## Retrain
 
 ```bash
