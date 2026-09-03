@@ -367,7 +367,17 @@
     "brier_before_cal": 0.0224,
     "brier_after_cal": 0.0212
   },
+  "operating_point": {
+    "youden_threshold": 0.25,
+    "high_sensitivity": {
+      "threshold": 0.15,
+      "target_recall": 0.98,
+      "recall": 0.981,
+      "specificity": 0.956,
+      "precision": 0.929
+    }
+  },
   "n_train": 426,
   "n_test": 143,
-  "trained_at": "2026-08-31T19:09:58.342498+00:00"
+  "trained_at": "2026-09-03T13:16:25.153126+00:00"
 }

@@ -100,6 +100,14 @@ log-loss), so Platt scaling barely moved it. That means a "70%" from this model
 really does behave like 70%. The calibration parameters are still exported and
 applied at serve time, so the guarantee holds if the model is ever retrained.
 
+## Operating point (choosing the threshold)
+
+A classifier's 0.5 cutoff is a default, not a rule. Sweeping the decision threshold
+(`ml/report/charts/diabetes_progression_class_threshold.png`) trades sensitivity for
+specificity; a high-sensitivity operating point (target recall 0.85) sits near
+threshold 0.41. The app still displays the calibrated probability and uses 0.5 for the
+label; the operating point is exported in the model JSON for anyone tuning to a clinical cost.
+
 ## In the app
 
 When a report yields at least two of the five inputs, DiagAssist shows a

@@ -41,6 +41,8 @@ with `python ml/train.py`. Grouped by model.
   both hug the diagonal, Brier ≈ 0.19 → probabilities were already trustworthy.
 - **diabetes_progression_class_pr.png** — Precision-recall curve for the classifier with its
   average-precision (AP) score.
+- **diabetes_progression_class_threshold.png** — Precision / recall / specificity / F1 across
+  decision thresholds, with a high-sensitivity operating point marked. Shows 0.5 is a choice.
 
 ## Breast cancer (classification) — scikit-learn breast cancer Wisconsin, 569 samples
 
@@ -55,3 +57,5 @@ same trainer generalizes to a new disease. Near-perfect separation.
   worst-symmetry, worst-texture and worst-concavity lead.
 - **breast_cancer_malignant_learning_curve.png** — Training vs cross-val AUC; both high and
   converged → strong, stable model.
+- **breast_cancer_malignant_threshold.png** — Threshold sweep; a high-sensitivity operating
+  point reaches ~98% recall at ~96% specificity — the medically relevant way to set the cutoff.

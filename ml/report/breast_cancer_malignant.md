@@ -23,6 +23,11 @@ its inputs are biopsy measurements, not blood tests.
 ![reliability](charts/breast_cancer_malignant_calibration.png)
 ![permutation importance](charts/breast_cancer_malignant_permutation_importance.png)
 
+At a high-sensitivity **operating point** (threshold ~0.15, target recall 0.98) the model
+reaches ~98% sensitivity at ~96% specificity — for cancer detection you tune the threshold to
+avoid missing malignant cases, not leave it at 0.5. See
+`charts/breast_cancer_malignant_threshold.png`.
+
 The top drivers (worst-symmetry, worst-texture, worst-concavity) match the clinical
 intuition that irregular, textured, concave nuclei signal malignancy. See
 `charts/INDEX.md` for a plain-language guide to every chart.

@@ -36,6 +36,32 @@ MODEL_OUT = os.path.join(ROOT, "src", "ml"); CHART_OUT = os.path.join(HERE, "rep
 sig = lambda t: 1 / (1 + np.exp(-t))
 
 
+def threshold_report(task, key, yte, proba, target_recall, pos="positive"):
+    """Sweep decision thresholds; save a precision/recall/specificity/F1 chart and
+    return an operating point (Youden-optimal, plus a high-sensitivity point that
+    meets a target recall) - because 0.5 is a choice, not a law, especially in medicine."""
+    ths = np.linspace(0.02, 0.98, 97)
+    prec = [precision_score(yte, (proba >= t).astype(int), zero_division=0) for t in ths]
+    rec  = [recall_score(yte, (proba >= t).astype(int), zero_division=0) for t in ths]
+    f1s  = [f1_score(yte, (proba >= t).astype(int), zero_division=0) for t in ths]
+    spec = [recall_score(1 - yte, (proba < t).astype(int), zero_division=0) for t in ths]
+    j = [rec[i] + spec[i] - 1 for i in range(len(ths))]; j_th = float(ths[int(np.argmax(j))])
+    hs = [t for t, r in zip(ths, rec) if r >= target_recall]; hs_th = float(max(hs)) if hs else 0.02
+    i = int(np.argmin(np.abs(ths - hs_th)))
+    plt.figure(figsize=(5.4, 4.0))
+    plt.plot(ths, prec, label="precision", color="#2980b9")
+    plt.plot(ths, rec, label="recall / sensitivity", color="#c0392b")
+    plt.plot(ths, spec, label="specificity", color="#27ae60")
+    plt.plot(ths, f1s, label="F1", color="#8e44ad", ls="--")
+    plt.axvline(0.5, color="#999", lw=1, ls=":"); plt.axvline(hs_th, color="#c0392b", lw=1)
+    plt.xlabel("decision threshold"); plt.ylabel("score"); plt.title(f"{key}: threshold analysis")
+    plt.legend(loc="lower center", ncol=2, fontsize=8); plt.tight_layout()
+    plt.savefig(os.path.join(CHART_OUT, f"{task}_threshold.png"), dpi=120); plt.close()
+    return {"youden_threshold": round(j_th, 3),
+            "high_sensitivity": {"threshold": round(hs_th, 3), "target_recall": target_recall,
+                "recall": round(rec[i], 3), "specificity": round(spec[i], 3), "precision": round(prec[i], 3)}}
+
+
 def load_diabetes_progression():
     from sklearn.datasets import load_diabetes
     raw = load_diabetes(scaled=False, as_frame=True).frame
@@ -151,6 +177,7 @@ def train_one(key):
         "coef":cfinal.coef_[0].round(6).tolist(),"intercept":float(round(cfinal.intercept_[0],6)),
         "calibration":{"A":round(A,6),"B":round(B,6),"method":"platt_sigmoid"},
         "impute_with":cmean.round(6).tolist(),"selection":{"best_C":best_C},"metrics":cmetrics,
+        "operating_point": threshold_report(task+"_class", key, cyte, proba_cal, 0.85),
         "n_train":int(len(cytr)),"n_test":int(len(cyte)),"trained_at":datetime.now(timezone.utc).isoformat()}
     json.dump(clf_json, open(os.path.join(MODEL_OUT,f"{task}_class.json"),"w"), indent=2)
 
@@ -204,7 +231,7 @@ def train_one(key):
     plt.xlabel("recall"); plt.ylabel("precision"); plt.title(f"{key}: precision-recall"); plt.legend(loc="lower left")
     plt.tight_layout(); plt.savefig(os.path.join(CHART_OUT, f"{task}_class_pr.png"), dpi=120); plt.close()
 
-    print(f"        wrote src/ml/{task}.json + {task}_class.json + 9 charts")
+    print(f"        wrote src/ml/{task}.json + {task}_class.json + 10 charts")
     return reg_json, clf_json
 
 
@@ -239,6 +266,7 @@ def train_classification(key, loader):
         "coef":cfinal.coef_[0].round(6).tolist(),"intercept":float(round(cfinal.intercept_[0],6)),
         "calibration":{"A":round(A,6),"B":round(B,6),"method":"platt_sigmoid"},
         "impute_with":mean.round(6).tolist(),"feature_importance":imp[:12],"selection":{"best_C":best_C},"metrics":cmetrics,
+        "operating_point": threshold_report(task, key, yte, proba, 0.98),
         "n_train":int(len(ytr)),"n_test":int(len(yte)),"trained_at":datetime.now(timezone.utc).isoformat()}
     os.makedirs(MODEL_OUT, exist_ok=True); json.dump(clf_json, open(os.path.join(MODEL_OUT,f"{task}.json"),"w"), indent=2)
     os.makedirs(CHART_OUT, exist_ok=True)
@@ -269,7 +297,7 @@ def train_classification(key, loader):
     plt.figure(figsize=(4.8,3.8)); plt.plot(ts,tr_sc.mean(1),"o-",color="#c0392b",label="training AUC"); plt.plot(ts,cv_sc.mean(1),"o-",color="#27ae60",label="cross-val AUC")
     plt.xlabel("training examples"); plt.ylabel("AUC"); plt.title(f"{key}: learning curve"); plt.legend(loc="best"); plt.tight_layout()
     plt.savefig(os.path.join(CHART_OUT,f"{task}_learning_curve.png"),dpi=120); plt.close()
-    print(f"        wrote src/ml/{task}.json + 6 charts")
+    print(f"        wrote src/ml/{task}.json + 7 charts")
     return clf_json, None
 
 
