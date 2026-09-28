@@ -285,38 +285,45 @@ async function retryWithBackoff<T>(
 // Enhanced helper function to check if value is within reference range
 // Cerebras (primary) with retry/backoff, then Gemini (free-tier) as a worst-case
 // fallback if every Cerebras attempt fails (sustained outage or hard rate-limit).
-async function llmChatCompletion(cerebrasBody: any, retries: number, baseDelay: number, context: string): Promise<Response> {
+async function llmChatCompletion(cerebrasBody: any, retries: number, baseDelay: number, context: string, opts?: { vision?: boolean }): Promise<Response> {
   const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
   const CEREBRAS_API_KEY = Deno.env.get('CEREBRAS_API_KEY');
-  // PRIMARY: Gemini. It is multimodal (needed for OCR) and returns content reliably.
-  // The available Cerebras models are text-only reasoning models that leave `content`
-  // empty on some responses, so they serve only as a fast best-effort fallback.
-  if (GEMINI_API_KEY) {
+  const callGemini = async () => {
+    const gBody: any = { ...cerebrasBody, model: (Deno.env.get('GEMINI_MODEL') || 'gemini-3.6-flash') };
+    if ('max_completion_tokens' in gBody) { gBody.max_tokens = gBody.max_completion_tokens; delete gBody.max_completion_tokens; }
+    delete gBody.reasoning_effort;
+    const gr = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${GEMINI_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(gBody),
+    });
+    if (!gr.ok) throw new Error(`Gemini ${gr.status}: ${await gr.text()}`);
+    return gr;
+  };
+  // Vision/OCR: Cerebras has no multimodal model, so read images with Gemini directly.
+  if (opts?.vision) {
+    if (!GEMINI_API_KEY) throw new Error('Vision requires a Gemini key');
+    return await retryWithBackoff(callGemini, retries, baseDelay, context);
+  }
+  // Text: Cerebras PRIMARY (very fast), Gemini fallback. Content extraction downstream
+  // tolerates reasoning-model responses (content -> reasoning -> JSON substring).
+  if (CEREBRAS_API_KEY) {
     try {
       return await retryWithBackoff(async () => {
-        const gBody: any = { ...cerebrasBody, model: (Deno.env.get('GEMINI_MODEL') || 'gemini-3.6-flash') };
-        if ('max_completion_tokens' in gBody) { gBody.max_tokens = gBody.max_completion_tokens; delete gBody.max_completion_tokens; }
-        const gr = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
+        const r = await fetch('https://api.cerebras.ai/v1/chat/completions', {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${GEMINI_API_KEY}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify(gBody),
+          headers: { 'Authorization': `Bearer ${CEREBRAS_API_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify(cerebrasBody),
         });
-        if (!gr.ok) throw new Error(`Gemini ${gr.status}: ${await gr.text()}`);
-        return gr;
+        if (!r.ok) throw new Error(`Cerebras ${r.status}: ${await r.text()}`);
+        return r;
       }, retries, baseDelay, context);
-    } catch (geminiErr) {
-      if (!CEREBRAS_API_KEY) throw geminiErr;
-      console.warn(`⚠️ ${context}: Gemini failed, falling back to Cerebras —`, (geminiErr as Error).message);
+    } catch (cerebrasErr) {
+      if (!GEMINI_API_KEY) throw cerebrasErr;
+      console.warn(`⚠️ ${context}: Cerebras failed, falling back to Gemini —`, (cerebrasErr as Error).message);
     }
   }
-  // FALLBACK: Cerebras (fast, text-only/reasoning — best effort).
-  const r = await fetch('https://api.cerebras.ai/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${CEREBRAS_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(cerebrasBody),
-  });
-  if (!r.ok) throw new Error(`Cerebras fallback failed: ${r.status}: ${await r.text()}`);
-  return r;
+  return await callGemini();
 }
 
 // OCR a set of page images to text using the vision model (Cerebras -> Gemini fallback).
@@ -366,7 +373,7 @@ Return the complete extracted text maintaining the original structure and organi
             ],
             max_completion_tokens: 2048,
           };
-          const response = await llmChatCompletion(ocrBody, 3, 2000, `OCR batch ${batchStart + 1}-${end}`);
+          const response = await llmChatCompletion(ocrBody, 3, 2000, `OCR batch ${batchStart + 1}-${end}`, { vision: true });
           const visionData = await response.json();
           const segment = visionData.choices?.[0]?.message?.content?.trim?.() ?? '';
           return { batchStart, segment };

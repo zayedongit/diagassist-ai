@@ -118,36 +118,42 @@ function safeParseJSON(content: string): any {
 }
 
 // Retry mechanism with exponential backoff and rate limit awareness
-async function llmChatCompletion(cerebrasBody: any, retries: number, baseDelay: number, context: string): Promise<Response> {
+async function llmChatCompletion(cerebrasBody: any, retries: number, baseDelay: number, context: string, opts?: { vision?: boolean }): Promise<Response> {
   const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
   const CEREBRAS_API_KEY = Deno.env.get('CEREBRAS_API_KEY');
-  // PRIMARY: Gemini (multimodal + reliable content). Cerebras models are text-only
-  // reasoning models used only as a fast best-effort fallback.
-  if (GEMINI_API_KEY) {
+  const callGemini = async () => {
+    const gBody: any = { ...cerebrasBody, model: (Deno.env.get('GEMINI_MODEL') || 'gemini-3.6-flash') };
+    if ('max_completion_tokens' in gBody) { gBody.max_tokens = gBody.max_completion_tokens; delete gBody.max_completion_tokens; }
+    delete gBody.reasoning_effort;
+    const gr = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${GEMINI_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(gBody),
+    });
+    if (!gr.ok) throw new Error(`Gemini ${gr.status}: ${await gr.text()}`);
+    return gr;
+  };
+  if (opts?.vision) {
+    if (!GEMINI_API_KEY) throw new Error('Vision requires a Gemini key');
+    return await retryWithBackoff(callGemini, retries, baseDelay, context);
+  }
+  if (CEREBRAS_API_KEY) {
     try {
       return await retryWithBackoff(async () => {
-        const gBody: any = { ...cerebrasBody, model: (Deno.env.get('GEMINI_MODEL') || 'gemini-3.6-flash') };
-        if ('max_completion_tokens' in gBody) { gBody.max_tokens = gBody.max_completion_tokens; delete gBody.max_completion_tokens; }
-        const gr = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
+        const r = await fetch('https://api.cerebras.ai/v1/chat/completions', {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${GEMINI_API_KEY}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify(gBody),
+          headers: { 'Authorization': `Bearer ${CEREBRAS_API_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify(cerebrasBody),
         });
-        if (!gr.ok) throw new Error(`Gemini ${gr.status}: ${await gr.text()}`);
-        return gr;
+        if (!r.ok) throw new Error(`Cerebras ${r.status}: ${await r.text()}`);
+        return r;
       }, retries, baseDelay, context);
-    } catch (geminiErr) {
-      if (!CEREBRAS_API_KEY) throw geminiErr;
-      console.warn(`⚠️ ${context}: Gemini failed, falling back to Cerebras —`, (geminiErr as Error).message);
+    } catch (cerebrasErr) {
+      if (!GEMINI_API_KEY) throw cerebrasErr;
+      console.warn(`⚠️ ${context}: Cerebras failed, falling back to Gemini —`, (cerebrasErr as Error).message);
     }
   }
-  const r = await fetch('https://api.cerebras.ai/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${CEREBRAS_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(cerebrasBody),
-  });
-  if (!r.ok) throw new Error(`Cerebras fallback failed: ${r.status}: ${await r.text()}`);
-  return r;
+  return await callGemini();
 }
 
 async function retryWithBackoff<T>(
@@ -531,7 +537,7 @@ Analyze these medical images with complete thoroughness. Extract and prioritize 
           }],
           tool_choice: { type: "function", function: { name: "analyze_medical_report" } }
         };
-    const pass1Response = await llmChatCompletion(pass1Body, 3, 1000, 'Pass 1 Analysis (camera)');
+    const pass1Response = await llmChatCompletion(pass1Body, 3, 1000, 'Pass 1 Analysis (camera)', { vision: true });
 
     if (!pass1Response.ok) {
       const errorText = await pass1Response.text();
@@ -679,7 +685,7 @@ CRITICAL: Do NOT repeat any parameters already found. Only return NEW findings w
                 }],
                 tool_choice: { type: "function", function: { name: "extract_additional_parameters" } }
           };
-          const response = await llmChatCompletion(pass2Body, 2, 1000, `Pass 2 Chunk ${chunkIndex + 2}`);
+          const response = await llmChatCompletion(pass2Body, 2, 1000, `Pass 2 Chunk ${chunkIndex + 2}`, { vision: true });
 
           if (!response.ok) {
             console.warn(`Pass 2 Chunk ${chunkIndex + 2} failed:`, response.status);
