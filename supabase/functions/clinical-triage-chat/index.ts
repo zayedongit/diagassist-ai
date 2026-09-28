@@ -22,7 +22,7 @@ async function chatComplete(systemPrompt: string, userPrompt: string, maxTokens:
       const r = await fetch('https://api.cerebras.ai/v1/chat/completions', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${cerebrasKey}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: 'gemma-4-31b', messages, max_completion_tokens: maxTokens }),
+        body: JSON.stringify({ model: (Deno.env.get('CEREBRAS_MODEL') || 'qwen-3.8-27b'), messages, max_completion_tokens: maxTokens }),
       });
       if (r.ok) {
         const d = await r.json();
@@ -407,7 +407,7 @@ CRITICAL OPERATIONAL GUIDELINES:
 
     console.log('Calling OpenAI for triage response...');
     console.log('OpenAI request body:', {
-      model: 'gemma-4-31b',
+      model: (Deno.env.get('CEREBRAS_MODEL') || 'qwen-3.8-27b'),
       messages: [
         { role: 'system', content: 'System prompt length: ' + systemPrompt.length },
         { role: 'user', content: userPrompt }

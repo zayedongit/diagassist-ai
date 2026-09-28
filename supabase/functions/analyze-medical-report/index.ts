@@ -355,7 +355,7 @@ Return the complete extracted text maintaining the original structure and organi
       batchPromises.push(
         (async () => {
           const ocrBody = {
-            model: 'gemma-4-31b',
+            model: (Deno.env.get('CEREBRAS_MODEL') || 'qwen-3.8-27b'),
             messages: [
               {
                 role: 'user',
@@ -1197,7 +1197,7 @@ CRITICAL SUCCESS CRITERIA:
 Respond ONLY with valid JSON matching the structure above - no markdown, no explanations:`;
 
       const pass1Response: Response = await llmChatCompletion({
-        model: 'gemma-4-31b',
+        model: (Deno.env.get('CEREBRAS_MODEL') || 'qwen-3.8-27b'),
         messages: [
           {
             role: 'user',

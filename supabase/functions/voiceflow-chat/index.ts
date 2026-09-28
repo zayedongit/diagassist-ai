@@ -14,7 +14,7 @@ const corsHeaders = {
 async function chatComplete(messages: any[], wantJson: boolean): Promise<string> {
   const cerebrasKey = Deno.env.get('CEREBRAS_API_KEY');
   const baseBody: any = {
-    model: 'gemma-4-31b',
+    model: (Deno.env.get('CEREBRAS_MODEL') || 'qwen-3.8-27b'),
     messages,
     temperature: 0.4,
     max_completion_tokens: 700,

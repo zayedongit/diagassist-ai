@@ -266,7 +266,7 @@ async function analyzeWithVision(images: string[], apiKey: string): Promise<Anal
     }));
 
     const pass1Body: any = {
-          model: 'gemma-4-31b', // Using cost-efficient vision model to reduce rate limiting
+          model: (Deno.env.get('CEREBRAS_MODEL') || 'qwen-3.8-27b'), // Using cost-efficient vision model to reduce rate limiting
           messages: [
             {
               role: "system",
@@ -607,7 +607,7 @@ Analyze these medical images with complete thoroughness. Extract and prioritize 
           }));
 
           const pass2Body: any = {
-                model: 'gemma-4-31b', // Using cost-efficient vision model to reduce rate limiting
+                model: (Deno.env.get('CEREBRAS_MODEL') || 'qwen-3.8-27b'), // Using cost-efficient vision model to reduce rate limiting
                 messages: [
                   {
                     role: "system",
