@@ -11,13 +11,23 @@ const corsHeaders = {
 //   history: optional [{ role: 'user' | 'assistant', content: string }, ...]
 // Response { response, options, sessionId }
 //   options: up to 4 short suggested follow-up questions the user can tap.
+// Reasoning models may leave `content` empty and put their output in `reasoning`;
+// only accept `reasoning` when it actually contains the JSON answer.
+function messageText(data: any): string {
+  const msg = data?.choices?.[0]?.message ?? {};
+  const content = typeof msg.content === 'string' ? msg.content.trim() : '';
+  if (content) return content;
+  const reasoning = typeof msg.reasoning === 'string' ? msg.reasoning : '';
+  return /"reply"\s*:/.test(reasoning) ? reasoning.slice(reasoning.indexOf('{')).trim() : '';
+}
+
 async function chatComplete(messages: any[], wantJson: boolean): Promise<string> {
   const cerebrasKey = Deno.env.get('CEREBRAS_API_KEY');
   const baseBody: any = {
     model: (Deno.env.get('CEREBRAS_MODEL') || 'qwen-3.8-27b'),
     messages,
     temperature: 0.4,
-    max_completion_tokens: 700,
+    max_completion_tokens: 2000,
   };
 
   // Primary: Cerebras
@@ -29,8 +39,9 @@ async function chatComplete(messages: any[], wantJson: boolean): Promise<string>
       body: JSON.stringify(baseBody),
     });
     if (!resp.ok) throw new Error(`Cerebras error ${resp.status}: ${await resp.text()}`);
-    const data = await resp.json();
-    return data.choices?.[0]?.message?.content?.trim() || '';
+    const text = messageText(await resp.json());
+    if (!text) throw new Error('Cerebras returned an empty reply');
+    return text;
   } catch (cerebrasErr) {
     // Fallback: Google Gemini (OpenAI-compatible endpoint)
     const geminiKey = Deno.env.get('GEMINI_API_KEY');
@@ -45,8 +56,7 @@ async function chatComplete(messages: any[], wantJson: boolean): Promise<string>
       body: JSON.stringify(gBody),
     });
     if (!resp.ok) throw new Error(`Gemini error ${resp.status}: ${await resp.text()}`);
-    const data = await resp.json();
-    return data.choices?.[0]?.message?.content?.trim() || '';
+    return messageText(await resp.json());
   }
 }
 

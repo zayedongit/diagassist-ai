@@ -34,7 +34,6 @@ export const ConsolidatedHealthReport = ({
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     abnormalities: true,
     clinical: true,
-    interpretation: true,
     actions: true
   });
 
@@ -180,6 +179,7 @@ export const ConsolidatedHealthReport = ({
       <CardContent className="p-4 sm:p-6 space-y-6">
         {/* Patient-Friendly Summary */}
         <div className="bg-card border border-white/10 rounded-xl p-4">
+          <h4 className="font-semibold text-foreground mb-1">In short</h4>
           <p className="text-sm sm:text-base text-foreground leading-relaxed">
             {analysisData.patientFriendlySummary || analysisData.summary}
           </p>
@@ -386,53 +386,6 @@ export const ConsolidatedHealthReport = ({
             )}
           </div>
         )}
-
-        {/* SECTION 4: What This Means For You */}
-        <div className="space-y-3">
-          <button
-            onClick={() => toggleSection('interpretation')}
-            className="w-full flex items-center justify-between p-3 bg-gradient-to-r from-green-50 to-teal-50 border-2 border-green-200 rounded-xl hover:shadow-md transition-all"
-          >
-            <div className="flex items-center gap-2">
-              <Heart className="w-5 h-5 text-green-600" />
-              <h3 className="text-lg font-semibold text-foreground">
-                What This Means For You
-              </h3>
-            </div>
-            {expandedSections.interpretation ? (
-              <ChevronUp className="w-5 h-5 text-foreground" />
-            ) : (
-              <ChevronDown className="w-5 h-5 text-foreground" />
-            )}
-          </button>
-
-          {expandedSections.interpretation && (
-            <div className="bg-card border border-green-200 rounded-xl p-4 space-y-4 animate-fade-in">
-              <div className="space-y-3">
-                {abnormalPanels.map((panel, index) => (
-                  <div key={index} className="bg-green-50/50 border border-green-200 rounded-lg p-3">
-                    <h5 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-                      <Activity className="w-4 h-4 text-primary" />
-                      {panel.name}
-                    </h5>
-                    <p className="text-sm text-foreground leading-relaxed">
-                      {panel.interpretation}
-                    </p>
-                  </div>
-                ))}
-              </div>
-
-              {analysisData.patientFriendlySummary && (
-                <div className="bg-card border border-white/10 rounded-lg p-4">
-                  <h5 className="font-semibold text-foreground mb-2">In Simple Terms:</h5>
-                  <p className="text-sm text-foreground leading-relaxed">
-                    {analysisData.patientFriendlySummary}
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
 
         {/* SECTION 5: Recommended Actions */}
         {clinicalAssessmentData && clinicalAssessmentData.management && (

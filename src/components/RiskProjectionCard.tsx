@@ -73,24 +73,23 @@ export const RiskProjectionCard = ({ analysisData }: { analysisData: EnhancedAna
           </div>
         )}
 
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium border bg-purple-50 border-purple-200 text-purple-700">
-            Classifier: {p.classLabel === "faster" ? "faster" : "slower"}-than-typical progression
-          </span>
-          <span className="text-[11px] text-muted-foreground">
-            {Math.round(p.probFaster * 100)}% confidence · calibrated logistic regression, AUC {p.classAuc}
-          </span>
-        </div>
+        <p className="text-[11px] text-muted-foreground">
+          An estimate for learning, <span className="font-medium">not a diagnosis</span>.
+        </p>
 
-        <div className="flex items-start gap-2 rounded-lg bg-white/60 border border-white/40 p-2.5">
-          <Info className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
-          <p className="text-[11px] leading-relaxed text-muted-foreground">
+        <details className="rounded-lg bg-white/60 border border-white/40 p-2.5 text-[11px] text-muted-foreground">
+          <summary className="cursor-pointer select-none flex items-center gap-1.5">
+            <Info className="w-3.5 h-3.5 shrink-0" />
+            How this is calculated
+          </summary>
+          <p className="mt-2 leading-relaxed">
+            Classifier: {p.classLabel === "faster" ? "faster" : "slower"}-than-typical progression,{" "}
+            {Math.round(p.probFaster * 100)}% confidence (calibrated logistic regression, AUC {p.classAuc}).
             Cross-validated Ridge regression · {p.dataset} · test R²={p.metrics.r2}, RMSE {p.metrics.rmse} (vs{" "}
             {p.metrics.baseline_rmse} baseline); probability calibrated (Brier {p.brier}). Based on{" "}
-            {p.foundKeys.length} of {total} inputs found in your report; the rest use population averages. A
-            research/education estimate of a progression index, <span className="font-medium">not a diagnosis</span>.
+            {p.foundKeys.length} of {total} inputs found in your report; the rest use population averages.
           </p>
-        </div>
+        </details>
       </CardContent>
     </Card>
   );

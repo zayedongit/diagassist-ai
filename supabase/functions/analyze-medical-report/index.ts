@@ -1035,6 +1035,7 @@ Extract EVERY parameter from ALL sections:
 - End with hope and actionable steps
 - Write for an ordinary person with no medical background. Prefer everyday words; when a medical term is unavoidable, immediately explain it in plain words (e.g. "LDL, the 'bad' cholesterol").
 - Keep sentences short and simple.
+- BE BRIEF. The reader wants a crisp answer, not an essay. Obey the word limits given in the JSON schema below. Never repeat the same point in two fields. Do not list normal results one by one - "everything else is normal" is enough.
 - Do NOT use emojis, emoticons, or decorative symbols anywhere in any field of the output.
 
 **LANGUAGE GUIDELINES**:
@@ -1128,7 +1129,7 @@ ONLY use "Anonymous Patient" if absolutely no name found after thorough search.
 {
   "patientName": "string - Full name extracted from report or 'Anonymous Patient'",
   "overallStatus": "good" | "moderate" | "concerning",
-  "summary": "string - Accurate summary in the simplest everyday words a non-medical person understands, most important finding first. Explain any medical term in plain words. No jargon, no emojis.",
+  "summary": "string - ONE or TWO short sentences (max 35 words) in everyday words: the overall verdict and the main finding. No jargon, no emojis.",
   "demographics": {
     "gender": "male" | "female" | "other",
     "age": number
@@ -1144,21 +1145,21 @@ ONLY use "Anonymous Patient" if absolutely no name found after thorough search.
           "unit": "string - Exact unit",
           "referenceRange": "string - Normal range from report or standard clinical range",
           "status": "low" | "high" | "critical" (NEVER use 'normal' - only include TRULY ABNORMAL values here),
-          "significance": "string - Brief clinical significance with specific thresholds"
+          "significance": "string - ONE short plain-language sentence (max 20 words) saying what this value means for the person. No jargon, no thresholds lists."
         }
       ],
       "normalParameters": ["string - List of normal parameter values in this panel with values"],
-      "interpretation": "string - Plain-language explanation of what this panel means for the person, in simple everyday words as if explaining to a friend with no medical background. If a medical term is unavoidable, immediately explain it in plain words. No jargon dumps, no emojis."
+      "interpretation": "string - At most TWO short sentences (max 40 words) in simple everyday words: what this means and whether to worry. Do not repeat the numbers already listed above. No jargon, no emojis."
     }
   ],
   "citedSourceIds": ["string - the [S#] ids from the GROUNDING REFERENCES you actually relied on, e.g. 'S1'. Empty array [] if no references were provided or used. Never include an id that was not listed."],
   "nextSteps": [
-    "string - Specific, actionable next steps written in plain, simple layman language a non-medical person can act on. Explain any medical term in everyday words. No emojis. Example: 'See a heart doctor or your regular doctor about your high bad cholesterol — they may suggest medicine to bring it down.'"
+    "string - At most 4 items. Each ONE short actionable sentence (max 15 words) in plain layman language. No emojis. Example: 'See your doctor about your high bad cholesterol.'"
   ],
   "nextStepsStructured": {
-    "consultation": ["string - ONLY if truly needed: which doctor/specialist the person should see and why, in plain words. Include ONLY mandatory, essential consultations. Leave this array EMPTY if none is genuinely required. Do not pad."],
-    "investigation": ["string - ONLY if truly needed: further tests or repeat tests the person should get, in plain words. Include ONLY mandatory, essential investigations. Leave EMPTY if none is genuinely required. Do not pad."],
-    "lifestyle": ["string - ONLY the most important dietary and lifestyle changes that matter for THIS person's results, in plain everyday words. Keep it minimal (at most a few) so the patient is not confused. Leave EMPTY only if the report is completely normal."]
+    "consultation": ["string - At most 2 items, each max 15 words. ONLY if truly needed: which doctor/specialist the person should see and why, in plain words. Include ONLY mandatory, essential consultations. Leave this array EMPTY if none is genuinely required. Do not pad."],
+    "investigation": ["string - At most 3 items, each max 15 words. ONLY if truly needed: further tests or repeat tests the person should get, in plain words. Include ONLY mandatory, essential investigations. Leave EMPTY if none is genuinely required. Do not pad."],
+    "lifestyle": ["string - At most 3 items, each max 15 words. ONLY the most important dietary and lifestyle changes that matter for THIS person's results, in plain everyday words. Keep it minimal (at most a few) so the patient is not confused. Leave EMPTY only if the report is completely normal."]
   },
   "diet": {
     "avoid": ["string - Specific foods to avoid with clinical reasoning"],
@@ -1169,7 +1170,7 @@ ONLY use "Anonymous Patient" if absolutely no name found after thorough search.
     "recommendations": ["string - Specific lifestyle changes"],
     "detailed": ["string - Detailed lifestyle guidance with clinical rationale"]
   },
-  "patientFriendlySummary": "string - Simple, reassuring explanation in the simplest everyday words, like talking to a friend with no medical background. No jargon, no emojis.",
+  "patientFriendlySummary": "string - 3 to 4 short sentences, MAX 70 WORDS total, like talking to a friend with no medical background: (1) overall verdict, (2) the main 1-3 issues in plain words, (3) the single most important thing to do. Do not list normal tests. No jargon, no emojis.",
   "specialist": "string - Specific specialist type for PRIMARY concern",
   "populationSource": "Clinical laboratory reference ranges and population health data",
   "healthRisks": [

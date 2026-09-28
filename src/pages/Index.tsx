@@ -249,93 +249,7 @@ const Index = () => {
     setAnalysisData(data);
     setAnalysisTimestamp(new Date().toISOString());
     setIsAnalyzing(false);
-    
-    // AUTO-STORAGE: Store comprehensive report automatically
-    if (user && analysisId && data) {
-      console.log('💾 AUTO-STORAGE: Initiating comprehensive report storage');
-      
-      try {
-        // Generate comprehensive report
-        const { generateFullComprehensiveReport } = await import('@/utils/generateFullComprehensiveReport');
-        const { calculateHealthScore } = await import('@/utils/healthScoreCalculator');
-        const { extractAbnormalPanels } = await import('@/types/medicalAnalysis');
-        
-        const healthScoreBreakdown = calculateHealthScore(
-          data as any,
-          data.demographics,
-          {}
-        );
-        
-        const abnormalPanels = extractAbnormalPanels(data as any).map(panel => ({
-          panelName: panel.name || 'Unknown Panel',
-          abnormalLabs: (panel.abnormalLabs || []).map(lab => ({
-            parameter: lab.name,
-            value: lab.value,
-            unit: lab.unit || '',
-            normalRange: lab.referenceRange || 'N/A',
-            status: lab.status as 'high' | 'low' | 'normal'
-          }))
-        }));
-        
-        const valuesNeedingAttention = data.medicalPanels
-          ?.flatMap((p: any) => p.abnormalLabs || [])
-          .map((lab: any) => ({
-            parameter: lab.name,
-            value: lab.value,
-            unit: lab.unit || '',
-            normalRange: lab.referenceRange || 'N/A',
-            status: lab.status as 'high' | 'low' | 'normal'
-          })) || [];
-        
-        const result = await generateFullComprehensiveReport({
-          patientInfo: {
-            name: data.patientName || 'Not Available',
-            age: data.demographics?.age,
-            gender: data.demographics?.gender,
-            testDate: data.testDate || 'Not Available'
-          },
-          summary: data.summary,
-          overallStatus: data.overallStatus,
-          healthScoreBreakdown,
-          abnormalPanels,
-          valuesNeedingAttention,
-          clinicalAssessment: {},
-          recommendations: {
-            immediate: [],
-            dietary: { toAdd: [], toLimitOrAvoid: [] },
-            lifestyle: [],
-            followUp: ''
-          }
-        });
-        
-        if (false && result.success && result.pdfBase64) { // cloud auto-storage disabled (account-free)
-          console.log('📤 AUTO-STORAGE: Storing comprehensive report');
-          
-          const { error: storageError } = await supabase.functions.invoke('store-analysis-report', {
-            body: {
-              analysisId,
-              pdfBase64: result.pdfBase64,
-              reportType: 'comprehensive',
-              filename: result.fileName
-            }
-          });
-          
-          if (storageError) {
-            console.error('❌ AUTO-STORAGE: Failed to store report:', storageError);
-          } else {
-            console.log('✅ AUTO-STORAGE: Report stored successfully');
-            
-            // Check storage threshold
-            await supabase.functions.invoke('check-storage-threshold', {
-              body: { userId: user.id }
-            });
-          }
-        }
-      } catch (error) {
-        console.error('❌ AUTO-STORAGE: Error during auto-storage:', error);
-      }
-    }
-    
+
     // AUTO-REFRESH: Fetch fresh data from database after 2 seconds
     setTimeout(async () => {
       if (analysisId) {
@@ -604,18 +518,10 @@ RAW DATA: ${baseContext}`;
 
   // Handle download comprehensive report
   const handleDownloadComprehensiveReport = async () => {
-    if (!analysisData || !enhancedData || !clinicalAssessmentData) {
-      toast.error('Complete analysis data required for comprehensive report');
+    if (!analysisData || !enhancedData) {
+      toast.error('Your report is still loading - please try again in a moment');
       return;
     }
-
-    console.log('📄 Preparing comprehensive PDF with CURRENT patient data:', {
-      patientName: analysisData.patientName,
-      age: analysisData.demographics?.age,
-      gender: analysisData.demographics?.gender,
-      testDate: analysisData.testDate,
-      panelsCount: analysisData.medicalPanels?.length
-    });
 
     const { generateFullComprehensiveReport } = await import('@/utils/generateFullComprehensiveReport');
     const { calculateHealthScore } = await import('@/utils/healthScoreCalculator');
@@ -625,54 +531,33 @@ RAW DATA: ${baseContext}`;
     const healthScoreBreakdown = calculateHealthScore(
       enhancedData,
       analysisData.demographics,
-      parseClinicalContext(clinicalAssessmentData)
+      parseClinicalContext(clinicalAssessmentData || {})
     );
 
-    const abnormalPanels = extractAbnormalPanels(enhancedData).map(panel => ({
-      panelName: panel.name || 'Unknown Panel',
-      abnormalLabs: (panel.abnormalLabs || []).map(lab => ({
-        parameter: lab.name,
-        value: lab.value,
-        unit: lab.unit || '',
-        normalRange: lab.referenceRange || 'N/A',
-        status: lab.status as 'high' | 'low' | 'normal'
-      }))
-    }));
-
-    const valuesNeedingAttention = enhancedData.medicalPanels
-      .flatMap(p => p.abnormalLabs || [])
-      .map(lab => ({
-        parameter: lab.name,
-        value: lab.value,
-        unit: lab.unit || '',
-        normalRange: lab.referenceRange || 'N/A',
-        status: lab.status as 'high' | 'low' | 'normal'
-      }));
-
+    const structured = enhancedData.nextStepsStructured || {};
     const result = await generateFullComprehensiveReport({
       patientInfo: {
-        name: analysisData.patientName || 'Not Available',
+        name: analysisData.patientName || enhancedData.profileName,
         age: analysisData.demographics?.age,
         gender: analysisData.demographics?.gender,
-        testDate: analysisData.testDate || 'Not Available'
+        testDate: analysisData.testDate,
       },
-      summary: analysisData.summary,
-      overallStatus: analysisData.overallStatus,
+      overallStatus: enhancedData.overallStatus,
+      summary: enhancedData.patientFriendlySummary || enhancedData.summary,
       healthScoreBreakdown,
-      abnormalPanels,
-      valuesNeedingAttention,
-      clinicalAssessment: clinicalAssessmentData,
-      recommendations: {
-        immediate: clinicalAssessmentData.management?.generalRx || [],
-        dietary: {
-          toAdd: clinicalAssessmentData.management?.dietaryAdvice || [],
-          toLimitOrAvoid: []
-        },
-        lifestyle: clinicalAssessmentData.management?.lifestyle || [],
-        followUp: clinicalAssessmentData.followUp || ''
-      }
+      panels: extractAbnormalPanels(enhancedData).map((panel) => ({
+        name: panel.name || 'Results',
+        interpretation: panel.interpretation,
+        abnormalLabs: panel.abnormalLabs || [],
+      })),
+      nextSteps: {
+        consultation: structured.consultation,
+        investigation: structured.investigation,
+        lifestyle: structured.lifestyle,
+        flat: enhancedData.nextSteps,
+      },
     });
-    
+
     console.log('🔍 STORAGE DEBUG - Comprehensive Report:', {
       resultSuccess: result.success,
       hasPdfBase64: !!result.pdfBase64,
