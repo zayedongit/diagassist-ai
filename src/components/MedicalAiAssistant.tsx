@@ -2,20 +2,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { MessageCircle } from "lucide-react";
 import { useEffect, useRef } from "react";
 
-// Declare custom element type
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'elevenlabs-convai': {
-        'agent-id': string;
-        'dynamic-variables'?: string;
-        'override-prompt'?: string;
-        'override-first-message'?: string;
-      };
-    }
-  }
-}
-
 export const MedicalAiAssistant = () => {
   return (
     <Card className="shadow-lg border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10">

@@ -92,8 +92,7 @@ export const HealthRisksSection = ({ analysisData }: HealthRisksSectionProps) =>
     
     // Analyze liver function values
     const liverLabs = abnormalLabs.filter(lab => 
-      lab.name.toLowerCase().includes('alt') || 
-      lab.name.toLowerCase().includes('ast') ||
+      /\b(alt|ast|sgpt|sgot)\b/.test(lab.name.toLowerCase()) ||
       lab.name.toLowerCase().includes('liver') ||
       lab.name.toLowerCase().includes('bilirubin')
     );

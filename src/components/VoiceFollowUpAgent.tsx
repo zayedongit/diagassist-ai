@@ -182,13 +182,19 @@ export const VoiceFollowUpAgent = ({
       
       <CardContent className={`space-y-4 ${isMobile ? 'p-4 pt-0' : ''}`}>
         <div 
-          className={`bg-background rounded-lg ${isMobile ? 'p-3' : 'p-4'} border border-border min-h-[200px]`}
+          className={`bg-background rounded-lg ${isMobile ? 'p-3' : 'p-4'} border border-border`}
           onClick={handleVoiceAgentInteraction}
           onFocus={handleVoiceAgentInteraction}
         >
+          <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-foreground`}>
+            Tap the <span className="font-semibold">call button at the bottom-left</span> of your screen to talk to Zara.
+            Allow microphone access when your browser asks.
+          </p>
+          {/* The widget floats; keep it bottom-left so the text-chat button (bottom-right) never covers it. */}
           <elevenlabs-convai 
             agent-id="agent_7601k9wd9yfje8ta73nd9apejndt"
             dynamic-variables={JSON.stringify(voiceContext)}
+            placement="bottom-left"
           />
         </div>
         

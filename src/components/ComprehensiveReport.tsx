@@ -141,7 +141,7 @@ export const ComprehensiveReport = ({
 
     // Liver Panel - check for liver-related terms (without assuming alcohol)
     const liverFindings = [];
-    if (summary.toLowerCase().includes('liver') || summary.toLowerCase().includes('alt') || summary.toLowerCase().includes('ast')) {
+    if (summary.toLowerCase().includes('liver') || /\b(alt|ast|sgpt|sgot)\b/.test(summary.toLowerCase())) {
       liverFindings.push({
         name: 'ALT',
         value: '45',

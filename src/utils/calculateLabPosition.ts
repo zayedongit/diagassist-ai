@@ -61,7 +61,7 @@ export const getParameterType = (labName: string): 'higher-better' | 'lower-bett
   // Lower is better  
   if (name.includes('ldl') || name.includes('glucose') || name.includes('triglyceride') || 
       name.includes('cholesterol') && !name.includes('hdl') || name.includes('creatinine') ||
-      name.includes('bilirubin') || name.includes('alt') || name.includes('ast')) {
+      name.includes('bilirubin') || /\b(alt|ast|sgpt|sgot)\b/.test(name)) {
     return 'lower-better';
   }
   

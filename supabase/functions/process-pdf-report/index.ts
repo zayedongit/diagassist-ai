@@ -867,7 +867,7 @@ function validateAndFixCriticalConditions(analysisResult: AnalysisResult): Analy
     else if ((labName.includes('hemoglobin') || labName.includes('hgb')) && value < 8) {
       severity = 'critical'; score = 10; description = `SEVERE ANEMIA: ${description}`;
     }
-    else if ((labName.includes('alt') || labName.includes('ast')) && value > 200) {
+    else if (/\b(alt|ast|sgpt|sgot)\b/.test(labName) && value > 200) {
       severity = 'critical'; score = 10; description = `ACUTE LIVER DAMAGE: ${description}`;
     }
     else if (labName.includes('troponin') && value > 0.1) {
@@ -905,7 +905,7 @@ function validateAndFixCriticalConditions(analysisResult: AnalysisResult): Analy
     else if (labName.includes('cholesterol') && !labName.includes('hdl') && value > 240) {
       severity = 'moderate'; score = 5; description = `HIGH CHOLESTEROL: ${description}`;
     }
-    else if ((labName.includes('alt') || labName.includes('ast')) && value > 40) {
+    else if (/\b(alt|ast|sgpt|sgot)\b/.test(labName) && value > 40) {
       severity = 'moderate'; score = 4; description = `LIVER DYSFUNCTION: ${description}`;
     }
     
@@ -992,7 +992,7 @@ function validateAndFixCriticalConditions(analysisResult: AnalysisResult): Analy
         analysisResult.specialist = 'Nephrologist';
       } else if (findingName.includes('hemoglobin') || findingName.includes('anemia')) {
         analysisResult.specialist = 'Hematologist';
-      } else if (findingName.includes('alt') || findingName.includes('ast') || findingName.includes('liver')) {
+      } else if (/\b(alt|ast|sgpt|sgot)\b/.test(findingName) || findingName.includes('liver')) {
         analysisResult.specialist = 'Gastroenterologist';
       } else if (findingName.includes('cholesterol') || findingName.includes('triglycerides')) {
         analysisResult.specialist = 'Cardiologist';

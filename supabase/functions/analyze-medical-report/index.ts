@@ -174,7 +174,8 @@ function validateClinicalData(analysisResult: any): any {
         }
         
         // Liver issues detection - use proper thresholds
-        if (labName.includes('alt') || labName.includes('ast')) {
+        // Whole-word match: a plain includes('ast') also hits "fASTing glucose".
+        if (/\b(alt|ast|sgpt|sgot)\b/.test(labName)) {
           if (value > 200) {
             // Acute liver damage - truly critical
             hasLiverIssues = true;

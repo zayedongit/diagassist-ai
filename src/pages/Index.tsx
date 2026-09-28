@@ -372,7 +372,7 @@ const Index = () => {
           
           // Categorize findings for targeted questioning
           const testLower = item.test.toLowerCase();
-          if (testLower.includes('alt') || testLower.includes('ast') || testLower.includes('bilirubin')) {
+          if (/\b(alt|ast|sgpt|sgot)\b/.test(testLower) || testLower.includes('bilirubin')) {
             categories.liver.push(finding);
           } else if (testLower.includes('creatinine') || testLower.includes('bun') || testLower.includes('egfr')) {
             categories.kidney.push(finding);
