@@ -2325,6 +2325,12 @@ RAW DATA: ${baseContext}`;
 
       </main>
 
+      <footer className="border-t border-white/10 py-6 text-center">
+        <p className="text-xs sm:text-sm text-muted-foreground font-inter">
+          Built by <span className="font-medium text-foreground">PredLabs Pvt. Ltd.</span>
+        </p>
+      </footer>
+
       {/* Report Preview Modal */}
       {previewReportData && (
         <ReportPreviewModal

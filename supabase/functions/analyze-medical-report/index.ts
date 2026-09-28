@@ -1203,6 +1203,24 @@ CRITICAL SUCCESS CRITERIA:
 
 Respond ONLY with valid JSON matching the structure above - no markdown, no explanations:`;
 
+    // Pass 1 occasionally comes back as unparseable JSON (truncated or wrapped in
+    // prose); ask once more before failing the whole analysis.
+    const parsePass1 = (raw: string): AnalysisResult | null => {
+      try {
+        return JSON.parse(raw.replace(/```json\n?|\n?```/g, '').trim());
+      } catch (_) { /* try the outermost object below */ }
+      const start = raw.indexOf('{');
+      const end = raw.lastIndexOf('}');
+      if (start === -1 || end <= start) return null;
+      try {
+        return JSON.parse(raw.substring(start, end + 1).replace(/,\s*}/g, '}').replace(/,\s*]/g, ']'));
+      } catch (_) {
+        return null;
+      }
+    };
+
+    let analysisResult: AnalysisResult | null = null;
+    for (let attempt = 1; attempt <= 2 && !analysisResult; attempt++) {
       const pass1Response: Response = await llmChatCompletion({
         model: (Deno.env.get('CEREBRAS_MODEL') || 'qwen-3.8-27b'),
         messages: [
@@ -1214,39 +1232,18 @@ Respond ONLY with valid JSON matching the structure above - no markdown, no expl
         max_completion_tokens: 16000,
         temperature: 0.3,
       }, 4, 2000, 'Pass 1 Analysis');
-
-    const pass1Data = await pass1Response.json();
-    const pass1Msg = pass1Data?.choices?.[0]?.message ?? {};
-    const pass1Text = (typeof pass1Msg.content === 'string' && pass1Msg.content.trim())
-      ? pass1Msg.content.trim()
-      : (typeof pass1Msg.reasoning === 'string' ? pass1Msg.reasoning.trim() : '');
-    if (!pass1Text) throw new Error('The AI returned an empty analysis. Please try again.');
-    console.log('✅ Pass 1 completed');
-
-    // Parse Pass 1 result with robust fallback
-    let analysisResult: AnalysisResult;
-    try {
-      const cleanedText = pass1Text.replace(/```json\n?|\n?```/g, '').trim();
-      analysisResult = JSON.parse(cleanedText);
-    } catch (parseError) {
-      console.warn('Pass 1 JSON parsing failed, attempting fallback extraction...');
-      try {
-        let content = pass1Text.trim();
-        const start = content.indexOf('{');
-        const end = content.lastIndexOf('}');
-        if (start !== -1 && end !== -1 && end > start) {
-          content = content.substring(start, end + 1)
-            .replace(/,\s*}/g, '}')
-            .replace(/,\s*]/g, ']');
-          analysisResult = JSON.parse(content);
-        } else {
-          throw new Error('No JSON object found in response');
-        }
-      } catch (fallbackErr) {
-        console.error('Pass 1 JSON parsing error:', fallbackErr);
-        throw new Error('Invalid response format from Pass 1 analysis');
+      const pass1Data = await pass1Response.json();
+      const pass1Msg = pass1Data?.choices?.[0]?.message ?? {};
+      const pass1Text = (typeof pass1Msg.content === 'string' && pass1Msg.content.trim())
+        ? pass1Msg.content.trim()
+        : (typeof pass1Msg.reasoning === 'string' ? pass1Msg.reasoning.trim() : '');
+      analysisResult = pass1Text ? parsePass1(pass1Text) : null;
+      if (!analysisResult) {
+        console.warn(`Pass 1 attempt ${attempt}: unusable response (finish_reason=${pass1Data?.choices?.[0]?.finish_reason}, length=${pass1Text.length})`);
       }
     }
+    if (!analysisResult) throw new Error('Invalid response format from Pass 1 analysis');
+    console.log('✅ Pass 1 completed');
 
     // Apply medical significance filter FIRST to remove incorrectly flagged normal values
     console.log('🩺 Applying medical significance filter...');
