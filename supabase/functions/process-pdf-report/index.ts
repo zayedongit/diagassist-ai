@@ -78,7 +78,7 @@ function safeParseJSON(content: string): any {
     
     try {
       // Remove any non-JSON text before and after the JSON object
-      let cleanContent = content.trim();
+      let cleanContent = (content ?? '').trim();
       
       // Find the first { and last } to extract JSON
       const jsonStart = cleanContent.indexOf('{');
@@ -119,32 +119,35 @@ function safeParseJSON(content: string): any {
 
 // Retry mechanism with exponential backoff and rate limit awareness
 async function llmChatCompletion(cerebrasBody: any, retries: number, baseDelay: number, context: string): Promise<Response> {
+  const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
   const CEREBRAS_API_KEY = Deno.env.get('CEREBRAS_API_KEY');
-  try {
-    return await retryWithBackoff(async () => {
-      const r = await fetch('https://api.cerebras.ai/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${CEREBRAS_API_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify(cerebrasBody),
-      });
-      if (!r.ok) { const t = await r.text(); throw new Error(`Cerebras ${r.status}: ${t}`); }
-      return r;
-    }, retries, baseDelay, context);
-  } catch (cerebrasErr) {
-    const geminiKey = Deno.env.get('GEMINI_API_KEY');
-    if (!geminiKey) throw cerebrasErr;
-    console.warn(`⚠️ ${context}: Cerebras exhausted, falling back to Gemini`);
-    const gBody: any = { ...cerebrasBody, model: (Deno.env.get('GEMINI_MODEL') || 'gemini-3.6-flash') };
-    if ('max_completion_tokens' in gBody) { gBody.max_tokens = gBody.max_completion_tokens; delete gBody.max_completion_tokens; }
-    const gr = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${geminiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(gBody),
-    });
-    if (!gr.ok) { const t = await gr.text(); throw new Error(`Gemini fallback failed: ${gr.status}: ${t}`); }
-    console.warn(`✅ ${context}: Gemini fallback succeeded`);
-    return gr;
+  // PRIMARY: Gemini (multimodal + reliable content). Cerebras models are text-only
+  // reasoning models used only as a fast best-effort fallback.
+  if (GEMINI_API_KEY) {
+    try {
+      return await retryWithBackoff(async () => {
+        const gBody: any = { ...cerebrasBody, model: (Deno.env.get('GEMINI_MODEL') || 'gemini-3.6-flash') };
+        if ('max_completion_tokens' in gBody) { gBody.max_tokens = gBody.max_completion_tokens; delete gBody.max_completion_tokens; }
+        const gr = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${GEMINI_API_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify(gBody),
+        });
+        if (!gr.ok) throw new Error(`Gemini ${gr.status}: ${await gr.text()}`);
+        return gr;
+      }, retries, baseDelay, context);
+    } catch (geminiErr) {
+      if (!CEREBRAS_API_KEY) throw geminiErr;
+      console.warn(`⚠️ ${context}: Gemini failed, falling back to Cerebras —`, (geminiErr as Error).message);
+    }
   }
+  const r = await fetch('https://api.cerebras.ai/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${CEREBRAS_API_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(cerebrasBody),
+  });
+  if (!r.ok) throw new Error(`Cerebras fallback failed: ${r.status}: ${await r.text()}`);
+  return r;
 }
 
 async function retryWithBackoff<T>(

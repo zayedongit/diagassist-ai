@@ -286,38 +286,37 @@ async function retryWithBackoff<T>(
 // Cerebras (primary) with retry/backoff, then Gemini (free-tier) as a worst-case
 // fallback if every Cerebras attempt fails (sustained outage or hard rate-limit).
 async function llmChatCompletion(cerebrasBody: any, retries: number, baseDelay: number, context: string): Promise<Response> {
+  const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
   const CEREBRAS_API_KEY = Deno.env.get('CEREBRAS_API_KEY');
-  try {
-    return await retryWithBackoff(async () => {
-      const r = await fetch('https://api.cerebras.ai/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${CEREBRAS_API_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify(cerebrasBody),
-      });
-      if (!r.ok) {
-        const t = await r.text();
-        throw new Error(`Cerebras ${r.status}: ${t}`);
-      }
-      return r;
-    }, retries, baseDelay, context);
-  } catch (cerebrasErr) {
-    const geminiKey = Deno.env.get('GEMINI_API_KEY');
-    if (!geminiKey) throw cerebrasErr;
-    console.warn(`⚠️ ${context}: Cerebras exhausted, falling back to Gemini —`, (cerebrasErr as Error).message);
-    const gBody: any = { ...cerebrasBody, model: (Deno.env.get('GEMINI_MODEL') || 'gemini-3.6-flash') };
-    if ('max_completion_tokens' in gBody) { gBody.max_tokens = gBody.max_completion_tokens; delete gBody.max_completion_tokens; }
-    const gr = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${geminiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(gBody),
-    });
-    if (!gr.ok) {
-      const t = await gr.text();
-      throw new Error(`Gemini fallback failed: ${gr.status}: ${t}`);
+  // PRIMARY: Gemini. It is multimodal (needed for OCR) and returns content reliably.
+  // The available Cerebras models are text-only reasoning models that leave `content`
+  // empty on some responses, so they serve only as a fast best-effort fallback.
+  if (GEMINI_API_KEY) {
+    try {
+      return await retryWithBackoff(async () => {
+        const gBody: any = { ...cerebrasBody, model: (Deno.env.get('GEMINI_MODEL') || 'gemini-3.6-flash') };
+        if ('max_completion_tokens' in gBody) { gBody.max_tokens = gBody.max_completion_tokens; delete gBody.max_completion_tokens; }
+        const gr = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${GEMINI_API_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify(gBody),
+        });
+        if (!gr.ok) throw new Error(`Gemini ${gr.status}: ${await gr.text()}`);
+        return gr;
+      }, retries, baseDelay, context);
+    } catch (geminiErr) {
+      if (!CEREBRAS_API_KEY) throw geminiErr;
+      console.warn(`⚠️ ${context}: Gemini failed, falling back to Cerebras —`, (geminiErr as Error).message);
     }
-    console.warn(`✅ ${context}: Gemini fallback succeeded`);
-    return gr;
   }
+  // FALLBACK: Cerebras (fast, text-only/reasoning — best effort).
+  const r = await fetch('https://api.cerebras.ai/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${CEREBRAS_API_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(cerebrasBody),
+  });
+  if (!r.ok) throw new Error(`Cerebras fallback failed: ${r.status}: ${await r.text()}`);
+  return r;
 }
 
 // OCR a set of page images to text using the vision model (Cerebras -> Gemini fallback).
@@ -1209,7 +1208,11 @@ Respond ONLY with valid JSON matching the structure above - no markdown, no expl
       }, 4, 2000, 'Pass 1 Analysis');
 
     const pass1Data = await pass1Response.json();
-    const pass1Text = pass1Data.choices[0].message.content.trim();
+    const pass1Msg = pass1Data?.choices?.[0]?.message ?? {};
+    const pass1Text = (typeof pass1Msg.content === 'string' && pass1Msg.content.trim())
+      ? pass1Msg.content.trim()
+      : (typeof pass1Msg.reasoning === 'string' ? pass1Msg.reasoning.trim() : '');
+    if (!pass1Text) throw new Error('The AI returned an empty analysis. Please try again.');
     console.log('✅ Pass 1 completed');
 
     // Parse Pass 1 result with robust fallback
